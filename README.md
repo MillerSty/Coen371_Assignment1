@@ -20,23 +20,23 @@
  Mouse Button Middle - Movement up/down will zoom in and out the camera</p>
 
 # Checklist of Functionality:
--[x] 1 model needs upper and lower arm, ideally independent of eachother
--[x] 2: grid needs to be 100 x 100
--[x] 3: coord needs to be 5 grids long in each direction
--[x] 4: GLFW 1024x 768, using perspective view and backface culling [-> res is set, should be set in perspective, and backface cullin enabled]
--[x] 5: pressing spacebar should move model  to random grid location
--[x] 6: U scales up hand ; J scales down -> small increments
--[x] 7: Move model positions WASD for direction ;
--[x] 7.1 : a d for rotation about y axis (5 degrees)
--[x] 8: World orientation using (left arrow -> Rx) ; (right arrow -> R -x ) ; (up arrow -> Ry) ; (down arrow -> R -y) 
- 			Rx denotes a small anti-clockwise
- 			rotation about positive x axis, R-x about negative x axis, etc
- -[x] 8.1: home reset to initial position and orientation  
- -[x] 9: User can change rendering mode for the model ie: points, line, triangles based on keyboard input (P L T)
- -[x] 10: Pan and tilt camerea -> tilt being move the camera up and down
- 			mouse right button is pressed → use mouse movement in x direction to pan;
- 			mouse middle button is pressed → use mouse movement in y direction to tilt.
- -[x] 11: Camera zoom in and out of the scene - while  mouse left button is pressed → mouse movement to move into/out of the scene
+- [x] 1 model needs upper and lower arm, ideally independent of eachother
+- [x] 2: grid needs to be 100 x 100
+- [x] 3: coord needs to be 5 grids long in each direction
+- [x] 4: GLFW 1024x 768, using perspective view and backface culling [-> res is set, should be set in perspective, and backface cullin enabled]
+- [x] 5: pressing spacebar should move model  to random grid location
+- [x] 6: U scales up hand ; J scales down -> small increments
+- [x] 7: Move model positions WASD for direction ;
+- [x] 7.1 : a d for rotation about y axis (5 degrees)
+- [x] 8: World orientation using (left arrow -> Rx) ; (right arrow -> R -x ) ; (up arrow -> Ry) ; (down arrow -> R -y) 
+  			Rx denotes a small anti-clockwise
+  			rotation about positive x axis, R-x about negative x axis, etc
+- [x] 8.1: home reset to initial position and orientation  
+- [x] 9: User can change rendering mode for the model ie: points, line, triangles based on keyboard input (P L T)
+- [x] 10: Pan and tilt camerea -> tilt being move the camera up and down
+			mouse right button is pressed → use mouse movement in x direction to pan;
+			mouse middle button is pressed → use mouse movement in y direction to tilt.
+- [x] 11: Camera zoom in and out of the scene - while  mouse left button is pressed → mouse movement to move into/out of the scene
 
 # Possible Addons:
  <p>ADDON: rotate forearm independently<br>
