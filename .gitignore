@@ -7,3 +7,5 @@
 /cmake
 *.sln
 *.vcxproj
+/.idea
+/cmake-build-debug
