@@ -1,5 +1,7 @@
+/.vs
 /dist
 /cmake
-.vcxproj
-.sln
-/.vs
+*.sln
+*.vcxproj
+/.idea
+/cmake-build-debug
