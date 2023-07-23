@@ -119,13 +119,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies/include/GL;$(SolutionDir)dependencies/include/GLFW;$(SolutionDir)dependencies/include/glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(solutionDir)dependencies\glm;$(solutionDir)dependencies\glfw-3.3\include;$(solutionDir)dependencies\glew-2.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir);$(SolutionDir)dependencies/lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(solutionDir)dependencies\glfw-3.3\lib\win64\lib-vc2019;$(solutionDir)dependencies\glew-2.1.0\lib\win64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>LinkVerboseLib</ShowProgress>
     </Link>
   </ItemDefinitionGroup>
@@ -137,72 +137,34 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies/include/GL;$(SolutionDir)dependencies/include/GLFW;$(SolutionDir)dependencies/include/glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(solutionDir)dependencies\glm;$(solutionDir)dependencies\glfw-3.3\include;$(solutionDir)dependencies\glew-2.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir);$(SolutionDir)dependencies/lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(solutionDir)dependencies\glfw-3.3\lib\win64\lib-vc2019;$(solutionDir)dependencies\glew-2.1.0\lib\win64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>LinkVerboseLib</ShowProgress>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\GLFW\glfw3.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\GLFW\glfw3native.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\common.hpp" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\exponential.hpp" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\ext.hpp" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\fwd.hpp" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\geometric.hpp" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\glm.hpp" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\integer.hpp" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\mat2x2.hpp" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\mat2x3.hpp" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\mat2x4.hpp" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\mat3x2.hpp" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\mat3x3.hpp" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\mat3x4.hpp" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\mat4x2.hpp" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\mat4x3.hpp" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\mat4x4.hpp" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\matrix.hpp" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\packing.hpp" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\trigonometric.hpp" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\vec2.hpp" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\vec3.hpp" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\vec4.hpp" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\vector_relational.hpp" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\GL\gl.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\GL\glaux.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\GL\glcorearb.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\GL\glew.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\GL\glext.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\GL\glu.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\GL\glxew.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\GL\glxext.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\GL\wgl.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\GL\wglew.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\GL\wglext.h" />
-    <ClInclude Include="Arm.h" />
-    <ClInclude Include="inputHandler.h" />
-    <ClInclude Include="Letters.h" />
-    <ClInclude Include="Racket.h" />
-    <ClInclude Include="resource.h" />
+    <ClInclude Include="src\Arm.h" />
+    <ClInclude Include="src\inputHandler.h" />
+    <ClInclude Include="src\Letters.h" />
+    <ClInclude Include="src\Racket.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Arm.cpp" />
-    <ClCompile Include="Letters.cpp" />
-    <ClCompile Include="main2.cpp" />
-    <ClCompile Include="Racket.cpp" />
+    <ClCompile Include="src\Arm.cpp" />
+    <ClCompile Include="src\Letters.cpp" />
+    <ClCompile Include="src\main2.cpp" />
+    <ClCompile Include="src\Racket.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="OpenGLCourseApp.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="dependencies\lib\libglew32.dll.a" />
+    <None Include=".gitattributes" />
+    <None Include=".gitignore" />
+    <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
