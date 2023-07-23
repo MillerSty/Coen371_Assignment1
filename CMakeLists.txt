@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.11)
 
-project(Lab_1)
+project(Coen371_Project)
 
 include(ExternalProject)
 
