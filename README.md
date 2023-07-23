@@ -19,6 +19,24 @@
  Mouse button right - Movement with right mouse button left/right will pan the camera<br>
  Mouse Button Middle - Movement up/down will zoom in and out the camera</p>
 
+# toDo Assignment2:
+- [ ] create spherical tennis ball using triangle mesh representations
+- [ ] illuminate scene with point light (white) 30 units above the mesh using Phong Model
+- [ ] render scene with clay texture on ground mesh, green texture on ball, and glossy finish for racket
+- 	-> for this we need UV coordinates
+- [ ] Render scene with shadows using two pass shadow algorithm
+- [x] Make the racket movements possible by rotating arm at various joints
+-     -> translation forward and backward, aswell as clockwise anticlockwise
+- [x] windows should handle resize events and correctly adjust aspect ratio
+- [ ] mesh turn right of left by a small amount
+- 	 NOTE: here mesh means the model
+- [x] application must use opengl 4.1 
+- [ ] more elaborate model of the arm with finger movements and rotating light etc
+- [ ] put shaders in glsl files
+- [ ] convert to cmake
+- user inputs:
+- [ ] X toggles textures on and off
+- [ ] B toggles Shadows
 # Checklist of Functionality:
 - [x] 1 model needs upper and lower arm, ideally independent of eachother
 - [x] 2: grid needs to be 100 x 100
@@ -42,3 +60,24 @@
  <p>ADDON: rotate forearm independently<br>
  ADDON: E and W for z axis<br>
  ADDON: Mouse scroll zoom and mouse movement pan/tilt</p>
+
+ ## Build Instructions
+### Command Line
+
+1. Download and Install CMake
+2. Open a terminal
+3. Run cmake:
+
+```
+cd <source_folder>
+cmake -S . -B <build_folder>
+cmake --build <build_folder> --target install
+```
+
+To generate an Xcode project from the command line use:
+
+```
+cd <source_folder>
+cmake -S . -B <build_folder> -G Xcode
+cmake --build <build_folder> --target install
+```

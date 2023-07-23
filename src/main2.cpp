@@ -88,23 +88,37 @@ int createVertexArrayObject(const glm::vec3* vertexArray, int arraySize)
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-	// glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	return vertexArrayObject;
 }
 
 unsigned int indices[] = {
-5 - 1,3 - 1,1 - 1,
-3 - 1,8 - 1,4 - 1,
-7 - 1,6 - 1,8 - 1,
-2 - 1,8 - 1,6 - 1,
-1 - 1,4 - 1,2 - 1,
-5 - 1,2 - 1,6 - 1,
-5 - 1,7 - 1,3 - 1,
-3 - 1,7 - 1,8 - 1,
-7 - 1,5 - 1,6 - 1,
-2 - 1,4 - 1,8 - 1,
-1 - 1,3 - 1,4 - 1,
-5 - 1,1 - 1,2 - 1
+4,2,0,
+2,7,3,
+6,5,7,
+1,7,5,
+0,3,1,
+4, 1,5,
+4,6,2,
+2,6,7,
+6,4,5,
+1,3,7,
+0,2,3,
+4,0, 1
+};
+//reverse indices for winding
+unsigned int ReverseIndices[] = {
+4,0,2,
+2,3,7,
+6,7,5,
+1,5,7,
+0,1,3,
+4,5,1,
+4,2,6,
+2,7,6,
+6,5,4,
+1,7,3,
+0,3,2,
+4,1,0
 };
 
 glm::vec3 unitcube[] = {
@@ -119,7 +133,7 @@ glm::vec3(-1.000000,-1.000000 , 1.000000)
 };
 
 GLuint IBO;
-int createVertexArrayElementObject(const glm::vec3* vertexArray, int arraySize)
+int createVertexArrayElementObject(const glm::vec3* vertexArray, int arraySize,  unsigned int indices[])
 {
 	// Create a vertex array
 	GLuint vertexArrayObject;
@@ -129,11 +143,7 @@ int createVertexArrayElementObject(const glm::vec3* vertexArray, int arraySize)
 
 	glGenBuffers(1, &IBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-	/* unsigned int* index = indices;
-	 int check0 = sizeof(&index);
-	 int check = sizeof(indices);
-	 int check2 = sizeof(unsigned int*/
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 36*sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
 
 	// Upload Vertex Buffer to the GPU, keep a reference to it (vertexBufferObject)
@@ -185,8 +195,9 @@ int main(int argc, char* argv[])
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glEnable(GL_CULL_FACE);
+
+	//glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
 	
-	//glEnable(GL_CULL_FACE);
 	glewExperimental = true; // Needed for core profile
 	if (glewInit() != GLEW_OK) {
 		std::cerr << "Failed to create GLEW" << std::endl;
@@ -276,13 +287,22 @@ int main(int argc, char* argv[])
 
 
 	int gridAO = createVertexArrayObject(lineArray, sizeof(lineArray));
-	int unitCubeAO = createVertexArrayElementObject(unitcube, sizeof(unitcube));
+	int unitCubeAO = createVertexArrayElementObject(unitcube, sizeof(unitcube),indices);
+	int reverseCubeAO = createVertexArrayElementObject(unitcube, sizeof(unitcube), ReverseIndices);
 	Arm arm(unitCubeAO, "arm");
 	Racket racket(unitCubeAO, "racket");
 	racket.jawnAngle = 0;
 
+	int select = -1;
+	int* newWidth = new int;
+	int* newHeight = new int;
 	while (!glfwWindowShouldClose(window))
 	{
+		//handle Window resize
+		glfwGetWindowSize(window, newWidth, newHeight);
+		glfwSetWindowSize(window, *newWidth, *newHeight);
+		glViewport(0, 0, *newWidth, *newHeight);
+		AR = (float)*newWidth / (float)*newHeight; //note unsure if this will cause issues
 		// Each frame, reset color of each pixel to glClearColor
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		// Draw geometry
@@ -302,7 +322,7 @@ int main(int argc, char* argv[])
 				
 
 		//Note we are trying doing cubes as heirarchy
-		//parent x
+		//can do as .h
 		glBindVertexArray(unitCubeAO);
 		glm::mat4 cubeParent;
 		glm::mat4 cubeRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(1.0f, 1.0f, 1.0f));
@@ -364,6 +384,109 @@ int main(int argc, char* argv[])
 		glDrawArrays(GL_LINES, 0, gridCount);
 		glBindVertexArray(0);
 
+		//note i want to draw tennis court after drawing grid.
+		//can .h if we want
+		glBindVertexArray(unitCubeAO);
+		glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 0.0, .0)));//red (x)
+		partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.2f, .2f, .2f));
+		int absX = 0;
+		int absZ = 0;
+		for (int pitchx = -78; pitchx < 78; pitchx += 2) {
+			for (int pitchz = -36; pitchz < 36; pitchz += 2) {
+				//now i need a way to change the colour 				
+				partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(pitchx / (float)100, -.01, pitchz / (float)100 + .01));
+				partMatrix = partTranslate * partScale;
+				worldMatrix = groupMatrix * partMatrix;
+				if (abs(pitchx) == 74 && (abs(pitchz) < 31)) {	 //back horizontal				 
+					glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 1.0, 1.0)));//white
+				}
+				else if ((abs(pitchz) == 32) && abs(pitchx) < 76) {	//length lines			
+					glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 1.0, 1.0)));//white
+				}
+				else if (abs(pitchx) == 54 && (abs(pitchz) <= 30)) { //inside horizontal	
+					glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 1.0, 1.0)));//white
+				}
+				else if (abs(pitchx) < 54 && (abs(pitchz) == 0)) { //inside vertical			
+					glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 1.0, 1.0)));//white
+				}
+				else { //pitch is green
+					glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.0, 0.522, .40)));// 
+				}
+				glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
+				glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+			}
+		}
+		glBindVertexArray(0);
+		//this is net, net is good
+		//can be made into .h
+		glBindVertexArray(unitCubeAO); //bind our unit cube 		
+		glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.00f, .0f, .0f))); //set colour of net poles
+		partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, 1.0f, 1.0f)); //rotate net poles
+		partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0375f, -.34f)); //translate one net pole
+		partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.25f, .75f, .25f)); //scale net poles
+		partMatrix = partTranslate * partScale * partRo; //set matrix for one pole
+		worldMatrix = groupMatrix * partMatrix; //set world for one pole 
+		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]); //make it my world
+		glDrawElements(renderAs, gridCount, GL_UNSIGNED_INT, 0); //draw with index
+		//+ve Z net
+		partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0375f, .34f)); //note: now we only need the new pole translation
+		partMatrix = partTranslate * partScale * partRo;// reusing scale and rotation from 1st pole
+		worldMatrix = groupMatrix * partMatrix; //"A WHOLE NEW WOOOOOOOOORLD" - the little mermaid
+		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]); // comment
+		glDrawElements(renderAs, gridCount, GL_UNSIGNED_INT, 0);//draw using index
+
+		//Strings of net 		
+		//another student said my net sucks so i made the scale better,
+		//i hope you like it
+		glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.60f, .60f, .60f)));// set net colour
+		for (float i = .0; i <= .07f; i += .01) {//loop to draw new, i is our translation offset
+			partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.03f, .03f, 7.0f));//scale to beatuiful net dimensions
+			partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.005, i, -.0f)); //translate with that i offset
+			partMatrix = partTranslate * partScale; // part matrix
+			worldMatrix = groupMatrix * partMatrix; // another little mermaid reference
+
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]); //comment
+			glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);//draw with index
+		}
+		for (float i = -.34; i <= .34f; i += .01) { //again as above but net offset is along z this time,
+			// the scale is also different to account for the new direction
+			partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.03f, .7f, .03f));
+			partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, .04, i));
+			partMatrix = partTranslate * partScale;
+			worldMatrix = groupMatrix * partMatrix;
+
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
+			glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
+		}
+
+		//here we do the top bar of the net
+		//I will stop commenting every line for you
+		glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.00f, 1.0f, 1.0f)));
+		partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, 1.0f, 1.0f));
+		partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.003f, .071f, .0f));
+		partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.1f, .1f, 6.6f));
+		partMatrix = partTranslate * partScale * partRo;
+		worldMatrix = groupMatrix * partMatrix;
+		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
+		glDrawElements(renderAs, gridCount, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0); //unbinding 
+
+		//This does skybox blue only around grid
+		// //can make into .h if we want 
+		//glBindVertexArray(unitCubeUnscaledAO);	//bind our reverse unscaled cube	 
+		float ysize = 25.0f; //change this to make skybox closer to court
+
+
+		glm::mat4 partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-.0f, .001111f, -.0f)); //sets skybox position
+		partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, 1.0f, 1.0f)); //unused but usable
+		partScale = glm::scale(glm::mat4(1.0f), glm::vec3(20.780f, ysize, 20.36f));	 //sets sky box scale 
+		partMatrix = partTranslate * partScale * partRo; //part matrix for skybox
+		worldMatrix = groupMatrix * partMatrix; //worldMatrix for skybox
+		glBindVertexArray(reverseCubeAO);
+		glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.008f, .8f, .9999999f))); //skybox colour
+		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]); //send to shader
+		glDrawElements(renderAs, gridCount, GL_UNSIGNED_INT, 0); //draw 
+		glBindVertexArray(0); //unbind
 
 
 		glfwSwapBuffers(window);
@@ -380,6 +503,7 @@ int main(int argc, char* argv[])
 		}
 		if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
 		{
+			printf("1\n");
 			float army = arm.getRotation() + 5;
 			arm.setRotation(arm.getRotation() + 5);
 		}
