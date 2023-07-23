@@ -15,150 +15,36 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="resource.h">
+    <ClInclude Include="src\Arm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="inputHandler.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Racket.h">
+    <ClInclude Include="src\inputHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Letters.h">
+    <ClInclude Include="src\Letters.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\GLFW\glfw3.h">
+    <ClInclude Include="src\Racket.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\GLFW\glfw3native.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\common.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\exponential.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\ext.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\fwd.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\geometric.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\glm.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\integer.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\mat2x2.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\mat2x3.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\mat2x4.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\mat3x2.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\mat3x3.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\mat3x4.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\mat4x2.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\mat4x3.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\mat4x4.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\matrix.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\packing.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\trigonometric.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\vec2.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\vec3.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\vec4.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\glm\vector_relational.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\GL\gl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\GL\glaux.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\GL\glcorearb.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\GL\glew.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\GL\glext.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\GL\glu.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\GL\glxew.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\GL\glxext.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\GL\wgl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\GL\wglew.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\Git repos\Coen371\Quiz1\Quiz1_COEN371\dependencies\include\GL\wglext.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Arm.h">
-      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Racket.cpp">
+    <ClCompile Include="src\Arm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Letters.cpp">
+    <ClCompile Include="src\Letters.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Arm.cpp">
+    <ClCompile Include="src\main2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main2.cpp">
+    <ClCompile Include="src\Racket.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="OpenGLCourseApp.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="dependencies\lib\libglew32.dll.a" />
+    <None Include=".gitattributes" />
+    <None Include=".gitignore" />
+    <None Include="README.md" />
   </ItemGroup>
 </Project>
