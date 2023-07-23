@@ -3,3 +3,7 @@
 .vcxproj
 .sln
 /.vs
+/dist
+/cmake
+*.sln
+*.vcxproj
