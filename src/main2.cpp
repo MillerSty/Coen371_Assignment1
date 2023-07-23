@@ -17,18 +17,20 @@
 #include <GLFW/glfw3.h> // GLFW provides a cross-platform interface for creating a graphical context,
 #include "Arm.h"
 #include "Racket.h"
-
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 using namespace std;
 
-int compileAndLinkShaders();
+GLuint loadTexture(const char* filename);
+int compileAndLinkShaders(bool texture);
 //void scrollCallback(GLFWwindow* window, double xoffset, double yoffset,GLuint shaderProgram );
-
 const char* getVertexShaderSource()
 {
-	// For now, you use a string for your shader code, in the assignment, shaders will be stored in .glsl files
+	// set position and mvp matrix, using only 1 location
 	return
 		"#version 330 core\n"
 		"layout (location = 0) in vec3 aPos;"
+		"out vec3 vertexColor;"
 		"uniform mat4 worldMatrix;" //world matrix
 		"uniform mat4 viewMatrix=mat4(1.0f);"
 		"uniform mat4 projectionMatrix = mat4(1.0);"
@@ -39,19 +41,62 @@ const char* getVertexShaderSource()
 		"   gl_Position = modelViewProjection  * vec4(aPos.x, aPos.y, aPos.z, 1.0);"
 		"}";
 }
+//General reminder:
 // translate * scale * rotate
 //world matrix is position, scale, orienting
-//view matrix is.. virtual camera position, orientatio of camera in the world
+//view matrix is.. virtual camera position, orientation of camera in the world
 
 const char* getFragmentShaderSource()
 {
 	return
 		"#version 330 core\n"
+		"in vec4 vertexColor;"
 		"out vec4 FragColor;"
 		"uniform vec3 objectColor;"
 		"void main()"
 		"{"
 		"   FragColor = vec4(objectColor.r, objectColor.g, objectColor.b, 1.0f);"
+		"}";
+}
+const char* getTextVertexShaderSource()
+{
+	// For now, you use a string for your shader code, in the assignment, shaders will be stored in .glsl files
+	return
+		"#version 330 core\n"
+		"layout (location = 0) in vec3 aPos;"
+		"layout (location = 1) in vec3 aNorm;"
+		"layout (location = 2) in vec2 aTexture;"
+
+		"uniform mat4 worldMatrix;" //world matrix
+		"uniform mat4 viewMatrix=mat4(1.0f);"
+		"uniform mat4 projectionMatrix = mat4(1.0);"
+		"out vec2 vertexUV;"
+		"void main()"
+		"{"
+		
+		"mat4 modelViewProjection= projectionMatrix *  viewMatrix * worldMatrix;"
+		"gl_Position = modelViewProjection  * vec4(aPos.x, aPos.y, aPos.z, 1.0);"
+		"vertexUV=aTexture;"
+		"}";
+}
+// translate * scale * rotate
+//world matrix is position, scale, orienting
+//view matrix is.. virtual camera position, orientatio of camera in the world
+
+const char* getTextFragmentShaderSource()
+{
+	return
+		"#version 330 core\n"
+
+		"in vec2 vertexUV;"
+		"out vec4 FragColor;"
+
+		"uniform vec3 objectColor;"
+		"uniform sampler2D textureSampler;"
+		"void main()"
+		"{"
+		"vec4 textureColor=texture(textureSampler,vertexUV);"
+		"   FragColor = textureColor*vec4(objectColor.r, objectColor.g, objectColor.b, 1.0f);;"
 		"}";
 }
 
@@ -121,19 +166,48 @@ unsigned int ReverseIndices[] = {
 4,1,0
 };
 
-glm::vec3 unitcube[] = {
-glm::vec3(1.000000 ,1.000000  ,-1.000000),
-glm::vec3(1.000000 ,-1.000000 ,-1.000000),
-glm::vec3(1.000000 ,1.000000  , 1.000000),
-glm::vec3(1.000000 ,-1.000000 , 1.000000),
-glm::vec3(-1.000000,1.000000  , -1.00000),
-glm::vec3(-1.000000,-1.000000 , -1.00000),
-glm::vec3(-1.000000,1.000000  , 1.000000),
-glm::vec3(-1.000000,-1.000000 , 1.000000)
+//we could use OBJ loaded?
+glm::vec3 cubeVertex[] = {
+glm::vec3(1.000000 ,1.000000  ,-1.000000),// Coord
+glm::vec3(1.000000 ,-1.000000 ,-1.000000),// Coord
+glm::vec3(1.000000 ,1.000000  , 1.000000),// Coord
+glm::vec3(1.000000 ,-1.000000 , 1.000000),// Coord
+glm::vec3(-1.000000,1.000000  , -1.00000),// Coord
+glm::vec3(-1.000000,-1.000000 , -1.00000),// Coord
+glm::vec3(-1.000000,1.000000  , 1.000000),// Coord
+glm::vec3(-1.000000,-1.000000 , 1.000000), // Coord
+
 };
 
+glm::vec3 cubeNormal[] = {
+glm::vec3(-0.0000, 1.0000 , -0.0000),
+glm::vec3(-0.0000, -0.0000, 1.0000),
+glm::vec3(-1.0000, -0.0000, -0.0000),
+glm::vec3(-0.0000, -1.0000, -0.0000),
+glm::vec3(1.0000 ,-0.0000 , -0.0000),
+glm::vec3(-0.0000, -0.0000, -1.0000)
+};
+glm::vec2 cubeTexture[] = {
+	glm::vec2(0.625000, 0.500000),
+glm::vec2(0.875000, 0.500000),
+glm::vec2(0.875000, 0.750000),
+glm::vec2(0.625000, 0.750000),
+glm::vec2(0.375000, 0.750000),
+glm::vec2(0.625000, 1.000000),
+glm::vec2(0.375000, 1.000000),
+glm::vec2(0.375000, 0.000000),
+glm::vec2(0.625000, 0.000000),
+glm::vec2(0.625000, 0.250000),
+glm::vec2(0.375000, 0.250000),
+glm::vec2(0.125000, 0.500000),
+glm::vec2(0.375000, 0.500000),
+glm::vec2(0.125000, 0.750000)
+
+};
+
+
 GLuint IBO;
-int createVertexArrayElementObject(const glm::vec3* vertexArray, int arraySize,  unsigned int indices[])
+int createVertexArrayElementObject(const glm::vec3* vertexArray, int arraySize, const glm::vec3* NormalArray, int NormalArraySize, const glm::vec2* TextureArray, int TextureArraySize, unsigned int indices[])
 {
 	// Create a vertex array
 	GLuint vertexArrayObject;
@@ -153,22 +227,61 @@ int createVertexArrayElementObject(const glm::vec3* vertexArray, int arraySize, 
 	int check = arraySize;
 	glBufferData(GL_ARRAY_BUFFER, arraySize, vertexArray, GL_STATIC_DRAW);
 
-
 	glVertexAttribPointer(0,                   // attribute 0 matches aPos in Vertex Shader
 		3,                   // size
 		GL_FLOAT,            // type
 		GL_FALSE,            // normalized?
-		1 * sizeof(glm::vec3), // stride - each vertex contain 2 vec3 (position, color)
+		1 * sizeof(glm::vec3), // stride - each vertex contain 1 vec3 (position)
 		(void*)0             // array buffer offset
 	);
 	glEnableVertexAttribArray(0);
+	//"layout (location = 0) in vec3 aPos;"
+	//	"layout (location = 1) in vec3 aNorm;"
+	//	"layout (location = 2) in vec2 aTexture;"
+
+
+	//Normals VBO setup taken from lab
+	GLuint normals_VBO;
+	glGenBuffers(1, &normals_VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, normals_VBO);
+	glBufferData(GL_ARRAY_BUFFER, NormalArraySize, NormalArray, GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec3), (GLvoid*)0);
+	glEnableVertexAttribArray(1);
+
+	//UVs VBO setup
+	GLuint uvs_VBO;
+	glGenBuffers(1, &uvs_VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, uvs_VBO);
+	glBufferData(GL_ARRAY_BUFFER, TextureArraySize, TextureArray, GL_STATIC_DRAW);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec3), (GLvoid*)0);
+	glEnableVertexAttribArray(2);
 
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	return vertexArrayObject;
 }
+//lab4
+void setProjectionMatrix(int shaderProgram, glm::mat4 projectionMatrix)
+{
+	glUseProgram(shaderProgram);
+	GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
+	glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
+}
 
+void setViewMatrix(int shaderProgram, glm::mat4 viewMatrix)
+{
+	glUseProgram(shaderProgram);
+	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
+	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &viewMatrix[0][0]);
+}
+
+void setWorldMatrix(int shaderProgram, glm::mat4 worldMatrix)
+{
+	glUseProgram(shaderProgram);
+	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
+	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
+}
 const int WIDTH = 1024, HEIGHT = 768;
 int main(int argc, char* argv[])
 {
@@ -205,12 +318,22 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
+#if defined(PLATFORM_OSX)
+	GLuint brickTextureID = loadTexture("Textures/brick.jpg");
+	GLuint cementTextureID = loadTexture("Textures/cement.jpg");
+#else
+	GLuint asphaltTextureID = loadTexture("../Assets/asphalt/clay.jpg");
+	GLuint cementTextureID = loadTexture("../Assets/grass/grass.jpg");
+#endif
+
+
+
 	// Black background	
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_FALSE);
 	// Compile and link shaders here ...
-	int shaderProgram = compileAndLinkShaders();
-
+	int shaderProgram = compileAndLinkShaders(false);
+	int textshaderProgram = compileAndLinkShaders(true);
 	//create base grid
 	glm::vec3 lineArray[808]; // 168 because why... 21 + 21 + 42?	//792+8
 	int gridCount = 0;
@@ -233,7 +356,7 @@ int main(int argc, char* argv[])
 	}
 
 	for (int i = 0; i < 8; i++) {
-		unitcube[i] = unitcube[i] * .05f; // this is to prescale my unitcube
+		cubeVertex[i] = cubeVertex[i] * .05f; // this is to prescale my unitcube
 	}
 	
 	//initialize GLUint locations
@@ -277,18 +400,19 @@ int main(int argc, char* argv[])
 	glm::mat4 projectionMatrix = glm::perspective(FOV,  // field of view in degrees
 			AR,      // aspect ratio
 			near, far);       // near and far (near > 0)
-		glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
 	
 	glm::mat4 InitviewMatrix = glm::lookAt(eye,  // eye
 		center,  // center
 		up);// up
-	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &InitviewMatrix[0][0]);
+	setViewMatrix(shaderProgram, InitviewMatrix);
+	setViewMatrix(textshaderProgram, InitviewMatrix);
+	setProjectionMatrix(shaderProgram, projectionMatrix);
 
-
+	setProjectionMatrix(textshaderProgram, projectionMatrix);
 
 	int gridAO = createVertexArrayObject(lineArray, sizeof(lineArray));
-	int unitCubeAO = createVertexArrayElementObject(unitcube, sizeof(unitcube),indices);
-	int reverseCubeAO = createVertexArrayElementObject(unitcube, sizeof(unitcube), ReverseIndices);
+	int unitCubeAO = createVertexArrayElementObject(cubeVertex, sizeof(cubeVertex),cubeNormal,sizeof(cubeNormal),cubeTexture,sizeof(cubeTexture),indices);
+	int reverseCubeAO = createVertexArrayElementObject(cubeVertex, sizeof(cubeVertex), cubeNormal, sizeof(cubeNormal), cubeTexture, sizeof(cubeTexture), ReverseIndices);
 	Arm arm(unitCubeAO, "arm");
 	Racket racket(unitCubeAO, "racket");
 	racket.jawnAngle = 0;
@@ -308,7 +432,7 @@ int main(int argc, char* argv[])
 		// Draw geometry
 		glUseProgram(shaderProgram);
 		glBindVertexArray(unitCubeAO);		
-
+		colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
 		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) 
 			* glm::scale(glm::mat4(1.0f), GroupMatrixScale)
 			* rotationMatrixW;
@@ -321,7 +445,7 @@ int main(int argc, char* argv[])
 		racket.Draw();
 				
 
-		//Note we are trying doing cubes as heirarchy
+		//Coordinate cubes
 		//can do as .h
 		glBindVertexArray(unitCubeAO);
 		glm::mat4 cubeParent;
@@ -384,39 +508,6 @@ int main(int argc, char* argv[])
 		glDrawArrays(GL_LINES, 0, gridCount);
 		glBindVertexArray(0);
 
-		//note i want to draw tennis court after drawing grid.
-		//can .h if we want
-		glBindVertexArray(unitCubeAO);
-		glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 0.0, .0)));//red (x)
-		partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.2f, .2f, .2f));
-		int absX = 0;
-		int absZ = 0;
-		for (int pitchx = -78; pitchx < 78; pitchx += 2) {
-			for (int pitchz = -36; pitchz < 36; pitchz += 2) {
-				//now i need a way to change the colour 				
-				partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(pitchx / (float)100, -.01, pitchz / (float)100 + .01));
-				partMatrix = partTranslate * partScale;
-				worldMatrix = groupMatrix * partMatrix;
-				if (abs(pitchx) == 74 && (abs(pitchz) < 31)) {	 //back horizontal				 
-					glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 1.0, 1.0)));//white
-				}
-				else if ((abs(pitchz) == 32) && abs(pitchx) < 76) {	//length lines			
-					glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 1.0, 1.0)));//white
-				}
-				else if (abs(pitchx) == 54 && (abs(pitchz) <= 30)) { //inside horizontal	
-					glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 1.0, 1.0)));//white
-				}
-				else if (abs(pitchx) < 54 && (abs(pitchz) == 0)) { //inside vertical			
-					glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 1.0, 1.0)));//white
-				}
-				else { //pitch is green
-					glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.0, 0.522, .40)));// 
-				}
-				glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-				glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-			}
-		}
-		glBindVertexArray(0);
 		//this is net, net is good
 		//can be made into .h
 		glBindVertexArray(unitCubeAO); //bind our unit cube 		
@@ -488,6 +579,46 @@ int main(int argc, char* argv[])
 		glDrawElements(renderAs, gridCount, GL_UNSIGNED_INT, 0); //draw 
 		glBindVertexArray(0); //unbind
 
+
+
+		//note i want to draw tennis court after drawing grid.
+		//can .h if we want
+		glUseProgram(textshaderProgram);
+
+		glBindVertexArray(unitCubeAO);
+		glBindTexture(GL_TEXTURE_2D, asphaltTextureID);
+		colorLocation = glGetUniformLocation(textshaderProgram, "objectColor");
+		//glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 0.0, .0)));//red (x)
+		partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.2f, .2f, .2f));
+		int absX = 0;
+		int absZ = 0;
+		for (int pitchx = -78; pitchx < 78; pitchx += 2) {
+			for (int pitchz = -36; pitchz < 36; pitchz += 2) {
+				//now i need a way to change the colour 				
+				partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(pitchx / (float)100, -.01, pitchz / (float)100 + .01));
+				partMatrix = partTranslate * partScale;
+				worldMatrix = groupMatrix * partMatrix;
+				if (abs(pitchx) == 74 && (abs(pitchz) < 31)) {	 //back horizontal				 
+					glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 1.0, 1.0)));//white
+				}
+				else if ((abs(pitchz) == 32) && abs(pitchx) < 76) {	//length lines			
+					glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 1.0, 1.0)));//white
+				}
+				else if (abs(pitchx) == 54 && (abs(pitchz) <= 30)) { //inside horizontal	
+					glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 1.0, 1.0)));//white
+				}
+				else if (abs(pitchx) < 54 && (abs(pitchz) == 0)) { //inside vertical			
+					glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 1.0, 1.0)));//white
+				}
+				else { //pitch is green
+					glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.0, 0.522, .40)));// 
+				}
+				setWorldMatrix(textshaderProgram, worldMatrix);
+				//glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
+				glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+			}
+		}
+		glBindVertexArray(0);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -652,41 +783,82 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-int compileAndLinkShaders()
+int compileAndLinkShaders(bool texture)
 {
 	// compile and link shader program
 	// return shader program id
 	// ------------------------------------
 
 	// vertex shader
-	int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	const char* vertexShaderSource = getVertexShaderSource();
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
-
-	// check for shader compile errors
+	int vertexShader;
+	int fragmentShader;
 	int success;
 	char infoLog[512];
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+	if (!texture) {
+		 vertexShader = glCreateShader(GL_VERTEX_SHADER);
+
+		const char* vertexShaderSource = getVertexShaderSource();
+		glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+		glCompileShader(vertexShader);
+
+		// check for shader compile errors
+		//int success;
+		//char infoLog[512];
+		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+		if (!success)
+		{
+			glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+			std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+		}
+
+		// fragment shader
+		fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+		const char* fragmentShaderSource = getFragmentShaderSource();
+		glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+		glCompileShader(fragmentShader);
+
+		// check for shader compile errors
+		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+		if (!success)
+		{
+			glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+			std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+		}
+	}
+	else {
+		vertexShader = glCreateShader(GL_VERTEX_SHADER);
+
+		const char* vertexShaderSource = getTextVertexShaderSource();
+		glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+		glCompileShader(vertexShader);
+
+		// check for shader compile errors
+		//int success;
+		//char infoLog[512];
+		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+		if (!success)
+		{
+			glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+			std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+		}
+
+		// fragment shader
+		fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+		const char* fragmentShaderSource = getTextFragmentShaderSource();
+		glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+		glCompileShader(fragmentShader);
+
+		// check for shader compile errors
+		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+		if (!success)
+		{
+			glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+			std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+		}
 	}
 
-	// fragment shader
-	int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	const char* fragmentShaderSource = getFragmentShaderSource();
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
 
-	// check for shader compile errors
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-		std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
+
 
 	// link shaders
 	int shaderProgram = glCreateProgram();
@@ -705,4 +877,46 @@ int compileAndLinkShaders()
 	glDeleteShader(fragmentShader);
 
 	return shaderProgram;
+}
+
+
+//from lab4
+GLuint loadTexture(const char* filename)
+{
+	// Step1 Create and bind textures
+	GLuint textureId = 0;
+	glGenTextures(1, &textureId);
+	assert(textureId != 0);
+
+
+	glBindTexture(GL_TEXTURE_2D, textureId);
+
+	// Step2 Set filter parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	// Step3 Load Textures with dimension data
+	int width, height, nrChannels;
+	unsigned char* data = stbi_load(filename, &width, &height, &nrChannels, 0);
+	if (!data)
+	{
+		std::cerr << "Error::Texture could not load texture file:" << filename << std::endl;
+		return 0;
+	}
+
+	// Step4 Upload the texture to the PU
+	GLenum format = 0;
+	if (nrChannels == 1)
+		format = GL_RED;
+	else if (nrChannels == 3)
+		format = GL_RGB;
+	else if (nrChannels == 4)
+		format = GL_RGBA;
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height,
+		0, format, GL_UNSIGNED_BYTE, data);
+
+	// Step5 Free resources
+	stbi_image_free(data);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	return textureId;
 }
