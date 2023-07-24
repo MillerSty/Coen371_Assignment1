@@ -1,6 +1,6 @@
 # Accepted input:
  <p>W - positive y movement  <br>
- Shift+ A - Positve x movement<br>
+ Shift+ A - Positive x movement<br>
  S - Negative y movement<br>
  Shift + D - Negative x movement<br>
  U - Scale up<br>
@@ -8,7 +8,7 @@
  a / d - pressing a or d allows for model rotation about y axis<br>
  SPACE - will randomly reposition model inside viewing area<br>
  arrow left - rotate  world about positive x axis          <br>
- arrow right - rotate world about -ve x axis               <br>
+ arrow right - rotate world about negative x axis               <br>
  arrow up - rotate    world about positive y axis          <br>
  arrow down - rotate  world  about negative y axis         <br>
  P - render model as points                                <br>
@@ -26,23 +26,23 @@
 - 	-> for this we need UV coordinates
 - [ ] Render scene with shadows using two pass shadow algorithm
 - [x] Make the racket movements possible by rotating arm at various joints
--     -> translation forward and backward, aswell as clockwise anticlockwise
+-     -> translation forward and backward, as well as clockwise anticlockwise
 - [x] windows should handle resize events and correctly adjust aspect ratio
 - [ ] mesh turn right of left by a small amount
 - 	 NOTE: here mesh means the model
-- [x] application must use opengl 4.1 
+- [x] application must use OpenGL 4.1 
 - [ ] more elaborate model of the arm with finger movements and rotating light etc
-- [ ] put shaders in glsl files
-- [ ] convert to cmake
+- [x] put shaders in .glsl files
+- [x] convert to CMake
 - user inputs:
 - [ ] X toggles textures on and off
 - [ ] B toggles Shadows
 # Checklist of Functionality:
-- [x] 1 model needs upper and lower arm, ideally independent of eachother
+- [x] 1 model needs upper and lower arm, ideally independent of each other
 - [x] 2: grid needs to be 100 x 100
-- [x] 3: coord needs to be 5 grids long in each direction
-- [x] 4: GLFW 1024x 768, using perspective view and backface culling [-> res is set, should be set in perspective, and backface cullin enabled]
-- [x] 5: pressing spacebar should move model  to random grid location
+- [x] 3: coordinate axes need to be 5 grids long in each direction
+- [x] 4: GLFW 1024x 768, using perspective view and back face culling [-> res is set, should be set in perspective, and back face culling enabled]
+- [x] 5: pressing space bar should move model  to random grid location
 - [x] 6: U scales up hand ; J scales down -> small increments
 - [x] 7: Move model positions WASD for direction ;
 - [x] 7.1 : a d for rotation about y axis (5 degrees)
@@ -50,13 +50,13 @@
   			Rx denotes a small anti-clockwise
   			rotation about positive x axis, R-x about negative x axis, etc
 - [x] 8.1: home reset to initial position and orientation  
-- [x] 9: User can change rendering mode for the model ie: points, line, triangles based on keyboard input (P L T)
-- [x] 10: Pan and tilt camerea -> tilt being move the camera up and down
+- [x] 9: User can change rendering mode for the model i.e.: points, line, triangles based on keyboard input (P L T)
+- [x] 10: Pan and tilt camera -> tilt being move the camera up and down
 			mouse right button is pressed → use mouse movement in x direction to pan;
 			mouse middle button is pressed → use mouse movement in y direction to tilt.
 - [x] 11: Camera zoom in and out of the scene - while  mouse left button is pressed → mouse movement to move into/out of the scene
 
-# Possible Addons:
+# Possible Add-ons:
  <p>ADDON: rotate forearm independently<br>
  ADDON: E and W for z axis<br>
  ADDON: Mouse scroll zoom and mouse movement pan/tilt</p>
@@ -66,7 +66,7 @@
 
 1. Download and Install CMake
 2. Open a terminal
-3. Run cmake:
+3. Run CMake:
 
 ```
 cd <source_folder>
@@ -74,7 +74,7 @@ cmake -S . -B <build_folder>
 cmake --build <build_folder> --target install
 ```
 
-To generate an Xcode project from the command line use:
+To generate an XCode project from the command line use:
 
 ```
 cd <source_folder>
