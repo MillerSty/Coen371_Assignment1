@@ -13,10 +13,11 @@
 // Source code includes
 #include "Arm.h"
 #include "Racket.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
 
-int compileAndLinkShaders();
+const char* vertex = "../src/shaders/vertexShader.glsl";
+const char* fragment = "../src/shaders/fragmentShader.glsl";
+
+int compileAndLinkShaders(const char* vertex, const char* fragment);
 
 void GLAPIENTRY messageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
 	                            const GLchar* message, const void* userParam);
@@ -102,28 +103,28 @@ glm::vec3 unitcube[] = {
 };
 
 glm::vec3 cubeNormal[] = {
-glm::vec3(-0.0000, 1.0000 , -0.0000),
-glm::vec3(-0.0000, -0.0000, 1.0000),
-glm::vec3(-1.0000, -0.0000, -0.0000),
-glm::vec3(-0.0000, -1.0000, -0.0000),
-glm::vec3(1.0000 ,-0.0000 , -0.0000),
-glm::vec3(-0.0000, -0.0000, -1.0000)
+	glm::vec3(-0.0000, 1.0000 , -0.0000),
+	glm::vec3(-0.0000, -0.0000, 1.0000),
+	glm::vec3(-1.0000, -0.0000, -0.0000),
+	glm::vec3(-0.0000, -1.0000, -0.0000),
+	glm::vec3(1.0000 ,-0.0000 , -0.0000),
+	glm::vec3(-0.0000, -0.0000, -1.0000)
 };
 glm::vec2 cubeTexture[] = {
 	glm::vec2(0.625000, 0.500000),
-glm::vec2(0.875000, 0.500000),
-glm::vec2(0.875000, 0.750000),
-glm::vec2(0.625000, 0.750000),
-glm::vec2(0.375000, 0.750000),
-glm::vec2(0.625000, 1.000000),
-glm::vec2(0.375000, 1.000000),
-glm::vec2(0.375000, 0.000000),
-glm::vec2(0.625000, 0.000000),
-glm::vec2(0.625000, 0.250000),
-glm::vec2(0.375000, 0.250000),
-glm::vec2(0.125000, 0.500000),
-glm::vec2(0.375000, 0.500000),
-glm::vec2(0.125000, 0.750000)
+	glm::vec2(0.875000, 0.500000),
+	glm::vec2(0.875000, 0.750000),
+	glm::vec2(0.625000, 0.750000),
+	glm::vec2(0.375000, 0.750000),
+	glm::vec2(0.625000, 1.000000),
+	glm::vec2(0.375000, 1.000000),
+	glm::vec2(0.375000, 0.000000),
+	glm::vec2(0.625000, 0.000000),
+	glm::vec2(0.625000, 0.250000),
+	glm::vec2(0.375000, 0.250000),
+	glm::vec2(0.125000, 0.500000),
+	glm::vec2(0.375000, 0.500000),
+	glm::vec2(0.125000, 0.750000)
 
 };
 
@@ -155,10 +156,6 @@ int createVertexArrayElementObject(const glm::vec3* vertexArray, int arraySize, 
 		(void*)0                // array buffer offset
 	);
 	glEnableVertexAttribArray(0);
-	//"layout (location = 0) in vec3 aPos;"
-	//	"layout (location = 1) in vec3 aNorm;"
-	//	"layout (location = 2) in vec2 aTexture;"
-
 
 	//Normals VBO setup taken from lab
 	GLuint normals_VBO;
@@ -182,27 +179,7 @@ int createVertexArrayElementObject(const glm::vec3* vertexArray, int arraySize, 
 
 	return vertexArrayObject;
 }
-//lab4
-void setProjectionMatrix(int shaderProgram, glm::mat4 projectionMatrix)
-{
-	glUseProgram(shaderProgram);
-	GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
-	glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
-}
 
-void setViewMatrix(int shaderProgram, glm::mat4 viewMatrix)
-{
-	glUseProgram(shaderProgram);
-	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
-	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &viewMatrix[0][0]);
-}
-
-void setWorldMatrix(int shaderProgram, glm::mat4 worldMatrix)
-{
-	glUseProgram(shaderProgram);
-	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
-	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-}
 const int WIDTH = 1024, HEIGHT = 768;
 int main(int argc, char* argv[])
 {
@@ -258,7 +235,7 @@ int main(int argc, char* argv[])
 	glfwSwapInterval(1);
 
 	// Compile and link shaders here
-	int shaderProgram = compileAndLinkShaders();
+	int shaderProgram = compileAndLinkShaders(vertex, fragment);
 
 	// Create base grid
 	glm::vec3 lineArray[808]{}; // 168 because why... 21 + 21 + 42?	//792+8
@@ -330,9 +307,10 @@ int main(int argc, char* argv[])
 	glm::mat4 InitviewMatrix = glm::lookAt(eye, center, up);
 	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &InitviewMatrix[0][0]);
 
+
 	int gridAO = createVertexArrayObject(lineArray, sizeof(lineArray));
-	int unitCubeAO = createVertexArrayElementObject(unitcube, sizeof(unitcube),indices);
-	int reverseCubeAO = createVertexArrayElementObject(unitcube, sizeof(unitcube), reverseIndices);
+	int unitCubeAO = createVertexArrayElementObject(unitcube, sizeof(unitcube),cubeNormal,sizeof(cubeNormal),cubeTexture,sizeof(cubeTexture),indices);
+	int reverseCubeAO = createVertexArrayElementObject(unitcube, sizeof(unitcube), cubeNormal, sizeof(cubeNormal), cubeTexture, sizeof(cubeTexture), indices);
 	Arm arm(unitCubeAO, "arm");
 	Racket racket(unitCubeAO, "racket");
 	racket.jawnAngle = 0;
@@ -392,11 +370,9 @@ int main(int argc, char* argv[])
 		glm::mat4 cubeChildRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)90), glm::vec3(.0f, 1.0f, .0f));
 		glm::mat4 cubeChildTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .043f));
 		glm::mat4 cubeChildScale = glm::scale(glm::mat4(1.0f), glm::vec3( .99f,  .15f,  .15f));	
-		
+
 		cubeChild = cubeParent * cubeChildTranslate * cubeChildRotate * cubeChildScale;
 		partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f));
-		//partScale = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-		//partRo = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(.0f, 0.0f, 1.0f));
 		partMatrix = partTranslate* partScale * partRo;
 		worldMatrix =  cubeChild * partMatrix;		
 		
@@ -410,8 +386,6 @@ int main(int argc, char* argv[])
 		cubeChild = cubeParent * cubeChildTranslate * cubeChildRotate * cubeChildScale;
 		
 		partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f));
-		//partScale = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-		//partRo = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(.0f, 0.0f, 1.0f));
 		partMatrix = partTranslate * partScale * partRo;
 		worldMatrix = cubeChild * partMatrix;		
 		
@@ -560,46 +534,6 @@ int main(int argc, char* argv[])
 		glBindVertexArray(0); // Unbind vertex array object
 
 
-
-		//note i want to draw tennis court after drawing grid.
-		//can .h if we want
-		glUseProgram(textshaderProgram);
-
-		glBindVertexArray(unitCubeAO);
-		glBindTexture(GL_TEXTURE_2D, asphaltTextureID);
-		colorLocation = glGetUniformLocation(textshaderProgram, "objectColor");
-		//glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 0.0, .0)));//red (x)
-		partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.2f, .2f, .2f));
-		int absX = 0;
-		int absZ = 0;
-		for (int pitchx = -78; pitchx < 78; pitchx += 2) {
-			for (int pitchz = -36; pitchz < 36; pitchz += 2) {
-				//now i need a way to change the colour 				
-				partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(pitchx / (float)100, -.01, pitchz / (float)100 + .01));
-				partMatrix = partTranslate * partScale;
-				worldMatrix = groupMatrix * partMatrix;
-				if (abs(pitchx) == 74 && (abs(pitchz) < 31)) {	 //back horizontal				 
-					glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 1.0, 1.0)));//white
-				}
-				else if ((abs(pitchz) == 32) && abs(pitchx) < 76) {	//length lines			
-					glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 1.0, 1.0)));//white
-				}
-				else if (abs(pitchx) == 54 && (abs(pitchz) <= 30)) { //inside horizontal	
-					glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 1.0, 1.0)));//white
-				}
-				else if (abs(pitchx) < 54 && (abs(pitchz) == 0)) { //inside vertical			
-					glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 1.0, 1.0)));//white
-				}
-				else { //pitch is green
-					glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.0, 0.522, .40)));// 
-				}
-				setWorldMatrix(textshaderProgram, worldMatrix);
-				//glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-				glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-			}
-		}
-		glBindVertexArray(0);
-
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 
@@ -718,8 +652,7 @@ int main(int argc, char* argv[])
 		{
 			double  mousePosY;
 			glfwGetCursorPos(window, NULL, &mousePosY);
-			double dy = mousePosY - lastMousePosY;
-			printf("x: %f  \n", dy);
+			double dy = mousePosY - lastMousePosY;			
 			if (dy < 0) translateY += .005;
 			else if (dy > 0) translateY -= .005;
 			glm::mat4 InitviewMatrix = glm::lookAt(eye,  // eye
@@ -782,12 +715,12 @@ const std::string getShaderSource(const char* PATH)
 Compile and link the shader program
 @return The shader program ID
 */
-int compileAndLinkShaders()
+int compileAndLinkShaders(const char* vertex, const char* fragment)
 {
 	// Vertex shader
 	int vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	//const char* vertexShaderSource = getVertexShaderSource();
-	const std::string vss = getShaderSource("../src/shaders/vertexShader.glsl");
+	const std::string vss = getShaderSource(vertex);
 	const char* vertexShaderSource = vss.c_str();
 	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
 	glCompileShader(vertexShader);
@@ -805,7 +738,7 @@ int compileAndLinkShaders()
 	// Fragment shader
 	int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	//const char* fragmentShaderSource = getFragmentShaderSource();
-	const std::string fss = getShaderSource("../src/shaders/fragmentShader.glsl");
+	const std::string fss = getShaderSource(fragment);
 	const char* fragmentShaderSource = fss.c_str();
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
 	glCompileShader(fragmentShader);
