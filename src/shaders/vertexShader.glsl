@@ -2,7 +2,7 @@
 
 layout (location = 0) in vec3 aPos;
 
-uniform mat4 worldMatrix; // World matrix
+uniform mat4 worldMatrix; 
 uniform mat4 viewMatrix = mat4(1.0f);
 uniform mat4 projectionMatrix = mat4(1.0);
 

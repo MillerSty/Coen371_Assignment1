@@ -13,14 +13,21 @@
 // Source code includes
 #include "Arm.h"
 #include "Racket.h"
+#include "SceneObjects.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
 const char* vertex = "../src/shaders/vertexShader.glsl";
 const char* fragment = "../src/shaders/fragmentShader.glsl";
 
+const char* textureV = "../src/shaders/textureVShader.glsl";
+const char* textureF = "../src/shaders/textureFShader.glsl";
 int compileAndLinkShaders(const char* vertex, const char* fragment);
-
+GLuint loadTexture(const char* filename);
 void GLAPIENTRY messageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
 	                            const GLchar* message, const void* userParam);
+void setProjectionMatrix(int shaderProgram, glm::mat4 projectionMatrix);
+void setViewMatrix(int shaderProgram, glm::mat4 viewMatrix);
 
 int createVertexArrayObject(const glm::vec3* vertexArray, int arraySize)
 {    // Create a vertex array
@@ -43,13 +50,6 @@ int createVertexArrayObject(const glm::vec3* vertexArray, int arraySize)
 		(void*)0             // array buffer offset
 	);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1,                            // attribute 1 matches aColor in Vertex Shader
-		3,
-		GL_FLOAT,
-		GL_FALSE,
-		2 * sizeof(glm::vec3),
-		(void*)sizeof(glm::vec3)      // color is offset by a vec3 (comes after position)
-	);
 
 	glEnableVertexAttribArray(1);
 
@@ -183,6 +183,8 @@ int createVertexArrayElementObject(const glm::vec3* vertexArray, int arraySize, 
 const int WIDTH = 1024, HEIGHT = 768;
 int main(int argc, char* argv[])
 {
+
+
 	// Initialize GLFW and OpenGL version
 	if (!glfwInit())
 		return -1;
@@ -227,6 +229,21 @@ int main(int argc, char* argv[])
 	// Print OpenGL version
 	std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
+	// Load Textures
+#if defined(PLATFORM_OSX) // NOTE Rez: Youll need to path the textures
+	//GLuint brickTextureID = loadTexture("Textures/brick.jpg"); EXAMPLE FROM LAB04
+	//
+	//GLuint courtTextureID = loadTexture("");
+	//GLuint ropeTextureID = loadTexture("");
+	//GLuint clothTextureID = loadTexture("");
+	//GLuint metalTextureID = loadTexture("");
+#else
+	GLuint courtTextureID = loadTexture("../src/Assets/clay2.jpg");
+	GLuint ropeTextureID = loadTexture("../src/Assets/rope.jpg");
+	GLuint clothTextureID = loadTexture("../src/Assets/cloth.jpg");
+	GLuint metalTextureID = loadTexture("../src/Assets/metal.jpg");	
+#endif
+
 	// Black background	
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_FALSE);
@@ -236,28 +253,7 @@ int main(int argc, char* argv[])
 
 	// Compile and link shaders here
 	int shaderProgram = compileAndLinkShaders(vertex, fragment);
-
-	// Create base grid
-	glm::vec3 lineArray[808]{}; // 168 because why... 21 + 21 + 42?	//792+8
-	int gridCount = 0;
-	//int o = j;
-	for (int i = -100; i <= 100; i += 2) { //needs to be 100 x 100
-		// if (i != 0) {
-		float f = i / 100.0f;
-		//this is for x z grid
-		lineArray[gridCount] = glm::vec3(f, .0f, -1.0f);
-		lineArray[gridCount + 1] = glm::vec3(0.61f, .61f, .61f);//colour
-		lineArray[(gridCount + 2)] = glm::vec3(f, .0f, 1.0f);
-		lineArray[gridCount + 3] = glm::vec3(0.61f, .61f, .61f);//colour
-
-		lineArray[gridCount + 4] = glm::vec3(-1.0f, 0.0f, f);
-		lineArray[gridCount + 5] = glm::vec3(0.61f, .61f, .61f);//colour
-		lineArray[(gridCount + 6)] = glm::vec3(1.0f, 0.0f, f);
-		lineArray[gridCount + 7] = glm::vec3(0.61f, .61f, .61f);
-		gridCount += 8; //400 for first 50	
-		//o = j;
-	}
-
+	int textureProgram = compileAndLinkShaders(textureV, textureF);
 	for (int i = 0; i < 8; i++) {
 		unitcube[i] = unitcube[i] * .05f; // This is to pre-scale the unit cube
 	}
@@ -276,22 +272,21 @@ int main(int argc, char* argv[])
 	glm::vec3 translate(0.0f, 0.0f, 0.0f);
 	glm::vec3 Translate(.0f, .0f, .0f);
 	glm::vec3 GroupMatrixScale(1.0f, 1.0f, 1.0f);
-	glm::vec3 constArmScaler;
 
 	// mat4 variables
-	glm::mat4 worldMatrix;
 	glm::mat4 groupMatrix;
-
-	glm::mat4 partTranslate;
-	glm::mat4 partRo;
-	//glm::mat4 RacketGroupMatrix;
-	glm::mat4 partMatrix;
-	glm::mat4 partScale;
 	glm::mat4 rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
+	//Scene Jawn
+	SceneObjects SceneObj("scene");
+	SceneObj.InitGrid();
+	//SO.courtTexture = courtTextureID;
+	SceneObj.setTextures(courtTextureID, ropeTextureID, metalTextureID, clothTextureID);
+	SceneObj.textureProgram = textureProgram;
 	// General variables
-	//float armRotate = 0;
 	int renderAs = GL_TRIANGLES;
+
+
 	double lastMousePosX, lastMousePosY, lastMousePosZ;
 	float translateW = 0, translateY = 0, translateZ = 0;
 	glfwGetCursorPos(window, &lastMousePosX, &lastMousePosY);
@@ -302,13 +297,16 @@ int main(int argc, char* argv[])
 	glm::mat4 projectionMatrix = glm::perspective(FOV,  // field of view in degrees
 			                                      AR,      // aspect ratio
 			                                      near, far);       // near and far (near > 0)
-	glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
+	
 	
 	glm::mat4 InitviewMatrix = glm::lookAt(eye, center, up);
-	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &InitviewMatrix[0][0]);
+	setProjectionMatrix(shaderProgram, projectionMatrix);
+	setProjectionMatrix(textureProgram, projectionMatrix);
+	setViewMatrix(shaderProgram, InitviewMatrix);
+	setViewMatrix(textureProgram, InitviewMatrix);
+	
 
-
-	int gridAO = createVertexArrayObject(lineArray, sizeof(lineArray));
+	int gridAO = createVertexArrayObject(SceneObj.lineArray, sizeof(SceneObj.lineArray));
 	int unitCubeAO = createVertexArrayElementObject(unitcube, sizeof(unitcube),cubeNormal,sizeof(cubeNormal),cubeTexture,sizeof(cubeTexture),indices);
 	int reverseCubeAO = createVertexArrayElementObject(unitcube, sizeof(unitcube), cubeNormal, sizeof(cubeNormal), cubeTexture, sizeof(cubeTexture), reverseIndices);
 	Arm arm(unitCubeAO, "arm");
@@ -319,6 +317,7 @@ int main(int argc, char* argv[])
 	int* newWidth = new int;
 	int* newHeight = new int;
 
+	//NOTE we have issues when doing mouse jawn with current set up
 	while (!glfwWindowShouldClose(window))
 	{
 		// Handle resizing
@@ -334,7 +333,6 @@ int main(int argc, char* argv[])
 		
 		// Draw geometry
 		glUseProgram(shaderProgram);
-		glBindVertexArray(unitCubeAO);		
 
 		// Set a default group matrix
 		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) *
@@ -347,192 +345,10 @@ int main(int argc, char* argv[])
 		arm.DrawArm();
 		racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
 		racket.Draw();
-
-		// Draw Coordinate Cubes
-		glBindVertexArray(unitCubeAO);
-		glm::mat4 cubeParent;
-		glm::mat4 cubeRotate = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-		glm::mat4 cubeTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f));
-		glm::mat4 cubeScale = glm::scale(glm::mat4(1.0f), glm::vec3(.99f, .15f, .15f));
-		cubeParent = cubeTranslate * cubeRotate * rotationMatrixW;
+		SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
+		SceneObj.SetVAO(unitCubeAO, reverseCubeAO, gridAO);
+		SceneObj.DrawScene();
 		
-		partScale = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-		partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(1.0f, 1.0f, 1.0f));
-		partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.043f, .0f,.0f));
-		partMatrix = partTranslate * cubeScale * partRo;
-		
-		worldMatrix = cubeParent * partMatrix;
-		glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(0.0, 0.0, 1.0)));//blue (x)
-		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-		//child z 
-		glm::mat4 cubeChild;
-		glm::mat4 cubeChildRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)90), glm::vec3(.0f, 1.0f, .0f));
-		glm::mat4 cubeChildTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .043f));
-		glm::mat4 cubeChildScale = glm::scale(glm::mat4(1.0f), glm::vec3( .99f,  .15f,  .15f));	
-
-		cubeChild = cubeParent * cubeChildTranslate * cubeChildRotate * cubeChildScale;
-		partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f));
-		partMatrix = partTranslate* partScale * partRo;
-		worldMatrix =  cubeChild * partMatrix;		
-		
-		glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 0.0, 0.0))); //red (z)
-		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);		
-		//child y
-		cubeChildRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)90), glm::vec3(.0f, 0.0f, 1.0f));
-		cubeChildTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-.0f,.043f, .001f));
-		cubeChildScale = glm::scale(glm::mat4(1.0f), glm::vec3(.99f,  .15f, .15f));
-		cubeChild = cubeParent * cubeChildTranslate * cubeChildRotate * cubeChildScale;
-		
-		partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f));
-		partMatrix = partTranslate * partScale * partRo;
-		worldMatrix = cubeChild * partMatrix;		
-		
-		glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.0, 1.0, 0.0))); //green (y)
-		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-
-		glBindVertexArray(0); // Unbind unit cube VAO
-
-		// Render grid
-		glm::mat4 grid = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-		glm::mat4 gridRo = glm::rotate(glm::mat4(1.0f), glm::radians(Translate.z), glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(glm::mat4(1.0f), glm::radians(Translate.z), glm::vec3(1.0f, .0f, 0.0f));
-		glm::mat4 gridWorld = grid * rotationMatrixW;
-		glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.61, 0.610, 0.610)));
-		glBindVertexArray(gridAO);
-		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &gridWorld[0][0]);
-		glDrawArrays(GL_LINES, 0, gridCount);
-		glBindVertexArray(0);
-
-		glBindVertexArray(unitCubeAO);
-		glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 0.0, .0)));//red (x)
-		partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.2f, .2f, .2f));
-		int absX = 0;
-		int absZ = 0;
-		for (int pitchx = -78; pitchx < 78; pitchx += 2) {
-			for (int pitchz = -36; pitchz < 36; pitchz += 2) {
-				//now i need a way to change the colour 				
-				partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(pitchx / (float)100, -.01, pitchz / (float)100 + .01));
-				partMatrix = partTranslate * partScale;
-				worldMatrix = groupMatrix * partMatrix;
-				if (abs(pitchx) == 74 && (abs(pitchz) < 31)) {	 //back horizontal				 
-					glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 1.0, 1.0)));//white
-				}
-				else if ((abs(pitchz) == 32) && abs(pitchx) < 76) {	//length lines			
-					glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 1.0, 1.0)));//white
-				}
-				else if (abs(pitchx) == 54 && (abs(pitchz) <= 30)) { //inside horizontal	
-					glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 1.0, 1.0)));//white
-				}
-				else if (abs(pitchx) < 54 && (abs(pitchz) == 0)) { //inside vertical			
-					glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 1.0, 1.0)));//white
-				}
-				else { //pitch is green
-					glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.0, 0.522, .40)));// 
-				}
-				glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-				glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-			}
-		}
-		glBindVertexArray(0);
-
-		// Bind the unit cube VAO
-		glBindVertexArray(unitCubeAO); 	
-
-		// Set colour of net poles
-		glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.00f, .0f, .0f)));
-
-		// Rotate net poles
-		partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, 1.0f, 1.0f));
-		
-		// Translate one net pole
-		partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0375f, -.34f));
-		
-		// Scale net poles
-		partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.25f, .75f, .25f));
-		
-		// Set part matrix based on translation, scaling, and rotation. Set world matrix based on part and group
-		partMatrix = partTranslate * partScale * partRo;
-		worldMatrix = groupMatrix * partMatrix;
-
-		// Draw world matrix with indices
-		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]); 
-		glDrawElements(renderAs, gridCount, GL_UNSIGNED_INT, 0);
-
-		//+ve Z net
-		// Translate only the new pole. Can reuse scale and translation matrices from first pole
-		partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0375f, .34f));
-		partMatrix = partTranslate * partScale * partRo;
-		worldMatrix = groupMatrix * partMatrix;
-
-		// Draw again
-		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-		glDrawElements(renderAs, gridCount, GL_UNSIGNED_INT, 0);
-
-		// Strings of net
-		glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.60f, .60f, .60f)));  // Set net colour
-		
-		// Loop to draw net. i is our translation offset
-		for (float i = .0; i <= .07f; i += .01) {
-			partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.03f, .03f, 7.0f));  // Scale to beautiful net dimensions
-			partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.005, i, -.0f));  // Translate with that i offset
-			partMatrix = partTranslate * partScale; // Set part matrix
-			worldMatrix = groupMatrix * partMatrix; // Set world matrix
-
-			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]); //comment
-			glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);//draw with index
-		}
-		
-		// Same as above, but net offset is along z this time
-		for (float i = -.34; i <= .34f; i += .01) {
-			// The scale is also different to account for the new direction
-			partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.03f, .7f, .03f));
-			partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, .04, i));
-			partMatrix = partTranslate * partScale;
-			worldMatrix = groupMatrix * partMatrix;
-
-			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-			glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
-		}
-
-		// Top bar of the net
-		glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.00f, 1.0f, 1.0f)));
-		partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, 1.0f, 1.0f));
-		partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.003f, .071f, .0f));
-		partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.1f, .1f, 6.6f));
-		partMatrix = partTranslate * partScale * partRo;
-		worldMatrix = groupMatrix * partMatrix;
-		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-		glDrawElements(renderAs, gridCount, GL_UNSIGNED_INT, 0);
-		
-		// Unbinding the vertex array object 
-		glBindVertexArray(0);
-
-		//This does sky box blue only around grid
-		// //can make into .h if we want 
-		//glBindVertexArray(unitCubeUnscaledAO);	//bind our reverse unscaled cube	 
-		float ysize = 25.0f; // Change this to make sky box closer to court
-
-		// Sets sky box position
-		glm::mat4 partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-.0f, .00f, -.0f));
-
-		// Unused but usable
-		partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, 1.0f, 1.0f));
-		
-		// Sets sky box scale 
-		partScale = glm::scale(glm::mat4(1.0f), glm::vec3(20.780f, ysize, 20.36f));
-		
-		partMatrix = partTranslate * partScale * partRo;  // Part matrix for sky box
-		worldMatrix = groupMatrix * partMatrix;  // World matrix for sky box
-
-		// Bind the vertex array object to be the cube VAO with reverse winding order
-		glBindVertexArray(reverseCubeAO);
-		glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.008f, .8f, .9999999f))); // Sky box colour
-		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]); // Send to shader
-		glDrawElements(renderAs, gridCount, GL_UNSIGNED_INT, 0); // Draw sky box
-		glBindVertexArray(0); // Unbind vertex array object
-
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -548,9 +364,7 @@ int main(int argc, char* argv[])
 		}
 		if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
 		{
-			printf("1\n");
-			float army = arm.getRotation() + 5;
-			arm.setRotation(arm.getRotation() + 5);
+
 		}
 
 		if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) 
@@ -642,11 +456,13 @@ int main(int argc, char* argv[])
 			glm::mat4 InitviewMatrix = glm::lookAt(eye,  // eye
 				center,  // center
 				up);// up
-			glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &InitviewMatrix[0][0]);
 			glm::mat4 projectionMatrix = glm::perspective(FOV,  // field of view in degrees
 				AR,      // aspect ratio
 				near, far);       // near and far (near > 0)
-			glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
+			setProjectionMatrix(textureProgram, projectionMatrix);
+			setProjectionMatrix(shaderProgram, projectionMatrix);
+			setViewMatrix(textureProgram, InitviewMatrix);
+			setViewMatrix(shaderProgram, InitviewMatrix);
 		}
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 		{
@@ -658,7 +474,8 @@ int main(int argc, char* argv[])
 			glm::mat4 InitviewMatrix = glm::lookAt(eye,  // eye
 				glm::vec3(translateW, translateY, 0.0f),  // center
 				up);// up
-			glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &InitviewMatrix[0][0]);
+			setViewMatrix(shaderProgram, InitviewMatrix);
+			setViewMatrix(textureProgram, InitviewMatrix);
 			lastMousePosY = mousePosY;
 		}
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
@@ -672,7 +489,8 @@ int main(int argc, char* argv[])
 			glm::mat4 InitviewMatrix = glm::lookAt(eye,  // eye
 				glm::vec3(translateW+center.x, translateY+center.y, 0.0f),  // center
 				up);// up
-			glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &InitviewMatrix[0][0]);
+			setViewMatrix(shaderProgram, InitviewMatrix);
+			setViewMatrix(textureProgram, InitviewMatrix);
 			lastMousePosX = mousePosX;
 		}
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
@@ -686,7 +504,8 @@ int main(int argc, char* argv[])
 			glm::mat4 projectionMatrix = glm::perspective(translateZ+70.0f,  // field of view in degrees
 				(float)WIDTH / (float)HEIGHT,      // aspect ratio
 				.01f, 50.0f);       // near and far (near > 0)
-			glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
+			setProjectionMatrix(shaderProgram, projectionMatrix);
+			setProjectionMatrix(textureProgram, projectionMatrix);
 			lastMousePosZ = mousePosZ;
 		}
 	}
@@ -719,7 +538,6 @@ int compileAndLinkShaders(const char* vertex, const char* fragment)
 {
 	// Vertex shader
 	int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	//const char* vertexShaderSource = getVertexShaderSource();
 	const std::string vss = getShaderSource(vertex);
 	const char* vertexShaderSource = vss.c_str();
 	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
@@ -737,7 +555,6 @@ int compileAndLinkShaders(const char* vertex, const char* fragment)
 
 	// Fragment shader
 	int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	//const char* fragmentShaderSource = getFragmentShaderSource();
 	const std::string fss = getShaderSource(fragment);
 	const char* fragmentShaderSource = fss.c_str();
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
@@ -778,4 +595,58 @@ void GLAPIENTRY messageCallback(GLenum source, GLenum type, GLuint id, GLenum se
 {
 	std::cerr << "GL CALLBACK: " << (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "")
 		<< " type = 0x" << type << ", severity = 0x" << severity << ", message = " << message << std::endl;
+}
+// loadTexture from lab04
+GLuint loadTexture(const char* filename)
+{
+	// Step1 Create and bind textures
+	GLuint textureId = 0;
+	glGenTextures(1, &textureId);
+	assert(textureId != 0);
+
+
+	glBindTexture(GL_TEXTURE_2D, textureId);
+
+	// Step2 Set filter parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	// Step3 Load Textures with dimension data
+	int width, height, nrChannels;
+	unsigned char* data = stbi_load(filename, &width, &height, &nrChannels, 0);
+	if (!data)
+	{
+		std::cerr << "Error::Texture could not load texture file:" << filename << std::endl;
+		return 0;
+	}
+
+	// Step4 Upload the texture to the PU
+	GLenum format = 0;
+	if (nrChannels == 1)
+		format = GL_RED;
+	else if (nrChannels == 3)
+		format = GL_RGB;
+	else if (nrChannels == 4)
+		format = GL_RGBA;
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height,
+		0, format, GL_UNSIGNED_BYTE, data);
+
+	// Step5 Free resources
+	stbi_image_free(data);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	return textureId;
+}
+//from lab 04
+void setProjectionMatrix(int shaderProgram, glm::mat4 projectionMatrix)
+{
+	glUseProgram(shaderProgram);
+	GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
+	glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
+}
+
+void setViewMatrix(int shaderProgram, glm::mat4 viewMatrix)
+{
+	glUseProgram(shaderProgram);
+	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
+	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &viewMatrix[0][0]);
 }
