@@ -103,12 +103,12 @@ glm::vec3 unitcube[] = {
 };
 
 glm::vec3 cubeNormal[] = {
-	glm::vec3(-0.0000, 1.0000 , -0.0000),
-	glm::vec3(-0.0000, -0.0000, 1.0000),
-	glm::vec3(-1.0000, -0.0000, -0.0000),
-	glm::vec3(-0.0000, -1.0000, -0.0000),
-	glm::vec3(1.0000 ,-0.0000 , -0.0000),
-	glm::vec3(-0.0000, -0.0000, -1.0000)
+	glm::vec3(0.0000, 1.0000 , 0.0000),
+	glm::vec3(0.0000, 0.0000, 1.0000),
+	glm::vec3(-1.0000, 0.0000, 0.0000),
+	glm::vec3(0.0000, -1.0000, 0.0000),
+	glm::vec3(1.0000 ,0.0000 , 0.0000),
+	glm::vec3(0.0000, 0.0000, -1.0000)
 };
 glm::vec2 cubeTexture[] = {
 	glm::vec2(0.625000, 0.500000),
@@ -310,7 +310,7 @@ int main(int argc, char* argv[])
 
 	int gridAO = createVertexArrayObject(lineArray, sizeof(lineArray));
 	int unitCubeAO = createVertexArrayElementObject(unitcube, sizeof(unitcube),cubeNormal,sizeof(cubeNormal),cubeTexture,sizeof(cubeTexture),indices);
-	int reverseCubeAO = createVertexArrayElementObject(unitcube, sizeof(unitcube), cubeNormal, sizeof(cubeNormal), cubeTexture, sizeof(cubeTexture), indices);
+	int reverseCubeAO = createVertexArrayElementObject(unitcube, sizeof(unitcube), cubeNormal, sizeof(cubeNormal), cubeTexture, sizeof(cubeTexture), reverseIndices);
 	Arm arm(unitCubeAO, "arm");
 	Racket racket(unitCubeAO, "racket");
 	racket.jawnAngle = 0;
@@ -515,7 +515,7 @@ int main(int argc, char* argv[])
 		float ysize = 25.0f; // Change this to make sky box closer to court
 
 		// Sets sky box position
-		glm::mat4 partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-.0f, .001111f, -.0f));
+		glm::mat4 partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-.0f, .00f, -.0f));
 
 		// Unused but usable
 		partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, 1.0f, 1.0f));
