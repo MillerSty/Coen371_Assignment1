@@ -15,7 +15,6 @@ public:
 		glm::mat4 worldMatrix);
 	SceneObjects(int cubeVao, std::string objectName);
 	SceneObjects(std::string objectName);
-	//void setTranslation(glm::vec3 TranslateRandom, glm::vec3 TranslateModel);
 	void SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram);
 	void setTextures(GLuint court, GLuint rope, GLuint metal, GLuint cloth);
 	
@@ -23,12 +22,8 @@ public:
 	int cubeVao;
 	int reverseCubeVao;
 	glm::mat4 partParent;
-	//glm::mat4 partMatrix;
 	glm::mat4 groupMatrix;
 	glm::mat4 rotationWMatrix;
-	//glm::vec3 TranslateRandom;
-	//glm::vec3 TranslateModel;
-	//attributes for grid
 	glm::vec3 Translate;
 	glm::vec3 lineArray[808];
 	int gridCount;
