@@ -19,6 +19,7 @@ find_package(OpenGL REQUIRED COMPONENTS OpenGL)
 include(BuildGLEW)
 include(BuildGLFW)
 include(BuildGLM)
+include_directories("thirdparty/stb")
 
 # lab01
 set(EXEC Coen371_Project)
