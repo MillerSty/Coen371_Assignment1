@@ -13,11 +13,11 @@
 // Source code includes
 #include "Arm.h"
 #include "Racket.h"
-//#include "utilities.h"
-//#include "inputHandler.h"
 
+const char* vertex = "../src/shaders/vertexShader.glsl";
+const char* fragment = "../src/shaders/fragmentShader.glsl";
 
-int compileAndLinkShaders();
+int compileAndLinkShaders(const char* vertex, const char* fragment);
 
 void GLAPIENTRY messageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
 	                            const GLchar* message, const void* userParam);
@@ -102,8 +102,35 @@ glm::vec3 unitcube[] = {
 	glm::vec3(-1.000000,-1.000000 , 1.000000)
 };
 
+glm::vec3 cubeNormal[] = {
+	glm::vec3(0.0000, 1.0000 , 0.0000),
+	glm::vec3(0.0000, 0.0000, 1.0000),
+	glm::vec3(-1.0000, 0.0000, 0.0000),
+	glm::vec3(0.0000, -1.0000, 0.0000),
+	glm::vec3(1.0000 ,0.0000 , 0.0000),
+	glm::vec3(0.0000, 0.0000, -1.0000)
+};
+glm::vec2 cubeTexture[] = {
+	glm::vec2(0.625000, 0.500000),
+	glm::vec2(0.875000, 0.500000),
+	glm::vec2(0.875000, 0.750000),
+	glm::vec2(0.625000, 0.750000),
+	glm::vec2(0.375000, 0.750000),
+	glm::vec2(0.625000, 1.000000),
+	glm::vec2(0.375000, 1.000000),
+	glm::vec2(0.375000, 0.000000),
+	glm::vec2(0.625000, 0.000000),
+	glm::vec2(0.625000, 0.250000),
+	glm::vec2(0.375000, 0.250000),
+	glm::vec2(0.125000, 0.500000),
+	glm::vec2(0.375000, 0.500000),
+	glm::vec2(0.125000, 0.750000)
+
+};
+
+
 GLuint IBO;
-int createVertexArrayElementObject(const glm::vec3* vertexArray, int arraySize, unsigned int indices[])
+int createVertexArrayElementObject(const glm::vec3* vertexArray, int arraySize, const glm::vec3* NormalArray, int NormalArraySize, const glm::vec2* TextureArray, int TextureArraySize, unsigned int indices[])
 {
 	// Create a vertex array
 	GLuint vertexArrayObject;
@@ -129,6 +156,23 @@ int createVertexArrayElementObject(const glm::vec3* vertexArray, int arraySize, 
 		(void*)0                // array buffer offset
 	);
 	glEnableVertexAttribArray(0);
+
+	//Normals VBO setup taken from lab
+	GLuint normals_VBO;
+	glGenBuffers(1, &normals_VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, normals_VBO);
+	glBufferData(GL_ARRAY_BUFFER, NormalArraySize, NormalArray, GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec3), (GLvoid*)0);
+	glEnableVertexAttribArray(1);
+
+	//UVs VBO setup
+	GLuint uvs_VBO;
+	glGenBuffers(1, &uvs_VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, uvs_VBO);
+	glBufferData(GL_ARRAY_BUFFER, TextureArraySize, TextureArray, GL_STATIC_DRAW);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec3), (GLvoid*)0);
+	glEnableVertexAttribArray(2);
+
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -191,7 +235,7 @@ int main(int argc, char* argv[])
 	glfwSwapInterval(1);
 
 	// Compile and link shaders here
-	int shaderProgram = compileAndLinkShaders();
+	int shaderProgram = compileAndLinkShaders(vertex, fragment);
 
 	// Create base grid
 	glm::vec3 lineArray[808]{}; // 168 because why... 21 + 21 + 42?	//792+8
@@ -263,9 +307,10 @@ int main(int argc, char* argv[])
 	glm::mat4 InitviewMatrix = glm::lookAt(eye, center, up);
 	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &InitviewMatrix[0][0]);
 
+
 	int gridAO = createVertexArrayObject(lineArray, sizeof(lineArray));
-	int unitCubeAO = createVertexArrayElementObject(unitcube, sizeof(unitcube),indices);
-	int reverseCubeAO = createVertexArrayElementObject(unitcube, sizeof(unitcube), reverseIndices);
+	int unitCubeAO = createVertexArrayElementObject(unitcube, sizeof(unitcube),cubeNormal,sizeof(cubeNormal),cubeTexture,sizeof(cubeTexture),indices);
+	int reverseCubeAO = createVertexArrayElementObject(unitcube, sizeof(unitcube), cubeNormal, sizeof(cubeNormal), cubeTexture, sizeof(cubeTexture), reverseIndices);
 	Arm arm(unitCubeAO, "arm");
 	Racket racket(unitCubeAO, "racket");
 	racket.jawnAngle = 0;
@@ -303,7 +348,7 @@ int main(int argc, char* argv[])
 		racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
 		racket.Draw();
 
-		// Note: we are trying doing cubes as hierarchy
+		// Draw Coordinate Cubes
 		glBindVertexArray(unitCubeAO);
 		glm::mat4 cubeParent;
 		glm::mat4 cubeRotate = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
@@ -325,11 +370,9 @@ int main(int argc, char* argv[])
 		glm::mat4 cubeChildRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)90), glm::vec3(.0f, 1.0f, .0f));
 		glm::mat4 cubeChildTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .043f));
 		glm::mat4 cubeChildScale = glm::scale(glm::mat4(1.0f), glm::vec3( .99f,  .15f,  .15f));	
-		
+
 		cubeChild = cubeParent * cubeChildTranslate * cubeChildRotate * cubeChildScale;
 		partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f));
-		//partScale = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-		//partRo = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(.0f, 0.0f, 1.0f));
 		partMatrix = partTranslate* partScale * partRo;
 		worldMatrix =  cubeChild * partMatrix;		
 		
@@ -343,8 +386,6 @@ int main(int argc, char* argv[])
 		cubeChild = cubeParent * cubeChildTranslate * cubeChildRotate * cubeChildScale;
 		
 		partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f));
-		//partScale = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-		//partRo = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(.0f, 0.0f, 1.0f));
 		partMatrix = partTranslate * partScale * partRo;
 		worldMatrix = cubeChild * partMatrix;		
 		
@@ -474,7 +515,7 @@ int main(int argc, char* argv[])
 		float ysize = 25.0f; // Change this to make sky box closer to court
 
 		// Sets sky box position
-		glm::mat4 partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-.0f, .001111f, -.0f));
+		glm::mat4 partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-.0f, .00f, -.0f));
 
 		// Unused but usable
 		partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, 1.0f, 1.0f));
@@ -611,8 +652,7 @@ int main(int argc, char* argv[])
 		{
 			double  mousePosY;
 			glfwGetCursorPos(window, NULL, &mousePosY);
-			double dy = mousePosY - lastMousePosY;
-			printf("x: %f  \n", dy);
+			double dy = mousePosY - lastMousePosY;			
 			if (dy < 0) translateY += .005;
 			else if (dy > 0) translateY -= .005;
 			glm::mat4 InitviewMatrix = glm::lookAt(eye,  // eye
@@ -675,12 +715,12 @@ const std::string getShaderSource(const char* PATH)
 Compile and link the shader program
 @return The shader program ID
 */
-int compileAndLinkShaders()
+int compileAndLinkShaders(const char* vertex, const char* fragment)
 {
 	// Vertex shader
 	int vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	//const char* vertexShaderSource = getVertexShaderSource();
-	const std::string vss = getShaderSource("../src/shaders/vertexShader.glsl");
+	const std::string vss = getShaderSource(vertex);
 	const char* vertexShaderSource = vss.c_str();
 	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
 	glCompileShader(vertexShader);
@@ -698,7 +738,7 @@ int compileAndLinkShaders()
 	// Fragment shader
 	int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	//const char* fragmentShaderSource = getFragmentShaderSource();
-	const std::string fss = getShaderSource("../src/shaders/fragmentShader.glsl");
+	const std::string fss = getShaderSource(fragment);
 	const char* fragmentShaderSource = fss.c_str();
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
 	glCompileShader(fragmentShader);
