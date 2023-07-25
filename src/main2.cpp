@@ -583,7 +583,7 @@ int compileAndLinkShaders(const char* vertex, const char* fragment)
 
 /// An error callback function
 /// Courtesy of https://www.khronos.org/opengl/wiki/OpenGL_Error
-void messageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
+void GLAPIENTRY messageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {
 	std::cerr << "GL CALLBACK: " << (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "")
 		<< " type = 0x" << type << ", severity = 0x" << severity << ", message = " << message << std::endl;
