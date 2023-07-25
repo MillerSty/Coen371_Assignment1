@@ -13,9 +13,10 @@
 class Arm
 {
 public:
-	Arm(int cubeVao,
-		glm::mat4 worldMatrix);
+	Arm(int cubeVao, glm::mat4 worldMatrix);
 	Arm(int cubeVao, std::string letterName);
+	Arm();
+
 	void setTranslation(glm::vec3 TranslateRandom, glm::vec3 TranslateModel);
 	void SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram);
 	void setRotation(float rotate) {
