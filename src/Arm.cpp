@@ -1,7 +1,6 @@
 #include "Arm.h"
 
-Arm::Arm(int cubeVao,
-	glm::mat4 worldMatrix) {
+Arm::Arm(int cubeVao, glm::mat4 worldMatrix) {
 	this->cubeVao = cubeVao;
 	this->groupMatrix = worldMatrix;
 	this->position = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -24,6 +23,9 @@ Arm::Arm(int cubeVao, std::string letterName) {
 	this->TranslateModel = glm::vec3(0.0f, 0.0f, 0.0f);
 	this->TranslateRandom = glm::vec3(0.0f, 0.0f, 0.0f);
 	this->letterName = letterName;
+}
+Arm::Arm()
+{
 }
 void Arm::SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram) {
 	this->groupMatrix = groupMatrix;
