@@ -222,28 +222,21 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	// Enable debug output
-	glEnable(GL_DEBUG_OUTPUT);
-	glDebugMessageCallback(messageCallback, 0);
-
 	// Print OpenGL version
 	std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
 	// Load Textures
-#if defined(PLATFORM_OSX) // NOTE Rez: Youll need to path the textures
-	//GLuint brickTextureID = loadTexture("Textures/brick.jpg"); EXAMPLE FROM LAB04
-	//
-	//GLuint courtTextureID = loadTexture("");
-	//GLuint ropeTextureID = loadTexture("");
-	//GLuint clothTextureID = loadTexture("");
-	//GLuint metalTextureID = loadTexture("");
+#if defined(__APPLE__) // NOTE Rez: Youll need to path the textures
 #else
-	GLuint courtTextureID = loadTexture("../src/Assets/clay2.jpg");
-	GLuint ropeTextureID = loadTexture("../src/Assets/rope.jpg");
-	GLuint clothTextureID = loadTexture("../src/Assets/cloth.jpg");
-	GLuint metalTextureID = loadTexture("../src/Assets/metal.jpg");	
+    // Enable debug output
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(messageCallback, 0);
 #endif
 
+    GLuint courtTextureID = loadTexture("../src/Assets/clay2.jpg");
+    GLuint ropeTextureID = loadTexture("../src/Assets/rope.jpg");
+    GLuint clothTextureID = loadTexture("../src/Assets/cloth.jpg");
+    GLuint metalTextureID = loadTexture("../src/Assets/metal.jpg");
 	// Black background	
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_FALSE);
@@ -590,8 +583,7 @@ int compileAndLinkShaders(const char* vertex, const char* fragment)
 
 /// An error callback function
 /// Courtesy of https://www.khronos.org/opengl/wiki/OpenGL_Error
-void GLAPIENTRY messageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, 
-	                            const GLchar* message, const void* userParam)
+void GLAPIENTRY messageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {
 	std::cerr << "GL CALLBACK: " << (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "")
 		<< " type = 0x" << type << ", severity = 0x" << severity << ", message = " << message << std::endl;
