@@ -1,7 +1,7 @@
 #include "Arm.h"
 
 Arm::Arm(int cubeVao,
-	glm::mat4 worldMatrix) {
+                 glm::mat4 worldMatrix) {
 	this->cubeVao = cubeVao;
 	this->groupMatrix = worldMatrix;
 	this->position = glm::vec3(0.0f, 0.0f, 0.0f);

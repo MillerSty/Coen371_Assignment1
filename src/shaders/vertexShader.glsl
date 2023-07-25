@@ -6,6 +6,7 @@ uniform mat4 worldMatrix;
 uniform mat4 viewMatrix = mat4(1.0f);
 uniform mat4 projectionMatrix = mat4(1.0);
 
+
 void main()
 {
 	mat4 modelViewProjection= projectionMatrix *  viewMatrix * worldMatrix;
