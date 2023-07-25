@@ -64,76 +64,21 @@ int createVertexArrayObject(const glm::vec3* vertexArray, int arraySize)
 	return vertexArrayObject;
 }
 
-// We use indices to create element buffer objects to increase efficiency
-unsigned int indices[] = {
-	4,2,0,
-	2,7,3,
-	6,5,7,
-	1,7,5,
-	0,3,1,
-	4, 1,5,
-	4,6,2,
-	2,6,7,
-	6,4,5,
-	1,3,7,
-	0,2,3,
-	4,0, 1
-};
-
-// Reverse winding order indices
+// Reverse winding order indices -> still needed for skybox
 std::vector<int>  reverseIndices = { //3*12 =36
-	4,0,2,
-	2,3,7,
-	6,7,5,
-	1,5,7,
-	0,1,3,
-	4,5,1,
-	4,2,6,
-	2,7,6,
-	6,5,4,
-	1,7,3,
-	0,3,2,
-	4,1,0
+2 - 1,  1 - 1,3 - 1,
+4 - 1,  3 - 1,7 - 1,
+8 - 1,  7 - 1,5 - 1,
+6 - 1,  5 - 1,1 - 1,
+7 - 1,  3 - 1,1 - 1,
+4 - 1,  8 - 1,6 - 1,
+2 - 1,  3 - 1,4 - 1,
+4 - 1,  7 - 1,8 - 1,
+8 - 1,  5 - 1,6 - 1,
+6 - 1,  1 - 1,2 - 1,
+7 - 1,  1 - 1,5 - 1,
+4 - 1,  6 - 1 ,2 - 1
 };
-
-// Create vertex buffer object for a unit cube
-glm::vec3 unitcube[] = {
-	glm::vec3(1.000000 ,1.000000  ,-1.000000),
-	glm::vec3(1.000000 ,-1.000000 ,-1.000000),
-	glm::vec3(1.000000 ,1.000000  , 1.000000),
-	glm::vec3(1.000000 ,-1.000000 , 1.000000),
-	glm::vec3(-1.000000,1.000000  , -1.00000),
-	glm::vec3(-1.000000,-1.000000 , -1.00000),
-	glm::vec3(-1.000000,1.000000  , 1.000000),
-	glm::vec3(-1.000000,-1.000000 , 1.000000)
-};
-
-glm::vec3 cubeNormal[] = {
-	glm::vec3(0.0000, 1.0000 , 0.0000),
-	glm::vec3(0.0000, 0.0000, 1.0000),
-	glm::vec3(-1.0000, 0.0000, 0.0000),
-	glm::vec3(0.0000, -1.0000, 0.0000),
-	glm::vec3(1.0000 ,0.0000 , 0.0000),
-	glm::vec3(0.0000, 0.0000, -1.0000)
-};
-glm::vec2 cubeTexture[] = {
-	glm::vec2(0.625000, 0.500000),
-	glm::vec2(0.875000, 0.500000),
-	glm::vec2(0.875000, 0.750000),
-	glm::vec2(0.625000, 0.750000),
-	glm::vec2(0.375000, 0.750000),
-	glm::vec2(0.625000, 1.000000),
-	glm::vec2(0.375000, 1.000000),
-	glm::vec2(0.375000, 0.000000),
-	glm::vec2(0.625000, 0.000000),
-	glm::vec2(0.625000, 0.250000),
-	glm::vec2(0.375000, 0.250000),
-	glm::vec2(0.125000, 0.500000),
-	glm::vec2(0.375000, 0.500000),
-	glm::vec2(0.125000, 0.750000)
-
-};
-
 
 
 GLuint IBO;
@@ -241,7 +186,6 @@ int createVertexArrayElementObject2(std::vector<int> vertexIndices,
 const int WIDTH = 1024, HEIGHT = 768;
 int main(int argc, char* argv[])
 {
-
 	// Initialize GLFW and OpenGL version
 	if (!glfwInit())
 		return -1;
@@ -267,9 +211,8 @@ int main(int argc, char* argv[])
 	glViewport(0, 0, WIDTH, HEIGHT);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
-	//glEnable(GL_CULL_FACE);
-
-	//glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_BACK);
 
 	// Initialize GLEW
 	glewExperimental = true; // Needed for core profile
@@ -281,7 +224,6 @@ int main(int argc, char* argv[])
 
 	// Print OpenGL version
 	std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
-
 	// Load Textures
 #if defined(__APPLE__) // NOTE Rez: Youll need to path the textures
 #else
@@ -294,29 +236,16 @@ int main(int argc, char* argv[])
 	GLuint ropeTextureID = loadTexture("../src/Assets/rope.jpg");
 	GLuint clothTextureID = loadTexture("../src/Assets/cloth.jpg");
 	GLuint metalTextureID = loadTexture("../src/Assets/metal.jpg");
+	GLuint grassTextureID = loadTexture("../src/Assets/grass4.jpg");
 	// Black background	
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_FALSE);
-
 	// Set frame rate to refresh rate of monitor
 	glfwSwapInterval(1);
 
 	// Compile and link shaders here
 	int shaderProgram = compileAndLinkShaders(vertex, fragment);
 	int textureProgram = compileAndLinkShaders(textureV, textureF);
-	for (int i = 0; i < 8; i++) {
-		unitcube[i] = unitcube[i] * .05f; // This is to pre-scale the unit cube
-	}
-	//for (int i = 0; i < 41; i++) {
-	//	unitSphere[i] = unitSphere[i] * .05f; // This is to pre-scale the unit cube
-	//}
-
-	// Initialize uniform locations
-	glUseProgram(shaderProgram);
-	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
-	GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
-	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
-	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
 
 	// vec3 variables
 	glm::vec3 eye(.7650f, .250f, .7650f);
@@ -333,26 +262,24 @@ int main(int argc, char* argv[])
 	//Scene Jawn
 	SceneObjects SceneObj("scene");
 	SceneObj.InitGrid();
-	//SO.courtTexture = courtTextureID;
-	SceneObj.setTextures(courtTextureID, ropeTextureID, metalTextureID, clothTextureID);
+	SceneObj.setTextures(courtTextureID, ropeTextureID, metalTextureID, clothTextureID,grassTextureID);
 	SceneObj.textureProgram = textureProgram;
+	
 	// General variables
 	int renderAs = GL_TRIANGLES;
-
-
 	double lastMousePosX, lastMousePosY, lastMousePosZ;
 	float translateW = 0, translateY = 0, translateZ = 0;
 	glfwGetCursorPos(window, &lastMousePosX, &lastMousePosY);
 	lastMousePosZ = lastMousePosY;
 	float FOV = 70, AR = (float)WIDTH / (float)HEIGHT, near = .01, far = 50;
-
 	// Initialize projection and view matrices
 	glm::mat4 projectionMatrix = glm::perspective(FOV,  // field of view in degrees
 		AR,      // aspect ratio
 		near, far);       // near and far (near > 0)
-
-
 	glm::mat4 InitviewMatrix = glm::lookAt(eye, center, up);
+	glUseProgram(shaderProgram);
+	GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
+	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
 	setProjectionMatrix(shaderProgram, projectionMatrix);
 	setProjectionMatrix(textureProgram, projectionMatrix);
 	setViewMatrix(shaderProgram, InitviewMatrix);
@@ -360,17 +287,12 @@ int main(int argc, char* argv[])
 
 
 
-	std::vector<int> vertexIndicescube;
-	std::vector<glm::vec3> verticescube;
-	std::vector<glm::vec3> normalscube;
-	std::vector<glm::vec2> UVscube;
-	std::string pathCube = "../src/Assets/mesh/unitCube.obj";
-	loadOBJ2(pathCube.c_str(), vertexIndicescube, verticescube, normalscube, UVscube);
-	std::vector<int> vertexIndicessphere;
-	std::vector<glm::vec3> verticessphere;
-	std::vector<glm::vec3> normalssphere;
-	std::vector<glm::vec2> UVssphere;
+	std::vector<int> vertexIndicescube, vertexIndicessphere;
+	std::vector<glm::vec3> verticescube, verticessphere, normalscube, normalssphere;
+	std::vector<glm::vec2> UVscube, UVssphere;
+	std::string pathCube = "../src/Assets/mesh/unitCube.obj";	
 	std::string pathSphere = "../src/Assets/mesh/unitSphere.obj";
+	loadOBJ2(pathCube.c_str(), vertexIndicescube, verticescube, normalscube, UVscube);
 	loadOBJ2(pathSphere.c_str(), vertexIndicessphere, verticessphere, normalssphere, UVssphere);
 
 	for (int i = 0; i < verticescube.size(); i++) {
@@ -408,25 +330,21 @@ int main(int argc, char* argv[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Draw geometry
-		glUseProgram(shaderProgram);
-
+		glUseProgram(shaderProgram); //note: still dependent on this for scene objects?
 
 		// Set a default group matrix
 		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) *
 			glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
 			rotationMatrixW;
-		glBindVertexArray(unitSphereAO);
 
-		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &groupMatrix[0][0]);
-		glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0f, .76f, .95f)));
-		glDrawElements(renderAs, vertexIndicessphere.size(), GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
 
 		arm.SetAttr(groupMatrix, renderAs, shaderProgram);
 		arm.setTranslation(Translate, translate);
 		arm.DrawArm();
 		racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
 		racket.Draw();
+		SceneObj.sphereVao = unitSphereAO;
+		SceneObj.sphereVertCount = vertexIndicessphere.size();
 		SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
 		SceneObj.SetVAO(unitCubeAO, reverseCubeAO, gridAO);
 		SceneObj.DrawScene();
@@ -434,10 +352,6 @@ int main(int argc, char* argv[])
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-
-		//trying to setup callbacks
-		//glfwSetKeyCallback(window, KeyInput);
-		//glfwSetScrollCallback(window, scrollCallback);
 
 
 		// Handle inputs

@@ -13,8 +13,7 @@
 class Arm
 {
 public:
-	Arm(int cubeVao,
-		glm::mat4 worldMatrix);
+	Arm(int cubeVao,glm::mat4 worldMatrix);
 	Arm(int cubeVao, std::string letterName);
 	void setTranslation(glm::vec3 TranslateRandom, glm::vec3 TranslateModel);
 	void SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram);
@@ -38,7 +37,7 @@ public:
 	int shaderProgram;
 	int renderAs;
 	glm::vec3 position;
-	glm::vec3 colour[3];
+	//glm::vec3 colour[3];
 	std::string letterName;
 
 

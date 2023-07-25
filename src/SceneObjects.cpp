@@ -26,11 +26,12 @@ void SceneObjects::SetVAO(int cube, int reversecube, int grid) {
 	this->reverseCubeVao = reversecube;
 	this->gridVao = grid;
 }
-void SceneObjects::setTextures(GLuint court, GLuint rope, GLuint metal, GLuint cloth) { 
+void SceneObjects::setTextures(GLuint court, GLuint rope, GLuint metal, GLuint cloth,GLuint grass) { 
 	this->courtTexture = court;
 	this->ropeTexture = rope;
 	this->metalTexture = metal;
 	this->clothTexture = cloth;
+	this->grassTexture = grass;
 
 }
 void SceneObjects::InitGrid() {
@@ -62,7 +63,36 @@ void SceneObjects::DrawScene() {
 	if (!check) printf("Draw DrawGrid failed");
 	check = DrawCoord();
 	if (!check) printf("Draw DrawCoord failed");
+	check = DrawBall();
+	if (!check) printf("Draw DrawBall failed");
 }
+
+bool SceneObjects::DrawBall() {
+	glUseProgram(textureProgram);
+	glBindTexture(GL_TEXTURE_2D, grassTexture);
+	GLuint colorLocation = glGetUniformLocation(textureProgram, "objectColor");
+	GLuint worldMatrixLocation = glGetUniformLocation(textureProgram, "worldMatrix");
+
+	glm::mat4 ballScale = glm::scale(glm::mat4(1.0f), glm::vec3( .50f, .50f, .50f));
+	glm::mat4 ballTranslate = glm::translate(glm::mat4(1.0f), glm::vec3( .0666f, .3f, .0f));
+	glm::mat4 ballRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, .0f, 1.0f)); //this rotates hand
+	glm::mat4 ballParent = ballTranslate * ballScale * ballRotate;
+
+	//partScale = glm::scale(glm::mat4(1.0f), glm::vec3(constArmScaler.x * .4878f, constArmScaler.y * 1.1236f, constArmScaler.z));
+	//partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, .0f, 1.0f));
+	//
+	//partMatrix = partScale * partRo;
+	glm::mat4 worldMatrix = groupMatrix * ballParent;
+
+	glBindVertexArray(sphereVao);
+	//translate
+	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
+	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.1180f, 1.0f, .122f)));
+	glDrawElements(renderAs, sphereVertCount, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+	return true;
+}
+
 bool SceneObjects::DrawCourt() {
 	//set as textureshader and bind texture
 	glUseProgram(textureProgram);

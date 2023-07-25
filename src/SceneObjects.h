@@ -16,11 +16,14 @@ public:
 	SceneObjects(int cubeVao, std::string objectName);
 	SceneObjects(std::string objectName);
 	void SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram);
-	void setTextures(GLuint court, GLuint rope, GLuint metal, GLuint cloth);
+	void setTextures(GLuint court, GLuint rope, GLuint metal, GLuint cloth, GLuint grass);
 	
 	int gridVao;
-	int cubeVao;
+	int cubeVao;	
 	int reverseCubeVao;
+	int sphereVao;
+	int sphereVertCount;
+
 	glm::mat4 partParent;
 	glm::mat4 groupMatrix;
 	glm::mat4 rotationWMatrix;
@@ -31,6 +34,8 @@ public:
 	GLuint clothTexture;
 	GLuint ropeTexture;
 	GLuint metalTexture;
+	GLuint ballTexture;
+	GLuint grassTexture;
 	//atrributes for court
 
 	//attributes for net
@@ -44,7 +49,7 @@ public:
 	void SetVAO(int cube, int reversecube, int grid);
 	//methods like 
 	void InitGrid();
-	//bool DrawArm();
+	bool DrawBall();
 	bool DrawCourt();
 	bool DrawNet();
 	bool DrawSkyBox();
