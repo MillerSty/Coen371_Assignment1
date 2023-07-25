@@ -326,9 +326,9 @@ int main(int argc, char* argv[])
     glUseProgram(evanShaderProgram);
     glUniformMatrix4fv(evanViewMatrixLocation, 1, GL_FALSE, &InitviewMatrix[0][0]);
     glUniformMatrix4fv(evanProjectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
-    vec3 modelScale = vec3(0.05,0.05,0.05);
+    vec3 modelScale = vec3(0.03,0.03,0.03);
     EvanArm evanArm(vec3(0.2f,0.0f,0.0f), modelScale);
-    EvanRacket evanRacket(vec3(0.2f,0.1f,0.0f), modelScale);
+    EvanRacket evanRacket(vec3(0.2f,0.0f,0.0f), modelScale);
 
 	//NOTE we have issues when doing mouse jawn with current set up
 	while (!glfwWindowShouldClose(window))
