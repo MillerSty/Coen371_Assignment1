@@ -25,10 +25,16 @@ const char* textureF = "../src/shaders/textureFShader.glsl";
 int compileAndLinkShaders(const char* vertex, const char* fragment);
 GLuint loadTexture(const char* filename);
 void GLAPIENTRY messageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
-	                            const GLchar* message, const void* userParam);
+	const GLchar* message, const void* userParam);
 void setProjectionMatrix(int shaderProgram, glm::mat4 projectionMatrix);
 void setViewMatrix(int shaderProgram, glm::mat4 viewMatrix);
 
+bool loadOBJ2(
+	const char* path,
+	std::vector<int>& vertexIndices,
+	std::vector<glm::vec3>& temp_vertices,
+	std::vector<glm::vec3>& out_normals,
+	std::vector<glm::vec2>& out_uvs);
 int createVertexArrayObject(const glm::vec3* vertexArray, int arraySize)
 {    // Create a vertex array
 	GLuint vertexArrayObject;
@@ -75,7 +81,7 @@ unsigned int indices[] = {
 };
 
 // Reverse winding order indices
-unsigned int reverseIndices[] = {
+std::vector<int>  reverseIndices = { //3*12 =36
 	4,0,2,
 	2,3,7,
 	6,7,5,
@@ -129,8 +135,9 @@ glm::vec2 cubeTexture[] = {
 };
 
 
+
 GLuint IBO;
-int createVertexArrayElementObject(const glm::vec3* vertexArray, int arraySize, const glm::vec3* NormalArray, int NormalArraySize, const glm::vec2* TextureArray, int TextureArraySize, unsigned int indices[])
+int createVertexArrayElementObject(const glm::vec3* vertexArray, int arraySize, const glm::vec3* NormalArray, int NormalArraySize, const glm::vec2* TextureArray, int TextureArraySize, unsigned int indices[], int indiceSize)
 {
 	// Create a vertex array
 	GLuint vertexArrayObject;
@@ -139,13 +146,13 @@ int createVertexArrayElementObject(const glm::vec3* vertexArray, int arraySize, 
 
 	glGenBuffers(1, &IBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 36*sizeof(unsigned int), indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indiceSize * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
 	// Upload Vertex Buffer to the GPU, keep a reference to it (vertexBufferObject)
 	GLuint vertexBufferObject;
 	glGenBuffers(1, &vertexBufferObject);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-	int check = arraySize;
+	//int check = arraySize;
 	glBufferData(GL_ARRAY_BUFFER, arraySize, vertexArray, GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0,    // attribute 0 matches aPos in Vertex Shader
@@ -179,11 +186,61 @@ int createVertexArrayElementObject(const glm::vec3* vertexArray, int arraySize, 
 
 	return vertexArrayObject;
 }
+int createVertexArrayElementObject2(std::vector<int> vertexIndices,
+	std::vector<glm::vec3> vertices,
+	std::vector<glm::vec3> normals,
+	std::vector<glm::vec2> UVs)
+{
+	// Create a vertex array
+	GLuint vertexArrayObject;
+	glGenVertexArrays(1, &vertexArrayObject);
+	glBindVertexArray(vertexArrayObject);
 
+	glGenBuffers(1, &IBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertexIndices.size() * sizeof(unsigned int), &vertexIndices.front(), GL_STATIC_DRAW);
+
+	// Upload Vertex Buffer to the GPU, keep a reference to it (vertexBufferObject)
+	GLuint vertexBufferObject;
+	glGenBuffers(1, &vertexBufferObject);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
+	//int check = arraySize;
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices.front(), GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0,    // attribute 0 matches aPos in Vertex Shader
+		3,                      // size
+		GL_FLOAT,               // type
+		GL_FALSE,               // normalized?
+		1 * sizeof(glm::vec3),  // stride - each vertex contain 2 vec3 (position, color)
+		(void*)0                // array buffer offset
+	);
+	glEnableVertexAttribArray(0);
+
+	//Normals VBO setup taken from lab
+	GLuint normals_VBO;
+	glGenBuffers(1, &normals_VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, normals_VBO);
+	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals.front(), GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec3), (GLvoid*)0);
+	glEnableVertexAttribArray(1);
+
+	//UVs VBO setup
+	GLuint uvs_VBO;
+	glGenBuffers(1, &uvs_VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, uvs_VBO);
+	glBufferData(GL_ARRAY_BUFFER, UVs.size() * sizeof(glm::vec3), &UVs.front(), GL_STATIC_DRAW);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec3), (GLvoid*)0);
+	glEnableVertexAttribArray(2);
+
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	return vertexArrayObject;
+}
 const int WIDTH = 1024, HEIGHT = 768;
 int main(int argc, char* argv[])
 {
-
 
 	// Initialize GLFW and OpenGL version
 	if (!glfwInit())
@@ -210,10 +267,10 @@ int main(int argc, char* argv[])
 	glViewport(0, 0, WIDTH, HEIGHT);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 
 	//glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
-	
+
 	// Initialize GLEW
 	glewExperimental = true; // Needed for core profile
 	if (glewInit() != GLEW_OK) {
@@ -228,15 +285,15 @@ int main(int argc, char* argv[])
 	// Load Textures
 #if defined(__APPLE__) // NOTE Rez: Youll need to path the textures
 #else
-    // Enable debug output
-    glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(messageCallback, 0);
+	// Enable debug output
+	glEnable(GL_DEBUG_OUTPUT);
+	glDebugMessageCallback(messageCallback, 0);
 #endif
 
-    GLuint courtTextureID = loadTexture("../src/Assets/clay2.jpg");
-    GLuint ropeTextureID = loadTexture("../src/Assets/rope.jpg");
-    GLuint clothTextureID = loadTexture("../src/Assets/cloth.jpg");
-    GLuint metalTextureID = loadTexture("../src/Assets/metal.jpg");
+	GLuint courtTextureID = loadTexture("../src/Assets/clay2.jpg");
+	GLuint ropeTextureID = loadTexture("../src/Assets/rope.jpg");
+	GLuint clothTextureID = loadTexture("../src/Assets/cloth.jpg");
+	GLuint metalTextureID = loadTexture("../src/Assets/metal.jpg");
 	// Black background	
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_FALSE);
@@ -250,7 +307,10 @@ int main(int argc, char* argv[])
 	for (int i = 0; i < 8; i++) {
 		unitcube[i] = unitcube[i] * .05f; // This is to pre-scale the unit cube
 	}
-	
+	//for (int i = 0; i < 41; i++) {
+	//	unitSphere[i] = unitSphere[i] * .05f; // This is to pre-scale the unit cube
+	//}
+
 	// Initialize uniform locations
 	glUseProgram(shaderProgram);
 	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
@@ -285,23 +345,46 @@ int main(int argc, char* argv[])
 	glfwGetCursorPos(window, &lastMousePosX, &lastMousePosY);
 	lastMousePosZ = lastMousePosY;
 	float FOV = 70, AR = (float)WIDTH / (float)HEIGHT, near = .01, far = 50;
-	
+
 	// Initialize projection and view matrices
 	glm::mat4 projectionMatrix = glm::perspective(FOV,  // field of view in degrees
-			                                      AR,      // aspect ratio
-			                                      near, far);       // near and far (near > 0)
-	
-	
+		AR,      // aspect ratio
+		near, far);       // near and far (near > 0)
+
+
 	glm::mat4 InitviewMatrix = glm::lookAt(eye, center, up);
 	setProjectionMatrix(shaderProgram, projectionMatrix);
 	setProjectionMatrix(textureProgram, projectionMatrix);
 	setViewMatrix(shaderProgram, InitviewMatrix);
 	setViewMatrix(textureProgram, InitviewMatrix);
-	
+
+
+
+	std::vector<int> vertexIndicescube;
+	std::vector<glm::vec3> verticescube;
+	std::vector<glm::vec3> normalscube;
+	std::vector<glm::vec2> UVscube;
+	std::string pathCube = "../src/Assets/mesh/unitCube.obj";
+	loadOBJ2(pathCube.c_str(), vertexIndicescube, verticescube, normalscube, UVscube);
+	std::vector<int> vertexIndicessphere;
+	std::vector<glm::vec3> verticessphere;
+	std::vector<glm::vec3> normalssphere;
+	std::vector<glm::vec2> UVssphere;
+	std::string pathSphere = "../src/Assets/mesh/unitSphere.obj";
+	loadOBJ2(pathSphere.c_str(), vertexIndicessphere, verticessphere, normalssphere, UVssphere);
+
+	for (int i = 0; i < verticescube.size(); i++) {
+		verticescube[i] = verticescube[i] * .05f;
+	}
+	for (int i = 0; i < verticessphere.size(); i++) {
+		verticessphere[i] = verticessphere[i] * .05f;
+	}
 
 	int gridAO = createVertexArrayObject(SceneObj.lineArray, sizeof(SceneObj.lineArray));
-	int unitCubeAO = createVertexArrayElementObject(unitcube, sizeof(unitcube),cubeNormal,sizeof(cubeNormal),cubeTexture,sizeof(cubeTexture),indices);
-	int reverseCubeAO = createVertexArrayElementObject(unitcube, sizeof(unitcube), cubeNormal, sizeof(cubeNormal), cubeTexture, sizeof(cubeTexture), reverseIndices);
+	int unitCubeAO = createVertexArrayElementObject2(vertexIndicescube, verticescube, normalscube, UVscube);
+	int unitSphereAO = createVertexArrayElementObject2(vertexIndicessphere, verticessphere, normalssphere, UVssphere);
+	int reverseCubeAO = createVertexArrayElementObject2(reverseIndices, verticescube, normalscube, UVscube);
+
 	Arm arm(unitCubeAO, "arm");
 	Racket racket(unitCubeAO, "racket");
 	racket.jawnAngle = 0;
@@ -323,16 +406,22 @@ int main(int argc, char* argv[])
 
 		// Each frame, reset color of each pixel to glClearColor
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
+
 		// Draw geometry
 		glUseProgram(shaderProgram);
 
+
 		// Set a default group matrix
 		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) *
-			          glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
-			          rotationMatrixW;
+			glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
+			rotationMatrixW;
+		glBindVertexArray(unitSphereAO);
 
-	
+		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &groupMatrix[0][0]);
+		glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0f, .76f, .95f)));
+		glDrawElements(renderAs, vertexIndicessphere.size(), GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+
 		arm.SetAttr(groupMatrix, renderAs, shaderProgram);
 		arm.setTranslation(Translate, translate);
 		arm.DrawArm();
@@ -341,7 +430,7 @@ int main(int argc, char* argv[])
 		SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
 		SceneObj.SetVAO(unitCubeAO, reverseCubeAO, gridAO);
 		SceneObj.DrawScene();
-		
+
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -360,7 +449,7 @@ int main(int argc, char* argv[])
 
 		}
 
-		if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) 
+		if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
 		{
 		}
 		if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
@@ -372,7 +461,7 @@ int main(int argc, char* argv[])
 		}
 		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
 			float number1 = (rand()) / (float)(RAND_MAX), number2 = (rand()) / (float)(RAND_MAX), number3 = (rand()) / (float)(RAND_MAX);
-			
+
 			// Constrain to visible grid locations
 			while (number1 >= .75f || number2 >= .25f || number3 >= .75f) {
 				if (number1 >= .75f) {
@@ -461,7 +550,7 @@ int main(int argc, char* argv[])
 		{
 			double  mousePosY;
 			glfwGetCursorPos(window, NULL, &mousePosY);
-			double dy = mousePosY - lastMousePosY;			
+			double dy = mousePosY - lastMousePosY;
 			if (dy < 0) translateY += .005;
 			else if (dy > 0) translateY -= .005;
 			glm::mat4 InitviewMatrix = glm::lookAt(eye,  // eye
@@ -480,7 +569,7 @@ int main(int argc, char* argv[])
 			if (dx < 0) translateW -= .005;
 			else if (dx > 0) translateW += .005;
 			glm::mat4 InitviewMatrix = glm::lookAt(eye,  // eye
-				glm::vec3(translateW+center.x, translateY+center.y, 0.0f),  // center
+				glm::vec3(translateW + center.x, translateY + center.y, 0.0f),  // center
 				up);// up
 			setViewMatrix(shaderProgram, InitviewMatrix);
 			setViewMatrix(textureProgram, InitviewMatrix);
@@ -489,12 +578,12 @@ int main(int argc, char* argv[])
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
 		{
 			double  mousePosZ;
-			glfwGetCursorPos(window, NULL, &mousePosZ);			
+			glfwGetCursorPos(window, NULL, &mousePosZ);
 			double dy = mousePosZ - lastMousePosZ;
 
 			if (dy < 0) translateZ += .005;
-			else if (dy > 0)translateZ -= .005; 
-			glm::mat4 projectionMatrix = glm::perspective(translateZ+70.0f,  // field of view in degrees
+			else if (dy > 0)translateZ -= .005;
+			glm::mat4 projectionMatrix = glm::perspective(translateZ + 70.0f,  // field of view in degrees
 				(float)WIDTH / (float)HEIGHT,      // aspect ratio
 				.01f, 50.0f);       // near and far (near > 0)
 			setProjectionMatrix(shaderProgram, projectionMatrix);
@@ -641,4 +730,135 @@ void setViewMatrix(int shaderProgram, glm::mat4 viewMatrix)
 	glUseProgram(shaderProgram);
 	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
 	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &viewMatrix[0][0]);
+}
+
+
+
+bool loadOBJ2(
+	const char* path,
+	std::vector<int>& vertexIndices,
+	std::vector<glm::vec3>& temp_vertices,
+	std::vector<glm::vec3>& out_normals,
+	std::vector<glm::vec2>& out_uvs) {
+
+	std::vector<int> uvIndices, normalIndices;
+	std::vector<glm::vec2> temp_uvs;
+	std::vector<glm::vec3> temp_normals;
+
+	FILE* file;
+	file = fopen(path, "r");
+	if (!file) {
+		printf("Impossible to open the file ! Are you in the right path ?\n");
+		getchar();
+		return false;
+	}
+
+	while (1) {
+
+		char lineHeader[128];
+		// read the first word of the line
+		int res = fscanf(file, "%s", lineHeader);
+		if (res == EOF)
+			break; // EOF = End Of File. Quit the loop.
+
+		// else : parse lineHeader
+
+		if (strcmp(lineHeader, "v") == 0) {
+			glm::vec3 vertex;
+			res = fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
+
+			temp_vertices.push_back(vertex);
+		}
+		else if (strcmp(lineHeader, "vt") == 0) {
+			glm::vec2 uv;
+			res = fscanf(file, "%f %f\n", &uv.x, &uv.y);
+			if (res != 2) {
+				printf("Missing uv information!\n");
+			}
+			uv.y = -uv.y; // Invert V coordinate since we will only use DDS texture, which are inverted. Remove if you want to use TGA or BMP loaders.
+			temp_uvs.push_back(uv);
+		}
+		else if (strcmp(lineHeader, "vn") == 0) {
+			glm::vec3 normal;
+			res = fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
+			if (res != 3) {
+				printf("Missing normal information!\n");
+			}
+			temp_normals.push_back(normal);
+		}
+		else if (strcmp(lineHeader, "f") == 0) {
+			char* getRes;
+			int vertexIndex[3], uvIndex[3], normalIndex[3];
+			bool uv = true;
+			bool norm = true;
+			char line[128];
+			getRes = fgets(line, 128, file);
+			if (getRes == 0) {
+				printf("incomplete face\n");
+			}
+
+			//vertex, uv, norm
+			int matches = sscanf(line, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
+			if (matches != 9) {
+				//vertex, norm
+				matches = sscanf(line, "%d//%d %d//%d %d//%d\n", &vertexIndex[0], &normalIndex[0], &vertexIndex[1], &normalIndex[1], &vertexIndex[2], &normalIndex[2]);
+				if (matches != 6) {
+					//vertex, uv
+					matches = sscanf(line, "%d/%d %d/%d %d/%d\n", &vertexIndex[0], &uvIndex[0], &vertexIndex[1], &uvIndex[1], &vertexIndex[2], &uvIndex[2]);
+					if (matches != 6) {
+						//vertex
+						matches = sscanf(line, "%d %d %d\n", &vertexIndex[0], &vertexIndex[1], &vertexIndex[2]);
+						if (matches != 3) {
+							printf("File can't be read by our simple parser. 'f' format expected: d/d/d d/d/d d/d/d || d/d d/d d/d || d//d d//d d//d\n");
+							printf("Character at %ld", ftell(file));
+							return false;
+						}
+						uv, norm = false;
+					}
+					else {
+						norm = false;
+					}
+				}
+				else {
+					uv = false;
+				}
+			}
+			vertexIndices.push_back(abs(vertexIndex[0]) - 1);
+			vertexIndices.push_back(abs(vertexIndex[1]) - 1);
+			vertexIndices.push_back(abs(vertexIndex[2]) - 1);
+			if (norm) {
+				normalIndices.push_back(abs(normalIndex[0]) - 1);
+				normalIndices.push_back(abs(normalIndex[1]) - 1);
+				normalIndices.push_back(abs(normalIndex[2]) - 1);
+			}
+			if (uv) {
+				uvIndices.push_back(abs(uvIndex[0]) - 1);
+				uvIndices.push_back(abs(uvIndex[1]) - 1);
+				uvIndices.push_back(abs(uvIndex[2]) - 1);
+			}
+		}
+		else {
+			char clear[1000];
+			char* getsRes = fgets(clear, 1000, file);
+		}
+	}
+	if (normalIndices.size() != 0)
+		out_normals.resize(temp_normals.size());
+	if (uvIndices.size() != 0)
+		out_uvs.resize(temp_uvs.size());
+	out_normals = temp_normals;
+	out_uvs = temp_uvs;
+	//for (unsigned int i = 0; i < vertexIndices.size(); i++) {
+	//	int vi = vertexIndices[i];
+	//	if (normalIndices.size() != 0) {
+	//		int ni = normalIndices[i];
+	//		out_normals[vi] = temp_normals[ni];
+	//	}
+	//	if (uvIndices.size() != 0 && i < uvIndices.size()) {
+	//		int ui = uvIndices[i];
+	//		out_uvs[vi] = temp_uvs[ui];
+	//	}
+	//}
+
+	return true;
 }
