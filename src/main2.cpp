@@ -32,9 +32,12 @@ const char* evanFragment = "../src/shaders/fragment.glsl";
 int compileAndLinkShaders(const char* vertex, const char* fragment);
 GLuint loadTexture(const char* filename);
 void GLAPIENTRY messageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
-	                            const GLchar* message, const void* userParam);
+	const GLchar* message, const void* userParam);
 void setProjectionMatrix(int shaderProgram, glm::mat4 projectionMatrix);
 void setViewMatrix(int shaderProgram, glm::mat4 viewMatrix);
+
+void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos);
 
 int createVertexArrayObject(const glm::vec3* vertexArray, int arraySize)
 {    // Create a vertex array
@@ -146,7 +149,7 @@ int createVertexArrayElementObject(const glm::vec3* vertexArray, int arraySize, 
 
 	glGenBuffers(1, &IBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 36*sizeof(unsigned int), indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 36 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
 	// Upload Vertex Buffer to the GPU, keep a reference to it (vertexBufferObject)
 	GLuint vertexBufferObject;
@@ -193,7 +196,7 @@ const int WIDTH = 1024, HEIGHT = 768;
 glm::vec3 eye(.7650f, .250f, .7650f);
 glm::vec3 center(.00f, .0f, 0.0f);
 glm::vec3 up(0.0f, 1.0f, 0.0f);
-glm::vec3 translate(0.0f, 0.0f, 0.0f);
+glm::vec3 translateWSAD(0.0f, 0.0f, 0.0f);
 glm::vec3 Translate(.0f, .0f, .0f);
 glm::vec3 GroupMatrixScale(1.0f, 1.0f, 1.0f);
 
@@ -208,7 +211,7 @@ int shaderProgram;
 int textureProgram;
 
 double lastMousePosX, lastMousePosY, lastMousePosZ;
-float FOV = 70, AR = (float) (WIDTH / HEIGHT), near = .01, far = 50;
+float FOV = 70, AR = (float)(WIDTH / HEIGHT), near = .01, far = 50;
 float translateW = 0, translateY = 0, translateZ = 0;
 
 int main(int argc, char* argv[])
@@ -241,7 +244,7 @@ int main(int argc, char* argv[])
 	glEnable(GL_CULL_FACE);
 
 	//glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
-	
+
 	// Initialize GLEW
 	glewExperimental = true; // Needed for core profile
 	if (glewInit() != GLEW_OK) {
@@ -256,15 +259,15 @@ int main(int argc, char* argv[])
 	// Load Textures
 #if defined(__APPLE__) // NOTE Rez: Youll need to path the textures
 #else
-    // Enable debug output
-    glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(messageCallback, 0);
+	// Enable debug output
+	glEnable(GL_DEBUG_OUTPUT);
+	glDebugMessageCallback(messageCallback, 0);
 #endif
 
-    GLuint courtTextureID = loadTexture("../src/Assets/clay2.jpg");
-    GLuint ropeTextureID = loadTexture("../src/Assets/rope.jpg");
-    GLuint clothTextureID = loadTexture("../src/Assets/cloth.jpg");
-    GLuint metalTextureID = loadTexture("../src/Assets/metal.jpg");
+	GLuint courtTextureID = loadTexture("../src/Assets/clay2.jpg");
+	GLuint ropeTextureID = loadTexture("../src/Assets/rope.jpg");
+	GLuint clothTextureID = loadTexture("../src/Assets/cloth.jpg");
+	GLuint metalTextureID = loadTexture("../src/Assets/metal.jpg");
 	// Black background	
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_FALSE);
@@ -279,7 +282,7 @@ int main(int argc, char* argv[])
 	for (int i = 0; i < 8; i++) {
 		unitcube[i] = unitcube[i] * .05f; // This is to pre-scale the unit cube
 	}
-	
+
 	// Initialize uniform locations
 	glUseProgram(shaderProgram);
 	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
@@ -300,9 +303,9 @@ int main(int argc, char* argv[])
 
 	// Initialize projection and view matrices
 	glm::mat4 projectionMatrix = glm::perspective(FOV,  // field of view in degrees
-			                                      AR,      // aspect ratio
-			                                      near, far);       // near and far (near > 0)
-	
+		AR,      // aspect ratio
+		near, far);       // near and far (near > 0)
+
 	glm::mat4 InitviewMatrix = glm::lookAt(eye, center, up);
 	setProjectionMatrix(shaderProgram, projectionMatrix);
 	setProjectionMatrix(textureProgram, projectionMatrix);
@@ -310,7 +313,7 @@ int main(int argc, char* argv[])
 	setViewMatrix(textureProgram, InitviewMatrix);
 
 	int gridAO = createVertexArrayObject(SceneObj.lineArray, sizeof(SceneObj.lineArray));
-	int unitCubeAO = createVertexArrayElementObject(unitcube, sizeof(unitcube),cubeNormal,sizeof(cubeNormal),cubeTexture,sizeof(cubeTexture),indices);
+	int unitCubeAO = createVertexArrayElementObject(unitcube, sizeof(unitcube), cubeNormal, sizeof(cubeNormal), cubeTexture, sizeof(cubeTexture), indices);
 	int reverseCubeAO = createVertexArrayElementObject(unitcube, sizeof(unitcube), cubeNormal, sizeof(cubeNormal), cubeTexture, sizeof(cubeTexture), reverseIndices);
 	//arm(unitCubeAO, "arm");
 	arm.setVAO(unitCubeAO);
@@ -326,16 +329,16 @@ int main(int argc, char* argv[])
 	glfwSetKeyCallback(window, keyPressCallback);
 	glfwSetCursorPosCallback(window, mouseCursorPostionCallback);
 
-  int evanShaderProgram = compileAndLinkShaders(evanVertex, evanFragment);
-  GLint evanWorldMatrixLocation = glGetUniformLocation(evanShaderProgram, "modelMatrix");
-  GLint evanViewMatrixLocation = glGetUniformLocation(evanShaderProgram, "viewMatrix");
-  GLint evanProjectionMatrixLocation = glGetUniformLocation(evanShaderProgram, "projectMatrix");
-  glUseProgram(evanShaderProgram);
-  glUniformMatrix4fv(evanViewMatrixLocation, 1, GL_FALSE, &InitviewMatrix[0][0]);
-  glUniformMatrix4fv(evanProjectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
-  vec3 modelScale = vec3(0.03,0.03,0.03);
-  EvanArm evanArm(vec3(0.2f,0.0f,0.0f), modelScale);
-  EvanRacket evanRacket(vec3(0.2f,0.0f,0.0f), modelScale);
+	int evanShaderProgram = compileAndLinkShaders(evanVertex, evanFragment);
+	GLint evanWorldMatrixLocation = glGetUniformLocation(evanShaderProgram, "modelMatrix");
+	GLint evanViewMatrixLocation = glGetUniformLocation(evanShaderProgram, "viewMatrix");
+	GLint evanProjectionMatrixLocation = glGetUniformLocation(evanShaderProgram, "projectMatrix");
+	glUseProgram(evanShaderProgram);
+	glUniformMatrix4fv(evanViewMatrixLocation, 1, GL_FALSE, &InitviewMatrix[0][0]);
+	glUniformMatrix4fv(evanProjectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
+	vec3 modelScale = vec3(0.03, 0.03, 0.03);
+	EvanArm evanArm(vec3(0.2f, 0.0f, 0.0f), modelScale);
+	EvanRacket evanRacket(vec3(0.2f, 0.0f, 0.0f), modelScale);
 
 	//NOTE we have issues when doing mouse jawn with current set up
 	while (!glfwWindowShouldClose(window))
@@ -350,7 +353,7 @@ int main(int argc, char* argv[])
 
 		// Each frame, reset color of each pixel to glClearColor
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
+
 		// Draw geometry
 		glUseProgram(shaderProgram);
 
@@ -358,17 +361,17 @@ int main(int argc, char* argv[])
 
 		// Set a default group matrix
 		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) *
-			          glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
-			          rotationMatrixW;
-	
+			glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
+			rotationMatrixW;
+
 		arm.SetAttr(groupMatrix, renderAs, shaderProgram);
-		arm.setTranslation(Translate, translate);
+		arm.setTranslation(Translate, translateWSAD);
 		arm.DrawArm();
 		racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
 		racket.Draw();
 
-        evanArm.draw(evanWorldMatrixLocation, evanShaderProgram);
-        evanRacket.draw(evanWorldMatrixLocation, evanShaderProgram);
+		evanArm.draw(evanWorldMatrixLocation, evanShaderProgram);
+		evanRacket.draw(evanWorldMatrixLocation, evanShaderProgram);
 
 		SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
 		SceneObj.SetVAO(unitCubeAO, reverseCubeAO, gridAO);
@@ -589,18 +592,18 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 
 	else if (state_DOWN == GLFW_PRESS)
 		rotationMatrixW *= glm::rotate(glm::mat4(1.0f), glm::radians(2.55f), glm::vec3(.0f, -1.0f, 0.0f));
-	
+
 	else if (state_W == GLFW_PRESS)
-		translate.y += .005;
+		translateWSAD.y += .005;
 
 	else if (state_S == GLFW_PRESS)
-		translate.y -= .005;
+		translateWSAD.y -= .005;
 
 	else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-		translate.x -= .005;
+		translateWSAD.x -= .005;
 
 	else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-		translate.x += .005;
+		translateWSAD.x += .005;
 
 	else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
 		arm.setRotation(arm.getRotation() + 5);
@@ -624,8 +627,8 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		Translate.x += -1 * Translate.x;
 		Translate.y += -1 * Translate.y;
 		Translate.z += -1 * Translate.z;
-		translate.x += -1 * translate.x;
-		translate.y += -1 * translate.y;
+		translateWSAD.x += -1 * translateWSAD.x;
+		translateWSAD.y += -1 * translateWSAD.y;
 		arm.armRotate = 0;
 		GroupMatrixScale = glm::vec3(1.0f);
 		rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
@@ -651,22 +654,22 @@ void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos)
 	if (state_LEFT == GLFW_PRESS)
 	{
 		double dy = yPos - lastMousePosY;
-		
+
 		if (dy < 0)
 			translateY += .005;
 		else if (dy > 0)
 			translateY -= .005;
-		
+
 		glm::mat4 InitviewMatrix = glm::lookAt(eye, glm::vec3(translateW, translateY, 0.0f), up);
 		setViewMatrix(shaderProgram, InitviewMatrix);
 		setViewMatrix(textureProgram, InitviewMatrix);
 		lastMousePosY = yPos;
 	}
-	
+
 	else if (state_RIGHT == GLFW_PRESS)
 	{
 		double dx = xPos - lastMousePosX;
-		
+
 		if (dx < 0)
 			translateW -= .005;
 		else if (dx > 0)
@@ -677,7 +680,7 @@ void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos)
 		setViewMatrix(textureProgram, InitviewMatrix);
 		lastMousePosX = xPos;
 	}
-	
+
 	else if (state_MIDDLE == GLFW_PRESS)
 	{
 		double zPos = yPos;
