@@ -286,16 +286,16 @@ int main(int argc, char* argv[])
 	shaderProgram = compileAndLinkShaders(vertex, fragment);
 	textureProgram = compileAndLinkShaders(textureV, textureF);
 
-	for (int i = 0; i < 8; i++) {
-		unitcube[i] = unitcube[i] * .05f; // This is to pre-scale the unit cube
-	}
+	//for (int i = 0; i < 8; i++) {
+	//	unitcube[i] = unitcube[i] * .05f; // This is to pre-scale the unit cube
+	//}
 
 	// Initialize uniform locations
 	glUseProgram(shaderProgram);
-	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
-	GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
-	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
-	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
+	//GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
+	//GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
+	//GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
+	//GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
 
 	//Scene Jawn
 	SceneObjects SceneObj("scene");
@@ -330,6 +330,12 @@ int main(int argc, char* argv[])
 	loadOBJ2(pathCube.c_str(), vertexIndicescube, verticescube, normalscube, UVscube);
 	loadOBJ2(pathSphere.c_str(), vertexIndicessphere, verticessphere, normalssphere, UVssphere);
   
+	for (int i = 0; i < verticescube.size(); i++) {
+		verticescube[i] = verticescube[i] * .05f;
+	}
+	for (int i = 0; i < verticessphere.size(); i++) {
+		verticessphere[i] = verticessphere[i] * .05f;
+	}
 	int gridAO = createVertexArrayObject(SceneObj.lineArray, sizeof(SceneObj.lineArray));
 	int unitCubeAO = createVertexArrayElementObject2(vertexIndicescube, verticescube, normalscube, UVscube);
 	int unitSphereAO = createVertexArrayElementObject2(vertexIndicessphere, verticessphere, normalssphere, UVssphere);
@@ -337,12 +343,7 @@ int main(int argc, char* argv[])
 
 	arm.setVAO(unitCubeAO);
 
-	for (int i = 0; i < verticescube.size(); i++) {
-		verticescube[i] = verticescube[i] * .05f;
-	}
-	for (int i = 0; i < verticessphere.size(); i++) {
-		verticessphere[i] = verticessphere[i] * .05f;
-	}
+
 
 	Racket racket(unitCubeAO, "racket");
 
