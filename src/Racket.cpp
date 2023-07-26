@@ -1,8 +1,8 @@
 #include "Racket.h"
 
-//using namespace Racket;
-//using namespace Racket;
-Racket::Racket(int cubeVao,	glm::mat4 worldMatrix) {
+//using namespace EvanRacket;
+//using namespace EvanRacket;
+Racket::Racket(int cubeVao, glm::mat4 worldMatrix) {
 	this->cubeVao = cubeVao;
 	this->groupMatrix = worldMatrix;
 	this->position = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -22,7 +22,7 @@ Racket::Racket(int cubeVao, std::string racketName) {
 
 
 
-void Racket::SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram,glm::mat4 partParent) {
+void Racket::SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram, glm::mat4 partParent) {
 	this->groupMatrix = groupMatrix;
 	this->renderAs = renderAs;
 	this->shaderProgram = shaderProgram;

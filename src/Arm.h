@@ -13,6 +13,7 @@
 class Arm
 {
 public:
+
 	Arm(int cubeVao, glm::mat4 worldMatrix);
 	Arm(int cubeVao, std::string letterName);
 	Arm();

@@ -17,11 +17,17 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#include "Evan-models/EvanArm.h"
+#include "Evan-models/EvanRacket.h"
+
 const char* vertex = "../src/shaders/vertexShader.glsl";
 const char* fragment = "../src/shaders/fragmentShader.glsl";
 
 const char* textureV = "../src/shaders/textureVShader.glsl";
 const char* textureF = "../src/shaders/textureFShader.glsl";
+
+const char* evanVertex = "../src/shaders/vertex.glsl";
+const char* evanFragment = "../src/shaders/fragment.glsl";
 
 int compileAndLinkShaders(const char* vertex, const char* fragment);
 GLuint loadTexture(const char* filename);
@@ -247,28 +253,21 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	// Enable debug output
-	glEnable(GL_DEBUG_OUTPUT);
-	glDebugMessageCallback(messageCallback, 0);
-
 	// Print OpenGL version
 	std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
 	// Load Textures
-#if defined(PLATFORM_OSX) // NOTE Rez: Youll need to path the textures
-	//GLuint brickTextureID = loadTexture("Textures/brick.jpg"); EXAMPLE FROM LAB04
-	//
-	//GLuint courtTextureID = loadTexture("");
-	//GLuint ropeTextureID = loadTexture("");
-	//GLuint clothTextureID = loadTexture("");
-	//GLuint metalTextureID = loadTexture("");
+#if defined(__APPLE__) // NOTE Rez: Youll need to path the textures
 #else
-	GLuint courtTextureID = loadTexture("../src/Assets/clay2.jpg");
-	GLuint ropeTextureID = loadTexture("../src/Assets/rope.jpg");
-	GLuint clothTextureID = loadTexture("../src/Assets/cloth.jpg");
-	GLuint metalTextureID = loadTexture("../src/Assets/metal.jpg");	
+    // Enable debug output
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(messageCallback, 0);
 #endif
 
+    GLuint courtTextureID = loadTexture("../src/Assets/clay2.jpg");
+    GLuint ropeTextureID = loadTexture("../src/Assets/rope.jpg");
+    GLuint clothTextureID = loadTexture("../src/Assets/cloth.jpg");
+    GLuint metalTextureID = loadTexture("../src/Assets/metal.jpg");
 	// Black background	
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_FALSE);
@@ -319,6 +318,7 @@ int main(int argc, char* argv[])
 	//arm(unitCubeAO, "arm");
 	arm.setVAO(unitCubeAO);
 	Racket racket(unitCubeAO, "racket");
+
 	racket.jawnAngle = 0;
 
 	int select = -1;
@@ -328,6 +328,17 @@ int main(int argc, char* argv[])
 	// Set mouse and keyboard callbacks
 	glfwSetKeyCallback(window, keyPressCallback);
 	glfwSetCursorPosCallback(window, mouseCursorPostionCallback);
+
+  int evanShaderProgram = compileAndLinkShaders(evanVertex, evanFragment);
+  GLint evanWorldMatrixLocation = glGetUniformLocation(evanShaderProgram, "modelMatrix");
+  GLint evanViewMatrixLocation = glGetUniformLocation(evanShaderProgram, "viewMatrix");
+  GLint evanProjectionMatrixLocation = glGetUniformLocation(evanShaderProgram, "projectMatrix");
+  glUseProgram(evanShaderProgram);
+  glUniformMatrix4fv(evanViewMatrixLocation, 1, GL_FALSE, &InitviewMatrix[0][0]);
+  glUniformMatrix4fv(evanProjectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
+  vec3 modelScale = vec3(0.03,0.03,0.03);
+  EvanArm evanArm(vec3(0.2f,0.0f,0.0f), modelScale);
+  EvanRacket evanRacket(vec3(0.2f,0.0f,0.0f), modelScale);
 
 	//NOTE we have issues when doing mouse jawn with current set up
 	while (!glfwWindowShouldClose(window))
@@ -346,6 +357,8 @@ int main(int argc, char* argv[])
 		// Draw geometry
 		glUseProgram(shaderProgram);
 
+
+
 		// Set a default group matrix
 		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) *
 			          glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
@@ -356,6 +369,10 @@ int main(int argc, char* argv[])
 		arm.DrawArm();
 		racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
 		racket.Draw();
+
+        evanArm.draw(evanWorldMatrixLocation, evanShaderProgram);
+        evanRacket.draw(evanWorldMatrixLocation, evanShaderProgram);
+
 		SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
 		SceneObj.SetVAO(unitCubeAO, reverseCubeAO, gridAO);
 		SceneObj.DrawScene();
@@ -444,8 +461,7 @@ int compileAndLinkShaders(const char* vertex, const char* fragment)
 
 /// An error callback function
 /// Courtesy of https://www.khronos.org/opengl/wiki/OpenGL_Error
-void GLAPIENTRY messageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, 
-	                            const GLchar* message, const void* userParam)
+void GLAPIENTRY messageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {
 	std::cerr << "GL CALLBACK: " << (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "")
 		<< " type = 0x" << type << ", severity = 0x" << severity << ", message = " << message << std::endl;
