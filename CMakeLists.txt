@@ -25,8 +25,9 @@ include_directories("thirdparty/stb")
 set(EXEC Coen371_Project)
 
 file(GLOB SRC src/*.cpp)
+file(GLOB EVAN_SRC src/Evan-models/*.cpp)
 
-add_executable(${EXEC} ${SRC})
+add_executable(${EXEC} ${SRC} ${EVAN_SRC})
 
 target_link_libraries(${EXEC} OpenGL::GL glew_s glfw glm)
 

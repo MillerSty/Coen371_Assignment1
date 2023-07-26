@@ -17,11 +17,18 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#include "Evan-models/EvanArm.h"
+#include "Evan-models/EvanRacket.h"
+
 const char* vertex = "../src/shaders/vertexShader.glsl";
 const char* fragment = "../src/shaders/fragmentShader.glsl";
 
 const char* textureV = "../src/shaders/textureVShader.glsl";
 const char* textureF = "../src/shaders/textureFShader.glsl";
+
+const char* evanVertex = "../src/shaders/vertex.glsl";
+const char* evanFragment = "../src/shaders/fragment.glsl";
+
 int compileAndLinkShaders(const char* vertex, const char* fragment);
 GLuint loadTexture(const char* filename);
 void GLAPIENTRY messageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
@@ -309,11 +316,24 @@ int main(int argc, char* argv[])
 
 	Arm arm(unitCubeAO, "arm");
 	Racket racket(unitCubeAO, "racket");
+
 	racket.jawnAngle = 0;
 
 	int select = -1;
 	int* newWidth = new int;
 	int* newHeight = new int;
+
+
+    int evanShaderProgram = compileAndLinkShaders(evanVertex, evanFragment);
+    GLint evanWorldMatrixLocation = glGetUniformLocation(evanShaderProgram, "modelMatrix");
+    GLint evanViewMatrixLocation = glGetUniformLocation(evanShaderProgram, "viewMatrix");
+    GLint evanProjectionMatrixLocation = glGetUniformLocation(evanShaderProgram, "projectMatrix");
+    glUseProgram(evanShaderProgram);
+    glUniformMatrix4fv(evanViewMatrixLocation, 1, GL_FALSE, &InitviewMatrix[0][0]);
+    glUniformMatrix4fv(evanProjectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
+    vec3 modelScale = vec3(0.03,0.03,0.03);
+    EvanArm evanArm(vec3(0.2f,0.0f,0.0f), modelScale);
+    EvanRacket evanRacket(vec3(0.2f,0.0f,0.0f), modelScale);
 
 	//NOTE we have issues when doing mouse jawn with current set up
 	while (!glfwWindowShouldClose(window))
@@ -332,6 +352,8 @@ int main(int argc, char* argv[])
 		// Draw geometry
 		glUseProgram(shaderProgram); //note: still dependent on this for scene objects?
 
+
+
 		// Set a default group matrix
 		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) *
 			glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
@@ -343,6 +365,10 @@ int main(int argc, char* argv[])
 		arm.DrawArm();
 		racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
 		racket.Draw();
+
+        evanArm.draw(evanWorldMatrixLocation, evanShaderProgram);
+        evanRacket.draw(evanWorldMatrixLocation, evanShaderProgram);
+
 		SceneObj.sphereVao = unitSphereAO;
 		SceneObj.sphereVertCount = vertexIndicessphere.size();
 		SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
