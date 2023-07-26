@@ -22,6 +22,7 @@ const char* fragment = "../src/shaders/fragmentShader.glsl";
 
 const char* textureV = "../src/shaders/textureVShader.glsl";
 const char* textureF = "../src/shaders/textureFShader.glsl";
+
 int compileAndLinkShaders(const char* vertex, const char* fragment);
 GLuint loadTexture(const char* filename);
 void GLAPIENTRY messageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
@@ -30,7 +31,7 @@ void setProjectionMatrix(int shaderProgram, glm::mat4 projectionMatrix);
 void setViewMatrix(int shaderProgram, glm::mat4 viewMatrix);
 
 void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos);
 
 int createVertexArrayObject(const glm::vec3* vertexArray, int arraySize)
 {    // Create a vertex array
@@ -204,6 +205,8 @@ int shaderProgram;
 int textureProgram;
 
 double lastMousePosX, lastMousePosY, lastMousePosZ;
+float FOV = 70, AR = (float) (WIDTH / HEIGHT), near = .01, far = 50;
+float translateW = 0, translateY = 0, translateZ = 0;
 
 int main(int argc, char* argv[])
 {
@@ -296,30 +299,25 @@ int main(int argc, char* argv[])
 	SceneObj.textureProgram = textureProgram;
 	// General variables
 
-
-
-	float translateW = 0, translateY = 0, translateZ = 0;
 	glfwGetCursorPos(window, &lastMousePosX, &lastMousePosY);
 	lastMousePosZ = lastMousePosY;
-	float FOV = 70, AR = (float)WIDTH / (float)HEIGHT, near = .01, far = 50;
-	
+
 	// Initialize projection and view matrices
 	glm::mat4 projectionMatrix = glm::perspective(FOV,  // field of view in degrees
 			                                      AR,      // aspect ratio
 			                                      near, far);       // near and far (near > 0)
-	
 	
 	glm::mat4 InitviewMatrix = glm::lookAt(eye, center, up);
 	setProjectionMatrix(shaderProgram, projectionMatrix);
 	setProjectionMatrix(textureProgram, projectionMatrix);
 	setViewMatrix(shaderProgram, InitviewMatrix);
 	setViewMatrix(textureProgram, InitviewMatrix);
-	
 
 	int gridAO = createVertexArrayObject(SceneObj.lineArray, sizeof(SceneObj.lineArray));
 	int unitCubeAO = createVertexArrayElementObject(unitcube, sizeof(unitcube),cubeNormal,sizeof(cubeNormal),cubeTexture,sizeof(cubeTexture),indices);
 	int reverseCubeAO = createVertexArrayElementObject(unitcube, sizeof(unitcube), cubeNormal, sizeof(cubeNormal), cubeTexture, sizeof(cubeTexture), reverseIndices);
-	arm(unitCubeAO, "arm");
+	//arm(unitCubeAO, "arm");
+	arm.setVAO(unitCubeAO);
 	Racket racket(unitCubeAO, "racket");
 	racket.jawnAngle = 0;
 
@@ -327,8 +325,9 @@ int main(int argc, char* argv[])
 	int* newWidth = new int;
 	int* newHeight = new int;
 
+	// Set mouse and keyboard callbacks
 	glfwSetKeyCallback(window, keyPressCallback);
-	glfwSetMouseButtonCallback(window, mouseButtonCallback);
+	glfwSetCursorPosCallback(window, mouseCursorPostionCallback);
 
 	//NOTE we have issues when doing mouse jawn with current set up
 	while (!glfwWindowShouldClose(window))
@@ -351,7 +350,6 @@ int main(int argc, char* argv[])
 		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) *
 			          glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
 			          rotationMatrixW;
-
 	
 		arm.SetAttr(groupMatrix, renderAs, shaderProgram);
 		arm.setTranslation(Translate, translate);
@@ -361,161 +359,9 @@ int main(int argc, char* argv[])
 		SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
 		SceneObj.SetVAO(unitCubeAO, reverseCubeAO, gridAO);
 		SceneObj.DrawScene();
-		
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-
-		// Handle inputs
-		//if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-		//	glfwSetWindowShouldClose(window, true);
-		//}
-		//if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
-		//{
-
-		//}
-
-		//if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) 
-		//{
-		//}
-		//if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
-		//{
-		//}
-
-		//if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
-		//{
-		//}
-		//if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-		//	float number1 = (rand()) / (float)(RAND_MAX), number2 = (rand()) / (float)(RAND_MAX), number3 = (rand()) / (float)(RAND_MAX);
-		//	
-		//	// Constrain to visible grid locations
-		//	while (number1 >= .75f || number2 >= .25f || number3 >= .75f) {
-		//		if (number1 >= .75f) {
-		//			number1 = number1 / (float)(RAND_MAX);
-		//		}
-		//		if (number2 >= .25f) {
-		//			number2 = number2 / (float)(RAND_MAX);
-		//		}
-		//		if (number3 >= .75f) {
-		//			number3 = number3 / (float)(RAND_MAX);
-		//		}
-		//	}
-		//	int numZ = rand(), numX = rand(), numY = rand();
-		//	int flZ = -1, flX = 1;
-
-		//	if (numZ % 2 == 1) flZ *= -1;
-		//	if (numX % 2 == 1) flX *= -1;
-		//	Translate.x = number1;
-		//	Translate.y = number2; Translate.z = number3;
-		//}
-		//if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS) {
-		//	GroupMatrixScale += .05f;
-		//}
-		//if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
-		//	GroupMatrixScale -= .05f;
-		//}
-		//if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-		//	rotationMatrixW *= glm::rotate(glm::mat4(1.0f), glm::radians(2.55f), glm::vec3(1.0f, 0.0f, 0.0f));
-		//}
-		//if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-		//	rotationMatrixW *= glm::rotate(glm::mat4(1.0f), glm::radians(2.55f), glm::vec3(-1.0f, 0.0f, 0.0f));
-		//}
-		//if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-		//	rotationMatrixW *= glm::rotate(glm::mat4(1.0f), glm::radians(2.55f), glm::vec3(.0f, 1.0f, 0.0f));
-		//}
-		//if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-		//	rotationMatrixW *= glm::rotate(glm::mat4(1.0f), glm::radians(2.55f), glm::vec3(.0f, -1.0f, 0.0f));
-		//}
-		// w and d for axis checking
-		//if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		//	translate.y += .005;
-		//}
-		//if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-		//	translate.y -= .005;
-		//}
-		//if ((glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) && (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS)) {
-		//	translate.x -= .005;
-		//}
-		//if ((glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) && (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS)) {
-		//	translate.x += .005;
-		//}
-		//if ((glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) && !(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS)) {
-		//	arm.setRotation(arm.getRotation() + 5);
-		//}
-		//if ((glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) && !(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS)) {
-		//	arm.setRotation(arm.getRotation() - 5);
-		//}
-		//if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
-		//	renderAs = GL_POINTS;
-		//}
-		//if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
-		//	renderAs = GL_LINES;
-		//}
-		//if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {
-		//	renderAs = GL_TRIANGLES;
-		//}
-		//if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS) {
-		//	//or set each translate to 0
-		//	Translate.x += -1 * Translate.x; Translate.y += -1 * Translate.y; Translate.z += -1 * Translate.z;
-		//	translate.x += -1 * translate.x; translate.y += -1 * translate.y;
-		//	arm.armRotate = 0;
-		//	GroupMatrixScale = glm::vec3(1.0f);
-		//	rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-		//	glm::mat4 InitviewMatrix = glm::lookAt(eye,  // eye
-		//		center,  // center
-		//		up);// up
-		//	glm::mat4 projectionMatrix = glm::perspective(FOV,  // field of view in degrees
-		//		AR,      // aspect ratio
-		//		near, far);       // near and far (near > 0)
-		//	setProjectionMatrix(textureProgram, projectionMatrix);
-		//	setProjectionMatrix(shaderProgram, projectionMatrix);
-		//	setViewMatrix(textureProgram, InitviewMatrix);
-		//	setViewMatrix(shaderProgram, InitviewMatrix);
-		//}
-		//if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-		//{
-		//	double  mousePosY;
-		//	glfwGetCursorPos(window, NULL, &mousePosY);
-		//	double dy = mousePosY - lastMousePosY;			
-		//	if (dy < 0) translateY += .005;
-		//	else if (dy > 0) translateY -= .005;
-		//	glm::mat4 InitviewMatrix = glm::lookAt(eye,  // eye
-		//		glm::vec3(translateW, translateY, 0.0f),  // center
-		//		up);// up
-		//	setViewMatrix(shaderProgram, InitviewMatrix);
-		//	setViewMatrix(textureProgram, InitviewMatrix);
-		//	lastMousePosY = mousePosY;
-		//}
-		//if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
-		//{
-		//	double  mousePosX;
-		//	glfwGetCursorPos(window, &mousePosX, NULL);
-		//	double dx = mousePosX - lastMousePosX;
-		//	printf("x: %f  \n", dx);
-		//	if (dx < 0) translateW -= .005;
-		//	else if (dx > 0) translateW += .005;
-		//	glm::mat4 InitviewMatrix = glm::lookAt(eye,  // eye
-		//		glm::vec3(translateW+center.x, translateY+center.y, 0.0f),  // center
-		//		up);// up
-		//	setViewMatrix(shaderProgram, InitviewMatrix);
-		//	setViewMatrix(textureProgram, InitviewMatrix);
-		//	lastMousePosX = mousePosX;
-		//}
-		//if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
-		//{
-		//	double  mousePosZ;
-		//	glfwGetCursorPos(window, NULL, &mousePosZ);			
-		//	double dy = mousePosZ - lastMousePosZ;
-
-		//	if (dy < 0) translateZ += .005;
-		//	else if (dy > 0)translateZ -= .005; 
-		//	glm::mat4 projectionMatrix = glm::perspective(translateZ+70.0f,  // field of view in degrees
-		//		(float)WIDTH / (float)HEIGHT,      // aspect ratio
-		//		.01f, 50.0f);       // near and far (near > 0)
-		//	setProjectionMatrix(shaderProgram, projectionMatrix);
-		//	setProjectionMatrix(textureProgram, projectionMatrix);
-		//	lastMousePosZ = mousePosZ;
-		//}
 	}
 
 	// Shutdown GLFW
@@ -604,6 +450,7 @@ void GLAPIENTRY messageCallback(GLenum source, GLenum type, GLuint id, GLenum se
 	std::cerr << "GL CALLBACK: " << (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "")
 		<< " type = 0x" << type << ", severity = 0x" << severity << ", message = " << message << std::endl;
 }
+
 // loadTexture from lab04
 GLuint loadTexture(const char* filename)
 {
@@ -659,6 +506,9 @@ void setViewMatrix(int shaderProgram, glm::mat4 viewMatrix)
 	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &viewMatrix[0][0]);
 }
 
+/**
+GLFW callback function for handling keyboard inputs
+*/
 void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	// Get states of each relevant key
@@ -733,16 +583,16 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	else if (state_S == GLFW_PRESS)
 		translate.y -= .005;
 
-	else if (state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
+	else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
 		translate.x -= .005;
 
-	else if (state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
+	else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
 		translate.x += .005;
 
-	else if (state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
+	else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
 		arm.setRotation(arm.getRotation() + 5);
 
-	else if (state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
+	else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
 		arm.setRotation(arm.getRotation() - 5);
 
 	// If p, l, or t is pressed, changed render mode between points, lines, and triangles, respectively
@@ -775,18 +625,19 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	}
 }
 
-void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+/**
+GLFW callback function for handling mouse button and position
+*/
+void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos)
 {
 	// Get state of each mouse button
-	int state_LEFT = glfwGetKey(window, GLFW_MOUSE_BUTTON_LEFT);
-	int state_MIDDLE = glfwGetKey(window, GLFW_MOUSE_BUTTON_MIDDLE);
-	int state_RIGHT = glfwGetKey(window, GLFW_MOUSE_BUTTON_RIGHT);
+	int state_LEFT = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+	int state_MIDDLE = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE);
+	int state_RIGHT = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
 
 	if (state_LEFT == GLFW_PRESS)
 	{
-		double  mousePosY;
-		glfwGetCursorPos(window, NULL, &mousePosY);
-		double dy = mousePosY - lastMousePosY;
+		double dy = yPos - lastMousePosY;
 		
 		if (dy < 0)
 			translateY += .005;
@@ -796,14 +647,12 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 		glm::mat4 InitviewMatrix = glm::lookAt(eye, glm::vec3(translateW, translateY, 0.0f), up);
 		setViewMatrix(shaderProgram, InitviewMatrix);
 		setViewMatrix(textureProgram, InitviewMatrix);
-		lastMousePosY = mousePosY;
+		lastMousePosY = yPos;
 	}
 	
 	else if (state_RIGHT == GLFW_PRESS)
 	{
-		double  mousePosX;
-		glfwGetCursorPos(window, &mousePosX, NULL);
-		double dx = mousePosX - lastMousePosX;
+		double dx = xPos - lastMousePosX;
 		
 		if (dx < 0)
 			translateW -= .005;
@@ -813,14 +662,13 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 		glm::mat4 InitviewMatrix = glm::lookAt(eye, glm::vec3(translateW + center.x, translateY + center.y, 0.0f), up);
 		setViewMatrix(shaderProgram, InitviewMatrix);
 		setViewMatrix(textureProgram, InitviewMatrix);
-		lastMousePosX = mousePosX;
+		lastMousePosX = xPos;
 	}
 	
 	else if (state_MIDDLE == GLFW_PRESS)
 	{
-		double  mousePosZ;
-		glfwGetCursorPos(window, NULL, &mousePosZ);
-		double dy = mousePosZ - lastMousePosZ;
+		double zPos = yPos;
+		double dy = zPos - lastMousePosZ;
 
 		if (dy < 0)
 			translateZ += .005;
@@ -830,6 +678,6 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 		glm::mat4 projectionMatrix = glm::perspective(translateZ + 70.0f, (float)WIDTH / (float)HEIGHT, .01f, 50.0f);
 		setProjectionMatrix(shaderProgram, projectionMatrix);
 		setProjectionMatrix(textureProgram, projectionMatrix);
-		lastMousePosZ = mousePosZ;
+		lastMousePosZ = zPos;
 	}
 }

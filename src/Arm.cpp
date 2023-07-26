@@ -24,14 +24,16 @@ Arm::Arm(int cubeVao, std::string letterName) {
 	this->TranslateRandom = glm::vec3(0.0f, 0.0f, 0.0f);
 	this->letterName = letterName;
 }
-Arm::Arm()
-{
-}
+
+Arm::Arm() {}
+
 void Arm::SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram) {
 	this->groupMatrix = groupMatrix;
 	this->renderAs = renderAs;
 	this->shaderProgram = shaderProgram;
 }
+
+void Arm::setVAO(int vao) { cubeVao = vao; }
 
 void Arm::setTranslation(glm::vec3 TranslateRandom, glm::vec3 TranslateModel) {
 	this->TranslateRandom = TranslateRandom;

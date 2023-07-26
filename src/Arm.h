@@ -19,6 +19,7 @@ public:
 
 	void setTranslation(glm::vec3 TranslateRandom, glm::vec3 TranslateModel);
 	void SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram);
+	void setVAO(int vao);
 	void setRotation(float rotate) {
 		this->armRotate = rotate;
 	}
