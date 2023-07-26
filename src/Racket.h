@@ -17,8 +17,8 @@ class Racket
 
 public:
 	Racket(int cubeVao,
-		glm::mat4 worldMatrix) ;
-	Racket(int cubeVao,std::string racketName);
+               glm::mat4 worldMatrix) ;
+	Racket(int cubeVao, std::string racketName);
 	void SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram, glm::mat4 partParent);
 	int cubeVao;
 	int racketAngle;
