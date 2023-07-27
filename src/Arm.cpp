@@ -6,12 +6,7 @@ Arm::Arm(int cubeVao, glm::mat4 worldMatrix) {
 	this->position = glm::vec3(0.0f, 0.0f, 0.0f);
 	this->TranslateModel = glm::vec3(0.0f, 0.0f, 0.0f);
 	this->TranslateRandom = glm::vec3(0.0f, 0.0f, 0.0f);
-	//colours should be set before while loops if we want 
-	//random
-//colour[0] = glm::vec3(1.0f, 0.0f, 0.0f);
-//colour[1] = glm::vec3(0.0f, 1.0f, 0.0f);
-//colour[2] = glm::vec3(0.0f, 0.0f, 1.0f);
-}
+	}
 Arm::Arm(int cubeVao, std::string letterName) {
 	this->cubeVao = cubeVao;
 	this->groupMatrix;
@@ -27,6 +22,14 @@ Arm::Arm(int cubeVao, std::string letterName) {
 
 Arm::Arm() {}
 
+void Arm::resetArm() {
+	TranslateModel += -1.0f*TranslateModel;
+	TranslateRandom += -1.0f * TranslateRandom;
+	armRotate = 0.0f;
+	wristRotate = 0.0f;
+	elbowRotate = 0.0f;
+	//Scale= 1.0f
+}
 void Arm::SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram) {
 	this->groupMatrix = groupMatrix;
 	this->renderAs = renderAs;

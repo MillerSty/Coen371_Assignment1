@@ -393,7 +393,7 @@ int main(int argc, char* argv[])
 			rotationMatrixW;
 
 		arm.SetAttr(groupMatrix, renderAs, shaderProgram);
-		arm.setTranslation(Translate, translateWSAD);
+		//arm.setTranslation(Translate, translateWSAD);
 		arm.DrawArm();
 		racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
 		racket.Draw();
@@ -624,17 +624,17 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	else if (state_DOWN == GLFW_PRESS)
 		rotationMatrixW *= glm::rotate(glm::mat4(1.0f), glm::radians(2.55f), glm::vec3(.0f, -1.0f, 0.0f));
 
-	else if (state_W == GLFW_PRESS)
-		translateWSAD.y += .005;
-
+	else if (state_W == GLFW_PRESS) 
+		arm.setTranslateModel(glm::vec3(arm.getTranslateModel().x, (arm.getTranslateModel().y + .005f), arm.getTranslateModel().z));
+	
 	else if (state_S == GLFW_PRESS)
-		translateWSAD.y -= .005;
+		arm.setTranslateModel(glm::vec3(arm.getTranslateModel().x, (arm.getTranslateModel().y - .005f), arm.getTranslateModel().z));
 
 	else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-		translateWSAD.x -= .005;
+		arm.setTranslateModel(glm::vec3((arm.getTranslateModel().x - .005f), arm.getTranslateModel().y, arm.getTranslateModel().z));
 
 	else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-		translateWSAD.x += .005;
+		arm.setTranslateModel(glm::vec3((arm.getTranslateModel().x+ .005f), arm.getTranslateModel().y , arm.getTranslateModel().z));
 
 	else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
 		arm.setRotation(arm.getRotation() + 5);
@@ -654,13 +654,9 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 
 	// If HOME is pressed, remove translations, rotations, and scalings
 	else if (state_HOME == GLFW_PRESS) {
-		//or set each translate to 0
-		Translate.x += -1 * Translate.x;
-		Translate.y += -1 * Translate.y;
-		Translate.z += -1 * Translate.z;
-		translateWSAD.x += -1 * translateWSAD.x;
-		translateWSAD.y += -1 * translateWSAD.y;
-		arm.armRotate = 0;
+		//reset jon's arm
+		arm.resetArm();
+	
 		GroupMatrixScale = glm::vec3(1.0f);
 		rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 		glm::mat4 InitviewMatrix = glm::lookAt(eye, center, up);
