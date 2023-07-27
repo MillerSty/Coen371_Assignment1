@@ -661,9 +661,8 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 		glm::mat4 InitviewMatrix = glm::lookAt(eye, center, up);
 		glm::mat4 projectionMatrix = glm::perspective(FOV, AR, near, far);
-		setProjectionMatrix(textureProgram, projectionMatrix);
+
 		setProjectionMatrix(shaderProgram, projectionMatrix);
-		setViewMatrix(textureProgram, InitviewMatrix);
 		setViewMatrix(shaderProgram, InitviewMatrix);
 	}
 }
