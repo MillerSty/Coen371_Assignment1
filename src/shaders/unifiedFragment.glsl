@@ -84,12 +84,12 @@ void main()
         vec4 textureColor=texture(textureSampler,vertexUV);
         fragColor = textureColor * fragColor;
     }
-//
-//    if (shouldApplyShadows) {
-//        gl_FragDepth = gl_FragCoord.z;
-//        fragColor = vec4(vec3(gl_FragCoord.z), 1.0f) * fragColor;
-//    }
-//    else{
+
+    if (!shouldApplyShadows) {
+        gl_FragDepth = gl_FragCoord.z;
+        fragColor = vec4(vec3(gl_FragCoord.z), 1.0f) * fragColor;
+    }
+    else{
         vec3 ambient = vec3(0.0f);
         vec3 diffuse = vec3(0.0f);
         vec3 specular = vec3(0.0f);
@@ -102,7 +102,7 @@ void main()
         vec3 color = specular + diffuse + ambient;
 
         fragColor = vec4(color, 1.0f) * fragColor;
-//    }
+    }
 
     FragColor = fragColor;
 }

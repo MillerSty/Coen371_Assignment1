@@ -294,6 +294,11 @@ int main(int argc, char* argv[])
 	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
     GLint viewPositionLocation = glGetUniformLocation(shaderProgram, "viewPosition");
+    GLint applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
+    GLint applyShadowsLocation = glGetUniformLocation(shaderProgram, "shouldApplyShadows");
+
+    glUniform1i(applyTexturesLocation, true);
+    glUniform1i(applyShadowsLocation, false);
 
     glUniform3fv(viewPositionLocation, 1, &eye[0]);
 
