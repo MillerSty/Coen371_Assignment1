@@ -6,8 +6,8 @@ out vec4 FragColor;
 uniform vec3 objectColor;
 uniform sampler2D textureSampler;
 
-uniform bool shouldApplyTexture = true;
-uniform bool shouldApplyShadows = false;
+uniform bool shouldApplyTexture;
+uniform bool shouldApplyShadows;
 
 const float PI = 3.1415926535897932384626433832795;
 
@@ -78,18 +78,18 @@ vec3 specularColor(vec3 lightColorArg, vec3 lightPositionArg) {
 }
 void main()
 {
-    FragColor = vec4(objectColor, 1.0);
+    vec4 fragColor = vec4(objectColor, 1.0);
 
     if (shouldApplyTexture){
         vec4 textureColor=texture(textureSampler,vertexUV);
-        FragColor = textureColor * FragColor;
+        fragColor = textureColor * fragColor;
     }
-
-    if (shouldApplyShadows) {
-        gl_FragDepth = gl_FragCoord.z;
-        FragColor = vec4(vec3(gl_FragCoord.z), 1.0f) * FragColor;
-    }
-    else{
+//
+//    if (shouldApplyShadows) {
+//        gl_FragDepth = gl_FragCoord.z;
+//        fragColor = vec4(vec3(gl_FragCoord.z), 1.0f) * fragColor;
+//    }
+//    else{
         vec3 ambient = vec3(0.0f);
         vec3 diffuse = vec3(0.0f);
         vec3 specular = vec3(0.0f);
@@ -101,6 +101,8 @@ void main()
 
         vec3 color = specular + diffuse + ambient;
 
-        FragColor = vec4(color, 1.0f) * FragColor;
-    }
+        fragColor = vec4(color, 1.0f) * fragColor;
+//    }
+
+    FragColor = fragColor;
 }

@@ -68,7 +68,6 @@ int createVertexArrayObject(const glm::vec3* vertexArray, int arraySize)
 	);
 	glEnableVertexAttribArray(0);
 
-	glEnableVertexAttribArray(1);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -294,6 +293,9 @@ int main(int argc, char* argv[])
 	GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
 	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
+    GLint viewPositionLocation = glGetUniformLocation(shaderProgram, "viewPosition");
+
+    glUniform3fv(viewPositionLocation, 1, &eye[0]);
 
 	//Scene Jawn
 	SceneObjects SceneObj("scene");
@@ -364,7 +366,7 @@ int main(int argc, char* argv[])
     glUniform3fv(lightColorLoc, 1, value_ptr(vec3(1.0, 1.0, 1.0)));
 
     // light parameters
-    vec3 lightPosition =  vec3(0.0, 1.0f, 0.0f); // the location of the light in 3D space
+    vec3 lightPosition =  vec3(0.0, 30.0f, 0.0f); // the location of the light in 3D space
     vec3 lightFocus(0.0, 0.0, -1.0);      // the point in 3D space the light "looks" at
     vec3 lightDirection = normalize(lightFocus - lightPosition);
 

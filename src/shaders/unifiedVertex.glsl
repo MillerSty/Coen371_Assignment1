@@ -9,7 +9,7 @@ uniform mat4 viewMatrix = mat4(1.0f);
 uniform mat4 projectionMatrix = mat4(1.0);
 uniform mat4 lightViewProjMatrix = mat4(1.0);
 
-uniform bool shouldApplyTexture = true;
+uniform bool shouldApplyTexture = false;
 uniform bool shouldApplyShadows = false;
 
 
