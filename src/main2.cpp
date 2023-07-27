@@ -595,13 +595,8 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		if (number3 >= .75f)
 			number3 = number3 / (float)(RAND_MAX);
 
-		int numZ = rand(), numX = rand(), numY = rand();
-		int flZ = -1, flX = 1;
+		arm.setTranslateRandom(glm::vec3(number1, number2, number3));
 
-		if (numZ % 2 == 1) flZ *= -1;
-		if (numX % 2 == 1) flX *= -1;
-		Translate.x = number1;
-		Translate.y = number2; Translate.z = number3;
 	}
 
 	// If u or j is pressed, scale up or down accordingly
