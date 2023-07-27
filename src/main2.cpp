@@ -338,9 +338,7 @@ int main(int argc, char* argv[])
 	int gridAO = createVertexArrayObject(SceneObj.lineArray, sizeof(SceneObj.lineArray));
 	int unitCubeAO = createVertexArrayElementObject2(vertexIndicescube, verticescube, normalscube, UVscube);
 	int unitSphereAO = createVertexArrayElementObject2(vertexIndicessphere, verticessphere, normalssphere, UVssphere);
-	for (int i = 0; i < normalscube.size(); i++){
-		normalscube[i] += -1.0f;
-	}
+	
 	int reverseCubeAO = createVertexArrayElementObject2(reverseIndices, verticescube, normalscube , UVscube);
 
 	arm.setVAO(unitCubeAO);
