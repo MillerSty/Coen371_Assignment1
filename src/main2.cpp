@@ -356,18 +356,15 @@ int main(int argc, char* argv[])
     // Set light cutoff angles on scene shader
     GLint lightCutoffInnerLoc = glGetUniformLocation( shaderProgram, "lightCutoffInner");
     GLint lightCutoffOuterLoc = glGetUniformLocation( shaderProgram, "lightCutoffOuter");
-    glUniform1i(lightCutoffInnerLoc, cos(glm::radians(lightAngleInner)));
-    glUniform1i(lightCutoffOuterLoc, cos(glm::radians(lightAngleOuter)));
+    glUniform1f(lightCutoffInnerLoc, cos(glm::radians(lightAngleInner)));
+    glUniform1f(lightCutoffOuterLoc, cos(glm::radians(lightAngleOuter)));
 
     GLint lightColorLoc = glGetUniformLocation( shaderProgram, "lightColor");
-//    GLint objectColorLoc = glGetUniformLocation( shaderProgram, "objectColor");
-    // Set light color on scene shader
+
     glUniform3fv(lightColorLoc, 1, value_ptr(vec3(1.0, 1.0, 1.0)));
-    // Set object color on scene shader
-//    glUniform3fv(objectColorLoc, 1, value_ptr(vec3(1.0, 1.0, 1.0)));
 
     // light parameters
-    vec3 lightPosition =  vec3(0.0, 30.0f, 0.0f); // the location of the light in 3D space
+    vec3 lightPosition =  vec3(0.0, 1.0f, 0.0f); // the location of the light in 3D space
     vec3 lightFocus(0.0, 0.0, -1.0);      // the point in 3D space the light "looks" at
     vec3 lightDirection = normalize(lightFocus - lightPosition);
 
@@ -384,7 +381,19 @@ int main(int argc, char* argv[])
     GLint lightPositionLoc = glGetUniformLocation( shaderProgram, "lightPosition");
     GLint lightDirectionLoc = glGetUniformLocation( shaderProgram, "lightDirection");
 
-	//NOTE we have issues when doing mouse jawn with current set up
+    glUniformMatrix4fv(lightViewProjMatrixLoc, 1, GL_FALSE, &lightSpaceMatrix[0][0]);
+
+    // Set light far and near planes on scene shader
+    glUniform1f(lightNearPlaneLoc, lightNearPlane);
+    glUniform1f(lightFarPlaneLoc, lightFarPlane);
+
+    // Set light position on scene shader
+    glUniform3fv(lightPositionLoc, 1, &lightPosition[0]);
+
+    // Set light direction on scene shader
+    glUniform3fv(lightDirectionLoc, 1, &lightDirection[0]);
+
+    //NOTE we have issues when doing mouse jawn with current set up
 	while (!glfwWindowShouldClose(window))
 	{
 		// Handle resizing
@@ -398,24 +407,13 @@ int main(int argc, char* argv[])
 		// Each frame, reset color of each pixel to glClearColor
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// Draw geometry
-        glUniformMatrix4fv(lightViewProjMatrixLoc, 1, GL_FALSE, &lightSpaceMatrix[0][0]);
-
-        // Set light far and near planes on scene shader
-        glUniform1f(lightNearPlaneLoc, lightNearPlane);
-        glUniform1f(lightFarPlaneLoc, lightFarPlane);
-
-        // Set light position on scene shader
-        glUniform3fv(lightPositionLoc, 1, &lightPosition[0]);
-
-        // Set light direction on scene shader
-        glUniform3fv(lightDirectionLoc, 1, &lightDirection[0]);
 
 		// Set a default group matrix
 		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) *
 			glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
 			rotationMatrixW;
 
+        // Draw geometry
 		arm.SetAttr(groupMatrix, renderAs, shaderProgram);
 		arm.setTranslation(Translate, translateWSAD);
 		arm.DrawArm();
