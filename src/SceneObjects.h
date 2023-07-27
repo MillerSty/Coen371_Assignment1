@@ -40,7 +40,6 @@ public:
 
 	//attributes for net
 	int shaderProgram;
-	int textureProgram;
 	int renderAs;
 	glm::vec3 position;
 	glm::vec3 colour[3];
