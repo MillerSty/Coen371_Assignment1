@@ -45,7 +45,8 @@ bool Arm::DrawArm() {
 	GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
 	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
-
+	GLuint applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
+	glUniform1i(applyTexturesLocation, false);
 	glm::mat4 worldMatrix;
 
 	glm::mat4 partScale;
