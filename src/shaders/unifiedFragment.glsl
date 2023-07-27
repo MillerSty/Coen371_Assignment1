@@ -15,9 +15,9 @@ uniform vec3 lightColor;
 uniform vec3 lightPosition;
 uniform vec3 lightDirection;
 
-const float shadingAmbientStrength = 0.1;
+const float shadingAmbientStrength = 0.6;
 const float shadingDiffuseStrength = 0.6;
-const float shadingSpecularStrength = 0.3;
+const float shadingSpecularStrength = 0.6;
 
 uniform float lightCutoffOuter;
 uniform float lightCutoffInner;
@@ -85,7 +85,7 @@ void main()
         fragColor = textureColor * fragColor;
     }
 
-    if (!shouldApplyShadows) {
+    if (shouldApplyShadows) {
         gl_FragDepth = gl_FragCoord.z;
         fragColor = vec4(vec3(gl_FragCoord.z), 1.0f) * fragColor;
     }
@@ -96,8 +96,8 @@ void main()
 
         float scalar = shadowScalar() * spotlightScalar();
         ambient = ambientColor(lightColor);
-        diffuse = scalar * diffuseColor(lightColor, lightPosition);
-        specular = scalar * specularColor(lightColor, lightPosition);
+        diffuse = 1.0f * diffuseColor(lightColor, lightPosition);
+        specular = 1.0f * specularColor(lightColor, lightPosition);
 
         vec3 color = specular + diffuse + ambient;
 

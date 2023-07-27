@@ -157,6 +157,8 @@ bool Arm::DrawArm() {
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
+	applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
+	glUniform1i(applyTexturesLocation, true);
 	return true;
 }
 
