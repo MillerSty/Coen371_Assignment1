@@ -31,8 +31,10 @@ void Racket::SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram, glm
 }
 //Draw racket follows from code in Assignment 1 just placed in a class now
 bool Racket::Draw() {
-	GLuint applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
-	glUniform1i(applyTexturesLocation, true);
+
+	//GLuint applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
+	//glUniform1i(applyTexturesLocation, true);
+
 	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
 	GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
 	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
@@ -185,6 +187,7 @@ bool Racket::Draw() {
 		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 		glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 	}
+	
 	glBindVertexArray(0);
 	return true;
 }
