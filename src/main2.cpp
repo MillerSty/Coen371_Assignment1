@@ -355,9 +355,13 @@ int main(int argc, char* argv[])
 	glfwSetKeyCallback(window, keyPressCallback);
 	glfwSetCursorPosCallback(window, mouseCursorPostionCallback);
 
-	vec3 modelScale = vec3(0.03, 0.03, 0.03);
-	EvanArm evanArm(vec3(0.2f, 0.0f, 0.0f), modelScale);
-	EvanRacket evanRacket(vec3(0.2f, 0.0f, 0.0f), modelScale);
+//	vec3 modelScale = vec3(0.03, 0.03, 0.03);
+    vec3 modelScale = vec3(0.25, 0.25, 0.25);
+    EvanRacket evanRacket(vec3(0.2f, 0.0f, 0.0f), modelScale,
+                          unitCubeAO,unitCubeAO,unitCubeAO,
+                          unitCubeAO,unitCubeAO, unitCubeAO );
+	EvanArm evanArm(vec3(0.2f, 0.0f, 0.0f), modelScale, unitCubeAO,
+                    unitCubeAO, evanRacket );
 
     // Lighting
     float lightAngleOuter = 30.0;
@@ -370,7 +374,7 @@ int main(int argc, char* argv[])
 
     GLint lightColorLoc = glGetUniformLocation( shaderProgram, "lightColor");
 
-    glUniform3fv(lightColorLoc, 1, value_ptr(vec3(1.0, 1.0, 1.0)));
+    glUniform3fv(lightColorLoc, 1, value_ptr(vec3(1.0f, 1.0f, 1.0f)));
 
     // light parameters
     vec3 lightPosition =  vec3(0.0, 30.0f, 0.0f); // the location of the light in 3D space
@@ -429,8 +433,7 @@ int main(int argc, char* argv[])
 		racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
 		racket.Draw();
 
-//		evanArm.draw(worldMatrixLocation, shaderProgram);
-//		evanRacket.draw(worldMatrixLocation, shaderProgram);
+//		evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
 
 		SceneObj.sphereVao = unitSphereAO;
 		SceneObj.sphereVertCount = vertexIndicessphere.size();

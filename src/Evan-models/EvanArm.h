@@ -9,41 +9,42 @@
 
 #include <iostream>
 
-#include "UnitCube.h"
 #include "EvanRacket.h"
 
 using namespace glm;
 
 /*
- * A class which contains vertex info, the group matrix and the world matrix which is then used to draw the lower and upper arm
+ * A class which contains vertex info and transformation matrices which is then used to draw the lower and upper arm
  */
 class EvanArm {
 private:
+
     GLuint lowerArmVAO;
     GLuint upperArmVAO;
 
     mat4 groupMatrix;
+    mat4 bicepMatrix;
     mat4 worldMatrix;
-
     vec3 modelScale;
+    vec3 color;
+
+    mat4 wristMatrix;
+    EvanRacket racket;
 
     /*
      * Functions which model and the draw the various part of the arm
      */
-    void drawLowerArm(GLuint modelMatrixLocation, GLuint shaderProgram) const;
-    void drawUpperArm(GLuint modelMatrixLocation, GLuint shaderProgram) const;
+    void drawLowerArm(GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const;
+    void drawUpperArm(GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const;
 public:
 
     /*
      * This constructor creates the VAOs & sets the initial group matrix
      */
-    explicit EvanArm(vec3 initialPos, vec3 scale);
+    explicit EvanArm(vec3 initialPos, vec3 scale, GLuint lowerArmVAO, GLuint upperArmVAO, EvanRacket racket);
     /*
      * Just calls all the draw functions above
      */
-    void draw(GLuint modelMatrixLocation, GLuint shaderProgram) const;
-    // Setters
-    void setGroupMatrix(mat4 newGroupMatrix);
-    void setWorldMatrix(mat4 newWorldMatrix);
+    void draw(GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const;
 
 };
