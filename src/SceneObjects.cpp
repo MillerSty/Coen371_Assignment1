@@ -227,8 +227,8 @@ bool SceneObjects::DrawNet() {
 }
 
 bool SceneObjects::DrawSkyBox() {
-
-	glUseProgram(shaderProgram);
+	glBindTexture(GL_TEXTURE_2D, plasticTexture);
+	//glUseProgram(shaderProgram);
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
 	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
 	float skyBoxY = 70.0f; // Change this to make sky box closer to court

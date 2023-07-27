@@ -272,7 +272,7 @@ int main(int argc, char* argv[])
 	GLuint clothTextureID = loadTexture("../src/Assets/cloth.jpg");
 	GLuint metalTextureID = loadTexture("../src/Assets/metal.jpg");
 	GLuint grassTextureID = loadTexture("../src/Assets/grass4.jpg");
-
+	GLuint plasticTextureID = loadTexture("../src/Assets/plastic.jpg");
 	// Black background	
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_FALSE);
@@ -306,7 +306,7 @@ int main(int argc, char* argv[])
 	SceneObjects SceneObj("scene");
 	SceneObj.InitGrid();
 	SceneObj.setTextures(courtTextureID, ropeTextureID, metalTextureID, clothTextureID,grassTextureID);
-
+	SceneObj.plasticTexture = plasticTextureID;
 	glfwGetCursorPos(window, &lastMousePosX, &lastMousePosY);
 	lastMousePosZ = lastMousePosY;
 
@@ -334,10 +334,14 @@ int main(int argc, char* argv[])
 	for (int i = 0; i < verticessphere.size(); i++) {
 		verticessphere[i] = verticessphere[i] * .05f;
 	}
+	
 	int gridAO = createVertexArrayObject(SceneObj.lineArray, sizeof(SceneObj.lineArray));
 	int unitCubeAO = createVertexArrayElementObject2(vertexIndicescube, verticescube, normalscube, UVscube);
 	int unitSphereAO = createVertexArrayElementObject2(vertexIndicessphere, verticessphere, normalssphere, UVssphere);
-	int reverseCubeAO = createVertexArrayElementObject2(reverseIndices, verticescube, normalscube, UVscube);
+	for (int i = 0; i < normalscube.size(); i++){
+		normalscube[i] += -1.0f;
+	}
+	int reverseCubeAO = createVertexArrayElementObject2(reverseIndices, verticescube, normalscube , UVscube);
 
 	arm.setVAO(unitCubeAO);
 

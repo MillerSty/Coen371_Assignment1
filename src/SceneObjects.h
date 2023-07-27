@@ -36,6 +36,7 @@ public:
 	GLuint metalTexture;
 	GLuint ballTexture;
 	GLuint grassTexture;
+	GLuint plasticTexture;
 	//atrributes for court
 
 	//attributes for net
