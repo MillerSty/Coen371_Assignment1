@@ -27,7 +27,7 @@ void main()
         gl_Position = modelViewProjection * vec4(aPos, 1.0);
     }
 
-    fragmentNormal = mat3(worldMatrix) * aNorm;
+    fragmentNormal = transpose(inverse(mat3(worldMatrix))) * aNorm;
     fragmentPosition = vec3(worldMatrix * vec4(aPos, 1.0));
     fragmentPositionLightSpace = lightViewProjMatrix * vec4(fragmentPosition, 1.0);
     vertexUV=aTexture;

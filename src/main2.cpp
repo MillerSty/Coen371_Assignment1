@@ -406,6 +406,37 @@ int main(int argc, char* argv[])
     // Set light direction on scene shader
     glUniform3fv(lightDirectionLoc, 1, &lightDirection[0]);
 
+    // Dimensions of the shadow texture, which should cover the viewport window size and shouldn't be oversized and waste resources
+    const unsigned int DEPTH_MAP_TEXTURE_SIZE = 1024;
+
+    // Variable storing index to texture used for shadow mapping
+    GLuint depth_map_texture;
+    // Get the texture
+    glGenTextures(1, &depth_map_texture);
+    // Bind the texture so the next glTex calls affect it
+    glBindTexture(GL_TEXTURE_2D, depth_map_texture);
+    // Create the texture and specify it's attributes, including widthn height, components (only depth is stored, no color information)
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT,
+                 NULL);
+    // Set texture sampler parameters.
+    // The two calls below tell the texture sampler inside the shader how to upsample and downsample the texture. Here we choose the nearest filtering option, which means we just use the value of the closest pixel to the chosen image coordinate.
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    // The two calls below tell the texture sampler inside the shader how it should deal with texture coordinates outside of the [0, 1] range. Here we decide to just tile the image.
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+
+    // Variable storing index to framebuffer used for shadow mapping
+    GLuint depth_map_fbo;  // fbo: framebuffer object
+    // Get the framebuffer
+    glGenFramebuffers(1, &depth_map_fbo);
+    // Bind the framebuffer so the next glFramebuffer calls affect it
+    glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
+    // Attach the depth map texture to the depth map framebuffer
+    //glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, depth_map_texture, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_map_texture, 0);
+    glDrawBuffer(GL_NONE); //disable rendering colors, only write depth values
     //NOTE we have issues when doing mouse jawn with current set up
 	while (!glfwWindowShouldClose(window))
 	{
@@ -417,29 +448,68 @@ int main(int argc, char* argv[])
 		// Calculate aspect ratio
 		AR = (float)*newWidth / (float)*newHeight; //note unsure if this will cause issues
 
-		// Each frame, reset color of each pixel to glClearColor
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // 1st pass
+        {
+            glUniform1i(applyTexturesLocation, false);
+            glUniform1i(applyShadowsLocation, true);
+            // Use proper image output size
+            glViewport(0, 0, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE);
+            // Bind depth map texture as output framebuffer
+            glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
+            // Clear depth data on the framebuffer
+            glClear(GL_DEPTH_BUFFER_BIT);
 
+            // Draw geometry
+            arm.SetAttr(groupMatrix, renderAs, shaderProgram);
+            arm.setTranslation(Translate, translateWSAD);
+            arm.DrawArm();
+            racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
+            racket.Draw();
 
-		// Set a default group matrix
-		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) *
-			glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
-			rotationMatrixW;
+//            evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
 
-        // Draw geometry
-		arm.SetAttr(groupMatrix, renderAs, shaderProgram);
-		arm.setTranslation(Translate, translateWSAD);
-		arm.DrawArm();
-		racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
-		racket.Draw();
+            SceneObj.sphereVao = unitSphereAO;
+            SceneObj.sphereVertCount = vertexIndicessphere.size();
+            SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
+            SceneObj.SetVAO(unitCubeAO, reverseCubeAO, gridAO);
+            SceneObj.DrawScene();
 
-//		evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
+            // Unbind geometry
+            glBindVertexArray(0);
+        }
+        // 2nd pass
+        {
+            glUniform1i(applyTexturesLocation, true);
+            glUniform1i(applyShadowsLocation, false);
+            // Use proper image output size
+            // Side note: we get the size from the framebuffer instead of using WIDTH and HEIGHT because of a bug with highDPI displays
+            int width, height;
+            glfwGetFramebufferSize(window, &width, &height);
+            glViewport(0, 0, width, height);
+            // Bind screen as output framebuffer
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            // Clear color and depth data on framebuffer
+            glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            // Bind depth map texture: not needed, by default it is active
+            //glActiveTexture(GL_TEXTURE0);
+            // Draw geometry
+            arm.SetAttr(groupMatrix, renderAs, shaderProgram);
+            arm.setTranslation(Translate, translateWSAD);
+            arm.DrawArm();
+            racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
+            racket.Draw();
 
-		SceneObj.sphereVao = unitSphereAO;
-		SceneObj.sphereVertCount = vertexIndicessphere.size();
-		SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
-		SceneObj.SetVAO(unitCubeAO, reverseCubeAO, gridAO);
-		SceneObj.DrawScene();
+//            evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
+
+            SceneObj.sphereVao = unitSphereAO;
+            SceneObj.sphereVertCount = vertexIndicessphere.size();
+            SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
+            SceneObj.SetVAO(unitCubeAO, reverseCubeAO, gridAO);
+            SceneObj.DrawScene();
+            // Unbind geometry
+            glBindVertexArray(0);
+        }
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

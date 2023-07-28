@@ -76,6 +76,7 @@ vec3 specularColor(vec3 lightColorArg, vec3 lightPositionArg) {
     vec3 reflectLightDirection = reflect(-lightDirection, normalize(fragmentNormal));
     return shadingSpecularStrength * lightColorArg * pow(max(dot(reflectLightDirection, viewDirection), 0.0f),32);
 }
+
 void main()
 {
     vec4 fragColor = vec4(objectColor, 1.0);
@@ -87,7 +88,7 @@ void main()
 
     if (shouldApplyShadows) {
         gl_FragDepth = gl_FragCoord.z;
-        fragColor = vec4(vec3(gl_FragCoord.z), 1.0f) * fragColor;
+        fragColor = vec4(vec3(gl_FragCoord.z), 1.0f);
     }
     else{
         vec3 ambient = vec3(0.0f);
