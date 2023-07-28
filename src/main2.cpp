@@ -572,6 +572,7 @@ int main(int argc, char* argv[])
 		evanArm.draw(evanWorldMatrixLocation, evanShaderProgram);
 		evanRacket.draw(evanWorldMatrixLocation, evanShaderProgram);
 
+		mattArm.setGroupMatrix(groupMatrix);
 		mattArm.drawArm();
 
 		SceneObj.sphereVao = unitSphereAO;

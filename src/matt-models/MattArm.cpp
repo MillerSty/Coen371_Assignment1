@@ -2,7 +2,7 @@
 
 MattArm::MattArm()
 {
-	groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(-20.0f, 1.0f, 20.0f));
+	groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(-2.0f, 0.0f, 0.0f));
 	worldMatrix = glm::mat4(1.0f);
 	initialScale = glm::vec3(1.0f);
 }
@@ -43,6 +43,8 @@ void MattArm::drawArm()
 
 void MattArm::drawUpperArm()
 {
+	glUseProgram(shaderProgram);
+
 	glm::mat4 modelMat = worldMatrix * groupMatrix;
 
 	modelMat = glm::scale(modelMat, initialScale);
@@ -58,6 +60,8 @@ void MattArm::drawUpperArm()
 
 void MattArm::drawLowerArm()
 {
+	glUseProgram(shaderProgram);
+
 	glm::mat4 modelMat = worldMatrix * groupMatrix;
 
 	modelMat = glm::scale(modelMat, initialScale);
