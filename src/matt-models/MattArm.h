@@ -15,6 +15,7 @@ private:
 	glm::vec3 initialScale;
 	GLuint shaderProgram;
 	int unitCubeVAO;
+	
 
 	void drawUpperArm();
 	void drawLowerArm();
