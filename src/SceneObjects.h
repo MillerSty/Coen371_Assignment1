@@ -36,11 +36,11 @@ public:
 	GLuint metalTexture;
 	GLuint ballTexture;
 	GLuint grassTexture;
+	GLuint plasticTexture;
 	//atrributes for court
 
 	//attributes for net
 	int shaderProgram;
-	int textureProgram;
 	int renderAs;
 	glm::vec3 position;
 	glm::vec3 colour[3];

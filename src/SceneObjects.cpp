@@ -68,10 +68,9 @@ void SceneObjects::DrawScene() {
 }
 
 bool SceneObjects::DrawBall() {
-	glUseProgram(textureProgram);
 	glBindTexture(GL_TEXTURE_2D, grassTexture);
-	GLuint colorLocation = glGetUniformLocation(textureProgram, "objectColor");
-	GLuint worldMatrixLocation = glGetUniformLocation(textureProgram, "worldMatrix");
+	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
+	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
 
 	glm::mat4 ballScale = glm::scale(glm::mat4(1.0f), glm::vec3( .50f, .50f, .50f));
 	glm::mat4 ballTranslate = glm::translate(glm::mat4(1.0f), glm::vec3( .0666f, .3f, .0f));
@@ -95,15 +94,14 @@ bool SceneObjects::DrawBall() {
 
 bool SceneObjects::DrawCourt() {
 	//set as textureshader and bind texture
-	glUseProgram(textureProgram);
 	glActiveTexture(GL_TEXTURE0);
-	GLuint textureLocation = glGetUniformLocation(textureProgram, "textureSampler");
+	GLuint textureLocation = glGetUniformLocation(shaderProgram, "textureSampler");
 	glBindTexture(GL_TEXTURE_2D, courtTexture);
 	glUniform1i(textureLocation, 0);
 
 
-	GLuint colorLocation = glGetUniformLocation(textureProgram, "objectColor");
-	GLuint worldMatrixLocation = glGetUniformLocation(textureProgram, "worldMatrix");
+	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
+	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
 
 	glBindVertexArray(cubeVao);
 	//2d texture
@@ -144,11 +142,10 @@ bool SceneObjects::DrawCourt() {
 bool SceneObjects::DrawNet() {
 
 	//bind texture Metal
-	glUseProgram(textureProgram);
 	glBindTexture(GL_TEXTURE_2D, metalTexture);
 
-	GLuint colorLocation = glGetUniformLocation(textureProgram, "objectColor");
-	GLuint worldMatrixLocation = glGetUniformLocation(textureProgram, "worldMatrix");
+	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
+	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
 
 	//bind VAO
 	glBindVertexArray(cubeVao);
@@ -230,11 +227,11 @@ bool SceneObjects::DrawNet() {
 }
 
 bool SceneObjects::DrawSkyBox() {
-
-	glUseProgram(shaderProgram);
+	glBindTexture(GL_TEXTURE_2D, plasticTexture);
+	//glUseProgram(shaderProgram);
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
 	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
-	float skyBoxY = 25.0f; // Change this to make sky box closer to court
+	float skyBoxY = 70.0f; // Change this to make sky box closer to court
 	
 	// Sets sky box position
 	glm::mat4 partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-.0f, .00f, -.0f));

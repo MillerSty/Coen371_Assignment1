@@ -20,19 +20,19 @@
 #include "Evan-models/EvanArm.h"
 #include "Evan-models/EvanRacket.h"
 
-const char* vertex = "../src/shaders/vertexShader.glsl";
-const char* fragment = "../src/shaders/fragmentShader.glsl";
+const char* vertex = "../src/shaders/unifiedVertex.glsl";
+const char* fragment = "../src/shaders/unifiedFragment.glsl";
 
-const char* textureV = "../src/shaders/textureVShader.glsl";
-const char* textureF = "../src/shaders/textureFShader.glsl";
-
-const char* evanVertex = "../src/shaders/vertex.glsl";
-const char* evanFragment = "../src/shaders/fragment.glsl";
+//const char* textureV = "../src/shaders/textureVShader.glsl";
+//const char* textureF = "../src/shaders/textureFShader.glsl";
+//
+//const char* evanVertex = "../src/shaders/vertex.glsl";
+//const char* evanFragment = "../src/shaders/fragment.glsl";
 
 int compileAndLinkShaders(const char* vertex, const char* fragment);
 GLuint loadTexture(const char* filename);
 void GLAPIENTRY messageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
-	const GLchar* message, const void* userParam);
+                                const GLchar* message, const void* userParam);
 void setProjectionMatrix(int shaderProgram, glm::mat4 projectionMatrix);
 void setViewMatrix(int shaderProgram, glm::mat4 viewMatrix);
 
@@ -68,7 +68,6 @@ int createVertexArrayObject(const glm::vec3* vertexArray, int arraySize)
 	);
 	glEnableVertexAttribArray(0);
 
-	glEnableVertexAttribArray(1);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -213,7 +212,6 @@ Arm arm;
 int renderAs = GL_TRIANGLES;
 
 int shaderProgram;
-int textureProgram;
 
 double lastMousePosX, lastMousePosY, lastMousePosZ;
 float FOV = 70, AR = (float)(WIDTH / HEIGHT), near = .01, far = 50;
@@ -274,7 +272,7 @@ int main(int argc, char* argv[])
 	GLuint clothTextureID = loadTexture("../src/Assets/cloth.jpg");
 	GLuint metalTextureID = loadTexture("../src/Assets/metal.jpg");
 	GLuint grassTextureID = loadTexture("../src/Assets/grass4.jpg");
-
+	GLuint plasticTextureID = loadTexture("../src/Assets/plastic.jpg");
 	// Black background	
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_FALSE);
@@ -284,7 +282,6 @@ int main(int argc, char* argv[])
 	// Compile and link shaders here
 
 	shaderProgram = compileAndLinkShaders(vertex, fragment);
-	textureProgram = compileAndLinkShaders(textureV, textureF);
 
 	//for (int i = 0; i < 8; i++) {
 	//	unitcube[i] = unitcube[i] * .05f; // This is to pre-scale the unit cube
@@ -292,19 +289,24 @@ int main(int argc, char* argv[])
 
 	// Initialize uniform locations
 	glUseProgram(shaderProgram);
-	//GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
-	//GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
-	//GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
-	//GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
+	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
+	GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
+	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
+	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
+    GLint viewPositionLocation = glGetUniformLocation(shaderProgram, "viewPosition");
+    GLint applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
+    GLint applyShadowsLocation = glGetUniformLocation(shaderProgram, "shouldApplyShadows");
+
+    glUniform1i(applyTexturesLocation, true);
+    glUniform1i(applyShadowsLocation, false);
+
+    glUniform3fv(viewPositionLocation, 1, &eye[0]);
 
 	//Scene Jawn
 	SceneObjects SceneObj("scene");
 	SceneObj.InitGrid();
 	SceneObj.setTextures(courtTextureID, ropeTextureID, metalTextureID, clothTextureID,grassTextureID);
-	SceneObj.textureProgram = textureProgram;
-	
-	// General variables
-
+	SceneObj.plasticTexture = plasticTextureID;
 	glfwGetCursorPos(window, &lastMousePosX, &lastMousePosY);
 	lastMousePosZ = lastMousePosY;
 
@@ -314,15 +316,11 @@ int main(int argc, char* argv[])
 		near, far);       // near and far (near > 0)
 
 	glm::mat4 InitviewMatrix = glm::lookAt(eye, center, up);
-	glUseProgram(shaderProgram);
-	GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
-	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
-	setProjectionMatrix(shaderProgram, projectionMatrix);
-	setProjectionMatrix(textureProgram, projectionMatrix);
-	setViewMatrix(shaderProgram, InitviewMatrix);
-	setViewMatrix(textureProgram, InitviewMatrix);
 
-  std::vector<int> vertexIndicescube, vertexIndicessphere;
+	setProjectionMatrix(shaderProgram, projectionMatrix);
+	setViewMatrix(shaderProgram, InitviewMatrix);
+
+    std::vector<int> vertexIndicescube, vertexIndicessphere;
 	std::vector<glm::vec3> verticescube, verticessphere, normalscube, normalssphere;
 	std::vector<glm::vec2> UVscube, UVssphere;
 	std::string pathCube = "../src/Assets/mesh/unitCube.obj";	
@@ -336,14 +334,14 @@ int main(int argc, char* argv[])
 	for (int i = 0; i < verticessphere.size(); i++) {
 		verticessphere[i] = verticessphere[i] * .05f;
 	}
+	
 	int gridAO = createVertexArrayObject(SceneObj.lineArray, sizeof(SceneObj.lineArray));
 	int unitCubeAO = createVertexArrayElementObject2(vertexIndicescube, verticescube, normalscube, UVscube);
 	int unitSphereAO = createVertexArrayElementObject2(vertexIndicessphere, verticessphere, normalssphere, UVssphere);
-	int reverseCubeAO = createVertexArrayElementObject2(reverseIndices, verticescube, normalscube, UVscube);
+	
+	int reverseCubeAO = createVertexArrayElementObject2(reverseIndices, verticescube, normalscube , UVscube);
 
 	arm.setVAO(unitCubeAO);
-
-
 
 	Racket racket(unitCubeAO, "racket");
 
@@ -357,18 +355,89 @@ int main(int argc, char* argv[])
 	glfwSetKeyCallback(window, keyPressCallback);
 	glfwSetCursorPosCallback(window, mouseCursorPostionCallback);
 
-	int evanShaderProgram = compileAndLinkShaders(evanVertex, evanFragment);
-	GLint evanWorldMatrixLocation = glGetUniformLocation(evanShaderProgram, "modelMatrix");
-	GLint evanViewMatrixLocation = glGetUniformLocation(evanShaderProgram, "viewMatrix");
-	GLint evanProjectionMatrixLocation = glGetUniformLocation(evanShaderProgram, "projectMatrix");
-	glUseProgram(evanShaderProgram);
-	glUniformMatrix4fv(evanViewMatrixLocation, 1, GL_FALSE, &InitviewMatrix[0][0]);
-	glUniformMatrix4fv(evanProjectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
-	vec3 modelScale = vec3(0.03, 0.03, 0.03);
-	EvanArm evanArm(vec3(0.2f, 0.0f, 0.0f), modelScale);
-	EvanRacket evanRacket(vec3(0.2f, 0.0f, 0.0f), modelScale);
+//	vec3 modelScale = vec3(0.03, 0.03, 0.03);
+    vec3 modelScale = vec3(0.25, 0.25, 0.25);
+    EvanRacket evanRacket(vec3(0.2f, 0.0f, 0.0f), modelScale,
+                          unitCubeAO,unitCubeAO,unitCubeAO,
+                          unitCubeAO,unitCubeAO, unitCubeAO );
+	EvanArm evanArm(vec3(0.2f, 0.0f, 0.0f), modelScale, unitCubeAO,
+                    unitCubeAO, evanRacket );
 
-	//NOTE we have issues when doing mouse jawn with current set up
+    // Lighting
+    float lightAngleOuter = 30.0;
+    float lightAngleInner = 20.0;
+    // Set light cutoff angles on scene shader
+    GLint lightCutoffInnerLoc = glGetUniformLocation( shaderProgram, "lightCutoffInner");
+    GLint lightCutoffOuterLoc = glGetUniformLocation( shaderProgram, "lightCutoffOuter");
+    glUniform1f(lightCutoffInnerLoc, cos(glm::radians(lightAngleInner)));
+    glUniform1f(lightCutoffOuterLoc, cos(glm::radians(lightAngleOuter)));
+
+    GLint lightColorLoc = glGetUniformLocation( shaderProgram, "lightColor");
+
+    glUniform3fv(lightColorLoc, 1, value_ptr(vec3(1.0f, 1.0f, 1.0f)));
+
+    // light parameters
+    vec3 lightPosition =  vec3(0.0, 30.0f, 0.0f); // the location of the light in 3D space
+    vec3 lightFocus(0.0, 0.0, -1.0);      // the point in 3D space the light "looks" at
+    vec3 lightDirection = normalize(lightFocus - lightPosition);
+
+    float lightNearPlane = 0.1f;
+    float lightFarPlane = 180.0f;
+
+    mat4 lightProjectionMatrix = frustum(-1.0f, 1.0f, -1.0f, 1.0f, lightNearPlane, lightFarPlane);
+    mat4 lightViewMatrix = lookAt(lightPosition, lightFocus, vec3(0.0f, 1.0f, 0.0f));
+    mat4 lightSpaceMatrix = lightProjectionMatrix * lightViewMatrix;
+// Set light space matrix on both shaders
+    GLint lightViewProjMatrixLoc = glGetUniformLocation( shaderProgram, "lightViewProjMatrix");
+    GLint lightNearPlaneLoc = glGetUniformLocation( shaderProgram, "lightNearPlane");
+    GLint lightFarPlaneLoc = glGetUniformLocation( shaderProgram, "lightFarPlane");
+    GLint lightPositionLoc = glGetUniformLocation( shaderProgram, "lightPosition");
+    GLint lightDirectionLoc = glGetUniformLocation( shaderProgram, "lightDirection");
+
+    glUniformMatrix4fv(lightViewProjMatrixLoc, 1, GL_FALSE, &lightSpaceMatrix[0][0]);
+
+    // Set light far and near planes on scene shader
+    glUniform1f(lightNearPlaneLoc, lightNearPlane);
+    glUniform1f(lightFarPlaneLoc, lightFarPlane);
+
+    // Set light position on scene shader
+    glUniform3fv(lightPositionLoc, 1, &lightPosition[0]);
+
+    // Set light direction on scene shader
+    glUniform3fv(lightDirectionLoc, 1, &lightDirection[0]);
+
+    // Dimensions of the shadow texture, which should cover the viewport window size and shouldn't be oversized and waste resources
+    const unsigned int DEPTH_MAP_TEXTURE_SIZE = 1024;
+
+    // Variable storing index to texture used for shadow mapping
+    GLuint depth_map_texture;
+    // Get the texture
+    glGenTextures(1, &depth_map_texture);
+    // Bind the texture so the next glTex calls affect it
+    glBindTexture(GL_TEXTURE_2D, depth_map_texture);
+    // Create the texture and specify it's attributes, including widthn height, components (only depth is stored, no color information)
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT,
+                 NULL);
+    // Set texture sampler parameters.
+    // The two calls below tell the texture sampler inside the shader how to upsample and downsample the texture. Here we choose the nearest filtering option, which means we just use the value of the closest pixel to the chosen image coordinate.
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    // The two calls below tell the texture sampler inside the shader how it should deal with texture coordinates outside of the [0, 1] range. Here we decide to just tile the image.
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+
+    // Variable storing index to framebuffer used for shadow mapping
+    GLuint depth_map_fbo;  // fbo: framebuffer object
+    // Get the framebuffer
+    glGenFramebuffers(1, &depth_map_fbo);
+    // Bind the framebuffer so the next glFramebuffer calls affect it
+    glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
+    // Attach the depth map texture to the depth map framebuffer
+    //glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, depth_map_texture, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_map_texture, 0);
+    glDrawBuffer(GL_NONE); //disable rendering colors, only write depth values
+    //NOTE we have issues when doing mouse jawn with current set up
 	while (!glfwWindowShouldClose(window))
 	{
 		// Handle resizing
@@ -379,33 +448,68 @@ int main(int argc, char* argv[])
 		// Calculate aspect ratio
 		AR = (float)*newWidth / (float)*newHeight; //note unsure if this will cause issues
 
-		// Each frame, reset color of each pixel to glClearColor
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // 1st pass
+        {
+            glUniform1i(applyTexturesLocation, false);
+            glUniform1i(applyShadowsLocation, true);
+            // Use proper image output size
+            glViewport(0, 0, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE);
+            // Bind depth map texture as output framebuffer
+            glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
+            // Clear depth data on the framebuffer
+            glClear(GL_DEPTH_BUFFER_BIT);
 
-		// Draw geometry
-		glUseProgram(shaderProgram); //note: still dependent on this for scene objects?
+            // Draw geometry
+            arm.SetAttr(groupMatrix, renderAs, shaderProgram);
+            arm.setTranslation(Translate, translateWSAD);
+            arm.DrawArm();
+            racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
+            racket.Draw();
 
+//            evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
 
+            SceneObj.sphereVao = unitSphereAO;
+            SceneObj.sphereVertCount = vertexIndicessphere.size();
+            SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
+            SceneObj.SetVAO(unitCubeAO, reverseCubeAO, gridAO);
+            SceneObj.DrawScene();
 
-		// Set a default group matrix
-		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) *
-			glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
-			rotationMatrixW;
+            // Unbind geometry
+            glBindVertexArray(0);
+        }
+        // 2nd pass
+        {
+            glUniform1i(applyTexturesLocation, true);
+            glUniform1i(applyShadowsLocation, false);
+            // Use proper image output size
+            // Side note: we get the size from the framebuffer instead of using WIDTH and HEIGHT because of a bug with highDPI displays
+            int width, height;
+            glfwGetFramebufferSize(window, &width, &height);
+            glViewport(0, 0, width, height);
+            // Bind screen as output framebuffer
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            // Clear color and depth data on framebuffer
+            glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            // Bind depth map texture: not needed, by default it is active
+            //glActiveTexture(GL_TEXTURE0);
+            // Draw geometry
+            arm.SetAttr(groupMatrix, renderAs, shaderProgram);
+            arm.setTranslation(Translate, translateWSAD);
+            arm.DrawArm();
+            racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
+            racket.Draw();
 
-		arm.SetAttr(groupMatrix, renderAs, shaderProgram);
-		//arm.setTranslation(Translate, translateWSAD);
-		arm.DrawArm();
-		racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
-		racket.Draw();
+//            evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
 
-		evanArm.draw(evanWorldMatrixLocation, evanShaderProgram);
-		evanRacket.draw(evanWorldMatrixLocation, evanShaderProgram);
-
-		SceneObj.sphereVao = unitSphereAO;
-		SceneObj.sphereVertCount = vertexIndicessphere.size();
-		SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
-		SceneObj.SetVAO(unitCubeAO, reverseCubeAO, gridAO);
-		SceneObj.DrawScene();
+            SceneObj.sphereVao = unitSphereAO;
+            SceneObj.sphereVertCount = vertexIndicessphere.size();
+            SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
+            SceneObj.SetVAO(unitCubeAO, reverseCubeAO, gridAO);
+            SceneObj.DrawScene();
+            // Unbind geometry
+            glBindVertexArray(0);
+        }
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -656,9 +760,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 		glm::mat4 InitviewMatrix = glm::lookAt(eye, center, up);
 		glm::mat4 projectionMatrix = glm::perspective(FOV, AR, near, far);
-		setProjectionMatrix(textureProgram, projectionMatrix);
 		setProjectionMatrix(shaderProgram, projectionMatrix);
-		setViewMatrix(textureProgram, InitviewMatrix);
 		setViewMatrix(shaderProgram, InitviewMatrix);
 	}
 }
@@ -684,7 +786,6 @@ void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos)
 
 		glm::mat4 InitviewMatrix = glm::lookAt(eye, glm::vec3(translateW, translateY, 0.0f), up);
 		setViewMatrix(shaderProgram, InitviewMatrix);
-		setViewMatrix(textureProgram, InitviewMatrix);
 		lastMousePosY = yPos;
 	}
 
@@ -699,7 +800,6 @@ void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos)
 
 		glm::mat4 InitviewMatrix = glm::lookAt(eye, glm::vec3(translateW + center.x, translateY + center.y, 0.0f), up);
 		setViewMatrix(shaderProgram, InitviewMatrix);
-		setViewMatrix(textureProgram, InitviewMatrix);
 		lastMousePosX = xPos;
 	}
 
@@ -715,7 +815,6 @@ void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos)
 
 		glm::mat4 projectionMatrix = glm::perspective(translateZ + 70.0f, (float)WIDTH / (float)HEIGHT, .01f, 50.0f);
 		setProjectionMatrix(shaderProgram, projectionMatrix);
-		setProjectionMatrix(textureProgram, projectionMatrix);
 		lastMousePosZ = zPos;
 	}
 }
