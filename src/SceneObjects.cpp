@@ -93,11 +93,21 @@ bool SceneObjects::DrawBall() {
 }
 
 bool SceneObjects::DrawCourt() {
+	// Lighting
+	GLint shadingAmbientStrength = glGetUniformLocation(shaderProgram, "shadingAmbientStrength");
+	GLint shadingDiffuseStrength = glGetUniformLocation(shaderProgram, "shadingDiffuseStrength");
+	GLint shadingSpecularStrength = glGetUniformLocation(shaderProgram, "shadingSpecularStrength");
+	float specular, diffuse, ambient;
+	glUniform1f(shadingAmbientStrength, 1.0f);
+	glUniform1f(shadingDiffuseStrength,.01f);
+	glUniform1f(shadingSpecularStrength, .10f);
 	//set as textureshader and bind texture
-	glActiveTexture(GL_TEXTURE0);
-	GLuint textureLocation = glGetUniformLocation(shaderProgram, "textureSampler");
-	glBindTexture(GL_TEXTURE_2D, courtTexture);
-	glUniform1i(textureLocation, 0);
+	
+		glActiveTexture(GL_TEXTURE0);
+		GLuint textureLocation = glGetUniformLocation(shaderProgram, "textureSampler");
+		glBindTexture(GL_TEXTURE_2D, courtTexture);
+		glUniform1i(textureLocation, 0);
+
 
 
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
@@ -140,7 +150,13 @@ bool SceneObjects::DrawCourt() {
 }
 
 bool SceneObjects::DrawNet() {
-
+	GLint shadingAmbientStrength = glGetUniformLocation(shaderProgram, "shadingAmbientStrength");
+	GLint shadingDiffuseStrength = glGetUniformLocation(shaderProgram, "shadingDiffuseStrength");
+	GLint shadingSpecularStrength = glGetUniformLocation(shaderProgram, "shadingSpecularStrength");
+	float specular, diffuse, ambient;
+	glUniform1f(shadingAmbientStrength, 1.0f);
+	glUniform1f(shadingDiffuseStrength, .0f);
+	glUniform1f(shadingSpecularStrength, .70f);
 	//bind texture Metal
 	glBindTexture(GL_TEXTURE_2D, metalTexture);
 
@@ -184,7 +200,9 @@ bool SceneObjects::DrawNet() {
 	// Strings of net
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));  // Set net colour
 	glBindTexture(GL_TEXTURE_2D, ropeTexture); //Bind texture Ropes
-
+	glUniform1f(shadingAmbientStrength, 1.0f);
+	glUniform1f(shadingDiffuseStrength, .50f);
+	glUniform1f(shadingSpecularStrength, .10f);
 	// Loop to draw net. i is our translation offset
 	for (float i = .0; i <= .07f; i += .01) {
 		partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.03f, .03f, 7.0f));  // Scale to beautiful net dimensions

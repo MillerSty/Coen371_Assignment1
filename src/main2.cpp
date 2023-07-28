@@ -19,7 +19,8 @@
 
 #include "Evan-models/EvanArm.h"
 #include "Evan-models/EvanRacket.h"
-
+#define TEAM_TRUE true
+#define TEAM_FALSE false
 const char* vertex = "../src/shaders/unifiedVertex.glsl";
 const char* fragment = "../src/shaders/unifiedFragment.glsl";
 
@@ -167,7 +168,7 @@ int createVertexArrayElementObject2(std::vector<int> vertexIndices,
 		3,                      // size
 		GL_FLOAT,               // type
 		GL_FALSE,               // normalized?
-		1 * sizeof(glm::vec3),  // stride - each vertex contain 2 vec3 (position, color)
+		0 * sizeof(glm::vec3),  // stride - each vertex contain 2 vec3 (position, color)
 		(void*)0                // array buffer offset
 	);
 	glEnableVertexAttribArray(0);
@@ -177,7 +178,7 @@ int createVertexArrayElementObject2(std::vector<int> vertexIndices,
 	glGenBuffers(1, &normals_VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, normals_VBO);
 	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals.front(), GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec3), (GLvoid*)0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0 * sizeof(glm::vec3), (GLvoid*)0);
 	glEnableVertexAttribArray(1);
 
 	//UVs VBO setup
@@ -185,7 +186,7 @@ int createVertexArrayElementObject2(std::vector<int> vertexIndices,
 	glGenBuffers(1, &uvs_VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, uvs_VBO);
 	glBufferData(GL_ARRAY_BUFFER, UVs.size() * sizeof(glm::vec3), &UVs.front(), GL_STATIC_DRAW);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec3), (GLvoid*)0);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0 * sizeof(glm::vec3), (GLvoid*)0);
 	glEnableVertexAttribArray(2);
 
 
@@ -245,9 +246,7 @@ int main(int argc, char* argv[])
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glEnable(GL_CULL_FACE);
-	glEnable(GL_BACK);
-
-	//glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
+	glEnable(GL_FRONT);
 
 	// Initialize GLEW
 	glewExperimental = true; // Needed for core profile
@@ -266,7 +265,6 @@ int main(int argc, char* argv[])
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(messageCallback, 0);
 #endif
-
 	GLuint courtTextureID = loadTexture("../src/Assets/clay2.jpg");
 	GLuint ropeTextureID = loadTexture("../src/Assets/rope.jpg");
 	GLuint clothTextureID = loadTexture("../src/Assets/cloth.jpg");
@@ -278,7 +276,6 @@ int main(int argc, char* argv[])
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_FALSE);
 	// Set frame rate to refresh rate of monitor
 	glfwSwapInterval(1);
-
 	// Compile and link shaders here
 
 	shaderProgram = compileAndLinkShaders(vertex, fragment);
@@ -298,7 +295,7 @@ int main(int argc, char* argv[])
     GLint applyShadowsLocation = glGetUniformLocation(shaderProgram, "shouldApplyShadows");
 
     glUniform1i(applyTexturesLocation, true);
-    glUniform1i(applyShadowsLocation, false);
+    glUniform1i(applyShadowsLocation,false);
 
     glUniform3fv(viewPositionLocation, 1, &eye[0]);
 
@@ -330,6 +327,9 @@ int main(int argc, char* argv[])
   
 	for (int i = 0; i < verticescube.size(); i++) {
 		verticescube[i] = verticescube[i] * .05f;
+	}
+	for (int i = 0; i < normalscube.size(); i++) {
+		normalscube[i] = normalscube[i] * .05f;
 	}
 	for (int i = 0; i < verticessphere.size(); i++) {
 		verticessphere[i] = verticessphere[i] * .05f;
@@ -364,7 +364,15 @@ int main(int argc, char* argv[])
                     unitCubeAO, evanRacket );
 
     // Lighting
-    float lightAngleOuter = 30.0;
+	GLint shadingAmbientStrength = glGetUniformLocation(shaderProgram, "shadingAmbientStrength");
+	GLint shadingDiffuseStrength = glGetUniformLocation(shaderProgram, "shadingDiffuseStrength");
+	GLint shadingSpecularStrength = glGetUniformLocation(shaderProgram, "shadingSpecularStrength");
+	float specular, diffuse, ambient;
+	glUniform1f(shadingAmbientStrength, 1.0f);
+	glUniform1f(shadingDiffuseStrength, 1.0f);
+	glUniform1f(shadingSpecularStrength, 1.0f);
+	
+	float lightAngleOuter = 30.0;
     float lightAngleInner = 20.0;
     // Set light cutoff angles on scene shader
     GLint lightCutoffInnerLoc = glGetUniformLocation( shaderProgram, "lightCutoffInner");
@@ -377,14 +385,14 @@ int main(int argc, char* argv[])
     glUniform3fv(lightColorLoc, 1, value_ptr(vec3(1.0f, 1.0f, 1.0f)));
 
     // light parameters
-    vec3 lightPosition =  vec3(0.0, 30.0f, 0.0f); // the location of the light in 3D space
-    vec3 lightFocus(0.0, 0.0, -1.0);      // the point in 3D space the light "looks" at
+    vec3 lightPosition =  vec3(0.0, .60f, 0.60f); // the location of the light in 3D space
+    vec3 lightFocus(0.0, .0, -.10f);      // the point in 3D space the light "looks" at
     vec3 lightDirection = normalize(lightFocus - lightPosition);
 
     float lightNearPlane = 0.1f;
-    float lightFarPlane = 180.0f;
+    float lightFarPlane = 50.0f;
 
-    mat4 lightProjectionMatrix = frustum(-1.0f, 1.0f, -1.0f, 1.0f, lightNearPlane, lightFarPlane);
+    mat4 lightProjectionMatrix = frustum(-.50f, .50f, -.50f, .50f, lightNearPlane, lightFarPlane);
     mat4 lightViewMatrix = lookAt(lightPosition, lightFocus, vec3(0.0f, 1.0f, 0.0f));
     mat4 lightSpaceMatrix = lightProjectionMatrix * lightViewMatrix;
 // Set light space matrix on both shaders
@@ -420,12 +428,13 @@ int main(int argc, char* argv[])
                  NULL);
     // Set texture sampler parameters.
     // The two calls below tell the texture sampler inside the shader how to upsample and downsample the texture. Here we choose the nearest filtering option, which means we just use the value of the closest pixel to the chosen image coordinate.
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // COMPARISON_MIN_MAG_MIP_LINEAR
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     // The two calls below tell the texture sampler inside the shader how it should deal with texture coordinates outside of the [0, 1] range. Here we decide to just tile the image.
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 
     // Variable storing index to framebuffer used for shadow mapping
     GLuint depth_map_fbo;  // fbo: framebuffer object
@@ -436,8 +445,10 @@ int main(int argc, char* argv[])
     // Attach the depth map texture to the depth map framebuffer
     //glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, depth_map_texture, 0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_map_texture, 0);
-    glDrawBuffer(GL_NONE); //disable rendering colors, only write depth values
+	glReadBuffer(GL_NONE);
+	glDrawBuffer(GL_NONE); //disable rendering colors, only write depth values
     //NOTE we have issues when doing mouse jawn with current set up
+
 	while (!glfwWindowShouldClose(window))
 	{
 		// Handle resizing
@@ -445,13 +456,18 @@ int main(int argc, char* argv[])
 		glfwSetWindowSize(window, *newWidth, *newHeight);
 		glViewport(0, 0, *newWidth, *newHeight);
 
+		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) *
+			glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
+			rotationMatrixW;
+
+
 		// Calculate aspect ratio
 		AR = (float)*newWidth / (float)*newHeight; //note unsure if this will cause issues
 
         // 1st pass
-        {
+        {	glEnable(GL_FRONT);
             glUniform1i(applyTexturesLocation, false);
-            glUniform1i(applyShadowsLocation, true);
+            glUniform1i(applyShadowsLocation, true );
             // Use proper image output size
             glViewport(0, 0, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE);
             // Bind depth map texture as output framebuffer
@@ -461,7 +477,6 @@ int main(int argc, char* argv[])
 
             // Draw geometry
             arm.SetAttr(groupMatrix, renderAs, shaderProgram);
-            arm.setTranslation(Translate, translateWSAD);
             arm.DrawArm();
             racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
             racket.Draw();
@@ -478,7 +493,7 @@ int main(int argc, char* argv[])
             glBindVertexArray(0);
         }
         // 2nd pass
-        {
+        {	glEnable(GL_BACK);
             glUniform1i(applyTexturesLocation, true);
             glUniform1i(applyShadowsLocation, false);
             // Use proper image output size
@@ -492,10 +507,10 @@ int main(int argc, char* argv[])
             glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             // Bind depth map texture: not needed, by default it is active
-            //glActiveTexture(GL_TEXTURE0);
+            glActiveTexture(GL_TEXTURE0);
             // Draw geometry
             arm.SetAttr(groupMatrix, renderAs, shaderProgram);
-            arm.setTranslation(Translate, translateWSAD);
+           // arm.setTranslation(Translate, translateWSAD);
             arm.DrawArm();
             racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
             racket.Draw();
@@ -733,7 +748,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		arm.setTranslateModel(glm::vec3((arm.getTranslateModel().x - .005f), arm.getTranslateModel().y, arm.getTranslateModel().z));
 
 	else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-		arm.setTranslateModel(glm::vec3((arm.getTranslateModel().x+ .005f), arm.getTranslateModel().y , arm.getTranslateModel().z));
+		arm.setTranslateModel(glm::vec3((arm.getTranslateModel().x + .005f), arm.getTranslateModel().y , arm.getTranslateModel().z));
 
 	else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
 		arm.setRotation(arm.getRotation() + 5);
@@ -822,13 +837,14 @@ void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos)
 bool loadOBJ2(
 	const char* path,
 	std::vector<int>& vertexIndices,
-	std::vector<glm::vec3>& temp_vertices,
+	std::vector<glm::vec3>& out_vertices,
 	std::vector<glm::vec3>& out_normals,
 	std::vector<glm::vec2>& out_uvs) {
 
 	std::vector<int> uvIndices, normalIndices;
 	std::vector<glm::vec2> temp_uvs;
 	std::vector<glm::vec3> temp_normals;
+	std::vector<glm::vec3> temp_vertices;
 
 	FILE* file;
 	file = fopen(path, "r");
@@ -911,16 +927,16 @@ bool loadOBJ2(
 			vertexIndices.push_back(abs(vertexIndex[0]) - 1);
 			vertexIndices.push_back(abs(vertexIndex[1]) - 1);
 			vertexIndices.push_back(abs(vertexIndex[2]) - 1);
-			if (norm) {
-				normalIndices.push_back(abs(normalIndex[0]) - 1);
-				normalIndices.push_back(abs(normalIndex[1]) - 1);
-				normalIndices.push_back(abs(normalIndex[2]) - 1);
-			}
-			if (uv) {
+			
+			normalIndices.push_back(abs(normalIndex[0]) - 1);
+			normalIndices.push_back(abs(normalIndex[1]) - 1);
+			normalIndices.push_back(abs(normalIndex[2]) - 1);
+			
+			
 				uvIndices.push_back(abs(uvIndex[0]) - 1);
 				uvIndices.push_back(abs(uvIndex[1]) - 1);
 				uvIndices.push_back(abs(uvIndex[2]) - 1);
-			}
+			
 		}
 		else {
 			char clear[1000];
@@ -931,17 +947,23 @@ bool loadOBJ2(
 		out_normals.resize(temp_normals.size());
 	if (uvIndices.size() != 0)
 		out_uvs.resize(temp_uvs.size());
+	out_vertices = temp_vertices;
 	out_normals = temp_normals;
 	out_uvs = temp_uvs;
 	//for (unsigned int i = 0; i < vertexIndices.size(); i++) {
 	//	int vi = vertexIndices[i];
+	//	glm::vec3 checkVertice = temp_vertices[vi];
+	//	out_vertices.push_back(temp_vertices[vi]);
 	//	if (normalIndices.size() != 0) {
 	//		int ni = normalIndices[i];
-	//		out_normals[vi] = temp_normals[ni];
+	//		glm::vec3 checkNormal = temp_normals[ni];
+	//		out_normals.push_back(temp_normals[ni]);
 	//	}
-	//	if (uvIndices.size() != 0 && i < uvIndices.size()) {
+	//	if (uvIndices.size() != 0 ) {
 	//		int ui = uvIndices[i];
-	//		out_uvs[vi] = temp_uvs[ui];
+	//
+	//		glm::vec2 checkText = temp_uvs[ui];
+	//		out_uvs.push_back(temp_uvs[ui]);
 	//	}
 	//}
 
