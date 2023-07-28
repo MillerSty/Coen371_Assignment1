@@ -35,7 +35,7 @@ void MattArm::setVAO(int vao) { unitCubeVAO = vao; }
 
 int MattArm::getVAO() { return unitCubeVAO; }
 
-MattArm::drawArm()
+void MattArm::drawArm()
 {
 	drawUpperArm();
 	drawLowerArm();
@@ -46,11 +46,11 @@ void MattArm::drawUpperArm()
 	glm::mat4 modelMat = worldMatrix * groupMatrix;
 
 	modelMat = glm::scale(modelMat, initialScale);
-	modelMat = glm::translate(modelMat, glm:vec3(2.0f, 3.0f, 0.0f));
+	modelMat = glm::translate(modelMat, glm::vec3(2.0f, 3.0f, 0.0f));
 	modelMat = glm::scale(modelMat, glm::vec3(1.0f, 4.0f, 1.0f));
 
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "worldMatrix"), 1, GL_FALSE, &modelMat[0][0]);
-
+	glUniform3fv(glGetUniformLocation(shaderProgram, "objectColor"), 1, glm::value_ptr(glm::vec3(0.8f, 0.65f, 0.37f)));
 	glBindVertexArray(unitCubeVAO);
 
 	glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -65,7 +65,7 @@ void MattArm::drawLowerArm()
 	modelMat = glm::scale(modelMat, glm::vec3(1.0f, 4.0f, 1.0f));
 
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "worldMatrix"), 1, GL_FALSE, &modelMat[0][0]);
-
+	glUniform3fv(glGetUniformLocation(shaderProgram, "objectColor"), 1, glm::value_ptr(glm::vec3(0.8f, 0.65f, 0.37f)));
 	glBindVertexArray(unitCubeVAO);
 	
 	glDrawArrays(GL_TRIANGLES, 0, 36);
