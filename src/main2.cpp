@@ -19,11 +19,12 @@
 
 #include "Evan-models/EvanArm.h"
 #include "Evan-models/EvanRacket.h"
-#define TEAM_TRUE true
-#define TEAM_FALSE false
+
+
 const char* vertex = "../src/shaders/unifiedVertex.glsl";
 const char* fragment = "../src/shaders/unifiedFragment.glsl";
-
+const char* debugV = "../src/shaders/jonvertex.glsl";
+const char* debugF = "../src/shaders/jonfrag.glsl";
 //const char* textureV = "../src/shaders/textureVShader.glsl";
 //const char* textureF = "../src/shaders/textureFShader.glsl";
 //
@@ -217,7 +218,34 @@ int shaderProgram;
 double lastMousePosX, lastMousePosY, lastMousePosZ;
 float FOV = 70, AR = (float)(WIDTH / HEIGHT), near = .01, far = 50;
 float translateW = 0, translateY = 0, translateZ = 0;
-
+unsigned int quadVAO = 0;
+unsigned int quadVBO;
+void renderQuad()
+{
+	if (quadVAO == 0)
+	{
+		float quadVertices[] = {
+			// positions        // texture Coords
+			-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+			 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+			 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+		};
+		// setup plane VAO
+		glGenVertexArrays(1, &quadVAO);
+		glGenBuffers(1, &quadVBO);
+		glBindVertexArray(quadVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	}
+	glBindVertexArray(quadVAO);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glBindVertexArray(0);
+}
 int main(int argc, char* argv[])
 {
 	// Initialize GLFW and OpenGL version
@@ -246,7 +274,7 @@ int main(int argc, char* argv[])
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glEnable(GL_CULL_FACE);
-	glEnable(GL_FRONT);
+	glEnable(GL_BACK);
 
 	// Initialize GLEW
 	glewExperimental = true; // Needed for core profile
@@ -279,11 +307,7 @@ int main(int argc, char* argv[])
 	// Compile and link shaders here
 
 	shaderProgram = compileAndLinkShaders(vertex, fragment);
-
-	//for (int i = 0; i < 8; i++) {
-	//	unitcube[i] = unitcube[i] * .05f; // This is to pre-scale the unit cube
-	//}
-
+	GLint debugProgram = compileAndLinkShaders(debugV, debugF);
 	// Initialize uniform locations
 	glUseProgram(shaderProgram);
 	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
@@ -294,7 +318,7 @@ int main(int argc, char* argv[])
     GLint applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
     GLint applyShadowsLocation = glGetUniformLocation(shaderProgram, "shouldApplyShadows");
 
-    glUniform1i(applyTexturesLocation, true);
+    glUniform1i(applyTexturesLocation, false);
     glUniform1i(applyShadowsLocation,false);
 
     glUniform3fv(viewPositionLocation, 1, &eye[0]);
@@ -372,8 +396,8 @@ int main(int argc, char* argv[])
 	glUniform1f(shadingDiffuseStrength, 1.0f);
 	glUniform1f(shadingSpecularStrength, 1.0f);
 	
-	float lightAngleOuter = 30.0;
-    float lightAngleInner = 20.0;
+	float lightAngleOuter =90.0;
+    float lightAngleInner = .0;
     // Set light cutoff angles on scene shader
     GLint lightCutoffInnerLoc = glGetUniformLocation( shaderProgram, "lightCutoffInner");
     GLint lightCutoffOuterLoc = glGetUniformLocation( shaderProgram, "lightCutoffOuter");
@@ -385,14 +409,14 @@ int main(int argc, char* argv[])
     glUniform3fv(lightColorLoc, 1, value_ptr(vec3(1.0f, 1.0f, 1.0f)));
 
     // light parameters
-    vec3 lightPosition =  vec3(0.0, .60f, 0.60f); // the location of the light in 3D space
-    vec3 lightFocus(0.0, .0, -.10f);      // the point in 3D space the light "looks" at
+    vec3 lightPosition =  vec3(0.0, 10.0f, 0.0f); // the location of the light in 3D space
+    vec3 lightFocus(-.0f, -.0f, -.50f);      // the point in 3D space the light "looks" at
     vec3 lightDirection = normalize(lightFocus - lightPosition);
 
-    float lightNearPlane = 0.1f;
-    float lightFarPlane = 50.0f;
+    float lightNearPlane = 0.001f;
+    float lightFarPlane = 10.0f;
 
-    mat4 lightProjectionMatrix = frustum(-.50f, .50f, -.50f, .50f, lightNearPlane, lightFarPlane);
+    mat4 lightProjectionMatrix = ortho(-.90f, .90f, -.90f, .90f, lightNearPlane, lightFarPlane);
     mat4 lightViewMatrix = lookAt(lightPosition, lightFocus, vec3(0.0f, 1.0f, 0.0f));
     mat4 lightSpaceMatrix = lightProjectionMatrix * lightViewMatrix;
 // Set light space matrix on both shaders
@@ -416,11 +440,20 @@ int main(int argc, char* argv[])
 
     // Dimensions of the shadow texture, which should cover the viewport window size and shouldn't be oversized and waste resources
     const unsigned int DEPTH_MAP_TEXTURE_SIZE = 1024;
-
+	GLuint depth_map_fbo;  // fbo: framebuffer object
+	// Get the framebuffer
+	glGenFramebuffers(1, &depth_map_fbo);
+	// Bind the framebuffer so the next glFramebuffer calls affect it
+	glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
     // Variable storing index to texture used for shadow mapping
     GLuint depth_map_texture;
     // Get the texture
     glGenTextures(1, &depth_map_texture);
+	assert(depth_map_texture != 0);
+	
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	// 
+	glEnable(GL_FRONT);
     // Bind the texture so the next glTex calls affect it
     glBindTexture(GL_TEXTURE_2D, depth_map_texture);
     // Create the texture and specify it's attributes, including widthn height, components (only depth is stored, no color information)
@@ -428,103 +461,162 @@ int main(int argc, char* argv[])
                  NULL);
     // Set texture sampler parameters.
     // The two calls below tell the texture sampler inside the shader how to upsample and downsample the texture. Here we choose the nearest filtering option, which means we just use the value of the closest pixel to the chosen image coordinate.
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // COMPARISON_MIN_MAG_MIP_LINEAR
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // COMPARISON_MIN_MAG_MIP_LINEAR
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     // The two calls below tell the texture sampler inside the shader how it should deal with texture coordinates outside of the [0, 1] range. Here we decide to just tile the image.
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	
     // Variable storing index to framebuffer used for shadow mapping
-    GLuint depth_map_fbo;  // fbo: framebuffer object
-    // Get the framebuffer
-    glGenFramebuffers(1, &depth_map_fbo);
-    // Bind the framebuffer so the next glFramebuffer calls affect it
-    glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
+  	
     // Attach the depth map texture to the depth map framebuffer
     //glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, depth_map_texture, 0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_map_texture, 0);
 	glReadBuffer(GL_NONE);
 	glDrawBuffer(GL_NONE); //disable rendering colors, only write depth values
     //NOTE we have issues when doing mouse jawn with current set up
+	glBindTexture(GL_TEXTURE_2D, 0);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	
+
+	////JON FBO
+	//const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+	//unsigned int depthMapFBO;
+	//glGenFramebuffers(1, &depthMapFBO);
+	//// create depth texture
+	//unsigned int depthMap;
+	//glGenTextures(1, &depthMap);
+	//glBindTexture(GL_TEXTURE_2D, depthMap);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	//// attach depth texture as FBO's depth buffer
+	//glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+	//glDrawBuffer(GL_NONE);
+	//glReadBuffer(GL_NONE);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	GLuint tdepthMap = glGetUniformLocation(debugProgram, "depthMap");
+	glUniform1i(tdepthMap, 0);
+
+	//GLuint jdepthMap = glGetUniformLocation(shaderProgram, "textureSampler");
+	//glUniform1i(jdepthMap, 0);
+	GLuint kdepthMap = glGetUniformLocation(shaderProgram, "shadowMap");
+	glUniform1i(kdepthMap, 2);
+	//glBindSampler(GL_TEXTURE0+4 , kdepthMap);
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		printf("**********On Framebuffer\n");
+	}
+
+	glEnable(GL_BACK);
+	bool debug = false;
 	while (!glfwWindowShouldClose(window))
 	{
-		// Handle resizing
-		glfwGetWindowSize(window, newWidth, newHeight);
-		glfwSetWindowSize(window, *newWidth, *newHeight);
-		glViewport(0, 0, *newWidth, *newHeight);
+		
+		//glUseProgram(shaderProgram);
+		//// Handle resizing
+		//glfwGetWindowSize(window, newWidth, newHeight);
+		//glfwSetWindowSize(window, *newWidth, *newHeight);
+		//glViewport(0, 0, *newWidth, *newHeight);
+		//	// Calculate aspect ratio
+		//	AR = (float)*newWidth / (float)*newHeight; //note unsure if this will cause issues
 
 		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) *
 			glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
-			rotationMatrixW;
+			rotationMatrixW;       
+		
+		// 1st pass
+     {	
+         glUniform1i(applyTexturesLocation, false);
+         glUniform1i(applyShadowsLocation, true );
+	 
+		//glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &groupMatrix[0][0]);
+         // Use proper image output size
+         glViewport(0, 0, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE);
+		 glClear(GL_DEPTH_BUFFER_BIT);
+         // Bind depth map texture as output framebuffer
+         glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo); 
+	 
+         // Draw geometry
+		 arm.SetAttr(groupMatrix, renderAs, shaderProgram);
+		 arm.DrawArm();
+		 racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
+		 racket.Draw();
+	 
+//         evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
+	 
+         SceneObj.sphereVao = unitSphereAO;
+         SceneObj.sphereVertCount = vertexIndicessphere.size();
+         SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
+         SceneObj.SetVAO(unitCubeAO, reverseCubeAO, gridAO);
+         SceneObj.DrawScene();
+		 if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+			 printf( "***********No Framebuffer\n");
+		 }
+     }
+	 {//reset
+		 int width, height;
+         glfwGetFramebufferSize(window, &width, &height);
+         glViewport(0, 0, width, height);
+		 glBindFramebuffer(GL_FRAMEBUFFER,0);
+		 if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+			 printf("*************Noas Framebuffer\n");
+		 }
+		 glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
+         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	 }
+
+   
+     {	  // 2nd pass
+          glUniform1i(applyTexturesLocation, false);
+         glUniform1i(applyShadowsLocation, false);
+       
+        // Draw geometry
+		glActiveTexture(GL_TEXTURE0+2);
+		glBindTexture(GL_TEXTURE_2D, depth_map_texture);
+		//glBindTextureUnit(GL_TEXTURE_2D, depth_map_texture);
+		//glBindSampler(4, kdepthMap);
+        arm.SetAttr(groupMatrix, renderAs, shaderProgram);
+        arm.DrawArm();
+        racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
+        racket.Draw();
+//       evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
+	
+         SceneObj.sphereVao = unitSphereAO;
+         SceneObj.sphereVertCount = vertexIndicessphere.size();
+         SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
+         SceneObj.SetVAO(unitCubeAO, reverseCubeAO, gridAO);
+         SceneObj.DrawScene();
+		 glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		 
+		if (debug ) {
+		 GLuint nearPlane = glGetUniformLocation(debugProgram, "near_plane");
+		 GLuint farPlane = glGetUniformLocation(debugProgram, "far_plane");			 
+		 glUniform1f(nearPlane, 1.0f);
+		 glUniform1f(farPlane, 7.5f);
+		glUseProgram(debugProgram);
+		glBindVertexArray(unitCubeAO);
+		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &groupMatrix[0][0]);
+		//glActiveTexture(GL_TEXTURE0+6);
+		//glBindTexture(GL_TEXTURE_2D, depth_map_texture);
+		glBindTextureUnit(GL_TEXTURE0, depth_map_texture);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		
+		glBindVertexArray(0);
+		 glActiveTexture(GL_TEXTURE0);
+		 glBindTexture(GL_TEXTURE_2D, depth_map_texture);
+		 renderQuad();
+		}
 
 
-		// Calculate aspect ratio
-		AR = (float)*newWidth / (float)*newHeight; //note unsure if this will cause issues
-
-        // 1st pass
-        {	glEnable(GL_FRONT);
-            glUniform1i(applyTexturesLocation, false);
-            glUniform1i(applyShadowsLocation, true );
-            // Use proper image output size
-            glViewport(0, 0, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE);
-            // Bind depth map texture as output framebuffer
-            glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
-            // Clear depth data on the framebuffer
-            glClear(GL_DEPTH_BUFFER_BIT);
-
-            // Draw geometry
-            arm.SetAttr(groupMatrix, renderAs, shaderProgram);
-            arm.DrawArm();
-            racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
-            racket.Draw();
-
-//            evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
-
-            SceneObj.sphereVao = unitSphereAO;
-            SceneObj.sphereVertCount = vertexIndicessphere.size();
-            SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
-            SceneObj.SetVAO(unitCubeAO, reverseCubeAO, gridAO);
-            SceneObj.DrawScene();
-
-            // Unbind geometry
-            glBindVertexArray(0);
-        }
-        // 2nd pass
-        {	glEnable(GL_BACK);
-            glUniform1i(applyTexturesLocation, true);
-            glUniform1i(applyShadowsLocation, false);
-            // Use proper image output size
-            // Side note: we get the size from the framebuffer instead of using WIDTH and HEIGHT because of a bug with highDPI displays
-            int width, height;
-            glfwGetFramebufferSize(window, &width, &height);
-            glViewport(0, 0, width, height);
-            // Bind screen as output framebuffer
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            // Clear color and depth data on framebuffer
-            glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            // Bind depth map texture: not needed, by default it is active
-            glActiveTexture(GL_TEXTURE0);
-            // Draw geometry
-            arm.SetAttr(groupMatrix, renderAs, shaderProgram);
-           // arm.setTranslation(Translate, translateWSAD);
-            arm.DrawArm();
-            racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
-            racket.Draw();
-
-//            evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
-
-            SceneObj.sphereVao = unitSphereAO;
-            SceneObj.sphereVertCount = vertexIndicessphere.size();
-            SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
-            SceneObj.SetVAO(unitCubeAO, reverseCubeAO, gridAO);
-            SceneObj.DrawScene();
-            // Unbind geometry
-            glBindVertexArray(0);
-        }
+     }
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -625,7 +717,7 @@ GLuint loadTexture(const char* filename)
 	glGenTextures(1, &textureId);
 	assert(textureId != 0);
 
-
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textureId);
 
 	// Step2 Set filter parameters

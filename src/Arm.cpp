@@ -48,7 +48,7 @@ bool Arm::DrawArm() {
 	GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
 	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
-	GLuint applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
+	//GLuint applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
 	//glUniform1i(applyTexturesLocation, false);
 	glm::mat4 worldMatrix;
 
@@ -57,6 +57,7 @@ bool Arm::DrawArm() {
 	glm::mat4 partRo;
 	glm::mat4 partMatrix;
 	//note this works
+	//glBindTexture(GL_TEXTURE_1D, 0);
 
 	glBindVertexArray(cubeVao);
 	glm::mat4 bicepParent; //so for initiali parent , it has local.global translate plus local rotate 
