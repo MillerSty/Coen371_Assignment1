@@ -55,7 +55,7 @@ float shadowScalar() {
     // get depth of current fragment from light's perspective
     float currentDepth = normalizedDeviceCoordinates.z;
     // check whether current frag pos is in shadow
-    float bias = 0.003;  // bias applied in depth map: see shadow_vertex.glsl
+    float bias = 0.00001f;  // bias applied in depth map: see shadow_vertex.glsl
     return ((currentDepth - bias) < closestDepth) ? 1.0 : 0.0;
 }
 
@@ -91,12 +91,12 @@ void main()
         vec3 diffuse = vec3(0.0f);
         vec3 specular = vec3(0.0f);
 
-        float scalar = shadowScalar() * spotlightScalar();
+        float scalar = shadowScalar()* spotlightScalar();
         ambient = ambientColor();
-        diffuse = 1.0f * diffuseColor();
-        specular = 1.0f * specularColor(lightColor, lightPosition);
+        diffuse =  diffuseColor();
+        specular =  specularColor(lightColor, lightPosition);
 
-        vec3 color = ambient+specular+diffuse;
+        vec3 color = ambient+scalar*(specular+diffuse);
            fragColor = color;
 
         if (shouldApplyTexture) {

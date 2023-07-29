@@ -397,7 +397,7 @@ int main(int argc, char* argv[])
     glUniform3fv(lightColorLoc, 1, value_ptr(vec3(1.0f, 1.0f, 1.0f)));
 
     // light parameters
-    vec3 lightPosition =  vec3(1.0, 1.0f, 0.0f); // the location of the light in 3D space
+    vec3 lightPosition =  vec3(1.0, 10.0f, 0.0f); // the location of the light in 3D space
     vec3 lightFocus(0.0, 0.0, -1.0);      // the point in 3D space the light "looks" at
     vec3 lightDirection = normalize(lightFocus - lightPosition);
 
@@ -431,31 +431,23 @@ int main(int argc, char* argv[])
 
     // Variable storing index to texture used for shadow mapping
     GLuint depth_map_texture;
-    // Get the texture
     glGenTextures(1, &depth_map_texture);
-    // Bind the texture so the next glTex calls affect it
-    glBindTexture(GL_TEXTURE_2D, depth_map_texture);
-    // Create the texture and specify it's attributes, including widthn height, components (only depth is stored, no color information)
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT,
-                 NULL);
-    // Set texture sampler parameters.
-    // The two calls below tell the texture sampler inside the shader how to upsample and downsample the texture. Here we choose the nearest filtering option, which means we just use the value of the closest pixel to the chosen image coordinate.
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glBindTexture(GL_TEXTURE_2D, depth_map_texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    // The two calls below tell the texture sampler inside the shader how it should deal with texture coordinates outside of the [0, 1] range. Here we decide to just tile the image.
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    // Variable storing index to framebuffer used for shadow mapping
-    GLuint depth_map_fbo;  // fbo: framebuffer object
-    // Get the framebuffer
+    GLuint depth_map_fbo; 
     glGenFramebuffers(1, &depth_map_fbo);
-    // Bind the framebuffer so the next glFramebuffer calls affect it
     glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
-    // Attach the depth map texture to the depth map framebuffer
-    //glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, depth_map_texture, 0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_map_texture, 0);
-    glDrawBuffer(GL_NONE); //disable rendering colors, only write depth values
+	glReadBuffer(GL_NONE);
+	glDrawBuffer(GL_NONE);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	GLuint kdepthMap = glGetUniformLocation(shaderProgram, "shadowMap");
+	glUniform1i(kdepthMap, 2);
+    //disable rendering colors, only write depth values
     //NOTE we have issues when doing mouse jawn with current set up
 	while (!glfwWindowShouldClose(window))
 	{
@@ -513,8 +505,11 @@ int main(int argc, char* argv[])
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             // Clear color and depth data on framebuffer
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            // Draw geometry
+			glActiveTexture(GL_TEXTURE0 + 2);
+			glBindTexture(GL_TEXTURE_2D, depth_map_texture);
+           
+			
+			// Draw geometry
             arm.SetAttr(groupMatrix, renderAs, shaderProgram);
             arm.setTranslation(Translate, translateWSAD);
             arm.DrawArm();
