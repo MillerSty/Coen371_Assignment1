@@ -33,13 +33,13 @@ void main()
     else {
     mat4 modelViewProjection= projectionMatrix * viewMatrix * worldMatrix;
     gl_Position = modelViewProjection * vec4(aPos, 1.0f);
-   
+     fragmentNormal = mat3(transpose(inverse(worldMatrix))) * aNorm;
+    fragmentPosition = (worldMatrix * vec4(aPos, 1.0f)).xyz;
+    fragmentPositionLightSpace = lightViewProjMatrix * vec4(fragmentPosition, 1.0f);
+    vertexUV = aTexture;
 
 
     }
     //
-    fragmentNormal = mat3(transpose(inverse(worldMatrix))) * aNorm;
-    fragmentPosition = (worldMatrix * vec4(aPos, 1.0f)).xyz;
-    fragmentPositionLightSpace = lightViewProjMatrix * vec4(fragmentPosition, 1.0f);
-    vertexUV = aTexture;
+  
 }

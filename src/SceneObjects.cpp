@@ -100,8 +100,8 @@ bool SceneObjects::DrawCourt() {
 	GLint shadingSpecularStrength = glGetUniformLocation(shaderProgram, "shadingSpecularStrength");
 	float specular, diffuse, ambient;
 	glUniform1f(shadingAmbientStrength, 1.0f);
-	glUniform1f(shadingDiffuseStrength,.301f);
-	glUniform1f(shadingSpecularStrength, .30f);
+	glUniform1f(shadingDiffuseStrength,.09f);
+	glUniform1f(shadingSpecularStrength, .20f);
 	//set as textureshader and bind texture
 	
 		//glActiveTexture(GL_TEXTURE0);
