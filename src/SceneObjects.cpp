@@ -57,7 +57,7 @@ void SceneObjects::InitGrid() {
 void SceneObjects::DrawScene() {
 	bool check = DrawCourt();
 	if (!check) printf("Draw Court failed");
-	check = DrawSkyBox();
+	//check = DrawSkyBox();
 	if (!check) printf("Draw DrawSkyBox failed");
 	//check = DrawGrid();
 	//if (!check) printf("Draw DrawGrid failed");
@@ -237,7 +237,7 @@ bool SceneObjects::DrawSkyBox() {
 	//glUseProgram(shaderProgram);
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
 	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
-	float skyBoxY = 70.0f; // Change this to make sky box closer to court
+	float skyBoxY = 120.0f; // Change this to make sky box closer to court
 	
 	// Sets sky box position
 	glm::mat4 partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-.0f, .00f, -.0f));

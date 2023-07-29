@@ -17,7 +17,7 @@ uniform vec3 lightDirection;
 
 const float shadingAmbientStrength = 0.1;
 const float shadingDiffuseStrength = 0.6;
-const float shadingSpecularStrength = 0.6;
+const float shadingSpecularStrength = 0.3;
 
 uniform float lightCutoffOuter;
 uniform float lightCutoffInner;
@@ -80,12 +80,7 @@ vec3 specularColor(vec3 lightColorArg, vec3 lightPositionArg) {
 
 void main()
 {
-    vec3 fragColor = objectColor;
-
-    if (shouldApplyTexture){
-        vec3 textureColor = texture(textureSampler,vertexUV).xyz;
-        fragColor = textureColor * fragColor;
-    }
+    vec3 fragColor = objectColor; 
 
     if (shouldApplyShadows) {
         //gl_FragDepth = gl_FragCoord.z;
@@ -101,9 +96,15 @@ void main()
         diffuse = 1.0f * diffuseColor();
         specular = 1.0f * specularColor(lightColor, lightPosition);
 
-        vec3 color = diffuse;
+        vec3 color = ambient+specular+diffuse;
+           fragColor = color;
 
-        fragColor = color;
+        if (shouldApplyTexture) {
+            vec3 textureColor = texture(textureSampler, vertexUV).xyz;
+            fragColor = textureColor * fragColor;
+        }
+
+        
     }
 
     FragColor = fragColor;

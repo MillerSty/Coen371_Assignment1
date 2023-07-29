@@ -134,11 +134,7 @@ TexturedColoredVertex texturedCubeVertexArray[] = {  // position,
 	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(0, 1, 0), glm::vec2(0.0f, 1.0f))
 };
 
-for (size_t i = 0; i < 36; i++)
-{
-	TexturedColoredVertex thisOne = texturedCubeVertexArray[i];
-	texturedCubeVertexArray[i].position *= 0.1f;
-}
+
 
 int createVertexArrayObject2()
 {
@@ -249,7 +245,10 @@ int main(int argc, char* argv[])
 	// Initialize GLFW and OpenGL version
 	if (!glfwInit())
 		return -1;
-
+	for (size_t i = 0; i < 36; i++) {
+		TexturedColoredVertex thisOne = texturedCubeVertexArray[i];
+		texturedCubeVertexArray[i].position *= 0.1f;
+	}
 	// Set some GLFW window hints
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
@@ -398,14 +397,14 @@ int main(int argc, char* argv[])
     glUniform3fv(lightColorLoc, 1, value_ptr(vec3(1.0f, 1.0f, 1.0f)));
 
     // light parameters
-    vec3 lightPosition =  vec3(0.0, 30.0f, 0.0f); // the location of the light in 3D space
+    vec3 lightPosition =  vec3(1.0, 1.0f, 0.0f); // the location of the light in 3D space
     vec3 lightFocus(0.0, 0.0, -1.0);      // the point in 3D space the light "looks" at
     vec3 lightDirection = normalize(lightFocus - lightPosition);
 
     float lightNearPlane = 0.1f;
     float lightFarPlane = 180.0f;
 
-    mat4 lightProjectionMatrix = frustum(-1.0f, 1.0f, -1.0f, 1.0f, lightNearPlane, lightFarPlane);
+    mat4 lightProjectionMatrix = ortho(-1.0f, 1.0f, -1.0f, 1.0f, lightNearPlane, lightFarPlane);
     mat4 lightViewMatrix = lookAt(lightPosition, lightFocus, vec3(0.0f, 1.0f, 0.0f));
     mat4 lightSpaceMatrix = lightProjectionMatrix * lightViewMatrix;
 // Set light space matrix on both shaders
