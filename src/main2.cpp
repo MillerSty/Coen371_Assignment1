@@ -74,126 +74,198 @@ int createVertexArrayObject(const glm::vec3* vertexArray, int arraySize)
 	return vertexArrayObject;
 }
 
-// Reverse winding order indices -> still needed for skybox
-std::vector<int>  reverseIndices = { //3*12 =36
-2 - 1,  1 - 1,3 - 1,
-4 - 1,  3 - 1,7 - 1,
-8 - 1,  7 - 1,5 - 1,
-6 - 1,  5 - 1,1 - 1,
-7 - 1,  3 - 1,1 - 1,
-4 - 1,  8 - 1,6 - 1,
-2 - 1,  3 - 1,4 - 1,
-4 - 1,  7 - 1,8 - 1,
-8 - 1,  5 - 1,6 - 1,
-6 - 1,  1 - 1,2 - 1,
-7 - 1,  1 - 1,5 - 1,
-4 - 1,  6 - 1 ,2 - 1
+struct TexturedColoredVertex
+{
+	TexturedColoredVertex(glm::vec3 _position, glm::vec3 _normals, glm::vec2 _uv) : position(_position), normals(_normals), uv(_uv) {}
+
+	glm::vec3 position;
+	glm::vec3 normals;
+	glm::vec2 uv;
+};
+
+//// Textured Cube model
+//const TexturedColoredVertex texturedCubeVertexArray[] = {  // position,
+//	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(-1 ,0, 0), glm::vec2(0.0f, 0.0f)), //left
+//	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f, 0.5f), glm::vec3(-1 / sqrt(3), -1 / sqrt(3), 1 / sqrt(3)), glm::vec2(0.0f, 1.0f)),
+//	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(-1 / sqrt(3), 1 / sqrt(3), 1 / sqrt(3)), glm::vec2(1.0f, 1.0f)),
+//
+//	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(-1 / sqrt(3), -1 / sqrt(3), -1 / sqrt(3)), glm::vec2(0.0f, 0.0f)),
+//	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(-1 / sqrt(3), 1 / sqrt(3), 1 / sqrt(3)), glm::vec2(1.0f, 1.0f)),
+//	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f,-0.5f), glm::vec3(-1 / sqrt(3), 1 / sqrt(3), -1 / sqrt(3)), glm::vec2(1.0f, 0.0f)),
+//
+//	TexturedColoredVertex(glm::vec3(0.5f, 0.5f,-0.5f), glm::vec3(1 / sqrt(3), 1 / sqrt(3), -1 / sqrt(3)), glm::vec2(1.0f, 1.0f)), // far
+//	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(-1 / sqrt(3), -1 / sqrt(3), -1 / sqrt(3)), glm::vec2(0.0f, 0.0f)),
+//	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f,-0.5f), glm::vec3(-1 / sqrt(3), 1 / sqrt(3), -1 / sqrt(3)), glm::vec2(0.0f, 1.0f)),
+//
+//	TexturedColoredVertex(glm::vec3(0.5f, 0.5f,-0.5f), glm::vec3(1 / sqrt(3), 1 / sqrt(3), -1 / sqrt(3)), glm::vec2(1.0f, 1.0f)),
+//	TexturedColoredVertex(glm::vec3(0.5f,-0.5f,-0.5f), glm::vec3(1 / sqrt(3), -1 / sqrt(3), -1 / sqrt(3)), glm::vec2(1.0f, 0.0f)),
+//	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(-1 / sqrt(3), -1 / sqrt(3), -1 / sqrt(3)), glm::vec2(0.0f, 0.0f)),
+//
+//	TexturedColoredVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(1 / sqrt(3), -1 / sqrt(3), 1 / sqrt(3)), glm::vec2(1.0f, 1.0f)), // bottom
+//	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(-1 / sqrt(3), -1 / sqrt(3), -1 / sqrt(3)), glm::vec2(0.0f, 0.0f)),
+//	TexturedColoredVertex(glm::vec3(0.5f,-0.5f,-0.5f), glm::vec3(1 / sqrt(3), -1 / sqrt(3), -1 / sqrt(3)), glm::vec2(1.0f, 0.0f)),
+//
+//	TexturedColoredVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(1 / sqrt(3), -1 / sqrt(3), 1 / sqrt(3)), glm::vec2(1.0f, 1.0f)),
+//	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f, 0.5f), glm::vec3(-1 / sqrt(3), -1 / sqrt(3), 1 / sqrt(3)), glm::vec2(0.0f, 1.0f)),
+//	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(-1 / sqrt(3), -1 / sqrt(3), -1 / sqrt(3)), glm::vec2(0.0f, 0.0f)),
+//
+//	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(-1 / sqrt(3), 1 / sqrt(3), 1 / sqrt(3)), glm::vec2(0.0f, 1.0f)), // near
+//	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f, 0.5f), glm::vec3(-1 / sqrt(3), -1 / sqrt(3), 1 / sqrt(3)), glm::vec2(0.0f, 0.0f)),
+//	TexturedColoredVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(1 / sqrt(3), -1 / sqrt(3), 1 / sqrt(3)), glm::vec2(1.0f, 0.0f)),
+//
+//	TexturedColoredVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1 / sqrt(3), 1 / sqrt(3), 1 / sqrt(3)), glm::vec2(1.0f, 1.0f)),
+//	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(-1 / sqrt(3), 1 / sqrt(3), 1 / sqrt(3)), glm::vec2(0.0f, 1.0f)),
+//	TexturedColoredVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(1 / sqrt(3), -1 / sqrt(3), 1 / sqrt(3)), glm::vec2(1.0f, 0.0f)),
+//
+//	TexturedColoredVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1 / sqrt(3), 1 / sqrt(3), 1 / sqrt(3)), glm::vec2(1.0f, 1.0f)), // right
+//	TexturedColoredVertex(glm::vec3(0.5f,-0.5f,-0.5f), glm::vec3(1 / sqrt(3), -1 / sqrt(3), -1 / sqrt(3)), glm::vec2(0.0f, 0.0f)),
+//	TexturedColoredVertex(glm::vec3(0.5f, 0.5f,-0.5f), glm::vec3(1 / sqrt(3), 1 / sqrt(3), -1 / sqrt(3)), glm::vec2(1.0f, 0.0f)),
+//
+//	TexturedColoredVertex(glm::vec3(0.5f,-0.5f,-0.5f), glm::vec3(1 / sqrt(3), -1 / sqrt(3), -1 / sqrt(3)), glm::vec2(0.0f, 0.0f)),
+//	TexturedColoredVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1 / sqrt(3), 1 / sqrt(3), 1 / sqrt(3)), glm::vec2(1.0f, 1.0f)),
+//	TexturedColoredVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(1 / sqrt(3), -1 / sqrt(3), 1 / sqrt(3)), glm::vec2(0.0f, 1.0f)),
+//
+//	TexturedColoredVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1 / sqrt(3), 1 / sqrt(3), 1 / sqrt(3)), glm::vec2(1.0f, 1.0f)), // top
+//	TexturedColoredVertex(glm::vec3(0.5f, 0.5f,-0.5f), glm::vec3(1 / sqrt(3), 1 / sqrt(3), -1 / sqrt(3)), glm::vec2(1.0f, 0.0f)),
+//	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f,-0.5f), glm::vec3(-1 / sqrt(3), 1 / sqrt(3), -1 / sqrt(3)), glm::vec2(0.0f, 0.0f)),
+//
+//	TexturedColoredVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1 / sqrt(3), 1 / sqrt(3), 1 / sqrt(3)), glm::vec2(1.0f, 1.0f)),
+//	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f,-0.5f), glm::vec3(-1 / sqrt(3), 1 / sqrt(3), -1 / sqrt(3)), glm::vec2(0.0f, 0.0f)),
+//	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(-1 / sqrt(3), 1 / sqrt(3), 1 / sqrt(3)), glm::vec2(0.0f, 1.0f))
+//};
+
+// Textured Cube model
+const TexturedColoredVertex texturedCubeVertexArray[] = {  // position,
+	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(-1 / sqrt(3), -1 / sqrt(3), -1 / sqrt(3)), glm::vec2(0.0f, 0.0f)), //left
+	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f, 0.5f), glm::vec3(-1 / sqrt(3), -1 / sqrt(3), 1 / sqrt(3)), glm::vec2(0.0f, 1.0f)),
+	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(-1 / sqrt(3), 1 / sqrt(3), 1 / sqrt(3)), glm::vec2(1.0f, 1.0f)),
+
+	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(-1 / sqrt(3), -1 / sqrt(3), -1 / sqrt(3)), glm::vec2(0.0f, 0.0f)),
+	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(-1 / sqrt(3), 1 / sqrt(3), 1 / sqrt(3)), glm::vec2(1.0f, 1.0f)),
+	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f,-0.5f), glm::vec3(-1 / sqrt(3), 1 / sqrt(3), -1 / sqrt(3)), glm::vec2(1.0f, 0.0f)),
+
+	TexturedColoredVertex(glm::vec3(0.5f, 0.5f,-0.5f), glm::vec3(1 / sqrt(3), 1 / sqrt(3), -1 / sqrt(3)), glm::vec2(1.0f, 1.0f)), // far
+	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(-1 / sqrt(3), -1 / sqrt(3), -1 / sqrt(3)), glm::vec2(0.0f, 0.0f)),
+	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f,-0.5f), glm::vec3(-1 / sqrt(3), 1 / sqrt(3), -1 / sqrt(3)), glm::vec2(0.0f, 1.0f)),
+
+	TexturedColoredVertex(glm::vec3(0.5f, 0.5f,-0.5f), glm::vec3(1 / sqrt(3), 1 / sqrt(3), -1 / sqrt(3)), glm::vec2(1.0f, 1.0f)),
+	TexturedColoredVertex(glm::vec3(0.5f,-0.5f,-0.5f), glm::vec3(1 / sqrt(3), -1 / sqrt(3), -1 / sqrt(3)), glm::vec2(1.0f, 0.0f)),
+	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(-1 / sqrt(3), -1 / sqrt(3), -1 / sqrt(3)), glm::vec2(0.0f, 0.0f)),
+
+	TexturedColoredVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(1 / sqrt(3), -1 / sqrt(3), 1 / sqrt(3)), glm::vec2(1.0f, 1.0f)), // bottom
+	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(-1 / sqrt(3), -1 / sqrt(3), -1 / sqrt(3)), glm::vec2(0.0f, 0.0f)),
+	TexturedColoredVertex(glm::vec3(0.5f,-0.5f,-0.5f), glm::vec3(1 / sqrt(3), -1 / sqrt(3), -1 / sqrt(3)), glm::vec2(1.0f, 0.0f)),
+
+	TexturedColoredVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(1 / sqrt(3), -1 / sqrt(3), 1 / sqrt(3)), glm::vec2(1.0f, 1.0f)),
+	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f, 0.5f), glm::vec3(- 1 / sqrt(3), -1 / sqrt(3), 1 / sqrt(3)), glm::vec2(0.0f, 1.0f)),
+	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(-1 / sqrt(3), -1 / sqrt(3), -1 / sqrt(3)), glm::vec2(0.0f, 0.0f)),
+
+	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(-1 / sqrt(3), 1 / sqrt(3), 1 / sqrt(3)), glm::vec2(0.0f, 1.0f)), // near
+	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f, 0.5f), glm::vec3(-1 / sqrt(3), -1 / sqrt(3), 1 / sqrt(3)), glm::vec2(0.0f, 0.0f)),
+	TexturedColoredVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(1 / sqrt(3), -1 / sqrt(3), 1 / sqrt(3)), glm::vec2(1.0f, 0.0f)),
+
+	TexturedColoredVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1 / sqrt(3), 1 / sqrt(3), 1 / sqrt(3)), glm::vec2(1.0f, 1.0f)),
+	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(-1 / sqrt(3), 1 / sqrt(3), 1 / sqrt(3)), glm::vec2(0.0f, 1.0f)),
+	TexturedColoredVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(1 / sqrt(3), -1 / sqrt(3), 1 / sqrt(3)), glm::vec2(1.0f, 0.0f)),
+
+	TexturedColoredVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1 / sqrt(3), 1 / sqrt(3), 1 / sqrt(3)), glm::vec2(1.0f, 1.0f)), // right
+	TexturedColoredVertex(glm::vec3(0.5f,-0.5f,-0.5f), glm::vec3(1 / sqrt(3), -1 / sqrt(3), -1 / sqrt(3)), glm::vec2(0.0f, 0.0f)),
+	TexturedColoredVertex(glm::vec3(0.5f, 0.5f,-0.5f), glm::vec3(1 / sqrt(3), 1 / sqrt(3), -1 / sqrt(3)), glm::vec2(1.0f, 0.0f)),
+
+	TexturedColoredVertex(glm::vec3(0.5f,-0.5f,-0.5f), glm::vec3(1 / sqrt(3), -1 / sqrt(3), -1 / sqrt(3)), glm::vec2(0.0f, 0.0f)),
+	TexturedColoredVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1 / sqrt(3), 1 / sqrt(3), 1 / sqrt(3)), glm::vec2(1.0f, 1.0f)),
+	TexturedColoredVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(1 / sqrt(3), -1 / sqrt(3), 1 / sqrt(3)), glm::vec2(0.0f, 1.0f)),
+
+	TexturedColoredVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1 / sqrt(3), 1 / sqrt(3), 1 / sqrt(3)), glm::vec2(1.0f, 1.0f)), // top
+	TexturedColoredVertex(glm::vec3(0.5f, 0.5f,-0.5f), glm::vec3(1 / sqrt(3), 1 / sqrt(3), -1 / sqrt(3)), glm::vec2(1.0f, 0.0f)),
+	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f,-0.5f), glm::vec3(- 1 / sqrt(3), 1 / sqrt(3), -1 / sqrt(3)), glm::vec2(0.0f, 0.0f)),
+
+	TexturedColoredVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1 / sqrt(3), 1 / sqrt(3), 1 / sqrt(3)), glm::vec2(1.0f, 1.0f)),
+	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f,-0.5f), glm::vec3(-1 / sqrt(3), 1 / sqrt(3), -1 / sqrt(3)), glm::vec2(0.0f, 0.0f)),
+	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(-1 / sqrt(3), 1 / sqrt(3), 1 / sqrt(3)), glm::vec2(0.0f, 1.0f))
 };
 
 
-GLuint IBO;
-int createVertexArrayElementObject(const glm::vec3* vertexArray, int arraySize, const glm::vec3* NormalArray, int NormalArraySize, const glm::vec2* TextureArray, int TextureArraySize, unsigned int indices[], int indiceSize)
+int createVertexArrayObject2()
 {
-	// Create a vertex array
 	GLuint vertexArrayObject;
 	glGenVertexArrays(1, &vertexArrayObject);
 	glBindVertexArray(vertexArrayObject);
 
-	glGenBuffers(1, &IBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indiceSize * sizeof(unsigned int), indices, GL_STATIC_DRAW);
-
-	// Upload Vertex Buffer to the GPU, keep a reference to it (vertexBufferObject)
 	GLuint vertexBufferObject;
 	glGenBuffers(1, &vertexBufferObject);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-	//int check = arraySize;
-	glBufferData(GL_ARRAY_BUFFER, arraySize, vertexArray, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(texturedCubeVertexArray), texturedCubeVertexArray, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0,    // attribute 0 matches aPos in Vertex Shader
-		3,                      // size
-		GL_FLOAT,               // type
-		GL_FALSE,               // normalized?
-		1 * sizeof(glm::vec3),  // stride - each vertex contain 2 vec3 (position, color)
-		(void*)0                // array buffer offset
-	);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedColoredVertex), (void*) 0);
 	glEnableVertexAttribArray(0);
 
-	//Normals VBO setup taken from lab
-	GLuint normals_VBO;
-	glGenBuffers(1, &normals_VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, normals_VBO);
-	glBufferData(GL_ARRAY_BUFFER, NormalArraySize, NormalArray, GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec3), (GLvoid*)0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedColoredVertex), (void*) sizeof(glm::vec3));
 	glEnableVertexAttribArray(1);
 
-	//UVs VBO setup
-	GLuint uvs_VBO;
-	glGenBuffers(1, &uvs_VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, uvs_VBO);
-	glBufferData(GL_ARRAY_BUFFER, TextureArraySize, TextureArray, GL_STATIC_DRAW);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec3), (GLvoid*)0);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedColoredVertex), (void*) 2 * sizeof(glm::vec3));
 	glEnableVertexAttribArray(2);
-
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-
 	return vertexArrayObject;
 }
-int createVertexArrayElementObject2(std::vector<int> vertexIndices,
-	std::vector<glm::vec3> vertices,
-	std::vector<glm::vec3> normals,
-	std::vector<glm::vec2> UVs)
-{
-	// Create a vertex array
-	GLuint vertexArrayObject;
-	glGenVertexArrays(1, &vertexArrayObject);
-	glBindVertexArray(vertexArrayObject);
-
-	glGenBuffers(1, &IBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertexIndices.size() * sizeof(unsigned int), &vertexIndices.front(), GL_STATIC_DRAW);
-
-	// Upload Vertex Buffer to the GPU, keep a reference to it (vertexBufferObject)
-	GLuint vertexBufferObject;
-	glGenBuffers(1, &vertexBufferObject);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-	//int check = arraySize;
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices.front(), GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0,    // attribute 0 matches aPos in Vertex Shader
-		3,                      // size
-		GL_FLOAT,               // type
-		GL_FALSE,               // normalized?
-		1 * sizeof(glm::vec3),  // stride - each vertex contain 2 vec3 (position, color)
-		(void*)0                // array buffer offset
-	);
-	glEnableVertexAttribArray(0);
-
-	//Normals VBO setup taken from lab
-	GLuint normals_VBO;
-	glGenBuffers(1, &normals_VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, normals_VBO);
-	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals.front(), GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec3), (GLvoid*)0);
-	glEnableVertexAttribArray(1);
-
-	//UVs VBO setup
-	GLuint uvs_VBO;
-	glGenBuffers(1, &uvs_VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, uvs_VBO);
-	glBufferData(GL_ARRAY_BUFFER, UVs.size() * sizeof(glm::vec3), &UVs.front(), GL_STATIC_DRAW);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec3), (GLvoid*)0);
-	glEnableVertexAttribArray(2);
 
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
 
-	return vertexArrayObject;
-}
+//int createVertexArrayElementObject2(std::vector<int> vertexIndices,
+//	std::vector<glm::vec3> vertices,
+//	std::vector<glm::vec3> normals,
+//	std::vector<glm::vec2> UVs)
+//{
+//	// Create a vertex array
+//	GLuint vertexArrayObject;
+//	glGenVertexArrays(1, &vertexArrayObject);
+//	glBindVertexArray(vertexArrayObject);
+//
+//	glGenBuffers(1, &IBO);
+//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+//	glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertexIndices.size() * sizeof(unsigned int), &vertexIndices.front(), GL_STATIC_DRAW);
+//
+//	// Upload Vertex Buffer to the GPU, keep a reference to it (vertexBufferObject)
+//	GLuint vertexBufferObject;
+//	glGenBuffers(1, &vertexBufferObject);
+//	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
+//	//int check = arraySize;
+//	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices.front(), GL_STATIC_DRAW);
+//
+//	glVertexAttribPointer(0,    // attribute 0 matches aPos in Vertex Shader
+//		3,                      // size
+//		GL_FLOAT,               // type
+//		GL_FALSE,               // normalized?
+//		1 * sizeof(glm::vec3),  // stride - each vertex contain 2 vec3 (position, color)
+//		(void*)0                // array buffer offset
+//	);
+//	glEnableVertexAttribArray(0);
+//
+//	//Normals VBO setup taken from lab
+//	GLuint normals_VBO;
+//	glGenBuffers(1, &normals_VBO);
+//	glBindBuffer(GL_ARRAY_BUFFER, normals_VBO);
+//	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals.front(), GL_STATIC_DRAW);
+//	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec3), (GLvoid*)0);
+//	glEnableVertexAttribArray(1);
+//
+//	//UVs VBO setup
+//	GLuint uvs_VBO;
+//	glGenBuffers(1, &uvs_VBO);
+//	glBindBuffer(GL_ARRAY_BUFFER, uvs_VBO);
+//	glBufferData(GL_ARRAY_BUFFER, UVs.size() * sizeof(glm::vec3), &UVs.front(), GL_STATIC_DRAW);
+//	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec3), (GLvoid*)0);
+//	glEnableVertexAttribArray(2);
+//
+//
+//	glBindBuffer(GL_ARRAY_BUFFER, 0);
+//	glBindVertexArray(0);
+//
+//	return vertexArrayObject;
+//}
+
 const int WIDTH = 1024, HEIGHT = 768;
 
 // vec3 variables
@@ -336,10 +408,12 @@ int main(int argc, char* argv[])
 	}
 	
 	int gridAO = createVertexArrayObject(SceneObj.lineArray, sizeof(SceneObj.lineArray));
-	int unitCubeAO = createVertexArrayElementObject2(vertexIndicescube, verticescube, normalscube, UVscube);
 	int unitSphereAO = createVertexArrayElementObject2(vertexIndicessphere, verticessphere, normalssphere, UVssphere);
+	int unitCubeAO = createVertexArrayObject2();
+
+	//int unitCubeAO = createVertexArrayElementObject2(vertexIndicescube, verticescube, normalscube, UVscube);
 	
-	int reverseCubeAO = createVertexArrayElementObject2(reverseIndices, verticescube, normalscube , UVscube);
+	//int reverseCubeAO = createVertexArrayElementObject2(reverseIndices, verticescube, normalscube , UVscube);
 
 	arm.setVAO(unitCubeAO);
 
@@ -449,34 +523,34 @@ int main(int argc, char* argv[])
 		AR = (float)*newWidth / (float)*newHeight; //note unsure if this will cause issues
 
         // 1st pass
-//        {
-//            glUniform1i(applyTexturesLocation, false);
-//            glUniform1i(applyShadowsLocation, true);
-//            // Use proper image output size
-//            glViewport(0, 0, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE);
-//            // Bind depth map texture as output framebuffer
-//            glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
-//            // Clear depth data on the framebuffer
-//            glClear(GL_DEPTH_BUFFER_BIT);
-//
-//            // Draw geometry
-//            arm.SetAttr(groupMatrix, renderAs, shaderProgram);
-//            arm.setTranslation(Translate, translateWSAD);
-//            arm.DrawArm();
-//            racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
-//            racket.Draw();
-//
-////            evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
-//
-//            SceneObj.sphereVao = unitSphereAO;
-//            SceneObj.sphereVertCount = vertexIndicessphere.size();
-//            SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
-//            SceneObj.SetVAO(unitCubeAO, reverseCubeAO, gridAO);
-//            SceneObj.DrawScene();
-//
-//            // Unbind geometry
-//            glBindVertexArray(0);
-//        }
+        {
+            glUniform1i(applyTexturesLocation, false);
+            glUniform1i(applyShadowsLocation, true);
+            // Use proper image output size
+            glViewport(0, 0, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE);
+            // Bind depth map texture as output framebuffer
+            glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
+            // Clear depth data on the framebuffer
+            glClear(GL_DEPTH_BUFFER_BIT);
+
+            // Draw geometry
+            arm.SetAttr(groupMatrix, renderAs, shaderProgram);
+            arm.setTranslation(Translate, translateWSAD);
+            arm.DrawArm();
+            racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
+            racket.Draw();
+
+//            evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
+
+            SceneObj.sphereVao = unitSphereAO;
+            SceneObj.sphereVertCount = vertexIndicessphere.size();
+            SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
+            SceneObj.SetVAO(unitCubeAO, gridAO);
+            SceneObj.DrawScene();
+
+            // Unbind geometry
+            glBindVertexArray(0);
+        }
         // 2nd pass
         {
             glUniform1i(applyTexturesLocation, true);
@@ -505,7 +579,7 @@ int main(int argc, char* argv[])
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
             SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
-            SceneObj.SetVAO(unitCubeAO, reverseCubeAO, gridAO);
+            SceneObj.SetVAO(unitCubeAO, gridAO);
             SceneObj.DrawScene();
             // Unbind geometry
             glBindVertexArray(0);

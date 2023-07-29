@@ -70,7 +70,8 @@ bool Arm::DrawArm() {
 	worldMatrix = groupMatrix * bicepParent * partMatrix;
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.94f, .76f, .5f)));
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-	glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
+	glDrawArrays(renderAs, 0, 36);
+	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 
 	// Forearm then for
 	glm::mat4 forTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(constArmScaler.x *.0948f, .0f, .0f));
@@ -85,7 +86,8 @@ bool Arm::DrawArm() {
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.94f, .76f, .5f)));
 	//glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.98f, .56f, .5f)));
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-	glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
+	glDrawArrays(renderAs, 0, 36);
+	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 
 	// hand
 	glm::mat4 handTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(constArmScaler.x *.0666f, .0f, .0f));
@@ -99,7 +101,8 @@ bool Arm::DrawArm() {
 	worldMatrix = groupMatrix * handParent * partMatrix;
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.0f, .36f, .3f)));
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-	glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
+	glDrawArrays(renderAs, 0, 36);
+	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 	partParent = handParent;
 
 	////NOTE FINGERS WILL DIRECTLY INHERIT FROM HAND -> HAND IS THEIR PARENT
@@ -117,7 +120,8 @@ bool Arm::DrawArm() {
 	worldMatrix = groupMatrix * fingerParent * partMatrix;
 
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-	glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
+	glDrawArrays(renderAs, 0, 36);
+	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 
 
 	//could probably for loop it for multiDraw
@@ -128,7 +132,8 @@ bool Arm::DrawArm() {
 	worldMatrix = groupMatrix * fingerParent * partMatrix;
 
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-	glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
+	glDrawArrays(renderAs, 0, 36);
+	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 	//
 	//// finger3
 	//partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.187f, .05f, .130f));
@@ -137,7 +142,8 @@ bool Arm::DrawArm() {
 	worldMatrix = groupMatrix * fingerParent * partMatrix;
 
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-	glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
+	glDrawArrays(renderAs, 0, 36);
+	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 	//
 	////// finger4
 	//partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.187f, .059f, .130f));
@@ -146,7 +152,8 @@ bool Arm::DrawArm() {
 	worldMatrix = groupMatrix * fingerParent * partMatrix;
 
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-	glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
+	glDrawArrays(renderAs, 0, 36);
+	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 	//
 	////// thumb
 	partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.187f, .075f, .10f));
@@ -155,7 +162,8 @@ bool Arm::DrawArm() {
 	worldMatrix = groupMatrix * fingerParent * partMatrix;
 
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-	glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
+	glDrawArrays(renderAs, 0, 36);
+	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 	applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
 	glUniform1i(applyTexturesLocation, true);

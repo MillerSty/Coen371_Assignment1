@@ -38,7 +38,8 @@ void EvanRacket::drawHandle(GLuint modelMatrixLocation, GLuint objectColorLocati
 
     // Render it
     glBindVertexArray(this->handleVAO);
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 }
 
 void EvanRacket::drawTopHandle(GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const {
@@ -55,7 +56,8 @@ void EvanRacket::drawTopHandle(GLuint modelMatrixLocation, GLuint objectColorLoc
 
     // Render it
     glBindVertexArray(this->topHandleVAO);
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 }
 
 void EvanRacket::drawLowerFrame(GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const {
@@ -72,7 +74,8 @@ void EvanRacket::drawLowerFrame(GLuint modelMatrixLocation, GLuint objectColorLo
 
     // Render it
     glBindVertexArray(this->lowerFrameVAO);
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 }
 
 void EvanRacket::drawUpperFrame(GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const {
@@ -89,7 +92,8 @@ void EvanRacket::drawUpperFrame(GLuint modelMatrixLocation, GLuint objectColorLo
 
     // Render it
     glBindVertexArray(this->upperFrameVAO);
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 }
 
 void EvanRacket::drawLeftFrame(GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const {
@@ -106,7 +110,8 @@ void EvanRacket::drawLeftFrame(GLuint modelMatrixLocation, GLuint objectColorLoc
 
     // Render it
     glBindVertexArray(this->leftFrameVAO);
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 }
 
 void EvanRacket::drawRightFrame(GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const {
@@ -123,7 +128,8 @@ void EvanRacket::drawRightFrame(GLuint modelMatrixLocation, GLuint objectColorLo
 
     // Render it
     glBindVertexArray(this->rightFrameVAO);
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 }
 
 void EvanRacket::draw(GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const {

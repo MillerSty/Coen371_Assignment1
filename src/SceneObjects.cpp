@@ -21,9 +21,9 @@ void SceneObjects::SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgra
 	this->renderAs = renderAs;
 	this->shaderProgram = shaderProgram;
 	 }
-void SceneObjects::SetVAO(int cube, int reversecube, int grid) {
+void SceneObjects::SetVAO(int cube, int grid) {
 	this->cubeVao = cube;
-	this->reverseCubeVao = reversecube;
+	this->cubeVao = cube;
 	this->gridVao = grid;
 }
 void SceneObjects::setTextures(GLuint court, GLuint rope, GLuint metal, GLuint cloth,GLuint grass) { 
@@ -131,11 +131,12 @@ bool SceneObjects::DrawCourt() {
 				glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.0, 0.522, .40)));// 
 			}
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+			//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		}
 	}
 	glBindVertexArray(0);
-	bool check=DrawNet();
+	bool check = DrawNet();
 	return true;
 }
 
@@ -168,7 +169,8 @@ bool SceneObjects::DrawNet() {
 
 	// Draw world matrix with indices
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-	glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
+	glDrawArrays(renderAs, 0, 36);
+	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 
 
 	//+ve Z net
@@ -179,7 +181,8 @@ bool SceneObjects::DrawNet() {
 
 	// Draw again
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-	glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
+	glDrawArrays(renderAs, 0, 36);
+	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 
 	// Strings of net
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));  // Set net colour
@@ -193,7 +196,8 @@ bool SceneObjects::DrawNet() {
 		worldMatrix = groupMatrix * partMatrix; // Set world matrix
 
 		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]); //comment
-		glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);//draw with index
+		glDrawArrays(renderAs, 0, 36);
+		//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);//draw with index
 	}
 
 	// Same as above, but net offset is along z this time
@@ -205,7 +209,8 @@ bool SceneObjects::DrawNet() {
 		worldMatrix = groupMatrix * partMatrix;
 
 		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-		glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
+		glDrawArrays(renderAs, 0, 36);
+		//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 	}
 
 	// Top bar of the net
@@ -219,7 +224,8 @@ bool SceneObjects::DrawNet() {
 	partMatrix = partTranslate * partScale * partRo;
 	worldMatrix = groupMatrix * partMatrix;
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-	glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
+	glDrawArrays(renderAs, 0, 36);
+	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 
 	// Unbinding the vertex array object 
 	glBindVertexArray(0);
@@ -246,10 +252,13 @@ bool SceneObjects::DrawSkyBox() {
 	glm::mat4 worldMatrix = groupMatrix * partMatrix;  // World matrix for sky box
 
 	// Bind the vertex array object to be the cube VAO with reverse winding order
-	glBindVertexArray(reverseCubeVao);
+	glBindVertexArray(cubeVao);
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.008f, .8f, .9999999f))); // Sky box colour
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]); // Send to shader
-	glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0); // Draw sky box
+	glDisable(GL_CULL_FACE);
+	glDrawArrays(renderAs, 0, 36);
+	/*glDrawElements*/(renderAs, 36, GL_UNSIGNED_INT, 0); // Draw sky box
+	glEnable(GL_CULL_FACE);
 	glBindVertexArray(0); // Unbind vertex array object
 	return true;
 }
@@ -288,7 +297,8 @@ bool SceneObjects::DrawCoord() {
 	glm::mat4 worldMatrix = cubeParent * partMatrix;
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(0.0, 0.0, 1.0)));//blue (x)
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	//child z 
 	glm::mat4 cubeChild;
 	glm::mat4 cubeChildRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)90), glm::vec3(.0f, 1.0f, .0f));
@@ -302,7 +312,8 @@ bool SceneObjects::DrawCoord() {
 
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 0.0, 0.0))); //red (z)
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	//child y
 	cubeChildRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)90), glm::vec3(.0f, 0.0f, 1.0f));
 	cubeChildTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-.0f, .043f, .001f));
@@ -315,7 +326,8 @@ bool SceneObjects::DrawCoord() {
 
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.0, 1.0, 0.0))); //green (y)
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 	glBindVertexArray(0); // Unbind unit cube VAO
 
