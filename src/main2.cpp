@@ -449,34 +449,34 @@ int main(int argc, char* argv[])
 		AR = (float)*newWidth / (float)*newHeight; //note unsure if this will cause issues
 
         // 1st pass
-        {
-            glUniform1i(applyTexturesLocation, false);
-            glUniform1i(applyShadowsLocation, true);
-            // Use proper image output size
-            glViewport(0, 0, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE);
-            // Bind depth map texture as output framebuffer
-            glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
-            // Clear depth data on the framebuffer
-            glClear(GL_DEPTH_BUFFER_BIT);
-
-            // Draw geometry
-            arm.SetAttr(groupMatrix, renderAs, shaderProgram);
-            arm.setTranslation(Translate, translateWSAD);
-            arm.DrawArm();
-            racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
-            racket.Draw();
-
-//            evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
-
-            SceneObj.sphereVao = unitSphereAO;
-            SceneObj.sphereVertCount = vertexIndicessphere.size();
-            SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
-            SceneObj.SetVAO(unitCubeAO, reverseCubeAO, gridAO);
-            SceneObj.DrawScene();
-
-            // Unbind geometry
-            glBindVertexArray(0);
-        }
+//        {
+//            glUniform1i(applyTexturesLocation, false);
+//            glUniform1i(applyShadowsLocation, true);
+//            // Use proper image output size
+//            glViewport(0, 0, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE);
+//            // Bind depth map texture as output framebuffer
+//            glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
+//            // Clear depth data on the framebuffer
+//            glClear(GL_DEPTH_BUFFER_BIT);
+//
+//            // Draw geometry
+//            arm.SetAttr(groupMatrix, renderAs, shaderProgram);
+//            arm.setTranslation(Translate, translateWSAD);
+//            arm.DrawArm();
+//            racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
+//            racket.Draw();
+//
+////            evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
+//
+//            SceneObj.sphereVao = unitSphereAO;
+//            SceneObj.sphereVertCount = vertexIndicessphere.size();
+//            SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
+//            SceneObj.SetVAO(unitCubeAO, reverseCubeAO, gridAO);
+//            SceneObj.DrawScene();
+//
+//            // Unbind geometry
+//            glBindVertexArray(0);
+//        }
         // 2nd pass
         {
             glUniform1i(applyTexturesLocation, true);
@@ -489,7 +489,7 @@ int main(int argc, char* argv[])
             // Bind screen as output framebuffer
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             // Clear color and depth data on framebuffer
-            glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
+            //glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             // Bind depth map texture: not needed, by default it is active
             //glActiveTexture(GL_TEXTURE0);

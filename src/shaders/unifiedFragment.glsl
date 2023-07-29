@@ -1,7 +1,7 @@
 #version 330 core
 
 in vec2 vertexUV;
-out vec4 FragColor;
+out vec3 FragColor;
 
 uniform vec3 objectColor;
 uniform sampler2D textureSampler;
@@ -15,7 +15,7 @@ uniform vec3 lightColor;
 uniform vec3 lightPosition;
 uniform vec3 lightDirection;
 
-const float shadingAmbientStrength = 0.6;
+const float shadingAmbientStrength = 0.1;
 const float shadingDiffuseStrength = 0.6;
 const float shadingSpecularStrength = 0.6;
 
@@ -34,13 +34,14 @@ in vec3 fragmentPosition;
 in vec4 fragmentPositionLightSpace;
 in vec3 fragmentNormal;
 
-vec3 ambientColor(vec3 lightColorArg) {
-    return shadingAmbientStrength * lightColorArg;
+vec3 ambientColor() {
+    return objectColor * shadingAmbientStrength;
+    //return shadingAmbientStrength * lightColorArg;
 }
 
-vec3 diffuseColor(vec3 lightColorArg, vec3 lightPositionArg) {
-    vec3 lightDirection = normalize(lightPositionArg - fragmentPosition);
-    return shadingDiffuseStrength * lightColorArg * max(dot(normalize(fragmentNormal), lightDirection), 0.0f);
+vec3 diffuseColor() {
+    vec3 lightDirection = normalize(lightPosition - fragmentPosition);
+    return shadingDiffuseStrength * objectColor * lightColor * max(dot(normalize(fragmentNormal), lightDirection), 0.0f);
 }
 
 float shadowScalar() {
@@ -79,16 +80,16 @@ vec3 specularColor(vec3 lightColorArg, vec3 lightPositionArg) {
 
 void main()
 {
-    vec4 fragColor = vec4(objectColor, 1.0);
+    vec3 fragColor = objectColor;
 
     if (shouldApplyTexture){
-        vec4 textureColor=texture(textureSampler,vertexUV);
+        vec3 textureColor = texture(textureSampler,vertexUV).xyz;
         fragColor = textureColor * fragColor;
     }
 
     if (shouldApplyShadows) {
-        gl_FragDepth = gl_FragCoord.z;
-        fragColor = vec4(vec3(gl_FragCoord.z), 1.0f);
+        //gl_FragDepth = gl_FragCoord.z;
+        fragColor = vec3(gl_FragCoord.z);
     }
     else{
         vec3 ambient = vec3(0.0f);
@@ -96,13 +97,13 @@ void main()
         vec3 specular = vec3(0.0f);
 
         float scalar = shadowScalar() * spotlightScalar();
-        ambient = ambientColor(lightColor);
-        diffuse = 1.0f * diffuseColor(lightColor, lightPosition);
+        ambient = ambientColor();
+        diffuse = 1.0f * diffuseColor();
         specular = 1.0f * specularColor(lightColor, lightPosition);
 
-        vec3 color = specular + diffuse + ambient;
+        vec3 color = diffuse;
 
-        fragColor = vec4(color, 1.0f) * fragColor;
+        fragColor = color;
     }
 
     FragColor = fragColor;

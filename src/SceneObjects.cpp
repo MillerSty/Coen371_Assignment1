@@ -59,8 +59,8 @@ void SceneObjects::DrawScene() {
 	if (!check) printf("Draw Court failed");
 	check = DrawSkyBox();
 	if (!check) printf("Draw DrawSkyBox failed");
-	check = DrawGrid();
-	if (!check) printf("Draw DrawGrid failed");
+	//check = DrawGrid();
+	//if (!check) printf("Draw DrawGrid failed");
 	check = DrawCoord();
 	if (!check) printf("Draw DrawCoord failed");
 	check = DrawBall();
