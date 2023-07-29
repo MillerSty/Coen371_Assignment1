@@ -37,8 +37,24 @@ int MattArm::getVAO() { return unitCubeVAO; }
 
 void MattArm::drawArm()
 {
+	glm::vec3 modelTranslate(2.0f, 0.0f, 2.0f);
+	glm::vec3 initTranslate((float) cos(glm::radians(45.0f)), (float) sin(glm::radians(45.0f)), 0.0f);
+	glm::mat4 armTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(modelTranslate.x + initTranslate.x, 
+		modelTranslate.y + initTranslate.y, modelTranslate.z + initTranslate.z));
+	glm::mat4 armRotate = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 armLocal = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f)) *
+		glm::scale(glm::mat4(1.0f), glm::vec3(2.0f, 0.3f, 0.3f));
+	glm::mat4 armParentMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f)) * armTranslate * armRotate;
+
+	worldMatrix = armParentMatrix * armLocal;
+
+	glUniform3fv(glGetUniformLocation(shaderProgram, "objectColor"), 1, glm::value_ptr(glm::vec3(0.8f, 0.65f, 0.37f)));
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "worldMatrix"), 1, GL_FALSE, &worldMatrix[0][0]);
+	glDrawElements(GL_TRIANGLES, 1, GL_UNSIGNED_INT, 0);
+
+
 	//drawUpperArm();
-	drawLowerArm();
+	//drawLowerArm();
 
 	//glm::mat4 worldMatrix;
 	//glm::mat4 partScaleMatrix;
