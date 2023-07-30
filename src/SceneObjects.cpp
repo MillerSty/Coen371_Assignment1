@@ -54,11 +54,16 @@ void SceneObjects::InitGrid() {
 
 	}
 }
-void SceneObjects::DrawScene() {
+void SceneObjects::DrawScene(bool drawSkyBox) {
 	bool check = DrawCourt();
 	if (!check) printf("Draw Court failed");
-	//check = DrawSkyBox();
-	//if (!check) printf("Draw DrawSkyBox failed");
+
+	// Make sure not to use the skybox itself when rendering shadows
+	if (drawSkyBox)
+	{
+		check = DrawSkyBox();
+		if (!check) printf("Draw DrawSkyBox failed");
+	}
 	//check = DrawGrid();
 	//if (!check) printf("Draw DrawGrid failed");
 	check = DrawCoord();
