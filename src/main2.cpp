@@ -23,12 +23,6 @@
 const char* vertex = "../src/shaders/unifiedVertex.glsl";
 const char* fragment = "../src/shaders/unifiedFragment.glsl";
 
-//const char* textureV = "../src/shaders/textureVShader.glsl";
-//const char* textureF = "../src/shaders/textureFShader.glsl";
-//
-//const char* evanVertex = "../src/shaders/vertex.glsl";
-//const char* evanFragment = "../src/shaders/fragment.glsl";
-
 int compileAndLinkShaders(const char* vertex, const char* fragment);
 GLuint loadTexture(const char* filename);
 void GLAPIENTRY messageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
@@ -74,9 +68,12 @@ int createVertexArrayObject(const glm::vec3* vertexArray, int arraySize)
 	return vertexArrayObject;
 }
 
-struct TexturedColoredVertex
+/**
+A struct to contain the position, normal, and UV coordinates for a vertex
+*/
+struct TexturedNormaledVertex
 {
-	TexturedColoredVertex(glm::vec3 _position, glm::vec3 _normals, glm::vec2 _uv) : position(_position), normals(_normals), uv(_uv) {}
+	TexturedNormaledVertex(glm::vec3 _position, glm::vec3 _normals, glm::vec2 _uv) : position(_position), normals(_normals), uv(_uv) {}
 
 	glm::vec3 position;
 	glm::vec3 normals;
@@ -84,58 +81,67 @@ struct TexturedColoredVertex
 };
 
 // Textured Cube model
-TexturedColoredVertex texturedCubeVertexArray[] = {  // position,
-	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(-1, 0, 0), glm::vec2(0.0f, 0.0f)), //left
-	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f, 0.5f), glm::vec3(-1, 0, 0), glm::vec2(0.0f, 1.0f)),
-	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(-1, 0, 0), glm::vec2(1.0f, 1.0f)),
+TexturedNormaledVertex texturedCubeVertexArray[] = {
+	// LEFT
+	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(-1, 0, 0), glm::vec2(0.0f, 0.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f, 0.5f), glm::vec3(-1, 0, 0), glm::vec2(0.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(-1, 0, 0), glm::vec2(1.0f, 1.0f)),
 
-	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(-1, 0, 0), glm::vec2(0.0f, 0.0f)),
-	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(-1, 0, 0), glm::vec2(1.0f, 1.0f)),
-	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f,-0.5f), glm::vec3(-1, 0, 0), glm::vec2(1.0f, 0.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(-1, 0, 0), glm::vec2(0.0f, 0.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(-1, 0, 0), glm::vec2(1.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f,-0.5f), glm::vec3(-1, 0, 0), glm::vec2(1.0f, 0.0f)),
 
-	TexturedColoredVertex(glm::vec3(0.5f, 0.5f,-0.5f), glm::vec3(0, 0, -1), glm::vec2(1.0f, 1.0f)), // far
-	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(0, 0, -1), glm::vec2(0.0f, 0.0f)),
-	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f,-0.5f), glm::vec3(0, 0, -1), glm::vec2(0.0f, 1.0f)),
+	// FAR
+	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f,-0.5f), glm::vec3(0, 0, -1), glm::vec2(1.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(0, 0, -1), glm::vec2(0.0f, 0.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f,-0.5f), glm::vec3(0, 0, -1), glm::vec2(0.0f, 1.0f)),
 
-	TexturedColoredVertex(glm::vec3(0.5f, 0.5f,-0.5f), glm::vec3(0, 0, -1), glm::vec2(1.0f, 1.0f)),
-	TexturedColoredVertex(glm::vec3(0.5f,-0.5f,-0.5f), glm::vec3(0, 0, -1), glm::vec2(1.0f, 0.0f)),
-	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(0, 0, -1), glm::vec2(0.0f, 0.0f)),
+	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f,-0.5f), glm::vec3(0, 0, -1), glm::vec2(1.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f,-0.5f), glm::vec3(0, 0, -1), glm::vec2(1.0f, 0.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(0, 0, -1), glm::vec2(0.0f, 0.0f)),
 
-	TexturedColoredVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(0, -1, 0), glm::vec2(1.0f, 1.0f)), // bottom
-	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(0, -1, 0), glm::vec2(0.0f, 0.0f)),
-	TexturedColoredVertex(glm::vec3(0.5f,-0.5f,-0.5f), glm::vec3(0, -1, 0), glm::vec2(1.0f, 0.0f)),
+	// BOTTOM
+	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(0, -1, 0), glm::vec2(1.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(0, -1, 0), glm::vec2(0.0f, 0.0f)),
+	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f,-0.5f), glm::vec3(0, -1, 0), glm::vec2(1.0f, 0.0f)),
 
-	TexturedColoredVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(0, -1, 0), glm::vec2(1.0f, 1.0f)),
-	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f, 0.5f), glm::vec3(0, -1, 0), glm::vec2(0.0f, 1.0f)),
-	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(0, -1, 0), glm::vec2(0.0f, 0.0f)),
+	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(0, -1, 0), glm::vec2(1.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f, 0.5f), glm::vec3(0, -1, 0), glm::vec2(0.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(0, -1, 0), glm::vec2(0.0f, 0.0f)),
 
-	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(0.0f, 1.0f)), // near
-	TexturedColoredVertex(glm::vec3(-0.5f,-0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(0.0f, 0.0f)),
-	TexturedColoredVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(1.0f, 0.0f)),
+	// NEAR
+	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(0.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(0.0f, 0.0f)),
+	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(1.0f, 0.0f)),
 
-	TexturedColoredVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(1.0f, 1.0f)),
-	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(0.0f, 1.0f)),
-	TexturedColoredVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(1.0f, 0.0f)),
+	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(1.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(0.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(1.0f, 0.0f)),
 
-	TexturedColoredVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1, 0, 0), glm::vec2(1.0f, 1.0f)), // right
-	TexturedColoredVertex(glm::vec3(0.5f,-0.5f,-0.5f), glm::vec3(1, 0, 0), glm::vec2(0.0f, 0.0f)),
-	TexturedColoredVertex(glm::vec3(0.5f, 0.5f,-0.5f), glm::vec3(1, 0, 0), glm::vec2(1.0f, 0.0f)),
+	// RIGHT
+	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1, 0, 0), glm::vec2(1.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f,-0.5f), glm::vec3(1, 0, 0), glm::vec2(0.0f, 0.0f)),
+	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f,-0.5f), glm::vec3(1, 0, 0), glm::vec2(1.0f, 0.0f)),
 
-	TexturedColoredVertex(glm::vec3(0.5f,-0.5f,-0.5f), glm::vec3(1, 0, 0), glm::vec2(0.0f, 0.0f)),
-	TexturedColoredVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1, 0, 0), glm::vec2(1.0f, 1.0f)),
-	TexturedColoredVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(1, 0, 0), glm::vec2(0.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f,-0.5f), glm::vec3(1, 0, 0), glm::vec2(0.0f, 0.0f)),
+	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1, 0, 0), glm::vec2(1.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(1, 0, 0), glm::vec2(0.0f, 1.0f)),
 
-	TexturedColoredVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0, 1, 0), glm::vec2(1.0f, 1.0f)), // top
-	TexturedColoredVertex(glm::vec3(0.5f, 0.5f,-0.5f), glm::vec3(0, 1, 0), glm::vec2(1.0f, 0.0f)),
-	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f,-0.5f), glm::vec3(0, 1, 0), glm::vec2(0.0f, 0.0f)),
+	// TOP
+	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0, 1, 0), glm::vec2(1.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f,-0.5f), glm::vec3(0, 1, 0), glm::vec2(1.0f, 0.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f,-0.5f), glm::vec3(0, 1, 0), glm::vec2(0.0f, 0.0f)),
 
-	TexturedColoredVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0, 1, 0), glm::vec2(1.0f, 1.0f)),
-	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f,-0.5f), glm::vec3(0, 1, 0), glm::vec2(0.0f, 0.0f)),
-	TexturedColoredVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(0, 1, 0), glm::vec2(0.0f, 1.0f))
+	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0, 1, 0), glm::vec2(1.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f,-0.5f), glm::vec3(0, 1, 0), glm::vec2(0.0f, 0.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(0, 1, 0), glm::vec2(0.0f, 1.0f))
 };
 
+/**
+Create a vertex array object with positions, normals, and UVs
 
-
+@return The VAO
+*/
 int createVertexArrayObject2()
 {
 	GLuint vertexArrayObject;
@@ -147,13 +153,13 @@ int createVertexArrayObject2()
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(texturedCubeVertexArray), texturedCubeVertexArray, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedColoredVertex), (void*) 0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedNormaledVertex), (void*) 0);
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedColoredVertex), (void*) sizeof(glm::vec3));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedNormaledVertex), (void*) sizeof(glm::vec3));
 	glEnableVertexAttribArray(1);
 
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedColoredVertex), (void*) (2 * sizeof(glm::vec3)));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedNormaledVertex), (void*) (2 * sizeof(glm::vec3)));
 	glEnableVertexAttribArray(2);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -240,13 +246,17 @@ double lastMousePosX, lastMousePosY, lastMousePosZ;
 float FOV = 70, AR = (float)(WIDTH / HEIGHT), near = .01, far = 50;
 float translateW = 0, translateY = 0, translateZ = 0;
 
+// Toggles for shadows and textures
+bool shouldApplyShadows = true;
+bool shouldApplyTextures = true;
+
 int main(int argc, char* argv[])
 {
 	// Initialize GLFW and OpenGL version
 	if (!glfwInit())
 		return -1;
 	for (size_t i = 0; i < 36; i++) {
-		TexturedColoredVertex thisOne = texturedCubeVertexArray[i];
+		TexturedNormaledVertex thisOne = texturedCubeVertexArray[i];
 		texturedCubeVertexArray[i].position *= 0.1f;
 	}
 	// Set some GLFW window hints
@@ -302,6 +312,7 @@ int main(int argc, char* argv[])
 	// Black background	
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_FALSE);
+
 	// Set frame rate to refresh rate of monitor
 	glfwSwapInterval(1);
 
@@ -331,15 +342,13 @@ int main(int argc, char* argv[])
 	//Scene Jawn
 	SceneObjects SceneObj("scene");
 	SceneObj.InitGrid();
-	SceneObj.setTextures(courtTextureID, ropeTextureID, metalTextureID, clothTextureID,grassTextureID);
+	SceneObj.setTextures(courtTextureID, ropeTextureID, metalTextureID, clothTextureID, grassTextureID);
 	SceneObj.plasticTexture = plasticTextureID;
 	glfwGetCursorPos(window, &lastMousePosX, &lastMousePosY);
 	lastMousePosZ = lastMousePosY;
 
 	// Initialize projection and view matrices
-	glm::mat4 projectionMatrix = glm::perspective(FOV,  // field of view in degrees
-		AR,      // aspect ratio
-		near, far);       // near and far (near > 0)
+	glm::mat4 projectionMatrix = glm::perspective(FOV, AR, near, far);
 
 	glm::mat4 InitviewMatrix = glm::lookAt(eye, center, up);
 
@@ -376,11 +385,11 @@ int main(int argc, char* argv[])
 	glfwSetCursorPosCallback(window, mouseCursorPostionCallback);
 
 //	vec3 modelScale = vec3(0.03, 0.03, 0.03);
-    vec3 modelScale = vec3(0.25, 0.25, 0.25);
-    EvanRacket evanRacket(vec3(0.2f, 0.0f, 0.0f), modelScale,
+	glm::vec3 modelScale(0.25, 0.25, 0.25);
+    EvanRacket evanRacket(glm::vec3(0.2f, 0.0f, 0.0f), modelScale,
                           unitCubeAO,unitCubeAO,unitCubeAO,
                           unitCubeAO,unitCubeAO, unitCubeAO );
-	EvanArm evanArm(vec3(0.2f, 0.0f, 0.0f), modelScale, unitCubeAO,
+	EvanArm evanArm(glm::vec3(0.2f, 0.0f, 0.0f), modelScale, unitCubeAO,
                     unitCubeAO, evanRacket );
 
     // Lighting
@@ -394,20 +403,20 @@ int main(int argc, char* argv[])
 
     GLint lightColorLoc = glGetUniformLocation( shaderProgram, "lightColor");
 
-    glUniform3fv(lightColorLoc, 1, value_ptr(vec3(1.0f, 1.0f, 1.0f)));
+    glUniform3fv(lightColorLoc, 1, glm::value_ptr(vec3(1.0f, 1.0f, 1.0f)));
 
     // light parameters
-    vec3 lightPosition =  vec3(1.0, 10.0f, 0.0f); // the location of the light in 3D space
-    vec3 lightFocus(0.0, 0.0, -1.0);      // the point in 3D space the light "looks" at
-    vec3 lightDirection = normalize(lightFocus - lightPosition);
+    glm::vec3 lightPosition(-1.0, 30.0f, 0.0f); // the location of the light in 3D space
+	glm::vec3 lightFocus(0.0, 0.0, -1.0);      // the point in 3D space the light "looks" at
+	glm::vec3 lightDirection = glm::normalize(lightFocus - lightPosition);
 
     float lightNearPlane = 0.1f;
     float lightFarPlane = 180.0f;
 
-    mat4 lightProjectionMatrix = ortho(-1.0f, 1.0f, -1.0f, 1.0f, lightNearPlane, lightFarPlane);
-    mat4 lightViewMatrix = lookAt(lightPosition, lightFocus, vec3(0.0f, 1.0f, 0.0f));
-    mat4 lightSpaceMatrix = lightProjectionMatrix * lightViewMatrix;
-// Set light space matrix on both shaders
+	glm::mat4 lightProjectionMatrix = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, lightNearPlane, lightFarPlane);
+	glm::mat4 lightViewMatrix = glm::lookAt(lightPosition, lightFocus, glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 lightSpaceMatrix = lightProjectionMatrix * lightViewMatrix;
+
     GLint lightViewProjMatrixLoc = glGetUniformLocation( shaderProgram, "lightViewProjMatrix");
     GLint lightNearPlaneLoc = glGetUniformLocation( shaderProgram, "lightNearPlane");
     GLint lightFarPlaneLoc = glGetUniformLocation( shaderProgram, "lightFarPlane");
@@ -449,6 +458,7 @@ int main(int argc, char* argv[])
 	glUniform1i(kdepthMap, 2);
     //disable rendering colors, only write depth values
     //NOTE we have issues when doing mouse jawn with current set up
+
 	while (!glfwWindowShouldClose(window))
 	{
 		// Handle resizing
@@ -466,12 +476,12 @@ int main(int argc, char* argv[])
         // 1st pass
         {
             glUniform1i(applyTexturesLocation, false);
-            glUniform1i(applyShadowsLocation, true);
+            glUniform1i(applyShadowsLocation, shouldApplyShadows);
             // Use proper image output size
             glViewport(0, 0, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE);
-            // Bind depth map texture as output framebuffer
+            // Bind depth map texture as output frame buffer
             glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
-            // Clear depth data on the framebuffer
+            // Clear depth data on the frame buffer
             glClear(GL_DEPTH_BUFFER_BIT);
 
             // Draw geometry
@@ -482,6 +492,7 @@ int main(int argc, char* argv[])
             racket.Draw();
 
             evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
+			//evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
 
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
@@ -492,23 +503,23 @@ int main(int argc, char* argv[])
             // Unbind geometry
             glBindVertexArray(0);
         }
+
         // 2nd pass
         {
-            glUniform1i(applyTexturesLocation, true);
+            glUniform1i(applyTexturesLocation, shouldApplyTextures);
             glUniform1i(applyShadowsLocation, false);
             // Use proper image output size
-            // Side note: we get the size from the framebuffer instead of using WIDTH and HEIGHT because of a bug with highDPI displays
+            // Side note: we get the size from the frame buffer instead of using WIDTH and HEIGHT because of a bug with highDPI displays
             int width, height;
             glfwGetFramebufferSize(window, &width, &height);
             glViewport(0, 0, width, height);
-            // Bind screen as output framebuffer
+            // Bind screen as output frame buffer
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            // Clear color and depth data on framebuffer
+            // Clear color and depth data on frame buffer
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glActiveTexture(GL_TEXTURE0 + 2);
 			glBindTexture(GL_TEXTURE_2D, depth_map_texture);
            
-			
 			// Draw geometry
             arm.SetAttr(groupMatrix, renderAs, shaderProgram);
             arm.setTranslation(Translate, translateWSAD);
@@ -517,6 +528,7 @@ int main(int argc, char* argv[])
             racket.Draw();
 
             evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
+			evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
 
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
@@ -529,7 +541,6 @@ int main(int argc, char* argv[])
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-
 	}
 
 	// Shutdown GLFW
@@ -695,6 +706,8 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	int state_P = glfwGetKey(window, GLFW_KEY_P);
 	int state_L = glfwGetKey(window, GLFW_KEY_L);
 	int state_T = glfwGetKey(window, GLFW_KEY_T);
+	int state_B = glfwGetKey(window, GLFW_KEY_B);
+	int state_X = glfwGetKey(window, GLFW_KEY_X);
 
 	// If ESC is pressed, window should closed
 	if (state_ESC == GLFW_PRESS)
@@ -788,6 +801,14 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		setProjectionMatrix(shaderProgram, projectionMatrix);
 		setViewMatrix(shaderProgram, InitviewMatrix);
 	}
+
+	// If b is pressed, toggle shadows
+	else if (state_B == GLFW_PRESS)
+		shouldApplyShadows = !shouldApplyShadows;
+
+	// If x is pressed, toggle textures
+	else if (state_X == GLFW_PRESS)
+		shouldApplyTextures = !shouldApplyTextures;
 }
 
 /**

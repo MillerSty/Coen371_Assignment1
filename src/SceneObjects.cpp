@@ -58,7 +58,7 @@ void SceneObjects::DrawScene() {
 	bool check = DrawCourt();
 	if (!check) printf("Draw Court failed");
 	//check = DrawSkyBox();
-	if (!check) printf("Draw DrawSkyBox failed");
+	//if (!check) printf("Draw DrawSkyBox failed");
 	//check = DrawGrid();
 	//if (!check) printf("Draw DrawGrid failed");
 	check = DrawCoord();
@@ -240,13 +240,13 @@ bool SceneObjects::DrawSkyBox() {
 	float skyBoxY = 120.0f; // Change this to make sky box closer to court
 	
 	// Sets sky box position
-	glm::mat4 partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-.0f, .00f, -.0f));
+	glm::mat4 partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 
 	// Unused but usable
-	glm::mat4 partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, 1.0f, 1.0f));
+	glm::mat4 partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(0.0f, 1.0f, 1.0f));
 
 	// Sets sky box scale 
-	glm::mat4 partScale = glm::scale(glm::mat4(1.0f), glm::vec3(20.780f, skyBoxY, 20.36f));
+	glm::mat4 partScale = glm::scale(glm::mat4(1.0f), glm::vec3(40.0f, skyBoxY, 40.0f));
 
 	glm::mat4 partMatrix = partTranslate * partScale * partRo;  // Part matrix for sky box
 	glm::mat4 worldMatrix = groupMatrix * partMatrix;  // World matrix for sky box
@@ -257,7 +257,7 @@ bool SceneObjects::DrawSkyBox() {
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]); // Send to shader
 	glDisable(GL_CULL_FACE);
 	glDrawArrays(renderAs, 0, 36);
-	/*glDrawElements*/(renderAs, 36, GL_UNSIGNED_INT, 0); // Draw sky box
+	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0); // Draw sky box
 	glEnable(GL_CULL_FACE);
 	glBindVertexArray(0); // Unbind vertex array object
 	return true;

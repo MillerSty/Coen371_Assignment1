@@ -18,7 +18,7 @@ out vec4 fragmentPositionLightSpace;
 
 void main()
 {
-    mat4 modelViewProjection= projectionMatrix * viewMatrix * worldMatrix;
+    mat4 modelViewProjection = projectionMatrix * viewMatrix * worldMatrix;
     
 	if (shouldApplyShadows) {
         gl_Position = lightViewProjMatrix * worldMatrix * vec4(aPos, 1.0);
@@ -30,5 +30,5 @@ void main()
     fragmentNormal = transpose(inverse(mat3(worldMatrix))) * aNorm;
     fragmentPosition = vec3(worldMatrix * vec4(aPos, 1.0));
     fragmentPositionLightSpace = lightViewProjMatrix * vec4(fragmentPosition, 1.0);
-    vertexUV=aTexture;
+    vertexUV = aTexture;
 }

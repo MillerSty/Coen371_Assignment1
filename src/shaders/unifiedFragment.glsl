@@ -15,14 +15,12 @@ uniform vec3 lightColor;
 uniform vec3 lightPosition;
 uniform vec3 lightDirection;
 
-const float shadingAmbientStrength = 0.1;
+const float shadingAmbientStrength = 0.4;
 const float shadingDiffuseStrength = 0.6;
-const float shadingSpecularStrength = 0.3;
+const float shadingSpecularStrength = 0.6;
 
 uniform float lightCutoffOuter;
 uniform float lightCutoffInner;
-uniform float lightNearPlane;
-uniform float lightFarPlane;
 
 uniform vec3 viewPosition;
 
@@ -36,7 +34,6 @@ in vec3 fragmentNormal;
 
 vec3 ambientColor() {
     return objectColor * shadingAmbientStrength;
-    //return shadingAmbientStrength * lightColorArg;
 }
 
 vec3 diffuseColor() {
@@ -75,7 +72,7 @@ vec3 specularColor(vec3 lightColorArg, vec3 lightPositionArg) {
     vec3 lightDirection = normalize(lightPositionArg - fragmentPosition);
     vec3 viewDirection = normalize(viewPosition - fragmentPosition);
     vec3 reflectLightDirection = reflect(-lightDirection, normalize(fragmentNormal));
-    return shadingSpecularStrength * lightColorArg * pow(max(dot(reflectLightDirection, viewDirection), 0.0f),32);
+    return shadingSpecularStrength * lightColorArg * pow(max(dot(reflectLightDirection, viewDirection), 0.0f), 32);
 }
 
 void main()
@@ -83,7 +80,6 @@ void main()
     vec3 fragColor = objectColor; 
 
     if (shouldApplyShadows) {
-        //gl_FragDepth = gl_FragCoord.z;
         fragColor = vec3(gl_FragCoord.z);
     }
     else{
@@ -91,21 +87,18 @@ void main()
         vec3 diffuse = vec3(0.0f);
         vec3 specular = vec3(0.0f);
 
-        float scalar = shadowScalar()* spotlightScalar();
+        float scalar = shadowScalar() * spotlightScalar();
         ambient = ambientColor();
-        diffuse =  diffuseColor();
-        specular =  specularColor(lightColor, lightPosition);
+        diffuse = diffuseColor();
+        specular = specularColor(lightColor, lightPosition);
 
-        vec3 color = ambient+scalar*(specular+diffuse);
+        vec3 color = ambient + scalar * (specular + diffuse);
            fragColor = color;
 
         if (shouldApplyTexture) {
             vec3 textureColor = texture(textureSampler, vertexUV).xyz;
             fragColor = textureColor * fragColor;
         }
-
-        
     }
-
     FragColor = fragColor;
 }
