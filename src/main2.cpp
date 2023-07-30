@@ -504,7 +504,7 @@ int main(int argc, char* argv[])
             SceneObj.sphereVertCount = vertexIndicessphere.size();
             SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
             SceneObj.SetVAO(unitCubeAO, gridAO);
-            SceneObj.DrawScene();
+            SceneObj.DrawScene(false);  // Draw scene without the skybox, so it can't be used to make shadows on the scene
 
             // Unbind geometry
             glBindVertexArray(0);
@@ -540,8 +540,8 @@ int main(int argc, char* argv[])
             SceneObj.sphereVertCount = vertexIndicessphere.size();
             SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
             SceneObj.SetVAO(unitCubeAO, gridAO);
-            SceneObj.DrawScene();
-            
+            SceneObj.DrawScene(true);  // Draw scene with the skybox
+
 			// Unbind geometry
             glBindVertexArray(0);
         }

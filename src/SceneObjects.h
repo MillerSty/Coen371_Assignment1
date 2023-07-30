@@ -56,6 +56,6 @@ public:
 	bool DrawSkyBox();
 	bool DrawGrid();
 	bool DrawCoord();
-	void DrawScene();
+	void DrawScene(bool drawSkyBox);
 };
 
