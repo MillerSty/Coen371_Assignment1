@@ -20,7 +20,7 @@ public:
 	
 	int gridVao;
 	int cubeVao;	
-	int reverseCubeVao;
+	//int reverseCubeVao;
 	int sphereVao;
 	int sphereVertCount;
 
@@ -36,17 +36,18 @@ public:
 	GLuint metalTexture;
 	GLuint ballTexture;
 	GLuint grassTexture;
+	GLuint plasticTexture;
 	//atrributes for court
 
 	//attributes for net
 	int shaderProgram;
-	int textureProgram;
 	int renderAs;
 	glm::vec3 position;
 	glm::vec3 colour[3];
 	std::string objectName;
 
-	void SetVAO(int cube, int reversecube, int grid);
+	//void SetVAO(int cube, int reversecube, int grid);
+	void SetVAO(int cube, int grid);
 	//methods like 
 	void InitGrid();
 	bool DrawBall();
