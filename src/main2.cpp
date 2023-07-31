@@ -400,7 +400,7 @@ int main(int argc, char* argv[])
 	int unitCubeAO = createVertexArrayObject2();
 
 	arm.setVAO(unitCubeAO);
-	arm.position = glm::vec3(0, .2f, .2f);
+	arm.position = glm::vec3(0, .0f, .0f);
 		//glm::vec3(-.5f, 0.0f, .2f);
 
 	Racket racket(unitCubeAO, "racket");
@@ -568,12 +568,24 @@ int main(int argc, char* argv[])
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noshowLightBox);
 		}
 		//trying to add finger manipulation
-		//if (arm.getFRotation() + spin > 1.0f && reverse == false) { arm.setFRotation(arm.getFRotation() - spin); reverse = true; }
-		//else if (arm.getFRotation() + spin < 0.0f && reverse == true) { arm.setFRotation(arm.getFRotation() + spin); reverse = false; }
-		//else if (reverse == true){arm.setFRotation(arm.getFRotation() - spin); spin -= .01f;
-		//	}
-		//else { arm.setFRotation(arm.getFRotation() + spin); spin += .01f;
-		//}
+		float check = arm.getFRotation();
+		if ((arm.getFRotation() + spin) > 90.0f && reverse == false) { 
+			
+			arm.setFRotation(arm.getFRotation() - spin); 
+			reverse = true;
+		}
+		else if (arm.getFRotation() + spin < 0.0f && reverse == true) {
+			arm.setFRotation(arm.getFRotation() + spin); 
+			reverse = false; 
+		}
+		else if (reverse == true){
+			arm.setFRotation(arm.getFRotation() - spin);
+			spin -= .01f;
+			}
+		else { 
+			arm.setFRotation(arm.getFRotation() + spin);
+			spin += .01f;
+		}
 		
 		//printf("%f\n", spin);
 		glfwSwapBuffers(window);
@@ -817,7 +829,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		if (selectModel == -1) selectModel += 1;
 		else if (selectModel == 3) selectModel = -1;
 		else selectModel += 1;
-		//printf("select is: %d\n", selectModel);
+		printf("select is: %d\n", selectModel);
 	}
 	else if (state_TAB == GLFW_PRESS && mods == GLFW_MOD_SHIFT) {
 		/*
@@ -829,7 +841,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		if (selectJoint == -1) selectJoint += 1;
 		else if (selectJoint == 2) selectJoint = -1;
 		else selectJoint += 1;
-		//printf("selectJoint is: %d\n", selectJoint);
+		printf("selectJoint is: %d\n", selectJoint);
 	}
 
 	// If SPACE is pressed, should reposition at random place on grid
