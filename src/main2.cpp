@@ -1,6 +1,6 @@
 // Comp 371 - Assignment 2
-
 // System includes
+#pragma once
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
@@ -21,6 +21,8 @@
 
 #include "Evan-models/EvanArm.h"
 #include "Evan-models/EvanRacket.h"
+
+#include "JonahModels.cpp"
 
 // Set the shader paths
 const char* vertex = "../src/shaders/unifiedVertex.glsl";
@@ -241,6 +243,9 @@ glm::vec3 Translate(.0f, .0f, .0f);
 glm::vec3 GroupMatrixScale(1.0f, 1.0f, 1.0f);
 glm::mat4 groupMatrix;
 glm::mat4 rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+
+glm::vec3 translationVec(.0f, .0f, .0f);
+
 Arm arm;
 int renderAs = GL_TRIANGLES;
 int shaderProgram;
@@ -492,6 +497,8 @@ int main(int argc, char* argv[])
             evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
 			//evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
 
+			JonahModels::drawRacketJ(groupMatrix, translationVec, colorLocation, worldMatrixLocation, 0.0f, 0.0f, 0.0f);
+
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
             SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
@@ -526,6 +533,8 @@ int main(int argc, char* argv[])
 
             evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
 			evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
+
+			JonahModels::drawRacketJ(groupMatrix, translationVec, colorLocation, worldMatrixLocation, 0.0f, 0.0f, 0.0f);
 
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
