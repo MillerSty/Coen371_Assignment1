@@ -465,13 +465,6 @@ int main(int argc, char* argv[])
 
 	while (!glfwWindowShouldClose(window))
 	{
-		// Handle resizing
-		glfwGetWindowSize(window, newWidth, newHeight);
-		glfwSetWindowSize(window, *newWidth, *newHeight);
-		glViewport(0, 0, *newWidth, *newHeight);
-
-		// Calculate aspect ratio
-		AR = (float)*newWidth / (float)*newHeight; //note unsure if this will cause issues
 
 		// Set initial group matrix
 		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) *
@@ -492,7 +485,6 @@ int main(int argc, char* argv[])
 
             // Draw geometry
             arm.SetAttr(groupMatrix, renderAs, shaderProgram);
-            arm.setTranslation(Translate, translateWSAD);
             arm.DrawArm();
             racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
             racket.Draw();
@@ -528,7 +520,6 @@ int main(int argc, char* argv[])
            
 			// Draw geometry
             arm.SetAttr(groupMatrix, renderAs, shaderProgram);
-            arm.setTranslation(Translate, translateWSAD);
             arm.DrawArm();
             racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
             racket.Draw();
@@ -738,13 +729,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		if (number3 >= .75f)
 			number3 = number3 / (float)(RAND_MAX);
 
-		int numZ = rand(), numX = rand(), numY = rand();
-		int flZ = -1, flX = 1;
-
-		if (numZ % 2 == 1) flZ *= -1;
-		if (numX % 2 == 1) flX *= -1;
-		Translate.x = number1;
-		Translate.y = number2; Translate.z = number3;
+		arm.setTranslateRandom(glm::vec3(number1, number2, number3));
 	}
 
 	// If u or j is pressed, scale up or down accordingly
@@ -768,16 +753,16 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		rotationMatrixW *= glm::rotate(glm::mat4(1.0f), glm::radians(2.55f), glm::vec3(.0f, -1.0f, 0.0f));
 
 	else if (state_W == GLFW_PRESS)
-		translateWSAD.y += .005;
+		arm.setTranslateModel(glm::vec3(arm.getTranslateModel().x, (arm.getTranslateModel().y + .005f), arm.getTranslateModel().z));
 
 	else if (state_S == GLFW_PRESS)
-		translateWSAD.y -= .005;
+		arm.setTranslateModel(glm::vec3(arm.getTranslateModel().x, (arm.getTranslateModel().y - .005f), arm.getTranslateModel().z));
 
 	else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-		translateWSAD.x -= .005;
+		arm.setTranslateModel(glm::vec3((arm.getTranslateModel().x - .005f), arm.getTranslateModel().y, arm.getTranslateModel().z));
 
 	else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-		translateWSAD.x += .005;
+		arm.setTranslateModel(glm::vec3((arm.getTranslateModel().x + .005f), arm.getTranslateModel().y, arm.getTranslateModel().z));
 
 	else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
 		arm.setRotation(arm.getRotation() + 5);
@@ -796,14 +781,8 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		renderAs = GL_TRIANGLES;
 
 	// If HOME is pressed, remove translations, rotations, and scalings
-	else if (state_HOME == GLFW_PRESS) {
-		//or set each translate to 0
-		Translate.x += -1 * Translate.x;
-		Translate.y += -1 * Translate.y;
-		Translate.z += -1 * Translate.z;
-		translateWSAD.x += -1 * translateWSAD.x;
-		translateWSAD.y += -1 * translateWSAD.y;
-		arm.armRotate = 0;
+	else if (state_HOME == GLFW_PRESS) {		
+		arm.resetArm();
 		GroupMatrixScale = glm::vec3(1.0f);
 		rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 		glm::mat4 InitviewMatrix = glm::lookAt(eye, center, up);
