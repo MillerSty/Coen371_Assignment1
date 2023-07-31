@@ -63,11 +63,12 @@ void SceneObjects::DrawScene(bool drawSkyBox) {
 	{
 		check = DrawSkyBox();
 		if (!check) printf("Draw DrawSkyBox failed");
-		check = DrawGrid();
-		if (!check) printf("Draw DrawGrid failed");
-		check = DrawBall();
-		if (!check) printf("Draw DrawBall failed");
-	}	
+		//check = DrawGrid();
+		//if (!check) printf("Draw DrawGrid failed");
+
+	}			
+	check = DrawBall();
+	if (!check) printf("Draw DrawBall failed");
 	check = DrawCoord();
 	if (!check) printf("Draw DrawCoord failed");
 	
@@ -243,7 +244,7 @@ bool SceneObjects::DrawSkyBox() {
 	//glUseProgram(shaderProgram);
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
 	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
-	float skyBoxY = 120.0f; // Change this to make sky box closer to court
+	float skyBoxY = 160.0f; // Change this to make sky box closer to court
 	
 	// Sets sky box position
 	glm::mat4 partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
@@ -252,7 +253,7 @@ bool SceneObjects::DrawSkyBox() {
 	//glm::mat4 partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(0.0f, 1.0f, 1.0f));
 
 	// Sets sky box scale 
-	glm::mat4 partScale = glm::scale(glm::mat4(1.0f), glm::vec3(40.0f, skyBoxY, 40.0f));
+	glm::mat4 partScale = glm::scale(glm::mat4(1.0f), glm::vec3(50.0f, skyBoxY, 50.0f));
 
 	glm::mat4 partMatrix = partTranslate * partScale;  // Part matrix for sky box
 	glm::mat4 worldMatrix = groupMatrix * partMatrix;  // World matrix for sky box

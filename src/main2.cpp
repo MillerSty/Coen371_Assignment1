@@ -276,6 +276,8 @@ float translateW = 0, translateY = 0, translateZ = 0;
 // Toggles for shadows and textures
 bool shouldApplyShadows = true;
 bool shouldApplyTextures = true;
+int selectModel = -1;
+int selectJoint = -1;
 
 int main(int argc, char* argv[])
 {
@@ -398,14 +400,13 @@ int main(int argc, char* argv[])
 	int unitCubeAO = createVertexArrayObject2();
 
 	arm.setVAO(unitCubeAO);
+	arm.position = glm::vec3(-.5f, 0.0f, .2f);
 
 	Racket racket(unitCubeAO, "racket");
-
 	racket.jawnAngle = 0;
 
-	int select = -1;
-	int* newWidth = new int;
-	int* newHeight = new int;
+	//int* newWidth = new int;
+	//int* newHeight = new int;
 
 	// Set mouse and keyboard callbacks
 	glfwSetKeyCallback(window, keyPressCallback);
@@ -459,9 +460,6 @@ int main(int argc, char* argv[])
     glUniform1f(lightNearPlaneLoc, lightNearPlane);
     glUniform1f(lightFarPlaneLoc, lightFarPlane);
 
-
-
-
     // Set light position on scene shader
     glUniform3fv(lightPositionLoc, 1, &lightPosition[0]);
 
@@ -488,8 +486,6 @@ int main(int argc, char* argv[])
 	GLuint kdepthMap = glGetUniformLocation(shaderProgram, "shadowMap");
 	glUniform1i(kdepthMap, 2);
 
-
-
     //NOTE we have issues when doing mouse jawn with current set up
 	float i = -1;
 	while (!glfwWindowShouldClose(window))
@@ -500,8 +496,8 @@ int main(int argc, char* argv[])
 			glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
 			rotationMatrixW;
 
-		float lightDepth = 1.0f; //we can do 30, but it works better lower because the scale?
-		bool noshowLightBox = true; 
+		float lightDepth = 30.0f; //we can do 30, but it works better lower because the scale?
+		bool noshowLightBox = false; 
 		float x = sin(i);
 		float z = cos(i);
 		i += .02;
@@ -727,6 +723,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	// Get states of each relevant key
 	int state_ESC = glfwGetKey(window, GLFW_KEY_ESCAPE);
 	int state_SPACE = glfwGetKey(window, GLFW_KEY_SPACE);
+	int state_TAB = glfwGetKey(window, GLFW_KEY_TAB);
 	int state_U = glfwGetKey(window, GLFW_KEY_U);
 	int state_J = glfwGetKey(window, GLFW_KEY_J);
 	int state_W = glfwGetKey(window, GLFW_KEY_W);
@@ -743,28 +740,94 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	int state_T = glfwGetKey(window, GLFW_KEY_T);
 	int state_B = glfwGetKey(window, GLFW_KEY_B);
 	int state_X = glfwGetKey(window, GLFW_KEY_X);
+	int state_1 = glfwGetKey(window, GLFW_KEY_1);
+	int state_2 = glfwGetKey(window, GLFW_KEY_2);
+	//global random
+	float number1 = (rand()) / (float)(RAND_MAX);
+	float number2 = (rand()) / (float)(RAND_MAX);
+	float number3 = (rand()) / (float)(RAND_MAX);
+	// Constrain to visible grid locations
+	if (number1 >= .75f)
+		number1 = number1 / (float)(RAND_MAX);
+	if (number2 >= .25f)
+		number2 = number2 / (float)(RAND_MAX);
+	if (number3 >= .75f)
+		number3 = number3 / (float)(RAND_MAX);
+	switch (selectModel) {//prints twice per button press maybe this is okay?
+	case(-1)://Jon's Model		
+		if (state_W == GLFW_PRESS)			
+			arm.setTranslateModel(glm::vec3(arm.getTranslateModel().x, (arm.getTranslateModel().y + .005f), arm.getTranslateModel().z));		
+		else if (state_S == GLFW_PRESS)
+			arm.setTranslateModel(glm::vec3(arm.getTranslateModel().x, (arm.getTranslateModel().y - .005f), arm.getTranslateModel().z));		
+		else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
+			arm.setTranslateModel(glm::vec3((arm.getTranslateModel().x - .005f), arm.getTranslateModel().y, arm.getTranslateModel().z));
+		else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
+			arm.setTranslateModel(glm::vec3((arm.getTranslateModel().x + .005f), arm.getTranslateModel().y, arm.getTranslateModel().z));
+		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
+			switch(selectJoint) {
+			case(-1): arm.setRotation(arm.getRotation() + 5);  break;
+			case(0):if (arm.getERotation() + 5 > 90)arm.setERotation(90); else  arm.setERotation(arm.getERotation() + 5);  break;
+			case(1):if (arm.getWRotation() + 5 > 65)arm.setWRotation(65); else  arm.setWRotation(arm.getWRotation() + 5); break;
+			default: break;
+		}
+		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
+			switch (selectJoint) {
+			case(-1): arm.setRotation(arm.getRotation() - 5);  break;
+			case(0):if (arm.getERotation() - 5 < 0)arm.setERotation(0); else  arm.setERotation(arm.getERotation() - 5);  break;
+			case(1):if (arm.getWRotation() - 5 < -85 )arm.setWRotation(-85); else  arm.setWRotation(arm.getWRotation() - 5); break;
+			default: break;
+		}
+		else if (state_SPACE == GLFW_PRESS)
+		{
+			arm.setTranslateRandom(glm::vec3(number1, number2, number3));
+		}		
+		break;
+
+	case(0):printf("Matthew model\n"); break;
+	case(1): printf("jonah\n"); break;
+	case(2):printf("evan\n"); break;
+	case(3):printf("noot\n"); break;
+	default:break;
+
+
+	}
 
 	// If ESC is pressed, window should closed
 	if (state_ESC == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+	else if (state_TAB == GLFW_PRESS && mods != GLFW_MOD_SHIFT) {
+		/*
+		select -1 is original model micah
+		0 is second model matthew
+		1 is third model evan
+		2 is fouth jonah
+		3 is five Noot
+		*/
+		if (selectModel == -1) selectModel += 1;
+		else if (selectModel == 3) selectModel = -1;
+		else selectModel += 1;
+		//printf("select is: %d\n", selectModel);
+	}
+	else if (state_TAB == GLFW_PRESS && mods == GLFW_MOD_SHIFT) {
+		/*
+		select -1 is bicep
+		0 is elbow
+		1 is wrist y
+		2 is wrist x?
+		*/
+		if (selectJoint == -1) selectJoint += 1;
+		else if (selectJoint == 2) selectJoint = -1;
+		else selectJoint += 1;
+		//printf("selectJoint is: %d\n", selectJoint);
+	}
 
 	// If SPACE is pressed, should reposition at random place on grid
 	else if (state_SPACE == GLFW_PRESS)
 	{
-		float number1 = (rand()) / (float)(RAND_MAX);
-		float number2 = (rand()) / (float)(RAND_MAX);
-		float number3 = (rand()) / (float)(RAND_MAX);
-
-		// Constrain to visible grid locations
-		if (number1 >= .75f)
-			number1 = number1 / (float)(RAND_MAX);
-		if (number2 >= .25f)
-			number2 = number2 / (float)(RAND_MAX);
-		if (number3 >= .75f)
-			number3 = number3 / (float)(RAND_MAX);
-
-		arm.setTranslateRandom(glm::vec3(number1, number2, number3));
+		//arm.setTranslateRandom(glm::vec3(number1, number2, number3));
 	}
+
+
 
 	// If u or j is pressed, scale up or down accordingly
 	else if (state_U == GLFW_PRESS)
@@ -786,23 +849,23 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	else if (state_DOWN == GLFW_PRESS)
 		rotationMatrixW *= glm::rotate(glm::mat4(1.0f), glm::radians(2.55f), glm::vec3(.0f, -1.0f, 0.0f));
 
-	else if (state_W == GLFW_PRESS)
-		arm.setTranslateModel(glm::vec3(arm.getTranslateModel().x, (arm.getTranslateModel().y + .005f), arm.getTranslateModel().z));
-
-	else if (state_S == GLFW_PRESS)
-		arm.setTranslateModel(glm::vec3(arm.getTranslateModel().x, (arm.getTranslateModel().y - .005f), arm.getTranslateModel().z));
-
-	else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-		arm.setTranslateModel(glm::vec3((arm.getTranslateModel().x - .005f), arm.getTranslateModel().y, arm.getTranslateModel().z));
-
-	else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-		arm.setTranslateModel(glm::vec3((arm.getTranslateModel().x + .005f), arm.getTranslateModel().y, arm.getTranslateModel().z));
-
-	else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-		arm.setRotation(arm.getRotation() + 5);
-
-	else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-		arm.setRotation(arm.getRotation() - 5);
+	//else if (state_W == GLFW_PRESS)
+	//	arm.setTranslateModel(glm::vec3(arm.getTranslateModel().x, (arm.getTranslateModel().y + .005f), arm.getTranslateModel().z));
+	//
+	//else if (state_S == GLFW_PRESS)
+	//	arm.setTranslateModel(glm::vec3(arm.getTranslateModel().x, (arm.getTranslateModel().y - .005f), arm.getTranslateModel().z));
+	//
+	//else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
+	//	arm.setTranslateModel(glm::vec3((arm.getTranslateModel().x - .005f), arm.getTranslateModel().y, arm.getTranslateModel().z));
+	//
+	//else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
+	//	arm.setTranslateModel(glm::vec3((arm.getTranslateModel().x + .005f), arm.getTranslateModel().y, arm.getTranslateModel().z));
+	//	
+	//else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
+	//	arm.setRotation(arm.getRotation() + 5);
+	//
+	//else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
+	//	arm.setRotation(arm.getRotation() - 5);
 
 	// If p, l, or t is pressed, changed render mode between points, lines, and triangles, respectively
 	else if (state_P == GLFW_PRESS)

@@ -21,6 +21,7 @@ public:
 	void SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram);
 	void setVAO(int vao);
 	void setRotation(float rotate) {
+
 		this->armRotate = rotate;
 	}
 	float getRotation() {

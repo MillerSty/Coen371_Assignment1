@@ -15,7 +15,7 @@ uniform vec3 lightColor;
 uniform vec3 lightPosition;
 uniform vec3 lightDirection;
 
-const float shadingAmbientStrength = 0.5;
+const float shadingAmbientStrength = 0.4;
 const float shadingDiffuseStrength = 0.6;
 const float shadingSpecularStrength = 0.6;
 
@@ -88,9 +88,9 @@ void main()
         vec3 specular = vec3(0.0f); 
 
         //point light?
-        float constantPoint = 1.0f;
-        float linearPoint = .32;
-        float quadPoint = .3;       
+        float constantPoint = .50f; //1 for low height
+        float linearPoint = .001932;//3 for low height
+        float quadPoint = .0013; //3 for low height      
         vec3 directionPoint = fragmentPosition - lightPosition;
         float distancePoint = length(directionPoint);
         float attenuation = quadPoint * distancePoint * distancePoint + linearPoint * distancePoint + constantPoint;
