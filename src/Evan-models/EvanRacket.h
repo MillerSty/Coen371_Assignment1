@@ -26,8 +26,6 @@ private:
     /*
     * Functions which model and the draw the various part of the tennis racket
     */
-    void drawHandle(GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const;
-    void drawTopHandle(GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const;
     void drawLowerFrame(GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const;
     void drawUpperFrame(GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const;
     void drawLeftFrame(GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const;
@@ -44,7 +42,7 @@ public:
     /*
      * Just calls all the draw functions above
      */
-    void draw(GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const;
+    void draw(GLuint racketTexutre, GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const;
 
 };
 

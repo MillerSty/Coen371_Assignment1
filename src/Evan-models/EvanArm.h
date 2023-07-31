@@ -31,20 +31,17 @@ private:
     mat4 wristMatrix;
     EvanRacket racket;
 
-    /*
-     * Functions which model and the draw the various part of the arm
-     */
-    void drawLowerArm(GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const;
-    void drawUpperArm(GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const;
+
 public:
 
     /*
      * This constructor creates the VAOs & sets the initial group matrix
      */
     explicit EvanArm(vec3 initialPos, vec3 scale, GLuint lowerArmVAO, GLuint upperArmVAO, EvanRacket racket);
+
     /*
-     * Just calls all the draw functions above
+     * Functions which model and the draw the various part of the arm
      */
-    void draw(GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const;
+    void draw(GLuint armTexture, GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const;
 
 };
