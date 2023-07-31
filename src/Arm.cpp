@@ -26,7 +26,14 @@ Arm::Arm(int cubeVao, std::string letterName) {
 }
 
 Arm::Arm() {}
-
+void Arm::resetArm() {
+	TranslateModel += -1.0f * TranslateModel;
+	TranslateRandom += -1.0f * TranslateRandom;
+	armRotate = 0.0f;
+	wristRotate = 0.0f;
+	elbowRotate = 0.0f;
+	//Scale= 1.0f
+}
 void Arm::SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram) {
 	this->groupMatrix = groupMatrix;
 	this->renderAs = renderAs;
