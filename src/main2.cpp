@@ -400,7 +400,8 @@ int main(int argc, char* argv[])
 	int unitCubeAO = createVertexArrayObject2();
 
 	arm.setVAO(unitCubeAO);
-	arm.position = glm::vec3(-.5f, 0.0f, .2f);
+	arm.position = glm::vec3(0, .2f, .2f);
+		//glm::vec3(-.5f, 0.0f, .2f);
 
 	Racket racket(unitCubeAO, "racket");
 	racket.jawnAngle = 0;
@@ -488,51 +489,53 @@ int main(int argc, char* argv[])
 
     //NOTE we have issues when doing mouse jawn with current set up
 	float i = -1;
+	float spin = 0;
+	bool reverse = false;
 	while (!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
+
 		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) *
 			glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
 			rotationMatrixW;
 
-		float lightDepth = 30.0f; //we can do 30, but it works better lower because the scale?
-		bool noshowLightBox = false; 
+		float lightDepth = 1.0f; //we can do 30, but it works better lower because the scale?
+		bool noshowLightBox = false;
 		float x = sin(i);
 		float z = cos(i);
 		i += .02;
 		// Must draw scene in 2 passes: once for shadows, and another normally
-        // 1st pass
-        {
-            glUniform1i(applyTexturesLocation, false);
-            glUniform1i(applyShadowsLocation, shouldApplyShadows);
-            // Bind depth map texture as output frame buffer
-            glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
+		// 1st pass
+		{
+			glUniform1i(applyTexturesLocation, false);
+			glUniform1i(applyShadowsLocation, shouldApplyShadows);
+			// Bind depth map texture as output frame buffer
+			glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
 			// Use proper image output size
 			glViewport(0, 0, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE);
-            // Clear depth data on the frame buffer
-            glClear(GL_DEPTH_BUFFER_BIT);
-			
+			// Clear depth data on the frame buffer
+			glClear(GL_DEPTH_BUFFER_BIT);
+
 			//Note .8 != 30 for the height so that we can visually see the affects of rotating
-			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i,true);
+			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, true);
 			if (i == 1.0f) i = -1.0f;
 
-            // Draw geometry
-            arm.SetAttr(groupMatrix, renderAs, shaderProgram);
-            arm.DrawArm();
-            racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
-            racket.Draw();
+			// Draw geometry
+			arm.SetAttr(groupMatrix, renderAs, shaderProgram);
+			arm.DrawArm();
+			racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
+			racket.Draw();
 
-            evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
+			evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
 			//evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
 
-            SceneObj.sphereVao = unitSphereAO;
-            SceneObj.sphereVertCount = vertexIndicessphere.size();
-            SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
-            SceneObj.SetVAO(unitCubeAO, gridAO);
-            SceneObj.DrawScene(false);  // Draw scene without the skybox, so it can't be used to make shadows on the scene
+			SceneObj.sphereVao = unitSphereAO;
+			SceneObj.sphereVertCount = vertexIndicessphere.size();
+			SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
+			SceneObj.SetVAO(unitCubeAO, gridAO);
+			SceneObj.DrawScene(false);  // Draw scene without the skybox, so it can't be used to make shadows on the scene
 
-        }		
+		}
 		{ // 2nd pass  
 			//reset 
 			glUniform1i(applyTexturesLocation, shouldApplyTextures);
@@ -541,30 +544,38 @@ int main(int argc, char* argv[])
 			int width, height;
 			glfwGetFramebufferSize(window, &width, &height);
 			glViewport(0, 0, width, height);
-           
-            // Clear color and depth data on frame buffer
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			// Clear color and depth data on frame buffer
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glActiveTexture(GL_TEXTURE0 + 2);
 			glBindTexture(GL_TEXTURE_2D, depth_map_texture);
-           
-			// Draw geometry
-            arm.SetAttr(groupMatrix, renderAs, shaderProgram);
-            arm.DrawArm();
-            racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
-            racket.Draw();
 
-            evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
+			// Draw geometry
+			arm.SetAttr(groupMatrix, renderAs, shaderProgram);
+			arm.DrawArm();
+			racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
+			racket.Draw();
+
+			evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
 			evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
-			
-            SceneObj.sphereVao = unitSphereAO;
-            SceneObj.sphereVertCount = vertexIndicessphere.size();
-            SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
-            SceneObj.SetVAO(unitCubeAO, gridAO);
-            SceneObj.DrawScene(true);  // Draw scene with the skybox
+
+			SceneObj.sphereVao = unitSphereAO;
+			SceneObj.sphereVertCount = vertexIndicessphere.size();
+			SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
+			SceneObj.SetVAO(unitCubeAO, gridAO);
+			SceneObj.DrawScene(true);  // Draw scene with the skybox
 
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noshowLightBox);
-        }		
+		}
+		//trying to add finger manipulation
+		//if (arm.getFRotation() + spin > 1.0f && reverse == false) { arm.setFRotation(arm.getFRotation() - spin); reverse = true; }
+		//else if (arm.getFRotation() + spin < 0.0f && reverse == true) { arm.setFRotation(arm.getFRotation() + spin); reverse = false; }
+		//else if (reverse == true){arm.setFRotation(arm.getFRotation() - spin); spin -= .01f;
+		//	}
+		//else { arm.setFRotation(arm.getFRotation() + spin); spin += .01f;
+		//}
 		
+		//printf("%f\n", spin);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}

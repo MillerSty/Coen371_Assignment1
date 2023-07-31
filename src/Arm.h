@@ -39,6 +39,12 @@ public:
 	float getERotation() {
 		return this->elbowRotate;
 	}
+	void setFRotation(float rotate) {
+		this->fingerRotate = rotate;
+	}
+	float getFRotation() {
+		return this->fingerRotate;
+	}
 	glm::vec3 getTranslateRandom() { return this->TranslateRandom; }
 	void setTranslateRandom(glm::vec3 TranslateRandom) { this->TranslateRandom = TranslateRandom; }
 	glm::vec3 getTranslateModel() { return this->TranslateModel; }
@@ -53,7 +59,7 @@ public:
 	glm::vec3 TranslateRandom;
 
 	glm::vec3 TranslateModel;
-	float armRotate,elbowRotate,wristRotate;
+	float armRotate,elbowRotate,wristRotate, fingerRotate;
 
 	int shaderProgram;
 	int renderAs;
