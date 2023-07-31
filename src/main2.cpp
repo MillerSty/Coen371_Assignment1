@@ -497,8 +497,11 @@ int main(int argc, char* argv[])
             racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
             racket.Draw();
 
-            evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
+            //evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
 			//evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
+
+			//mattArm.setGroupMatrix(groupMatrix);
+			mattArm.drawArm();
 
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
@@ -532,8 +535,11 @@ int main(int argc, char* argv[])
             racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
             racket.Draw();
 
-            evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
-			evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
+            //evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
+			//evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
+
+			//mattArm.setGroupMatrix(groupMatrix);
+			mattArm.drawArm();
 
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
