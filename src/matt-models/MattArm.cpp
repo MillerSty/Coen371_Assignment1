@@ -2,9 +2,8 @@
 
 MattArm::MattArm()
 {
-	//groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(50.0f, 0.0f, 0.0f));
 	worldMatrix = glm::mat4(1.0f);
-	initialScale = glm::vec3(5.0f);
+	initialScale = glm::vec3(0.2f);
 }
 
 void MattArm::setArmColor(glm::vec3 color) { armColor = color; }
@@ -37,86 +36,44 @@ int MattArm::getVAO() { return unitCubeVAO; }
 
 void MattArm::drawArm()
 {
-	//glm::vec3 modelTranslate(2.0f, 0.0f, 2.0f);
-	//glm::vec3 initTranslate((float) cos(glm::radians(45.0f)), (float) sin(glm::radians(45.0f)), 0.0f);
-	//glm::mat4 armTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(modelTranslate.x + initTranslate.x, 
-	//	modelTranslate.y + initTranslate.y, modelTranslate.z + initTranslate.z));
-	//glm::mat4 armRotate = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	//glm::mat4 armLocal = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f)) *
-	//	glm::scale(glm::mat4(1.0f), glm::vec3(2.0f, 0.3f, 0.3f));
-	//glm::mat4 armParentMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f)) * armTranslate * armRotate;
-
-	//worldMatrix = armParentMatrix * armLocal;
-
-	//glUniform3fv(glGetUniformLocation(shaderProgram, "objectColor"), 1, glm::value_ptr(glm::vec3(0.8f, 0.65f, 0.37f)));
-	//glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "worldMatrix"), 1, GL_FALSE, &worldMatrix[0][0]);
-	//glDrawElements(GL_TRIANGLES, 1, GL_UNSIGNED_INT, 0);
-
-
-	//drawUpperArm();
+	drawUpperArm();
 	drawLowerArm();
-
-	//glm::mat4 worldMatrix;
-	//glm::mat4 partScaleMatrix;
-	//glm::mat4 partTranslateMatrix;
-	//glm::mat4 partRotateMatrix;
-	//glm::mat4 partMatrix;
-
-	//glUseProgram(shaderProgram);
-
-	//glm::mat4 upperArmParent;
-	//glm::mat4 upperArmTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-10.0f, 1.0f, -5.0f));
-	//glm::mat4 upperArmRotate = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
-	//upperArmParent = upperArmTranslate * upperArmRotate;
-
-	//glm::vec3 armScaler = glm::vec3(0.575f, 0.25f, 0.15f);
-
-	//partRotateMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(25.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	//partScaleMatrix = glm::scale(glm::mat4(1.0f), armScaler);
-
-	//partMatrix = partScaleMatrix * partRotateMatrix;
-
-	//worldMatrix = groupMatrix * upperArmParent * partMatrix;
-
-	//glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "worldMatrix"), 1, GL_FALSE, &worldMatrix[0][0]);
-	//glUniform3fv(glGetUniformLocation(shaderProgram, "objectColor"), 1, glm::value_ptr(glm::vec3(0.8f, 0.65f, 0.37f)));
-	//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 }
 
-//void MattArm::drawUpperArm()
-//{
-//	glm::mat4 modelMat = worldMatrix * groupMatrix;
-//
-//	modelMat = glm::scale(modelMat, initialScale);
-//	modelMat = glm::translate(modelMat, glm::vec3(2.0f, 10.0f, 0.0f));
-//	modelMat = glm::scale(modelMat, glm::vec3(1.0f, 4.0f, 1.0f));
-//
-//	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "worldMatrix"), 1, GL_FALSE, &modelMat[0][0]);
-//	glUniform3fv(glGetUniformLocation(shaderProgram, "objectColor"), 1, glm::value_ptr(glm::vec3(0.8f, 0.65f, 0.37f)));
-//	glBindVertexArray(unitCubeVAO);
-//
-//	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-//	//glDrawArrays(GL_TRIANGLES, 0, 36);
-// glBindVertexArray(0);
-//}
+void MattArm::drawUpperArm()
+{
+	glm::mat4 modelMat = worldMatrix * groupMatrix;
+
+	glm::mat4 modelScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.2f, 0.8f, 0.2f));
+	glm::mat4 modelRotate = glm::rotate(glm::mat4(1.0f), glm::radians(20.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+	glm::mat4 modelTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.35f, 0.20f, -0.2f));
+
+	modelMat *= modelTranslate * modelRotate * modelScale;
+
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "worldMatrix"), 1, GL_FALSE, &modelMat[0][0]);
+	glUniform3fv(glGetUniformLocation(shaderProgram, "objectColor"), 1, glm::value_ptr(glm::vec3(0.8f, 0.65f, 0.37f)));
+	glBindVertexArray(unitCubeVAO);
+
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+
+	glBindVertexArray(0);
+}
 
 void MattArm::drawLowerArm()
 {
 	glm::mat4 modelMat = worldMatrix * groupMatrix;
 
-	modelMat = glm::scale(modelMat, initialScale);
-	modelMat = glm::rotate(modelMat, glm::radians(60.0f), glm::vec3(0.0f, 0.0f, -1.0f));
-	modelMat = glm::scale(modelMat, glm::vec3(1.0f, 4.0f, 1.0f));
+	glm::mat4 modelScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.2f, 0.8f, 0.2f));
+	glm::mat4 modelRotate = glm::rotate(glm::mat4(1.0f), glm::radians(60.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+	glm::mat4 modelTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.4f, 0.15f, -0.2f));
+
+	modelMat *= modelTranslate * modelRotate * modelScale;
 
 	glBindVertexArray(unitCubeVAO);
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "worldMatrix"), 1, GL_FALSE, &modelMat[0][0]);
 	glUniform3fv(glGetUniformLocation(shaderProgram, "objectColor"), 1, glm::value_ptr(glm::vec3(0.8f, 0.65f, 0.37f)));
 	
-	//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
+
 	glBindVertexArray(0);
 }
-
-
-

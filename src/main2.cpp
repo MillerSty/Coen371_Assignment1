@@ -500,7 +500,7 @@ int main(int argc, char* argv[])
             //evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
 			//evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
 
-			//mattArm.setGroupMatrix(groupMatrix);
+			mattArm.setGroupMatrix(groupMatrix);
 			mattArm.drawArm();
 
             SceneObj.sphereVao = unitSphereAO;
@@ -538,7 +538,7 @@ int main(int argc, char* argv[])
             //evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
 			//evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
 
-			//mattArm.setGroupMatrix(groupMatrix);
+			mattArm.setGroupMatrix(groupMatrix);
 			mattArm.drawArm();
 
             SceneObj.sphereVao = unitSphereAO;
