@@ -202,7 +202,7 @@ int createVertexArrayElementObject2(std::vector<int> vertexIndices, std::vector<
 		3,                      // size
 		GL_FLOAT,               // type
 		GL_FALSE,               // normalized?
-		0 * sizeof(glm::vec3),  // stride - each vertex contain 2 vec3 (position, color)
+		1 * sizeof(glm::vec3),  // stride - each vertex contain 2 vec3 (position, color)
 		(void*)0                // array buffer offset
 	);
 	glEnableVertexAttribArray(0);
@@ -212,7 +212,7 @@ int createVertexArrayElementObject2(std::vector<int> vertexIndices, std::vector<
 	glGenBuffers(1, &normals_VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, normals_VBO);
 	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals.front(), GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0 * sizeof(glm::vec3), (GLvoid*)0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec3), (GLvoid*)0);
 	glEnableVertexAttribArray(1);
 
 	//UVs VBO setup
@@ -220,7 +220,7 @@ int createVertexArrayElementObject2(std::vector<int> vertexIndices, std::vector<
 	glGenBuffers(1, &uvs_VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, uvs_VBO);
 	glBufferData(GL_ARRAY_BUFFER, UVs.size() * sizeof(glm::vec3), &UVs.front(), GL_STATIC_DRAW);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0 * sizeof(glm::vec3), (GLvoid*)0);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec3), (GLvoid*)0);
 	glEnableVertexAttribArray(2);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -324,6 +324,7 @@ int main(int argc, char* argv[])
 
 	// Set frame rate to refresh rate of monitor
 	glfwSwapInterval(1);
+
 	// Compile and link shaders here
 	shaderProgram = compileAndLinkShaders(vertex, fragment);
 
@@ -395,16 +396,8 @@ int main(int argc, char* argv[])
                     unitCubeAO, evanRacket );
 
     // Lighting
-	GLint shadingAmbientStrength = glGetUniformLocation(shaderProgram, "shadingAmbientStrength");
-	GLint shadingDiffuseStrength = glGetUniformLocation(shaderProgram, "shadingDiffuseStrength");
-	GLint shadingSpecularStrength = glGetUniformLocation(shaderProgram, "shadingSpecularStrength");
-	float specular, diffuse, ambient;
-	glUniform1f(shadingAmbientStrength, 1.0f);
-	glUniform1f(shadingDiffuseStrength, 1.0f);
-	glUniform1f(shadingSpecularStrength, 1.0f);
-	
-	float lightAngleOuter =90.0;
-    float lightAngleInner = .0;
+    float lightAngleOuter = 30.0;
+    float lightAngleInner = 20.0;
     // Set light cutoff angles on scene shader
     GLint lightCutoffInnerLoc = glGetUniformLocation( shaderProgram, "lightCutoffInner");
     GLint lightCutoffOuterLoc = glGetUniformLocation( shaderProgram, "lightCutoffOuter");
@@ -420,8 +413,8 @@ int main(int argc, char* argv[])
 	glm::vec3 lightFocus(0.0, 0.0, -1.0);      // the point in 3D space the light "looks" at
 	glm::vec3 lightDirection = glm::normalize(lightFocus - lightPosition);
 
-    float lightNearPlane = 0.001f;
-    float lightFarPlane = 10.0f;
+    float lightNearPlane = 0.1f;
+    float lightFarPlane = 180.0f;
 
 	glm::mat4 lightProjectionMatrix = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, lightNearPlane, lightFarPlane);
 	glm::mat4 lightViewMatrix = glm::lookAt(lightPosition, lightFocus, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -472,14 +465,10 @@ int main(int argc, char* argv[])
 
 	while (!glfwWindowShouldClose(window))
 	{
-		
-		//glUseProgram(shaderProgram);
-		//// Handle resizing
-		//glfwGetWindowSize(window, newWidth, newHeight);
-		//glfwSetWindowSize(window, *newWidth, *newHeight);
-		//glViewport(0, 0, *newWidth, *newHeight);
-		//	// Calculate aspect ratio
-		//	AR = (float)*newWidth / (float)*newHeight; //note unsure if this will cause issues
+		// Handle resizing
+		glfwGetWindowSize(window, newWidth, newHeight);
+		glfwSetWindowSize(window, *newWidth, *newHeight);
+		glViewport(0, 0, *newWidth, *newHeight);
 
 		// Calculate aspect ratio
 		AR = (float)*newWidth / (float)*newHeight; //note unsure if this will cause issues
@@ -658,7 +647,6 @@ GLuint loadTexture(const char* filename)
 	glGenTextures(1, &textureId);
 	assert(textureId != 0);
 
-	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textureId);
 
 	// Step2 Set filter parameters
@@ -750,8 +738,13 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		if (number3 >= .75f)
 			number3 = number3 / (float)(RAND_MAX);
 
-		arm.setTranslateRandom(glm::vec3(number1, number2, number3));
+		int numZ = rand(), numX = rand(), numY = rand();
+		int flZ = -1, flX = 1;
 
+		if (numZ % 2 == 1) flZ *= -1;
+		if (numX % 2 == 1) flX *= -1;
+		Translate.x = number1;
+		Translate.y = number2; Translate.z = number3;
 	}
 
 	// If u or j is pressed, scale up or down accordingly
@@ -774,17 +767,17 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	else if (state_DOWN == GLFW_PRESS)
 		rotationMatrixW *= glm::rotate(glm::mat4(1.0f), glm::radians(2.55f), glm::vec3(.0f, -1.0f, 0.0f));
 
-	else if (state_W == GLFW_PRESS) 
-		arm.setTranslateModel(glm::vec3(arm.getTranslateModel().x, (arm.getTranslateModel().y + .005f), arm.getTranslateModel().z));
-	
+	else if (state_W == GLFW_PRESS)
+		translateWSAD.y += .005;
+
 	else if (state_S == GLFW_PRESS)
-		arm.setTranslateModel(glm::vec3(arm.getTranslateModel().x, (arm.getTranslateModel().y - .005f), arm.getTranslateModel().z));
+		translateWSAD.y -= .005;
 
 	else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-		arm.setTranslateModel(glm::vec3((arm.getTranslateModel().x - .005f), arm.getTranslateModel().y, arm.getTranslateModel().z));
+		translateWSAD.x -= .005;
 
 	else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-		arm.setTranslateModel(glm::vec3((arm.getTranslateModel().x + .005f), arm.getTranslateModel().y , arm.getTranslateModel().z));
+		translateWSAD.x += .005;
 
 	else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
 		arm.setRotation(arm.getRotation() + 5);
@@ -804,9 +797,13 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 
 	// If HOME is pressed, remove translations, rotations, and scalings
 	else if (state_HOME == GLFW_PRESS) {
-		//reset jon's arm
-		arm.resetArm();
-	
+		//or set each translate to 0
+		Translate.x += -1 * Translate.x;
+		Translate.y += -1 * Translate.y;
+		Translate.z += -1 * Translate.z;
+		translateWSAD.x += -1 * translateWSAD.x;
+		translateWSAD.y += -1 * translateWSAD.y;
+		arm.armRotate = 0;
 		GroupMatrixScale = glm::vec3(1.0f);
 		rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 		glm::mat4 InitviewMatrix = glm::lookAt(eye, center, up);
@@ -890,7 +887,6 @@ bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm
 	std::vector<int> uvIndices, normalIndices;
 	std::vector<glm::vec2> temp_uvs;
 	std::vector<glm::vec3> temp_normals;
-	std::vector<glm::vec3> temp_vertices;
 
 	FILE* file;
 	file = fopen(path, "r");
@@ -973,16 +969,16 @@ bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm
 			vertexIndices.push_back(abs(vertexIndex[0]) - 1);
 			vertexIndices.push_back(abs(vertexIndex[1]) - 1);
 			vertexIndices.push_back(abs(vertexIndex[2]) - 1);
-			
-			normalIndices.push_back(abs(normalIndex[0]) - 1);
-			normalIndices.push_back(abs(normalIndex[1]) - 1);
-			normalIndices.push_back(abs(normalIndex[2]) - 1);
-			
-			
+			if (norm) {
+				normalIndices.push_back(abs(normalIndex[0]) - 1);
+				normalIndices.push_back(abs(normalIndex[1]) - 1);
+				normalIndices.push_back(abs(normalIndex[2]) - 1);
+			}
+			if (uv) {
 				uvIndices.push_back(abs(uvIndex[0]) - 1);
 				uvIndices.push_back(abs(uvIndex[1]) - 1);
 				uvIndices.push_back(abs(uvIndex[2]) - 1);
-			
+			}
 		}
 		else {
 			char clear[1000];
@@ -993,23 +989,17 @@ bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm
 		out_normals.resize(temp_normals.size());
 	if (uvIndices.size() != 0)
 		out_uvs.resize(temp_uvs.size());
-	out_vertices = temp_vertices;
 	out_normals = temp_normals;
 	out_uvs = temp_uvs;
 	//for (unsigned int i = 0; i < vertexIndices.size(); i++) {
 	//	int vi = vertexIndices[i];
-	//	glm::vec3 checkVertice = temp_vertices[vi];
-	//	out_vertices.push_back(temp_vertices[vi]);
 	//	if (normalIndices.size() != 0) {
 	//		int ni = normalIndices[i];
-	//		glm::vec3 checkNormal = temp_normals[ni];
-	//		out_normals.push_back(temp_normals[ni]);
+	//		out_normals[vi] = temp_normals[ni];
 	//	}
-	//	if (uvIndices.size() != 0 ) {
+	//	if (uvIndices.size() != 0 && i < uvIndices.size()) {
 	//		int ui = uvIndices[i];
-	//
-	//		glm::vec2 checkText = temp_uvs[ui];
-	//		out_uvs.push_back(temp_uvs[ui]);
+	//		out_uvs[vi] = temp_uvs[ui];
 	//	}
 	//}
 

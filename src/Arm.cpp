@@ -6,7 +6,12 @@ Arm::Arm(int cubeVao, glm::mat4 worldMatrix) {
 	this->position = glm::vec3(0.0f, 0.0f, 0.0f);
 	this->TranslateModel = glm::vec3(0.0f, 0.0f, 0.0f);
 	this->TranslateRandom = glm::vec3(0.0f, 0.0f, 0.0f);
-	}
+	//colours should be set before while loops if we want 
+	//random
+//colour[0] = glm::vec3(1.0f, 0.0f, 0.0f);
+//colour[1] = glm::vec3(0.0f, 1.0f, 0.0f);
+//colour[2] = glm::vec3(0.0f, 0.0f, 1.0f);
+}
 Arm::Arm(int cubeVao, std::string letterName) {
 	this->cubeVao = cubeVao;
 	this->groupMatrix;
@@ -22,14 +27,6 @@ Arm::Arm(int cubeVao, std::string letterName) {
 
 Arm::Arm() {}
 
-void Arm::resetArm() {
-	TranslateModel += -1.0f*TranslateModel;
-	TranslateRandom += -1.0f * TranslateRandom;
-	armRotate = 0.0f;
-	wristRotate = 0.0f;
-	elbowRotate = 0.0f;
-	//Scale= 1.0f
-}
 void Arm::SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram) {
 	this->groupMatrix = groupMatrix;
 	this->renderAs = renderAs;
@@ -57,7 +54,6 @@ bool Arm::DrawArm() {
 	glm::mat4 partRo;
 	glm::mat4 partMatrix;
 	//note this works
-	//glBindTexture(GL_TEXTURE_1D, 0);
 
 	glBindVertexArray(cubeVao);
 	glm::mat4 bicepParent; //so for initiali parent , it has local.global translate plus local rotate 
@@ -169,7 +165,6 @@ bool Arm::DrawArm() {
 	glDrawArrays(renderAs, 0, 36);
 	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
-	//applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
-	//glUniform1i(applyTexturesLocation, true);
+	
 	return true;
 }

@@ -26,25 +26,6 @@ public:
 	float getRotation() {
 		return this->armRotate;
 	}
-	void setWRotation(float rotate) {
-		this->wristRotate = rotate;
-	}
-	float getWRotation() {
-		return this->wristRotate;
-	}	
-	void setERotation(float rotate) {
-		this->elbowRotate = rotate;
-	}
-	float getERotation() {
-		return this->elbowRotate;
-	}
-
-	glm::vec3 getTranslateRandom() { return this->TranslateRandom; }
-	void setTranslateRandom(glm::vec3 TranslateRandom) { this->TranslateRandom = TranslateRandom; }
-	glm::vec3 getTranslateModel() { return this->TranslateModel; }
-	void setTranslateModel(glm::vec3 TranslateModel) { this->TranslateModel = TranslateModel; }
-	void resetArm();
-
 
 	int cubeVao;
 	glm::mat4 partParent;
@@ -52,13 +33,14 @@ public:
 	glm::mat4 groupMatrix;
 
 	glm::vec3 TranslateRandom;
-	glm::vec3 TranslateModel;
 
+	glm::vec3 TranslateModel;
 	float armRotate,elbowRotate,wristRotate;
 
 	int shaderProgram;
 	int renderAs;
 	glm::vec3 position;
+	//glm::vec3 colour[3];
 	std::string letterName;
 
 
