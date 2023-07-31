@@ -467,30 +467,15 @@ int main(int argc, char* argv[])
 	glUniform1i(kdepthMap, 2);
     //NOTE we have issues when doing mouse jawn with current set up
 
-<<<<<<< HEAD
-=======
-	int evanShaderProgram = compileAndLinkShaders(evanVertex, evanFragment);
-	GLint evanWorldMatrixLocation = glGetUniformLocation(evanShaderProgram, "modelMatrix");
-	GLint evanViewMatrixLocation = glGetUniformLocation(evanShaderProgram, "viewMatrix");
-	GLint evanProjectionMatrixLocation = glGetUniformLocation(evanShaderProgram, "projectMatrix");
-	glUseProgram(evanShaderProgram);
-	glUniformMatrix4fv(evanViewMatrixLocation, 1, GL_FALSE, &InitviewMatrix[0][0]);
-	glUniformMatrix4fv(evanProjectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
-	vec3 modelScale = vec3(0.03, 0.03, 0.03);
-	EvanArm evanArm(vec3(0.2f, 0.0f, 0.0f), modelScale);
-	EvanRacket evanRacket(vec3(0.2f, 0.0f, 0.0f), modelScale);
-
 	mattArm.setShaderProgram(shaderProgram);
 	mattArm.setVAO(unitCubeAO);
 
 	//NOTE we have issues when doing mouse jawn with current set up
->>>>>>> Initial work
 	while (!glfwWindowShouldClose(window))
 	{
 
 		// Set initial group matrix
 		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) *
-<<<<<<< HEAD
 			          glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
 			          rotationMatrixW;
 
@@ -559,29 +544,6 @@ int main(int argc, char* argv[])
 			// Unbind geometry
             glBindVertexArray(0);
         }
-=======
-			glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
-			rotationMatrixW;
-
-		arm.SetAttr(groupMatrix, renderAs, shaderProgram);
-		arm.setTranslation(Translate, translateWSAD);
-		arm.DrawArm();
-		racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
-		racket.Draw();
-
-		evanArm.draw(evanWorldMatrixLocation, evanShaderProgram);
-		evanRacket.draw(evanWorldMatrixLocation, evanShaderProgram);
-
-		mattArm.setGroupMatrix(groupMatrix);
-		mattArm.drawArm();
-
-		SceneObj.sphereVao = unitSphereAO;
-		SceneObj.sphereVertCount = vertexIndicessphere.size();
-		SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
-		SceneObj.SetVAO(unitCubeAO, reverseCubeAO, gridAO);
-		SceneObj.DrawScene();
-
->>>>>>> Initial work
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
