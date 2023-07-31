@@ -20,7 +20,7 @@ public:
 	
 	int gridVao;
 	int cubeVao;	
-	int reverseCubeVao;
+	//int reverseCubeVao;
 	int sphereVao;
 	int sphereVertCount;
 
@@ -46,7 +46,8 @@ public:
 	glm::vec3 colour[3];
 	std::string objectName;
 
-	void SetVAO(int cube, int reversecube, int grid);
+	//void SetVAO(int cube, int reversecube, int grid);
+	void SetVAO(int cube, int grid);
 	//methods like 
 	void InitGrid();
 	bool DrawBall();
@@ -55,6 +56,6 @@ public:
 	bool DrawSkyBox();
 	bool DrawGrid();
 	bool DrawCoord();
-	void DrawScene();
+	void DrawScene(bool drawSkyBox);
 };
 

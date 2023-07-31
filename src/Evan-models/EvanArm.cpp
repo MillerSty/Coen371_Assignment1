@@ -33,7 +33,8 @@ void EvanArm::draw(GLuint modelMatrixLocation, GLuint objectColorLocation,  GLui
     glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(lowerArmMatrix));
     // Render it
     glBindVertexArray(this->lowerArmVAO);
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
     // Transformations to manipulate the cube to make part of the model
     mat4 upperArmMatrix = mat4(1.0f);
@@ -47,7 +48,8 @@ void EvanArm::draw(GLuint modelMatrixLocation, GLuint objectColorLocation,  GLui
 
     // Render it
     glBindVertexArray(this->upperArmVAO);
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 //    racket.draw(modelMatrixLocation, objectColorLocation, shaderProgram);
 }

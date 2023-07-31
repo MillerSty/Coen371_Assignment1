@@ -6,48 +6,45 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+
 // Dependency includes
 #define GLEW_STATIC 1   // This allows linking with Static Library on Windows, without DLL
 #include <GL/glew.h>    // Include GLEW - OpenGL Extension Wrangler
 #include <GLFW/glfw3.h> // GLFW provides a cross-platform interface for creating a graphical context,
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 // Source code includes
 #include "Arm.h"
 #include "Racket.h"
 #include "SceneObjects.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
 
 #include "Evan-models/EvanArm.h"
 #include "Evan-models/EvanRacket.h"
 
-
+// Set the shader paths
 const char* vertex = "../src/shaders/unifiedVertex.glsl";
 const char* fragment = "../src/shaders/unifiedFragment.glsl";
-const char* debugV = "../src/shaders/jonvertex.glsl";
-const char* debugF = "../src/shaders/jonfrag.glsl";
-//const char* textureV = "../src/shaders/textureVShader.glsl";
-//const char* textureF = "../src/shaders/textureFShader.glsl";
-//
-//const char* evanVertex = "../src/shaders/vertex.glsl";
-//const char* evanFragment = "../src/shaders/fragment.glsl";
 
+// Declare some functions for later use
 int compileAndLinkShaders(const char* vertex, const char* fragment);
 GLuint loadTexture(const char* filename);
 void GLAPIENTRY messageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
                                 const GLchar* message, const void* userParam);
 void setProjectionMatrix(int shaderProgram, glm::mat4 projectionMatrix);
 void setViewMatrix(int shaderProgram, glm::mat4 viewMatrix);
-
 void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos);
+//void windowSizeCallback(GLFWwindow* window, int width, int height);
+bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm::vec3>& temp_vertices,
+	          std::vector<glm::vec3>& out_normals, std::vector<glm::vec2>& out_uvs);
 
-bool loadOBJ2(
-	const char* path,
-	std::vector<int>& vertexIndices,
-	std::vector<glm::vec3>& temp_vertices,
-	std::vector<glm::vec3>& out_normals,
-	std::vector<glm::vec2>& out_uvs);
-
+/**
+Create a vertex array object for the grid
+@param vertexArray: A pointer to the vertex array to use
+@param arraySize: How many entries are in the vertex array
+@return The VAO
+*/
 int createVertexArrayObject(const glm::vec3* vertexArray, int arraySize)
 {    // Create a vertex array
 	GLuint vertexArrayObject;
@@ -60,7 +57,6 @@ int createVertexArrayObject(const glm::vec3* vertexArray, int arraySize)
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
 	glBufferData(GL_ARRAY_BUFFER, arraySize, vertexArray, GL_STATIC_DRAW);
 
-
 	glVertexAttribPointer(0,                   // attribute 0 matches aPos in Vertex Shader
 		3,                   // size
 		GL_FLOAT,            // type
@@ -70,84 +66,121 @@ int createVertexArrayObject(const glm::vec3* vertexArray, int arraySize)
 	);
 	glEnableVertexAttribArray(0);
 
-
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	return vertexArrayObject;
 }
 
-// Reverse winding order indices -> still needed for skybox
-std::vector<int>  reverseIndices = { //3*12 =36
-2 - 1,  1 - 1,3 - 1,
-4 - 1,  3 - 1,7 - 1,
-8 - 1,  7 - 1,5 - 1,
-6 - 1,  5 - 1,1 - 1,
-7 - 1,  3 - 1,1 - 1,
-4 - 1,  8 - 1,6 - 1,
-2 - 1,  3 - 1,4 - 1,
-4 - 1,  7 - 1,8 - 1,
-8 - 1,  5 - 1,6 - 1,
-6 - 1,  1 - 1,2 - 1,
-7 - 1,  1 - 1,5 - 1,
-4 - 1,  6 - 1 ,2 - 1
+/**
+A struct to contain the position, normal, and UV coordinates for a vertex
+*/
+struct TexturedNormaledVertex
+{
+	TexturedNormaledVertex(glm::vec3 _position, glm::vec3 _normals, glm::vec2 _uv) : position(_position), normals(_normals), uv(_uv) {}
+
+	glm::vec3 position;
+	glm::vec3 normals;
+	glm::vec2 uv;
 };
 
+// Textured Cube model
+TexturedNormaledVertex texturedCubeVertexArray[] = {
+	// LEFT
+	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(-1, 0, 0), glm::vec2(0.0f, 0.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f, 0.5f), glm::vec3(-1, 0, 0), glm::vec2(0.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(-1, 0, 0), glm::vec2(1.0f, 1.0f)),
 
-GLuint IBO;
-int createVertexArrayElementObject(const glm::vec3* vertexArray, int arraySize, const glm::vec3* NormalArray, int NormalArraySize, const glm::vec2* TextureArray, int TextureArraySize, unsigned int indices[], int indiceSize)
+	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(-1, 0, 0), glm::vec2(0.0f, 0.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(-1, 0, 0), glm::vec2(1.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f,-0.5f), glm::vec3(-1, 0, 0), glm::vec2(1.0f, 0.0f)),
+
+	// FAR
+	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f,-0.5f), glm::vec3(0, 0, -1), glm::vec2(1.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(0, 0, -1), glm::vec2(0.0f, 0.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f,-0.5f), glm::vec3(0, 0, -1), glm::vec2(0.0f, 1.0f)),
+
+	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f,-0.5f), glm::vec3(0, 0, -1), glm::vec2(1.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f,-0.5f), glm::vec3(0, 0, -1), glm::vec2(1.0f, 0.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(0, 0, -1), glm::vec2(0.0f, 0.0f)),
+
+	// BOTTOM
+	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(0, -1, 0), glm::vec2(1.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(0, -1, 0), glm::vec2(0.0f, 0.0f)),
+	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f,-0.5f), glm::vec3(0, -1, 0), glm::vec2(1.0f, 0.0f)),
+
+	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(0, -1, 0), glm::vec2(1.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f, 0.5f), glm::vec3(0, -1, 0), glm::vec2(0.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(0, -1, 0), glm::vec2(0.0f, 0.0f)),
+
+	// NEAR
+	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(0.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(0.0f, 0.0f)),
+	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(1.0f, 0.0f)),
+
+	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(1.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(0.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(1.0f, 0.0f)),
+
+	// RIGHT
+	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1, 0, 0), glm::vec2(1.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f,-0.5f), glm::vec3(1, 0, 0), glm::vec2(0.0f, 0.0f)),
+	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f,-0.5f), glm::vec3(1, 0, 0), glm::vec2(1.0f, 0.0f)),
+
+	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f,-0.5f), glm::vec3(1, 0, 0), glm::vec2(0.0f, 0.0f)),
+	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1, 0, 0), glm::vec2(1.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(1, 0, 0), glm::vec2(0.0f, 1.0f)),
+
+	// TOP
+	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0, 1, 0), glm::vec2(1.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f,-0.5f), glm::vec3(0, 1, 0), glm::vec2(1.0f, 0.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f,-0.5f), glm::vec3(0, 1, 0), glm::vec2(0.0f, 0.0f)),
+
+	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0, 1, 0), glm::vec2(1.0f, 1.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f,-0.5f), glm::vec3(0, 1, 0), glm::vec2(0.0f, 0.0f)),
+	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(0, 1, 0), glm::vec2(0.0f, 1.0f))
+};
+
+/**
+Create a vertex array object with positions, normals, and UVs
+@return The VAO
+*/
+int createVertexArrayObject2()
 {
-	// Create a vertex array
 	GLuint vertexArrayObject;
 	glGenVertexArrays(1, &vertexArrayObject);
 	glBindVertexArray(vertexArrayObject);
 
-	glGenBuffers(1, &IBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indiceSize * sizeof(unsigned int), indices, GL_STATIC_DRAW);
-
-	// Upload Vertex Buffer to the GPU, keep a reference to it (vertexBufferObject)
 	GLuint vertexBufferObject;
 	glGenBuffers(1, &vertexBufferObject);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-	//int check = arraySize;
-	glBufferData(GL_ARRAY_BUFFER, arraySize, vertexArray, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(texturedCubeVertexArray), texturedCubeVertexArray, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0,    // attribute 0 matches aPos in Vertex Shader
-		3,                      // size
-		GL_FLOAT,               // type
-		GL_FALSE,               // normalized?
-		1 * sizeof(glm::vec3),  // stride - each vertex contain 2 vec3 (position, color)
-		(void*)0                // array buffer offset
-	);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedNormaledVertex), (void*) 0);
 	glEnableVertexAttribArray(0);
 
-	//Normals VBO setup taken from lab
-	GLuint normals_VBO;
-	glGenBuffers(1, &normals_VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, normals_VBO);
-	glBufferData(GL_ARRAY_BUFFER, NormalArraySize, NormalArray, GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec3), (GLvoid*)0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedNormaledVertex), (void*) sizeof(glm::vec3));
 	glEnableVertexAttribArray(1);
 
-	//UVs VBO setup
-	GLuint uvs_VBO;
-	glGenBuffers(1, &uvs_VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, uvs_VBO);
-	glBufferData(GL_ARRAY_BUFFER, TextureArraySize, TextureArray, GL_STATIC_DRAW);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec3), (GLvoid*)0);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedNormaledVertex), (void*) (2 * sizeof(glm::vec3)));
 	glEnableVertexAttribArray(2);
-
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-
 	return vertexArrayObject;
 }
-int createVertexArrayElementObject2(std::vector<int> vertexIndices,
-	std::vector<glm::vec3> vertices,
-	std::vector<glm::vec3> normals,
-	std::vector<glm::vec2> UVs)
+
+GLuint IBO;
+
+/**
+Create a index buffer object for the sphere
+@param vertexIndices: The indices for the vertices of the sphere
+@param vertices: The vertices of the sphere
+@param normals: The normals of the sphere
+@UVs: The UVs of the sphere
+@return The IBO
+*/
+int createVertexArrayElementObject2(std::vector<int> vertexIndices, std::vector<glm::vec3> vertices, 
+	                                std::vector<glm::vec3> normals, std::vector<glm::vec2> UVs)
 {
 	// Create a vertex array
 	GLuint vertexArrayObject;
@@ -190,74 +223,53 @@ int createVertexArrayElementObject2(std::vector<int> vertexIndices,
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0 * sizeof(glm::vec3), (GLvoid*)0);
 	glEnableVertexAttribArray(2);
 
-
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
 	return vertexArrayObject;
 }
+
+// Set aspect ratio of the window
 const int WIDTH = 1024, HEIGHT = 768;
 
-// vec3 variables
+// Set/ declare some variables
 glm::vec3 eye(.7650f, .250f, .7650f);
 glm::vec3 center(.00f, .0f, 0.0f);
 glm::vec3 up(0.0f, 1.0f, 0.0f);
 glm::vec3 translateWSAD(0.0f, 0.0f, 0.0f);
 glm::vec3 Translate(.0f, .0f, .0f);
 glm::vec3 GroupMatrixScale(1.0f, 1.0f, 1.0f);
-
-// mat4 variables
 glm::mat4 groupMatrix;
 glm::mat4 rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-
 Arm arm;
 int renderAs = GL_TRIANGLES;
-
 int shaderProgram;
-
 double lastMousePosX, lastMousePosY, lastMousePosZ;
 float FOV = 70, AR = (float)(WIDTH / HEIGHT), near = .01, far = 50;
 float translateW = 0, translateY = 0, translateZ = 0;
-unsigned int quadVAO = 0;
-unsigned int quadVBO;
-void renderQuad()
-{
-	if (quadVAO == 0)
-	{
-		float quadVertices[] = {
-			// positions        // texture Coords
-			-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-			 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-			 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-		};
-		// setup plane VAO
-		glGenVertexArrays(1, &quadVAO);
-		glGenBuffers(1, &quadVBO);
-		glBindVertexArray(quadVAO);
-		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	}
-	glBindVertexArray(quadVAO);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	glBindVertexArray(0);
-}
+
+// Toggles for shadows and textures
+bool shouldApplyShadows = true;
+bool shouldApplyTextures = true;
+
 int main(int argc, char* argv[])
 {
 	// Initialize GLFW and OpenGL version
 	if (!glfwInit())
 		return -1;
 
+	// Scale down the unit cube vertices
+	for (size_t i = 0; i < 36; i++) {
+		TexturedNormaledVertex thisOne = texturedCubeVertexArray[i];
+		texturedCubeVertexArray[i].position *= 0.1f;
+	}
+
 	// Set some GLFW window hints
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 	glfwWindowHint(GLFW_DOUBLEBUFFER, GL_TRUE);
 
 	// Create Window and rendering context using GLFW, resolution is 800x600
@@ -271,8 +283,12 @@ int main(int argc, char* argv[])
 	glfwMakeContextCurrent(window);
 
 	glViewport(0, 0, WIDTH, HEIGHT);
+
+	// Enable depth test with the GL_LESS function
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
+
+	// Enable face culling with the GL_BACK function
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_BACK);
 
@@ -286,28 +302,31 @@ int main(int argc, char* argv[])
 
 	// Print OpenGL version
 	std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
-	// Load Textures
+
 #if defined(__APPLE__) // NOTE Rez: Youll need to path the textures
 #else
 	// Enable debug output
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(messageCallback, 0);
 #endif
+
+	// Load the textures
 	GLuint courtTextureID = loadTexture("../src/Assets/clay2.jpg");
 	GLuint ropeTextureID = loadTexture("../src/Assets/rope.jpg");
 	GLuint clothTextureID = loadTexture("../src/Assets/cloth.jpg");
 	GLuint metalTextureID = loadTexture("../src/Assets/metal.jpg");
 	GLuint grassTextureID = loadTexture("../src/Assets/grass4.jpg");
 	GLuint plasticTextureID = loadTexture("../src/Assets/plastic.jpg");
+	
 	// Black background	
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_FALSE);
+
 	// Set frame rate to refresh rate of monitor
 	glfwSwapInterval(1);
 	// Compile and link shaders here
-
 	shaderProgram = compileAndLinkShaders(vertex, fragment);
-	GLint debugProgram = compileAndLinkShaders(debugV, debugF);
+
 	// Initialize uniform locations
 	glUseProgram(shaderProgram);
 	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
@@ -318,52 +337,39 @@ int main(int argc, char* argv[])
     GLint applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
     GLint applyShadowsLocation = glGetUniformLocation(shaderProgram, "shouldApplyShadows");
 
-    glUniform1i(applyTexturesLocation, false);
-    glUniform1i(applyShadowsLocation,false);
-
     glUniform3fv(viewPositionLocation, 1, &eye[0]);
 
 	//Scene Jawn
 	SceneObjects SceneObj("scene");
 	SceneObj.InitGrid();
-	SceneObj.setTextures(courtTextureID, ropeTextureID, metalTextureID, clothTextureID,grassTextureID);
+	SceneObj.setTextures(courtTextureID, ropeTextureID, metalTextureID, clothTextureID, grassTextureID);
 	SceneObj.plasticTexture = plasticTextureID;
 	glfwGetCursorPos(window, &lastMousePosX, &lastMousePosY);
 	lastMousePosZ = lastMousePosY;
 
 	// Initialize projection and view matrices
-	glm::mat4 projectionMatrix = glm::perspective(FOV,  // field of view in degrees
-		AR,      // aspect ratio
-		near, far);       // near and far (near > 0)
+	glm::mat4 projectionMatrix = glm::perspective(FOV, AR, near, far);
 
 	glm::mat4 InitviewMatrix = glm::lookAt(eye, center, up);
 
 	setProjectionMatrix(shaderProgram, projectionMatrix);
 	setViewMatrix(shaderProgram, InitviewMatrix);
 
-    std::vector<int> vertexIndicescube, vertexIndicessphere;
-	std::vector<glm::vec3> verticescube, verticessphere, normalscube, normalssphere;
+    std::vector<int> vertexIndicessphere;
+	std::vector<glm::vec3> verticessphere, normalssphere;
 	std::vector<glm::vec2> UVscube, UVssphere;
-	std::string pathCube = "../src/Assets/mesh/unitCube.obj";	
 	std::string pathSphere = "../src/Assets/mesh/unitSphere.obj";
-	loadOBJ2(pathCube.c_str(), vertexIndicescube, verticescube, normalscube, UVscube);
 	loadOBJ2(pathSphere.c_str(), vertexIndicessphere, verticessphere, normalssphere, UVssphere);
   
-	for (int i = 0; i < verticescube.size(); i++) {
-		verticescube[i] = verticescube[i] * .05f;
-	}
-	for (int i = 0; i < normalscube.size(); i++) {
-		normalscube[i] = normalscube[i] * .05f;
-	}
+	// Scale the vertex positions of the sphere
 	for (int i = 0; i < verticessphere.size(); i++) {
 		verticessphere[i] = verticessphere[i] * .05f;
 	}
 	
+	// Create VAOs
 	int gridAO = createVertexArrayObject(SceneObj.lineArray, sizeof(SceneObj.lineArray));
-	int unitCubeAO = createVertexArrayElementObject2(vertexIndicescube, verticescube, normalscube, UVscube);
 	int unitSphereAO = createVertexArrayElementObject2(vertexIndicessphere, verticessphere, normalssphere, UVssphere);
-	
-	int reverseCubeAO = createVertexArrayElementObject2(reverseIndices, verticescube, normalscube , UVscube);
+	int unitCubeAO = createVertexArrayObject2();
 
 	arm.setVAO(unitCubeAO);
 
@@ -378,13 +384,14 @@ int main(int argc, char* argv[])
 	// Set mouse and keyboard callbacks
 	glfwSetKeyCallback(window, keyPressCallback);
 	glfwSetCursorPosCallback(window, mouseCursorPostionCallback);
+	//glfwSetWindowSizeCallback(window, windowSizeCallback);
 
-//	vec3 modelScale = vec3(0.03, 0.03, 0.03);
-    vec3 modelScale = vec3(0.25, 0.25, 0.25);
-    EvanRacket evanRacket(vec3(0.2f, 0.0f, 0.0f), modelScale,
+    // vec3 modelScale = vec3(0.03, 0.03, 0.03);
+	glm::vec3 modelScale(0.25, 0.25, 0.25);
+    EvanRacket evanRacket(glm::vec3(0.2f, 0.0f, 0.0f), modelScale,
                           unitCubeAO,unitCubeAO,unitCubeAO,
                           unitCubeAO,unitCubeAO, unitCubeAO );
-	EvanArm evanArm(vec3(0.2f, 0.0f, 0.0f), modelScale, unitCubeAO,
+	EvanArm evanArm(glm::vec3(0.2f, 0.0f, 0.0f), modelScale, unitCubeAO,
                     unitCubeAO, evanRacket );
 
     // Lighting
@@ -406,26 +413,28 @@ int main(int argc, char* argv[])
 
     GLint lightColorLoc = glGetUniformLocation( shaderProgram, "lightColor");
 
-    glUniform3fv(lightColorLoc, 1, value_ptr(vec3(1.0f, 1.0f, 1.0f)));
+    glUniform3fv(lightColorLoc, 1, glm::value_ptr(vec3(1.0f, 1.0f, 1.0f)));
 
     // light parameters
-    vec3 lightPosition =  vec3(0.0, 10.0f, 0.0f); // the location of the light in 3D space
-    vec3 lightFocus(-.0f, -.0f, -.50f);      // the point in 3D space the light "looks" at
-    vec3 lightDirection = normalize(lightFocus - lightPosition);
+    glm::vec3 lightPosition(-1.0, 30.0f, 0.0f); // the location of the light in 3D space
+	glm::vec3 lightFocus(0.0, 0.0, -1.0);      // the point in 3D space the light "looks" at
+	glm::vec3 lightDirection = glm::normalize(lightFocus - lightPosition);
 
     float lightNearPlane = 0.001f;
     float lightFarPlane = 10.0f;
 
-    mat4 lightProjectionMatrix = ortho(-.90f, .90f, -.90f, .90f, lightNearPlane, lightFarPlane);
-    mat4 lightViewMatrix = lookAt(lightPosition, lightFocus, vec3(0.0f, 1.0f, 0.0f));
-    mat4 lightSpaceMatrix = lightProjectionMatrix * lightViewMatrix;
-// Set light space matrix on both shaders
+	glm::mat4 lightProjectionMatrix = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, lightNearPlane, lightFarPlane);
+	glm::mat4 lightViewMatrix = glm::lookAt(lightPosition, lightFocus, glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 lightSpaceMatrix = lightProjectionMatrix * lightViewMatrix;
+
+	// Get lighting-related uniform locations
     GLint lightViewProjMatrixLoc = glGetUniformLocation( shaderProgram, "lightViewProjMatrix");
     GLint lightNearPlaneLoc = glGetUniformLocation( shaderProgram, "lightNearPlane");
     GLint lightFarPlaneLoc = glGetUniformLocation( shaderProgram, "lightFarPlane");
     GLint lightPositionLoc = glGetUniformLocation( shaderProgram, "lightPosition");
     GLint lightDirectionLoc = glGetUniformLocation( shaderProgram, "lightDirection");
 
+	// Set light view projection matrix
     glUniformMatrix4fv(lightViewProjMatrixLoc, 1, GL_FALSE, &lightSpaceMatrix[0][0]);
 
     // Set light far and near planes on scene shader
@@ -438,84 +447,29 @@ int main(int argc, char* argv[])
     // Set light direction on scene shader
     glUniform3fv(lightDirectionLoc, 1, &lightDirection[0]);
 
-    // Dimensions of the shadow texture, which should cover the viewport window size and shouldn't be oversized and waste resources
+    // Dimensions of the shadow texture, which should cover the viewport window size and shouldn't be over-sized and waste resources
     const unsigned int DEPTH_MAP_TEXTURE_SIZE = 1024;
-	GLuint depth_map_fbo;  // fbo: framebuffer object
-	// Get the framebuffer
-	glGenFramebuffers(1, &depth_map_fbo);
-	// Bind the framebuffer so the next glFramebuffer calls affect it
-	glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
-    // Variable storing index to texture used for shadow mapping
+
+    // Make shadow map
     GLuint depth_map_texture;
-    // Get the texture
     glGenTextures(1, &depth_map_texture);
-	assert(depth_map_texture != 0);
-	
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	// 
-	glEnable(GL_FRONT);
-    // Bind the texture so the next glTex calls affect it
-    glBindTexture(GL_TEXTURE_2D, depth_map_texture);
-    // Create the texture and specify it's attributes, including widthn height, components (only depth is stored, no color information)
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT,
-                 NULL);
-    // Set texture sampler parameters.
-    // The two calls below tell the texture sampler inside the shader how to upsample and downsample the texture. Here we choose the nearest filtering option, which means we just use the value of the closest pixel to the chosen image coordinate.
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glBindTexture(GL_TEXTURE_2D, depth_map_texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // COMPARISON_MIN_MAG_MIP_LINEAR
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // The two calls below tell the texture sampler inside the shader how it should deal with texture coordinates outside of the [0, 1] range. Here we decide to just tile the image.
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	
-    // Variable storing index to framebuffer used for shadow mapping
-  	
-    // Attach the depth map texture to the depth map framebuffer
-    //glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, depth_map_texture, 0);
+    GLuint depth_map_fbo; 
+    glGenFramebuffers(1, &depth_map_fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_map_texture, 0);
 	glReadBuffer(GL_NONE);
-	glDrawBuffer(GL_NONE); //disable rendering colors, only write depth values
-    //NOTE we have issues when doing mouse jawn with current set up
+	glDrawBuffer(GL_NONE);
 	glBindTexture(GL_TEXTURE_2D, 0);
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	
-
-	////JON FBO
-	//const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
-	//unsigned int depthMapFBO;
-	//glGenFramebuffers(1, &depthMapFBO);
-	//// create depth texture
-	//unsigned int depthMap;
-	//glGenTextures(1, &depthMap);
-	//glBindTexture(GL_TEXTURE_2D, depthMap);
-	//glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	//// attach depth texture as FBO's depth buffer
-	//glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
-	//glDrawBuffer(GL_NONE);
-	//glReadBuffer(GL_NONE);
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	GLuint tdepthMap = glGetUniformLocation(debugProgram, "depthMap");
-	glUniform1i(tdepthMap, 0);
-
-	//GLuint jdepthMap = glGetUniformLocation(shaderProgram, "textureSampler");
-	//glUniform1i(jdepthMap, 0);
 	GLuint kdepthMap = glGetUniformLocation(shaderProgram, "shadowMap");
 	glUniform1i(kdepthMap, 2);
-	//glBindSampler(GL_TEXTURE0+4 , kdepthMap);
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-		printf("**********On Framebuffer\n");
-	}
+    //NOTE we have issues when doing mouse jawn with current set up
 
-	glEnable(GL_BACK);
-	bool debug = false;
 	while (!glfwWindowShouldClose(window))
 	{
 		
@@ -527,100 +481,83 @@ int main(int argc, char* argv[])
 		//	// Calculate aspect ratio
 		//	AR = (float)*newWidth / (float)*newHeight; //note unsure if this will cause issues
 
+		// Calculate aspect ratio
+		AR = (float)*newWidth / (float)*newHeight; //note unsure if this will cause issues
+
+		// Set initial group matrix
 		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) *
-			glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
-			rotationMatrixW;       
-		
-		// 1st pass
-     {	
-         glUniform1i(applyTexturesLocation, false);
-         glUniform1i(applyShadowsLocation, true );
-	 
-		//glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &groupMatrix[0][0]);
-         // Use proper image output size
-         glViewport(0, 0, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE);
-		 glClear(GL_DEPTH_BUFFER_BIT);
-         // Bind depth map texture as output framebuffer
-         glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo); 
-	 
-         // Draw geometry
-		 arm.SetAttr(groupMatrix, renderAs, shaderProgram);
-		 arm.DrawArm();
-		 racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
-		 racket.Draw();
-	 
-//         evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
-	 
-         SceneObj.sphereVao = unitSphereAO;
-         SceneObj.sphereVertCount = vertexIndicessphere.size();
-         SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
-         SceneObj.SetVAO(unitCubeAO, reverseCubeAO, gridAO);
-         SceneObj.DrawScene();
-		 if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-			 printf( "***********No Framebuffer\n");
-		 }
-     }
-	 {//reset
-		 int width, height;
-         glfwGetFramebufferSize(window, &width, &height);
-         glViewport(0, 0, width, height);
-		 glBindFramebuffer(GL_FRAMEBUFFER,0);
-		 if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-			 printf("*************Noas Framebuffer\n");
-		 }
-		 glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
-         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	 }
+			          glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
+			          rotationMatrixW;
 
-   
-     {	  // 2nd pass
-          glUniform1i(applyTexturesLocation, false);
-         glUniform1i(applyShadowsLocation, false);
-       
-        // Draw geometry
-		glActiveTexture(GL_TEXTURE0+2);
-		glBindTexture(GL_TEXTURE_2D, depth_map_texture);
-		//glBindTextureUnit(GL_TEXTURE_2D, depth_map_texture);
-		//glBindSampler(4, kdepthMap);
-        arm.SetAttr(groupMatrix, renderAs, shaderProgram);
-        arm.DrawArm();
-        racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
-        racket.Draw();
-//       evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
-	
-         SceneObj.sphereVao = unitSphereAO;
-         SceneObj.sphereVertCount = vertexIndicessphere.size();
-         SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
-         SceneObj.SetVAO(unitCubeAO, reverseCubeAO, gridAO);
-         SceneObj.DrawScene();
-		 glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		 
-		if (debug ) {
-		 GLuint nearPlane = glGetUniformLocation(debugProgram, "near_plane");
-		 GLuint farPlane = glGetUniformLocation(debugProgram, "far_plane");			 
-		 glUniform1f(nearPlane, 1.0f);
-		 glUniform1f(farPlane, 7.5f);
-		glUseProgram(debugProgram);
-		glBindVertexArray(unitCubeAO);
-		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &groupMatrix[0][0]);
-		//glActiveTexture(GL_TEXTURE0+6);
-		//glBindTexture(GL_TEXTURE_2D, depth_map_texture);
-		glBindTextureUnit(GL_TEXTURE0, depth_map_texture);
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-		
-		glBindVertexArray(0);
-		 glActiveTexture(GL_TEXTURE0);
-		 glBindTexture(GL_TEXTURE_2D, depth_map_texture);
-		 renderQuad();
-		}
+		// Must draw scene in 2 passes: once for shadows, and another normally
+        // 1st pass
+        {
+            glUniform1i(applyTexturesLocation, false);
+            glUniform1i(applyShadowsLocation, shouldApplyShadows);
+            // Use proper image output size
+            glViewport(0, 0, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE);
+            // Bind depth map texture as output frame buffer
+            glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
+            // Clear depth data on the frame buffer
+            glClear(GL_DEPTH_BUFFER_BIT);
 
+            // Draw geometry
+            arm.SetAttr(groupMatrix, renderAs, shaderProgram);
+            arm.setTranslation(Translate, translateWSAD);
+            arm.DrawArm();
+            racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
+            racket.Draw();
 
-     }
+            evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
+			//evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
 
+            SceneObj.sphereVao = unitSphereAO;
+            SceneObj.sphereVertCount = vertexIndicessphere.size();
+            SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
+            SceneObj.SetVAO(unitCubeAO, gridAO);
+            SceneObj.DrawScene(false);  // Draw scene without the skybox, so it can't be used to make shadows on the scene
+
+            // Unbind geometry
+            glBindVertexArray(0);
+        }
+
+        // 2nd pass
+        {
+            glUniform1i(applyTexturesLocation, shouldApplyTextures);
+            glUniform1i(applyShadowsLocation, false);
+            // Use proper image output size
+            // Side note: we get the size from the frame buffer instead of using WIDTH and HEIGHT because of a bug with highDPI displays
+            int width, height;
+            glfwGetFramebufferSize(window, &width, &height);
+            glViewport(0, 0, width, height);
+            // Bind screen as output frame buffer
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            // Clear color and depth data on frame buffer
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glActiveTexture(GL_TEXTURE0 + 2);
+			glBindTexture(GL_TEXTURE_2D, depth_map_texture);
+           
+			// Draw geometry
+            arm.SetAttr(groupMatrix, renderAs, shaderProgram);
+            arm.setTranslation(Translate, translateWSAD);
+            arm.DrawArm();
+            racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
+            racket.Draw();
+
+            evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
+			evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
+
+            SceneObj.sphereVao = unitSphereAO;
+            SceneObj.sphereVertCount = vertexIndicessphere.size();
+            SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
+            SceneObj.SetVAO(unitCubeAO, gridAO);
+            SceneObj.DrawScene(true);  // Draw scene with the skybox
+
+			// Unbind geometry
+            glBindVertexArray(0);
+        }
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-
 	}
 
 	// Shutdown GLFW
@@ -709,7 +646,11 @@ void GLAPIENTRY messageCallback(GLenum source, GLenum type, GLuint id, GLenum se
 		<< " type = 0x" << type << ", severity = 0x" << severity << ", message = " << message << std::endl;
 }
 
-// loadTexture from lab04
+/**
+loadTexture from lab04
+@param filename: The file name to load the texture from
+@return The texture ID
+*/
 GLuint loadTexture(const char* filename)
 {
 	// Step1 Create and bind textures
@@ -741,14 +682,15 @@ GLuint loadTexture(const char* filename)
 		format = GL_RGB;
 	else if (nrChannels == 4)
 		format = GL_RGBA;
-	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height,
-		0, format, GL_UNSIGNED_BYTE, data);
+	
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 
 	// Step5 Free resources
 	stbi_image_free(data);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	return textureId;
 }
+
 //from lab 04
 void setProjectionMatrix(int shaderProgram, glm::mat4 projectionMatrix)
 {
@@ -786,6 +728,8 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	int state_P = glfwGetKey(window, GLFW_KEY_P);
 	int state_L = glfwGetKey(window, GLFW_KEY_L);
 	int state_T = glfwGetKey(window, GLFW_KEY_T);
+	int state_B = glfwGetKey(window, GLFW_KEY_B);
+	int state_X = glfwGetKey(window, GLFW_KEY_X);
 
 	// If ESC is pressed, window should closed
 	if (state_ESC == GLFW_PRESS)
@@ -870,6 +814,14 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		setProjectionMatrix(shaderProgram, projectionMatrix);
 		setViewMatrix(shaderProgram, InitviewMatrix);
 	}
+
+	// If b is pressed, toggle shadows
+	else if (state_B == GLFW_PRESS)
+		shouldApplyShadows = !shouldApplyShadows;
+
+	// If x is pressed, toggle textures
+	else if (state_X == GLFW_PRESS)
+		shouldApplyTextures = !shouldApplyTextures;
 }
 
 /**
@@ -926,12 +878,14 @@ void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos)
 	}
 }
 
-bool loadOBJ2(
-	const char* path,
-	std::vector<int>& vertexIndices,
-	std::vector<glm::vec3>& out_vertices,
-	std::vector<glm::vec3>& out_normals,
-	std::vector<glm::vec2>& out_uvs) {
+//void windowSizeCallback(GLFWwindow* window, int width, int height)
+//{
+//	glfwSetWindowSize(window, width, height);
+//}
+
+bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm::vec3>& temp_vertices,
+	          std::vector<glm::vec3>& out_normals, std::vector<glm::vec2>& out_uvs)
+{
 
 	std::vector<int> uvIndices, normalIndices;
 	std::vector<glm::vec2> temp_uvs;
