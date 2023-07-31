@@ -68,7 +68,7 @@ void SceneObjects::DrawScene(bool drawSkyBox) {
 	//if (!check) printf("Draw DrawGrid failed");
 	check = DrawCoord();
 	if (!check) printf("Draw DrawCoord failed");
-	check = DrawBall();
+	//check = DrawBall();
 	if (!check) printf("Draw DrawBall failed");
 }
 
@@ -86,6 +86,7 @@ bool SceneObjects::DrawBall() {
 	//partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, .0f, 1.0f));
 	//
 	//partMatrix = partScale * partRo;
+
 	glm::mat4 worldMatrix = groupMatrix * ballParent;
 
 	glBindVertexArray(sphereVao);
@@ -98,11 +99,21 @@ bool SceneObjects::DrawBall() {
 }
 
 bool SceneObjects::DrawCourt() {
+	// Lighting
+	GLint shadingAmbientStrength = glGetUniformLocation(shaderProgram, "shadingAmbientStrength");
+	GLint shadingDiffuseStrength = glGetUniformLocation(shaderProgram, "shadingDiffuseStrength");
+	GLint shadingSpecularStrength = glGetUniformLocation(shaderProgram, "shadingSpecularStrength");
+	float specular, diffuse, ambient;
+	glUniform1f(shadingAmbientStrength, 1.0f);
+	glUniform1f(shadingDiffuseStrength,.09f);
+	glUniform1f(shadingSpecularStrength, .20f);
 	//set as textureshader and bind texture
-	glActiveTexture(GL_TEXTURE0);
-	GLuint textureLocation = glGetUniformLocation(shaderProgram, "textureSampler");
-	glBindTexture(GL_TEXTURE_2D, courtTexture);
-	glUniform1i(textureLocation, 0);
+	
+		//glActiveTexture(GL_TEXTURE0);
+		//GLuint textureLocation = glGetUniformLocation(shaderProgram, "textureSampler");
+		//glBindTexture(GL_TEXTURE_2D, courtTexture);
+		//glUniform1i(textureLocation, 0);
+
 
 
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
@@ -146,9 +157,15 @@ bool SceneObjects::DrawCourt() {
 }
 
 bool SceneObjects::DrawNet() {
-
+	GLint shadingAmbientStrength = glGetUniformLocation(shaderProgram, "shadingAmbientStrength");
+	GLint shadingDiffuseStrength = glGetUniformLocation(shaderProgram, "shadingDiffuseStrength");
+	GLint shadingSpecularStrength = glGetUniformLocation(shaderProgram, "shadingSpecularStrength");
+	float specular, diffuse, ambient;
+	glUniform1f(shadingAmbientStrength, 1.0f);
+	glUniform1f(shadingDiffuseStrength, 1.0f);
+	glUniform1f(shadingSpecularStrength, .90f);
 	//bind texture Metal
-	glBindTexture(GL_TEXTURE_2D, metalTexture);
+	//glBindTexture(GL_TEXTURE_2D, metalTexture);
 
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
 	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
@@ -191,8 +208,10 @@ bool SceneObjects::DrawNet() {
 
 	// Strings of net
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));  // Set net colour
-	glBindTexture(GL_TEXTURE_2D, ropeTexture); //Bind texture Ropes
-
+	//glBindTexture(GL_TEXTURE_2D, ropeTexture); //Bind texture Ropes
+	glUniform1f(shadingAmbientStrength, 1.0f);
+	glUniform1f(shadingDiffuseStrength, .50f);
+	glUniform1f(shadingSpecularStrength, .10f);
 	// Loop to draw net. i is our translation offset
 	for (float i = .0; i <= .07f; i += .01) {
 		partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.03f, .03f, 7.0f));  // Scale to beautiful net dimensions
@@ -219,7 +238,7 @@ bool SceneObjects::DrawNet() {
 	}
 
 	// Top bar of the net
-	glBindTexture(GL_TEXTURE_2D, clothTexture); //bind top cloth of net
+	//glBindTexture(GL_TEXTURE_2D, clothTexture); //bind top cloth of net
 	//glUniform1i(textureLocation, 0);
 
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.00f, 1.0f, 1.0f)));
@@ -238,7 +257,7 @@ bool SceneObjects::DrawNet() {
 }
 
 bool SceneObjects::DrawSkyBox() {
-	glBindTexture(GL_TEXTURE_2D, plasticTexture);
+	//glBindTexture(GL_TEXTURE_2D, plasticTexture);
 	//glUseProgram(shaderProgram);
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
 	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
@@ -272,8 +291,7 @@ bool SceneObjects::DrawGrid() {
 	glUseProgram(shaderProgram);
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
 	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
-	//glm::mat4 grid = glm::scale(groupMatrix, glm::vec3(1.0f, 1.0f, 1.0f)); probably uneeded
-	//glm::mat4 gridWorld =groupMatrix ;
+
 
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.61, 0.610, 0.610)));
 	glBindVertexArray(gridVao);

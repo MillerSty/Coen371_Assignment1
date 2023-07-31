@@ -3,11 +3,15 @@
 in vec2 vertexUV;
 out vec3 FragColor;
 
+
+
 uniform vec3 objectColor;
-uniform sampler2D textureSampler;
+ uniform sampler2D textureSampler;
+ uniform sampler2D shadowMap;
 
 uniform bool shouldApplyTexture;
 uniform bool shouldApplyShadows;
+
 
 const float PI = 3.1415926535897932384626433832795;
 
@@ -23,14 +27,12 @@ uniform float lightCutoffOuter;
 uniform float lightCutoffInner;
 
 uniform vec3 viewPosition;
-
-in vec4 gl_FragCoord;
-
-uniform sampler2D shadowMap;
-
-in vec3 fragmentPosition;
-in vec4 fragmentPositionLightSpace;
-in vec3 fragmentNormal;
+ in vec2 vertexUV;
+ in vec3 fragmentNormal;
+ in vec3 fragmentPosition;
+ in vec4 fragmentPositionLightSpace;
+ in vec3 Normal;
+ out vec4 FragColor;
 
 vec3 ambientColor() {
     return objectColor * shadingAmbientStrength;
@@ -59,11 +61,13 @@ float shadowScalar() {
 float spotlightScalar() {
     float theta = dot(normalize(fragmentPosition - lightPosition), lightDirection);
 
-    if(theta > lightCutoffInner) {
+    if (theta > lightCutoffInner) {
         return 1.0;
-    } else if(theta > lightCutoffOuter) {
+    }
+    else if (theta > lightCutoffOuter) {
         return (1.0 - cos(PI * (theta - lightCutoffOuter) / (lightCutoffInner - lightCutoffOuter))) / 2.0;
-    } else {
+    }
+    else {
         return 0.0;
     }
 }
