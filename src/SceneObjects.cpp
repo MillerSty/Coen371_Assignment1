@@ -63,13 +63,14 @@ void SceneObjects::DrawScene(bool drawSkyBox) {
 	{
 		check = DrawSkyBox();
 		if (!check) printf("Draw DrawSkyBox failed");
-	}
-	//check = DrawGrid();
-	//if (!check) printf("Draw DrawGrid failed");
+		check = DrawGrid();
+		if (!check) printf("Draw DrawGrid failed");
+		check = DrawBall();
+		if (!check) printf("Draw DrawBall failed");
+	}	
 	check = DrawCoord();
 	if (!check) printf("Draw DrawCoord failed");
-	check = DrawBall();
-	if (!check) printf("Draw DrawBall failed");
+	
 }
 
 bool SceneObjects::DrawBall() {
@@ -336,5 +337,29 @@ bool SceneObjects::DrawCoord() {
 
 	glBindVertexArray(0); // Unbind unit cube VAO
 
+	return true;
+}
+
+bool SceneObjects::DrawLight(glm::vec3 position,glm::vec3 rotation,float i) {
+	//glBindTexture(GL_TEXTURE_2D, plasticTexture);
+	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
+	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
+
+	glm::mat4 partTranslate = glm::translate(glm::mat4(1.0f), position);
+	// Unused but usable
+	glm::mat4 partRo = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), rotation);
+
+	glm::mat4 partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.50f, .5f, .50f));
+	glm::mat4 partMatrix = partTranslate * partScale* partRo;  // Part matrix for sky box
+	glm::mat4 worldMatrix = groupMatrix * partMatrix;  // World matrix for sky box
+
+	// Bind the vertex array object to be the cube VAO with reverse winding order
+	glBindVertexArray(cubeVao);
+	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.00f, 1.0f, 1.0f))); // Sky box colour
+	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]); // Send to shader
+	glDisable(GL_CULL_FACE);
+	glDrawArrays(renderAs, 0, 36);
+	glEnable(GL_CULL_FACE);
+	glBindVertexArray(0); // Unbind vertex array object
 	return true;
 }

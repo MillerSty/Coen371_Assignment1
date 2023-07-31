@@ -82,7 +82,32 @@ struct TexturedNormaledVertex
 	glm::vec3 normals;
 	glm::vec2 uv;
 };
+void updateLight(glm::vec3 newPosition,glm::vec3 newFocus,SceneObjects SceneObj,GLuint shaderProgram,float i,bool applyShadow) {
+	// light parameters
+	glm::vec3 lightPosition(-.30f, .30f, .0f); // the location of the light in 3D space
+	glm::vec3 lightFocus(0.0, 0.0, -1.0);      // the point in 3D space the light "looks" at
+	glm::vec3 lightDirection = glm::normalize(newFocus - newPosition);
 
+	GLint lightPositionLoc = glGetUniformLocation(shaderProgram, "lightPosition");
+	GLint lightDirectionLoc = glGetUniformLocation(shaderProgram, "lightDirection");
+	GLint lightViewProjMatrixLoc = glGetUniformLocation(shaderProgram, "lightViewProjMatrix");
+
+	// Set light position on scene shader
+	glUniform3fv(lightPositionLoc, 1, &newPosition[0]);
+
+	// Set light direction on scene shader
+	glUniform3fv(lightDirectionLoc, 1, &lightDirection[0]);
+	float lightNearPlane = 0.1f;
+	float lightFarPlane = 180.0f;
+
+	glm::mat4 lightProjectionMatrix = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, lightNearPlane, lightFarPlane);
+	glm::mat4 lightViewMatrix = glm::lookAt(newPosition, newFocus, glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 lightSpaceMatrix = lightProjectionMatrix * lightViewMatrix;
+	glUniformMatrix4fv(lightViewProjMatrixLoc, 1, GL_FALSE, &lightSpaceMatrix[0][0]);
+	if (!applyShadow) {
+		SceneObj.DrawLight(newPosition, glm::vec3(0.0f, 1.0f, 0.0f), i);
+	}
+}
 // Textured Cube model
 TexturedNormaledVertex texturedCubeVertexArray[] = {
 	// LEFT
@@ -387,9 +412,9 @@ int main(int argc, char* argv[])
 	glfwSetCursorPosCallback(window, mouseCursorPostionCallback);
 	//glfwSetWindowSizeCallback(window, windowSizeCallback);
 
-    // vec3 modelScale = vec3(0.03, 0.03, 0.03);
+     vec3 modelScaley = vec3(0.03, 0.03, 0.03);
 	glm::vec3 modelScale(0.25, 0.25, 0.25);
-    EvanRacket evanRacket(glm::vec3(0.2f, 0.0f, 0.0f), modelScale,
+    EvanRacket evanRacket(glm::vec3(0.2f, 0.0f, 0.0f), modelScaley,
                           unitCubeAO,unitCubeAO,unitCubeAO,
                           unitCubeAO,unitCubeAO, unitCubeAO );
 	EvanArm evanArm(glm::vec3(0.2f, 0.0f, 0.0f), modelScale, unitCubeAO,
@@ -409,14 +434,14 @@ int main(int argc, char* argv[])
     glUniform3fv(lightColorLoc, 1, glm::value_ptr(vec3(1.0f, 1.0f, 1.0f)));
 
     // light parameters
-    glm::vec3 lightPosition(-1.0, 30.0f, 0.0f); // the location of the light in 3D space
+    glm::vec3 lightPosition(-.30f, .30f, .0f); // the location of the light in 3D space
 	glm::vec3 lightFocus(0.0, 0.0, -1.0);      // the point in 3D space the light "looks" at
 	glm::vec3 lightDirection = glm::normalize(lightFocus - lightPosition);
 
     float lightNearPlane = 0.1f;
     float lightFarPlane = 180.0f;
 
-	glm::mat4 lightProjectionMatrix = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, lightNearPlane, lightFarPlane);
+	glm::mat4 lightProjectionMatrix = glm::ortho(-.7f, .70f, -.70f, .70f, lightNearPlane, lightFarPlane);
 	glm::mat4 lightViewMatrix = glm::lookAt(lightPosition, lightFocus, glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 lightSpaceMatrix = lightProjectionMatrix * lightViewMatrix;
 
@@ -434,6 +459,9 @@ int main(int argc, char* argv[])
     glUniform1f(lightNearPlaneLoc, lightNearPlane);
     glUniform1f(lightFarPlaneLoc, lightFarPlane);
 
+
+
+
     // Set light position on scene shader
     glUniform3fv(lightPositionLoc, 1, &lightPosition[0]);
 
@@ -443,45 +471,61 @@ int main(int argc, char* argv[])
     // Dimensions of the shadow texture, which should cover the viewport window size and shouldn't be over-sized and waste resources
     const unsigned int DEPTH_MAP_TEXTURE_SIZE = 1024;
 
+	GLuint depth_map_fbo;
+	glGenFramebuffers(1, &depth_map_fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
     // Make shadow map
-    GLuint depth_map_texture;
-    glGenTextures(1, &depth_map_texture);
+	GLuint depth_map_texture;
+	glGenTextures(1, &depth_map_texture);
 	glBindTexture(GL_TEXTURE_2D, depth_map_texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    GLuint depth_map_fbo; 
-    glGenFramebuffers(1, &depth_map_fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_map_texture, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_NEAREST);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depth_map_texture, 0);
+
+
+
+	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_map_texture, 0);
 	glReadBuffer(GL_NONE);
 	glDrawBuffer(GL_NONE);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	//glBindTexture(GL_TEXTURE_2D, 0);
 	GLuint kdepthMap = glGetUniformLocation(shaderProgram, "shadowMap");
 	glUniform1i(kdepthMap, 2);
     //NOTE we have issues when doing mouse jawn with current set up
-
+	float i = -1;
 	while (!glfwWindowShouldClose(window))
 	{
-
-		// Set initial group matrix
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
 		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) *
-			          glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
-			          rotationMatrixW;
+			glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
+			rotationMatrixW;
 
+		float lightDepth = 1.0f; //we can do 30, but it works better lower because the scale?
+		bool noshowLightBox = true; 
+		float x = sin(i);
+		float z = cos(i);
+		i += .02;
 		// Must draw scene in 2 passes: once for shadows, and another normally
         // 1st pass
         {
             glUniform1i(applyTexturesLocation, false);
             glUniform1i(applyShadowsLocation, shouldApplyShadows);
-            // Use proper image output size
-            glViewport(0, 0, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE);
             // Bind depth map texture as output frame buffer
             glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
+			// Use proper image output size
+			glViewport(0, 0, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE);
             // Clear depth data on the frame buffer
             glClear(GL_DEPTH_BUFFER_BIT);
+			
+			//Note .8 != 30 for the height so that we can visually see the affects of rotating
+			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i,true);
+			if (i == 1.0f) i = -1.0f;
 
             // Draw geometry
             arm.SetAttr(groupMatrix, renderAs, shaderProgram);
@@ -498,21 +542,16 @@ int main(int argc, char* argv[])
             SceneObj.SetVAO(unitCubeAO, gridAO);
             SceneObj.DrawScene(false);  // Draw scene without the skybox, so it can't be used to make shadows on the scene
 
-            // Unbind geometry
-            glBindVertexArray(0);
-        }
-
-        // 2nd pass
-        {
-            glUniform1i(applyTexturesLocation, shouldApplyTextures);
-            glUniform1i(applyShadowsLocation, false);
-            // Use proper image output size
-            // Side note: we get the size from the frame buffer instead of using WIDTH and HEIGHT because of a bug with highDPI displays
-            int width, height;
-            glfwGetFramebufferSize(window, &width, &height);
-            glViewport(0, 0, width, height);
-            // Bind screen as output frame buffer
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        }		
+		{ // 2nd pass  
+			//reset 
+			glUniform1i(applyTexturesLocation, shouldApplyTextures);
+			glUniform1i(applyShadowsLocation, false);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			int width, height;
+			glfwGetFramebufferSize(window, &width, &height);
+			glViewport(0, 0, width, height);
+           
             // Clear color and depth data on frame buffer
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glActiveTexture(GL_TEXTURE0 + 2);
@@ -526,19 +565,20 @@ int main(int argc, char* argv[])
 
             evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
 			evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
-
+			
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
             SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
             SceneObj.SetVAO(unitCubeAO, gridAO);
             SceneObj.DrawScene(true);  // Draw scene with the skybox
 
-			// Unbind geometry
-            glBindVertexArray(0);
-        }
+			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noshowLightBox);
+        }		
+		
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+
 
 	// Shutdown GLFW
 	glfwTerminate();

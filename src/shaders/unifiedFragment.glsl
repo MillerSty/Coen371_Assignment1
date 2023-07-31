@@ -15,7 +15,7 @@ uniform vec3 lightColor;
 uniform vec3 lightPosition;
 uniform vec3 lightDirection;
 
-const float shadingAmbientStrength = 0.4;
+const float shadingAmbientStrength = 0.5;
 const float shadingDiffuseStrength = 0.6;
 const float shadingSpecularStrength = 0.6;
 
@@ -37,8 +37,8 @@ vec3 ambientColor() {
 }
 
 vec3 diffuseColor() {
-    vec3 lightDirection = normalize(lightPosition - fragmentPosition);
-    return shadingDiffuseStrength * objectColor * lightColor * max(dot(normalize(fragmentNormal), lightDirection), 0.0f);
+    vec3 lightDirectiony = normalize(lightPosition - fragmentPosition);
+    return shadingDiffuseStrength * objectColor * lightColor * max(dot(normalize(fragmentNormal), lightDirectiony), 0.0f);
 }
 
 float shadowScalar() {
@@ -69,10 +69,10 @@ float spotlightScalar() {
 }
 
 vec3 specularColor(vec3 lightColorArg, vec3 lightPositionArg) {
-    vec3 lightDirection = normalize(lightPositionArg - fragmentPosition);
+    vec3 lightDirectiony = normalize(lightPositionArg - fragmentPosition);
     vec3 viewDirection = normalize(viewPosition - fragmentPosition);
-    vec3 reflectLightDirection = reflect(-lightDirection, normalize(fragmentNormal));
-    return shadingSpecularStrength * lightColorArg * pow(max(dot(reflectLightDirection, viewDirection), 0.0f), 32);
+    vec3 reflectLightDirection = reflect(-lightDirectiony, normalize(fragmentNormal));
+    return shadingSpecularStrength *lightColorArg * pow(max(dot(reflectLightDirection, viewDirection), 0.0f), 32);
 }
 
 void main()
@@ -85,14 +85,25 @@ void main()
     else{
         vec3 ambient = vec3(0.0f);
         vec3 diffuse = vec3(0.0f);
-        vec3 specular = vec3(0.0f);
+        vec3 specular = vec3(0.0f); 
 
-        float scalar = shadowScalar() * spotlightScalar();
+        //point light?
+        float constantPoint = 1.0f;
+        float linearPoint = .32;
+        float quadPoint = .3;       
+        vec3 directionPoint = fragmentPosition - lightPosition;
+        float distancePoint = length(directionPoint);
+        float attenuation = quadPoint * distancePoint * distancePoint + linearPoint * distancePoint + constantPoint;
+
+        float shadow = shadowScalar();
+        float spotlight = spotlightScalar();
+
+        float scalar = shadow* spotlight;
         ambient = ambientColor();
         diffuse = diffuseColor();
         specular = specularColor(lightColor, lightPosition);
 
-        vec3 color = ambient + scalar * (specular + diffuse);
+        vec3 color = ambient +  (specular + diffuse)*scalar * attenuation;
            fragColor = color;
 
         if (shouldApplyTexture) {
