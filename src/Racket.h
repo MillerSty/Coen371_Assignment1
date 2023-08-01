@@ -11,6 +11,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "Material.h"
 
 class Racket
 {
@@ -31,6 +32,7 @@ public:
 	int renderAs;
 	glm::vec3 position;
 	std::string racketName;
+	Material plasticMaterial;
 
 	//methods like 
 	bool Draw();

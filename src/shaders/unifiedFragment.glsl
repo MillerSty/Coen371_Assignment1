@@ -15,9 +15,9 @@ uniform vec3 lightColor;
 uniform vec3 lightPosition;
 uniform vec3 lightDirection;
 
-const float shadingAmbientStrength = 0.4;
-const float shadingDiffuseStrength = 0.6;
-const float shadingSpecularStrength = 0.6;
+const float shadingAmbientStrength = 0.5;
+const float shadingDiffuseStrength = 0.5;
+const float shadingSpecularStrength = 0.5;
 
 uniform float lightCutoffOuter;
 uniform float lightCutoffInner;
@@ -34,16 +34,32 @@ in vec3 fragmentNormal;
 
 uniform float materialSpec;
 
+struct Material{
+
+    float diffuseStrength;
+    float specularStrength;
+    float ambientStrength;
+    float shininessStrength;
+
+};
+
+uniform Material mats=new Material(0.5f, 0.5f, 0.5f,32.0f);
 
 vec3 ambientColor() {
-    return objectColor * shadingAmbientStrength;
+    return objectColor * mats.ambientStrength;
 }
 
 vec3 diffuseColor() {
-    vec3 lightDirectiony = normalize(lightPosition - fragmentPosition);
-    return shadingDiffuseStrength * objectColor * lightColor * max(dot(normalize(fragmentNormal), lightDirectiony), 0.0f);
+    vec3 lightDir = normalize(lightPosition - fragmentPosition);
+    return mats.diffuseStrength * objectColor * lightColor * max(dot(normalize(fragmentNormal), lightDir), 0.0f);
 }
 
+vec3 specularColor() {
+    vec3 lightDir = normalize(lightPosition - fragmentPosition);
+    vec3 viewDir = normalize(viewPosition - fragmentPosition);
+    vec3 reflectDir = reflect(-lightDir, normalize(fragmentNormal));
+    return mats.specularStrength * lightColor * pow(max(dot(reflectDir, viewDir), 0.0f), mats.shininessStrength);
+}
 float shadowScalar() {
     // this function returns 1.0 when the surface receives light, and 0.0 when it is in a shadow
     // perform perspective divide
@@ -71,12 +87,6 @@ float spotlightScalar() {
     }
 }
 
-vec3 specularColor(vec3 lightColorArg, vec3 lightPositionArg) {
-    vec3 lightDirectiony = normalize(lightPositionArg - fragmentPosition);
-    vec3 viewDirection = normalize(viewPosition - fragmentPosition);
-    vec3 reflectLightDirection = reflect(-lightDirectiony, normalize(fragmentNormal));
-    return shadingSpecularStrength *lightColorArg * pow(max(dot(reflectLightDirection, viewDirection), 0.0f), 32);
-}
 
 void main()
 {
@@ -100,11 +110,11 @@ void main()
 
         float shadow = shadowScalar();
         float spotlight = spotlightScalar();
-
         float scalar = shadow* spotlight;
+
         ambient = ambientColor();
         diffuse = diffuseColor();
-        specular = specularColor(lightColor, lightPosition);
+        specular = specularColor();
 
         vec3 color = ambient +  (specular + diffuse)*scalar * attenuation;
            fragColor = color;

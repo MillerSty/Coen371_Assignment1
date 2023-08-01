@@ -34,12 +34,13 @@ bool Racket::Draw() {
 
 	//GLuint applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
 	//glUniform1i(applyTexturesLocation, true);
-
+	
 	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
 	GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
 	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
-	
+	plasticMaterial.bindTexture();
+	plasticMaterial.loadToShader();
 	glm::mat4 worldMatrix;
 	glm::mat4 handleTranslate;
 	glm::mat4 handleRotate;
@@ -198,7 +199,7 @@ bool Racket::Draw() {
 		glDrawArrays(renderAs, 0, 36);
 		//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 	}
-	
+	plasticMaterial.resetShader();
 	glBindVertexArray(0);
 	return true;
 }

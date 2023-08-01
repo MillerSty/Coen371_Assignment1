@@ -18,7 +18,7 @@
 #include "Arm.h"
 #include "Racket.h"
 #include "SceneObjects.h"
-
+#include "Material.h"
 #include "Evan-models/EvanArm.h"
 #include "Evan-models/EvanRacket.h"
 #include "matt-models/MattArm.h"
@@ -356,6 +356,10 @@ int main(int argc, char* argv[])
 	GLuint grassTextureID = loadTexture("../src/Assets/grass4.jpg");
 	GLuint plasticTextureID = loadTexture("../src/Assets/plastic.jpg");
 	GLuint woodTextureID = loadTexture("../src/Assets/wood1.jpg");
+
+	Material plasticMaterial(.5f,1.0f,.5f,.2f, plasticTextureID,shaderProgram);
+
+
 	
 	// Black background	
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -417,7 +421,7 @@ int main(int argc, char* argv[])
 
 	Racket racket(unitCubeAO, "racket");
 	racket.jawnAngle = 0;
-
+	racket.plasticMaterial = plasticMaterial;
 	//int* newWidth = new int;
 	//int* newHeight = new int;
 
