@@ -19,14 +19,14 @@ private:
 	int unitCubeVAO;
 	MattRacket mattRacket;
 
-	void drawUpperArm();
-	void drawLowerArm();
+	void drawUpperArm(glm::vec3 TranslateModel,float rotation=0.0f);
+	void drawLowerArm(glm::vec3 TranslateModel,  float rotation = 0.0f);
 
 public:
 
 	//MattArm(MattRacket racket);
 	MattArm();
-
+	
 	void setArmColor(glm::vec3 color);
 	glm::vec3 getArmColor();
 	void setGroupMatrix(glm::mat4 groupMat);
@@ -42,5 +42,6 @@ public:
 	void setVAO(int vao);
 	int getVAO();
 
-	void drawArm();
+
+	void drawArm(glm::vec3 TranslateModel, float rotation = 0.0f);
 };

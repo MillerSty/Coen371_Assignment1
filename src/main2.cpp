@@ -279,9 +279,14 @@ MattArm mattArm;
 
 
 
-glm::vec3 translationRandom(.0f, .0f, .0f);
-glm::vec3 translationVec(.0f, .0f, .0f);
+glm::vec3 jonahTranslationRandom(.0f, .0f, .0f);
+glm::vec3 jonahTranslationModel(.0f, .0f, .0f);
 float jonahRotationAngle = 0.0f;
+
+glm::vec3 mattTranslationRandom(.0f, .0f, .0f);
+glm::vec3 mattTranslationModel(.0f, .0f, .0f);
+float mattRotationAngle = 0.0f;
+
 
 int renderAs = GL_TRIANGLES;
 int shaderProgram;
@@ -427,7 +432,7 @@ int main(int argc, char* argv[])
 
 
 		//plasticMaterial;
-	Material plasticMaterial(2.5f, 2.60f, 2.5f, .002f, plasticTextureID, shaderProgram);
+	Material plasticMaterial(.5f, .60f, .5f, .002f, plasticTextureID, shaderProgram);
 	Racket racket(unitCubeAO, "racket");
 	racket.jawnAngle = 0;
 	racket.plasticMaterial = plasticMaterial;
@@ -451,10 +456,7 @@ int main(int argc, char* argv[])
         unitCubeAO, 
 		evanRacket );
 
-
 	JonahModels J = JonahModels(unitCubeAO, shaderProgram);
-
-
 
     // Lighting
     float lightAngleOuter = 30.0;
@@ -529,8 +531,6 @@ int main(int argc, char* argv[])
 	mattRacket.setVAO(unitCubeAO);
 	mattRacket.setTexture(woodTextureID);
 
-	//NOTE we have issues when doing mouse jawn with current set up
-    //NOTE we have issues when doing mouse jawn with current set up
 	float i = -1;
 	float spin = 0;
 	bool reverse = false;
@@ -551,6 +551,7 @@ int main(int argc, char* argv[])
 			rotationMatrixW;
 			//evan Translation for smaller 
 		glm::vec3 evanTranslation = vec3(evanArm.getTranslateModel().x + evanArm.getTranslateRandom().x + evanArm.initialPosition.x, evanArm.getTranslateModel().y + evanArm.getTranslateRandom().y + evanArm.initialPosition.y, evanArm.getTranslateModel().z + evanArm.getTranslateRandom().z + evanArm.initialPosition.z);
+		vec3 MattTranslation = mattTranslationModel + mattTranslationRandom;
 		// Demo on how to use evan's model
 		mat4 evanGroupMatrix = translate(mat4(1.0f), vec3(evanTranslation.x + -0.2f * sinf((float)0.0f),
 								evanTranslation.y + 0.0f,
@@ -592,11 +593,11 @@ int main(int argc, char* argv[])
 			
 			mattRacket.setGroupMatrix(groupMatrix);
 			mattArm.setGroupMatrix(groupMatrix);
-			mattArm.drawArm();
-			mattRacket.drawRacket();
+			mattArm.drawArm(MattTranslation, mattRotationAngle);
+			mattRacket.drawRacket(MattTranslation, mattRotationAngle);
 
 			
-			J.drawRacketJ(groupMatrix, translationVec+ translationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
+			J.drawRacketJ(groupMatrix, jonahTranslationModel+ jonahTranslationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
 
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
@@ -629,10 +630,10 @@ int main(int argc, char* argv[])
 
 			mattRacket.setGroupMatrix(groupMatrix);
 			mattArm.setGroupMatrix(groupMatrix);
-			mattArm.drawArm();
-			mattRacket.drawRacket();
+			mattArm.drawArm(MattTranslation,mattRotationAngle);
+			mattRacket.drawRacket(MattTranslation, mattRotationAngle);
 
-			J.drawRacketJ(groupMatrix, translationVec + translationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
+			J.drawRacketJ(groupMatrix, jonahTranslationModel + jonahTranslationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
 
 			SceneObj.sphereVao = unitSphereAO;
 			SceneObj.sphereVertCount = vertexIndicessphere.size();
@@ -660,17 +661,13 @@ int main(int argc, char* argv[])
 		else { 
 			arm.setFRotation(arm.getFRotation() + spin);
 			spin += .01f;
-		}
-		
+		}		
 		//printf("%f\n", spin);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
-
-
 	// Shutdown GLFW
 	glfwTerminate();
-
 	return 0;
 }
 
@@ -945,16 +942,16 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 
 	case(1)://jonah's
 		if (state_W == GLFW_PRESS) {
-			translationVec.y += .005f; break;
+			jonahTranslationModel.y += .005f; break;
 		}
 		else if (state_S == GLFW_PRESS) {
-			translationVec.y -= .005f; break;
+			jonahTranslationModel.y -= .005f; break;
 		}
 		else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT) {
-			translationVec.x += .005f; break;
+			jonahTranslationModel.x += .005f; break;
 		}
 		else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT) {
-			translationVec.x -= .005f; break;
+			jonahTranslationModel.x -= .005f; break;
 		}
 		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT) {
 			jonahRotationAngle += 5.0f; break;
@@ -964,12 +961,36 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 			break;
 		}
 		else if (state_SPACE == GLFW_PRESS){
-			translationRandom=glm::vec3(number1, number2, number3);
+			jonahTranslationRandom=glm::vec3(number1, number2, number3);
 			break;
 		}
 		break;
 
 	case(2)://matt break;
+		if (state_W == GLFW_PRESS) {
+			mattTranslationModel.y += .005f; break;
+		}
+		else if (state_S == GLFW_PRESS) {
+			mattTranslationModel.y -= .005f; break;
+		}
+		else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT) {
+			mattTranslationModel.x += .005f; break;
+		}
+		else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT) {
+			mattTranslationModel.x -= .005f; break;
+		}
+		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT) {
+			mattRotationAngle += 5.0f; break;
+		}
+		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT) {
+			mattRotationAngle -= 5.0f;
+			break;
+		}
+		else if (state_SPACE == GLFW_PRESS) {
+			mattTranslationRandom = glm::vec3(number1, number2, number3);
+			break;
+		}
+		break;
 	case(3)://noot break;
 
 
@@ -1058,8 +1079,8 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 
 	// If HOME is pressed, remove translations, rotations, and scalings
 	else if (state_HOME == GLFW_PRESS) {		
-		translationVec +=( - 1.0f * translationVec);
-		translationRandom += (-1.0f * translationRandom);
+		jonahTranslationModel +=( - 1.0f * jonahTranslationModel);
+		jonahTranslationRandom += (-1.0f * jonahTranslationRandom);
 		arm.resetArm();
 		GroupMatrixScale = glm::vec3(1.0f);
 		rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));

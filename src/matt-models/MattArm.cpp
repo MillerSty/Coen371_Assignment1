@@ -35,19 +35,19 @@ void MattArm::setVAO(int vao) { unitCubeVAO = vao; }
 
 int MattArm::getVAO() { return unitCubeVAO; }
 
-void MattArm::drawArm()
+void MattArm::drawArm(glm::vec3 TranslateModel, float rotation)
 {
-	drawUpperArm();
-	drawLowerArm();
+	drawUpperArm(TranslateModel,rotation);
+	drawLowerArm(TranslateModel,rotation);
 }
 
-void MattArm::drawUpperArm()
+void MattArm::drawUpperArm(glm::vec3 TranslateModel, float rotation)//forearm
 {
 	glm::mat4 modelMat = worldMatrix * groupMatrix;
 
 	glm::mat4 modelScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.2f, 0.8f, 0.2f));
 	glm::mat4 modelRotate = glm::rotate(glm::mat4(1.0f), glm::radians(20.0f), glm::vec3(0.0f, 0.0f, -1.0f));
-	glm::mat4 modelTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.35f, 0.20f, -0.2f));
+	glm::mat4 modelTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(TranslateModel.x+ -0.35f, TranslateModel.y+ 0.20f, TranslateModel.z+ -0.2f));
 
 	modelMat *= modelTranslate * modelRotate * modelScale;
 
@@ -62,13 +62,13 @@ void MattArm::drawUpperArm()
 	glBindVertexArray(0);
 }
 
-void MattArm::drawLowerArm()
+void MattArm::drawLowerArm(glm::vec3 TranslateModel, float rotation)//bicep
 {
 	glm::mat4 modelMat = worldMatrix * groupMatrix;
 
 	glm::mat4 modelScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.2f, 0.8f, 0.2f));
 	glm::mat4 modelRotate = glm::rotate(glm::mat4(1.0f), glm::radians(60.0f), glm::vec3(0.0f, 0.0f, -1.0f));
-	glm::mat4 modelTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.4f, 0.15f, -0.2f));
+	glm::mat4 modelTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(TranslateModel.x+ -0.4f, TranslateModel.y+ 0.15f, TranslateModel.z+ -0.2f));
 
 	modelMat *= modelTranslate * modelRotate * modelScale;
 
