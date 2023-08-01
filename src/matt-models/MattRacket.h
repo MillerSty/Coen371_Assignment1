@@ -17,8 +17,8 @@ private:
 	GLuint texture;
 	int unitCubeVAO;
 
-	void drawHandle();
-	void drawPaddle();
+	void drawHandle(glm::vec3 TranslateModel, float rotation = 0.0f);
+	void drawPaddle(glm::vec3 TranslateModel, float rotation = 0.0f);
 
 public:
 	MattRacket();
@@ -40,5 +40,5 @@ public:
 	void setVAO(int vao);
 	int getVAO();
 
-	void drawRacket();
+	void drawRacket(glm::vec3 TranslateModel, float rotation = 0.0f);
 };

@@ -39,19 +39,19 @@ void MattRacket::setVAO(int vao) { unitCubeVAO = vao; }
 
 int MattRacket::getVAO() { return unitCubeVAO; }
 
-void MattRacket::drawRacket()
+void MattRacket::drawRacket(glm::vec3 TranslateModel, float rotation)
 {
-	drawHandle();
-	drawPaddle();
+	drawHandle(TranslateModel,rotation);
+	drawPaddle(TranslateModel,rotation);
 }
 
-void MattRacket::drawHandle()
+void MattRacket::drawHandle(glm::vec3 TranslateModel, float rotation)
 {
 	glm::mat4 modelMat = worldMatrix * groupMatrix;
 
 	glm::mat4 modelScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f, 1.3f, 0.1f));
 	glm::mat4 modelRotate = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
-	glm::mat4 modelTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.335f, 0.30f, -0.2f));
+	glm::mat4 modelTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(TranslateModel.x+ -0.335f, TranslateModel.y + 0.30f, TranslateModel.z + -0.2f));
 
 	modelMat *= modelTranslate * modelRotate * modelScale;
 
@@ -67,13 +67,13 @@ void MattRacket::drawHandle()
 	glBindVertexArray(0);
 }
 
-void MattRacket::drawPaddle()
+void MattRacket::drawPaddle(glm::vec3 TranslateModel, float rotation)
 {
 	glm::mat4 modelMat = worldMatrix * groupMatrix;
 
 	glm::mat4 modelScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f, 0.8f, 0.8f));
 	glm::mat4 modelRotate = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
-	glm::mat4 modelTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.335f, 0.40f, -0.2f));
+	glm::mat4 modelTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(TranslateModel.x + -0.335f, TranslateModel.y + 0.40f, TranslateModel.z + -0.2f));
 
 	modelMat *= modelTranslate * modelRotate * modelScale;
 

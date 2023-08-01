@@ -2,13 +2,14 @@
 
 //using namespace EvanRacket;
 //using namespace EvanRacket;
-Racket::Racket(int cubeVao, glm::mat4 worldMatrix) {
+Racket::Racket(int cubeVao, glm::mat4 worldMatrix)   {
 	this->cubeVao = cubeVao;
 	this->groupMatrix = worldMatrix;
 	this->position = glm::vec3(0.0f, 0.0f, 0.0f);
 	this->racketAngle = 90;
 	this->rotationW= glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 	this->jawnAngle = 0;
+
 }
 Racket::Racket(int cubeVao, std::string racketName) {
 	this->cubeVao = cubeVao;
@@ -34,12 +35,15 @@ bool Racket::Draw() {
 
 	//GLuint applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
 	//glUniform1i(applyTexturesLocation, true);
-
+	
 	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
 	GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
 	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
-	
+
+	plasticMaterial.bindTexture();
+	plasticMaterial.loadToShader();
+
 	glm::mat4 worldMatrix;
 	glm::mat4 handleTranslate;
 	glm::mat4 handleRotate;
@@ -198,7 +202,7 @@ bool Racket::Draw() {
 		glDrawArrays(renderAs, 0, 36);
 		//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 	}
-	
+	plasticMaterial.resetShader();
 	glBindVertexArray(0);
 	return true;
 }

@@ -11,15 +11,16 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "Material.h"
 
 class Racket
 {
 
 public:
-	Racket(int cubeVao,
-               glm::mat4 worldMatrix) ;
+	Racket(int cubeVao, glm::mat4 worldMatrix) ;
 	Racket(int cubeVao, std::string racketName);
 	void SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram, glm::mat4 partParent);
+	void setPlastic(Material plastic) { plasticMaterial = plastic; }
 	int cubeVao;
 	int racketAngle;
 	float jawnAngle;
@@ -31,6 +32,7 @@ public:
 	int renderAs;
 	glm::vec3 position;
 	std::string racketName;
+	Material plasticMaterial;
 
 	//methods like 
 	bool Draw();
