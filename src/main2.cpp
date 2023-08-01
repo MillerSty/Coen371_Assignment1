@@ -22,7 +22,7 @@
 #include "Evan-models/EvanArm.h"
 #include "Evan-models/EvanRacket.h"
 
-#include "JonahModels.cpp"
+#include "JonahModels.h"
 
 // Set the shader paths
 const char* vertex = "../src/shaders/unifiedVertex.glsl";
@@ -400,6 +400,8 @@ int main(int argc, char* argv[])
 	EvanArm evanArm(glm::vec3(0.2f, 0.0f, 0.0f), modelScale, unitCubeAO,
                     unitCubeAO, evanRacket );
 
+	JonahModels J = JonahModels(unitCubeAO);
+
     // Lighting
     float lightAngleOuter = 30.0;
     float lightAngleInner = 20.0;
@@ -497,7 +499,7 @@ int main(int argc, char* argv[])
             evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
 			//evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
 
-			JonahModels::drawRacketJ(groupMatrix, translationVec, colorLocation, worldMatrixLocation, 0.0f, 0.0f, 0.0f);
+			//J.drawRacketJ(groupMatrix, translationVec, colorLocation, worldMatrixLocation, 0.0f, 0.0f, 0.0f);
 
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
@@ -534,7 +536,7 @@ int main(int argc, char* argv[])
             evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
 			evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
 
-			JonahModels::drawRacketJ(groupMatrix, translationVec, colorLocation, worldMatrixLocation, 0.0f, 0.0f, 0.0f);
+			//J.drawRacketJ(groupMatrix, translationVec, colorLocation, worldMatrixLocation, 0.0f, 0.0f, 0.0f);
 
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
