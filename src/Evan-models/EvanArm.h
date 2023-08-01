@@ -22,17 +22,17 @@ private:
     GLuint lowerArmVAO;
     GLuint upperArmVAO;
 
-    mat4 groupMatrix;
-    mat4 bicepMatrix;
-    mat4 worldMatrix;
+
     vec3 modelScale;
     vec3 color;
 
-    mat4 wristMatrix;
-    EvanRacket racket;
-
-
 public:
+    mat4 worldMatrix;
+    mat4 groupMatrix;
+    mat4 bicepMatrix;
+    mat4 wristMatrix;
+
+    EvanRacket racket;
 
     /*
      * This constructor creates the VAOs & sets the initial group matrix

@@ -22,6 +22,7 @@
 #include "Evan-models/EvanArm.h"
 #include "Evan-models/EvanRacket.h"
 
+
 // Set the shader paths
 const char* vertex = "../src/shaders/unifiedVertex.glsl";
 const char* fragment = "../src/shaders/unifiedFragment.glsl";
@@ -463,6 +464,7 @@ int main(int argc, char* argv[])
 	glUniform1i(kdepthMap, 2);
     //NOTE we have issues when doing mouse jawn with current set up
 
+    float lastFrameTime = glfwGetTime();
 	while (!glfwWindowShouldClose(window))
 	{
 		// Handle resizing
@@ -478,7 +480,15 @@ int main(int argc, char* argv[])
 			          glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
 			          rotationMatrixW;
 
-		// Must draw scene in 2 passes: once for shadows, and another normally
+        // Demo on how to use evan's model
+        mat4 evanGroupMatrix = translate(mat4(1.0f), vec3(-0.2f * sinf((float)glfwGetTime()),0.0f,0.0f) );
+        mat4 evanBicepMatrix = rotate(mat4(1.0f), (float)glfwGetTime(), vec3(1.0f,0.0f,0.0f) );
+        evanArm.groupMatrix = evanGroupMatrix;
+        evanArm.bicepMatrix = evanBicepMatrix;
+        evanArm.racket.groupMatrix = evanGroupMatrix;
+        evanArm.racket.bicepMatrix = evanBicepMatrix;
+        lastFrameTime = glfwGetTime();
+        // Must draw scene in 2 passes: once for shadows, and another normally
         // 1st pass
         {
             glUniform1i(applyTexturesLocation, false);
@@ -498,7 +508,6 @@ int main(int argc, char* argv[])
             racket.Draw();
 
             evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
-
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
             SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
