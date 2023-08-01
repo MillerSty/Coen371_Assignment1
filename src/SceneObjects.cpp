@@ -163,17 +163,14 @@ bool SceneObjects::DrawNet() {
 
 	metalTexture.bindTexture();
 	metalTexture.loadToShader();
-	//glBindTexture(GL_TEXTURE_2D, metalTexture);
 
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
 	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
-
 	//bind VAO
 	glBindVertexArray(cubeVao);
 	// Set colour of net poles
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.60f, .6f, .60f)));
-
-	
+		
 	// Rotate net poles
 	glm::mat4 partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, 1.0f, 1.0f));
 
@@ -189,8 +186,7 @@ bool SceneObjects::DrawNet() {
 
 	// Draw world matrix with indices
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-	glDrawArrays(renderAs, 0, 36);
-	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
 	//+ve Z net
@@ -201,14 +197,13 @@ bool SceneObjects::DrawNet() {
 
 	// Draw again
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-	glDrawArrays(renderAs, 0, 36);
-	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	// Strings of net
 	ropeTexture.bindTexture();
 	ropeTexture.loadToShader();
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));  // Set net colour
-	//glBindTexture(GL_TEXTURE_2D, ropeTexture); //Bind texture Ropes
+	
 
 	// Loop to draw net. i is our translation offset
 	for (float i = .0; i <= .07f; i += .01) {
@@ -218,8 +213,7 @@ bool SceneObjects::DrawNet() {
 		worldMatrix = groupMatrix * partMatrix; // Set world matrix
 
 		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]); //comment
-		glDrawArrays(renderAs, 0, 36);
-		//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);//draw with index
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
 
 	// Same as above, but net offset is along z this time
@@ -231,16 +225,12 @@ bool SceneObjects::DrawNet() {
 		worldMatrix = groupMatrix * partMatrix;
 
 		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-		glDrawArrays(renderAs, 0, 36);
-		//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
 
 	// Top bar of the net
-
 	clothTexture.bindTexture();
 	clothTexture.loadToShader();
-	//glBindTexture(GL_TEXTURE_2D, clothTexture); //bind top cloth of net
-	//glUniform1i(textureLocation, 0);
 
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.00f, 1.0f, 1.0f)));
 	partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, 1.0f, 1.0f));
@@ -249,8 +239,7 @@ bool SceneObjects::DrawNet() {
 	partMatrix = partTranslate * partScale * partRo;
 	worldMatrix = groupMatrix * partMatrix;
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-	glDrawArrays(renderAs, 0, 36);
-	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	// Unbinding the vertex array object 
 	glBindVertexArray(0);
