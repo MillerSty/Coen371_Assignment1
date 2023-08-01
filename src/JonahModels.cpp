@@ -6,9 +6,10 @@
 using namespace glm;
 
 
-JonahModels::JonahModels() {
+JonahModels::JonahModels(GLuint vao, int shaderProgram) {
     initTranslate = vec3(0.0f, 3.0f, 0.0f);
-    VAO = createVertexArrayObject();
+    VAO = vao;
+    this->shaderProgram = shaderProgram;
 }
 
 JonahModels::~JonahModels() {
@@ -16,8 +17,14 @@ JonahModels::~JonahModels() {
 }
 
 	
-void JonahModels::drawRacketJ(mat4 groupMatrix, vec3 modelTranslationVec, GLint colorLocation, GLuint worldMatrixLocation, float rotateAngle = 0.0f, float scaleFactor = 1.0f, float armRotateAngle = 0.0f)
+void JonahModels::drawRacketJ(mat4 groupMatrix, vec3 modelTranslationVec, GLint colorLocation, GLuint worldMatrixLocation, float rotateAngle = 0.0f, float scaleFactor = 0.2f, float armRotateAngle = 0.0f)
     {
+        //GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
+        GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
+        GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
+        //GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
+        GLuint applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
+        
         glBindVertexArray(VAO);
         armTranslate = translate(mat4(1.0f), vec3(modelTranslationVec.x + initTranslate.x, modelTranslationVec.y + initTranslate.y, modelTranslationVec.z + initTranslate.z));
         armRotateMatrix = rotate(mat4(1.0f), radians(rotateAngle), vec3(.0f, 1.0f, .0f));

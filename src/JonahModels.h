@@ -34,7 +34,9 @@ public:
     mat4 upperArmParent;
     GLuint VAO;
 
-    JonahModels();
+    int shaderProgram;
+
+    JonahModels(GLuint, int);
     ~JonahModels();
 
     void drawRacketJ(mat4 armParentMatrix, vec3 modelTranslationVec, GLint colorLocation, GLuint worldMatrixLocation, float rotateAngle, float scaleFactor, float armRotateAngle);

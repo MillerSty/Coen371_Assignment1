@@ -400,7 +400,7 @@ int main(int argc, char* argv[])
 	EvanArm evanArm(glm::vec3(0.2f, 0.0f, 0.0f), modelScale, unitCubeAO,
                     unitCubeAO, evanRacket );
 
-	JonahModels J = JonahModels(unitCubeAO);
+	JonahModels J = JonahModels(unitCubeAO, shaderProgram);
 
     // Lighting
     float lightAngleOuter = 30.0;
@@ -499,7 +499,7 @@ int main(int argc, char* argv[])
             evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
 			//evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
 
-			//J.drawRacketJ(groupMatrix, translationVec, colorLocation, worldMatrixLocation, 0.0f, 0.0f, 0.0f);
+			J.drawRacketJ(groupMatrix, translationVec, colorLocation, worldMatrixLocation, 0.0f, 0.0f, 0.0f);
 
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
@@ -536,7 +536,7 @@ int main(int argc, char* argv[])
             evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
 			evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
 
-			//J.drawRacketJ(groupMatrix, translationVec, colorLocation, worldMatrixLocation, 0.0f, 0.0f, 0.0f);
+			J.drawRacketJ(groupMatrix, translationVec, colorLocation, worldMatrixLocation, 0.0f, 0.0f, 0.0f);
 
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
