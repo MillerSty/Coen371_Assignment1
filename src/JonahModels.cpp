@@ -42,6 +42,7 @@ void JonahModels::drawRacketJ(mat4 groupMatrix, vec3 modelTranslationVec, GLint 
         upperArmLocal = rotate(mat4(1.0f), radians(90.0f), vec3(0.0f, 0.0f, 1.0f)) * scale(mat4(1.0f), vec3(2.0f, 0.3f, 0.3f));
         upperArmParent = armParentMatrix * upperArmRotate * upperArmTranslate;
         worldMatrix = groupMatrix * upperArmParent * upperArmLocal;
+
         glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
@@ -49,6 +50,7 @@ void JonahModels::drawRacketJ(mat4 groupMatrix, vec3 modelTranslationVec, GLint 
         racketBaseLocal = scale(mat4(1.0f), vec3(0.25f, 1.5f, 0.25f));
         racketParentMatrix = upperArmParent * racketBaseTranslate;
         worldMatrix = groupMatrix * racketParentMatrix * racketBaseLocal;
+
         glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.94f, .76f, .5f)));
         glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
         glDrawArrays(GL_TRIANGLES, 0, 36);

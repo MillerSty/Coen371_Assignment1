@@ -244,7 +244,10 @@ glm::vec3 GroupMatrixScale(1.0f, 1.0f, 1.0f);
 glm::mat4 groupMatrix;
 glm::mat4 rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
+
+glm::vec3 translationRandom(.0f, .0f, .0f);
 glm::vec3 translationVec(.0f, .0f, .0f);
+float jonahRotationAngle = 0.0f;
 
 Arm arm;
 int renderAs = GL_TRIANGLES;
@@ -402,10 +405,7 @@ int main(int argc, char* argv[])
 
 
 
-
-
 	JonahModels J = JonahModels(unitCubeAO, shaderProgram);
-
 
 
 
@@ -506,7 +506,7 @@ int main(int argc, char* argv[])
            // evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
 			//evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
 			
-			J.drawRacketJ(groupMatrix, translationVec, colorLocation, worldMatrixLocation);
+			J.drawRacketJ(groupMatrix, translationVec+ translationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
 
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
@@ -543,7 +543,7 @@ int main(int argc, char* argv[])
             //evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
 			//evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
 
-			J.drawRacketJ(groupMatrix, translationVec, colorLocation, worldMatrixLocation);
+			J.drawRacketJ(groupMatrix, translationVec+ translationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
 
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
@@ -746,8 +746,8 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 			number2 = number2 / (float)(RAND_MAX);
 		if (number3 >= .75f)
 			number3 = number3 / (float)(RAND_MAX);
-
-		arm.setTranslateRandom(glm::vec3(number1, number2, number3));
+		translationRandom = glm::vec3(number1, number2,number3);
+		//arm.setTranslateRandom(glm::vec3(number1, number2, number3));
 	}
 
 	// If u or j is pressed, scale up or down accordingly
@@ -771,22 +771,18 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		rotationMatrixW *= glm::rotate(glm::mat4(1.0f), glm::radians(2.55f), glm::vec3(.0f, -1.0f, 0.0f));
 
 	else if (state_W == GLFW_PRESS)
-		arm.setTranslateModel(glm::vec3(arm.getTranslateModel().x, (arm.getTranslateModel().y + .005f), arm.getTranslateModel().z));
-
+		translationVec.y += .005f;
 	else if (state_S == GLFW_PRESS)
-		arm.setTranslateModel(glm::vec3(arm.getTranslateModel().x, (arm.getTranslateModel().y - .005f), arm.getTranslateModel().z));
-
+		translationVec.y -= .005f;
 	else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-		arm.setTranslateModel(glm::vec3((arm.getTranslateModel().x - .005f), arm.getTranslateModel().y, arm.getTranslateModel().z));
-
+		translationVec.x += .005f;
 	else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-		arm.setTranslateModel(glm::vec3((arm.getTranslateModel().x + .005f), arm.getTranslateModel().y, arm.getTranslateModel().z));
-
-	else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-		arm.setRotation(arm.getRotation() + 5);
+		translationVec.x -= .005f;
+	else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)		
+		jonahRotationAngle += 5.0f;
 
 	else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-		arm.setRotation(arm.getRotation() - 5);
+		jonahRotationAngle -= 5.0f;
 
 	// If p, l, or t is pressed, changed render mode between points, lines, and triangles, respectively
 	else if (state_P == GLFW_PRESS)
@@ -800,6 +796,8 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 
 	// If HOME is pressed, remove translations, rotations, and scalings
 	else if (state_HOME == GLFW_PRESS) {		
+		translationVec +=( - 1.0f * translationVec);
+		translationRandom += (-1.0f * translationRandom);
 		arm.resetArm();
 		GroupMatrixScale = glm::vec3(1.0f);
 		rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
