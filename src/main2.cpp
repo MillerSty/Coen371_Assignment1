@@ -287,8 +287,8 @@ bool shouldApplyShadows = true;
 bool shouldApplyTextures = true;
 Arm arm;
 EvanArm evanArm;
-int selectModel = -1;
-int selectJoint = -1;
+int selectModel = 0;
+int selectJoint =0;
 
 int main(int argc, char* argv[])
 {
@@ -854,7 +854,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		}		
 		break;
 
-	case(0):	
+	case(0):	//Evans model
 		if (state_W == GLFW_PRESS)
 		{
 			evanArm.setTranslateModel(glm::vec3(evanArm.getTranslateModel().x, (evanArm.getTranslateModel().y + .005f), evanArm.getTranslateModel().z));
@@ -903,8 +903,8 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		2 is fouth jonah
 		3 is five Noot
 		*/
-		if (selectModel == -1) selectModel += 1;
-		else if (selectModel == 3) selectModel = -1;
+		if (selectModel == 0) selectModel += 1;
+		else if (selectModel == 4) selectModel = 0;
 		else selectModel += 1;
 		printf("select is: %d\n", selectModel);
 	}
@@ -915,8 +915,8 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		1 is wrist y
 		2 is wrist x?
 		*/
-		if (selectJoint == -1) selectJoint += 1;
-		else if (selectJoint == 2) selectJoint = -1;
+		if (selectJoint == 0) selectJoint += 1;
+		else if (selectJoint == 3) selectJoint = 0;
 		else selectJoint += 1;
 		printf("selectJoint is: %d\n", selectJoint);
 	}
