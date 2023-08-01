@@ -599,12 +599,14 @@ int main(int argc, char* argv[])
 			racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
 			racket.Draw();
 
+
             evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
 			
 			mattRacket.setGroupMatrix(groupMatrix);
 			mattArm.setGroupMatrix(groupMatrix);
 			mattArm.drawArm(MattTranslation, mattRotationAngle);
 			mattRacket.drawRacket(MattTranslation, mattRotationAngle);
+
 
 			
 			J.drawRacketJ(groupMatrix, jonahTranslationModel+ jonahTranslationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
@@ -644,6 +646,9 @@ int main(int argc, char* argv[])
 			mattRacket.drawRacket(MattTranslation, mattRotationAngle);
 
 			J.drawRacketJ(groupMatrix, jonahTranslationModel + jonahTranslationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
+
+
+			J.drawRacketJ(groupMatrix, translationVec + translationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
 
 			SceneObj.sphereVao = unitSphereAO;
 			SceneObj.sphereVertCount = vertexIndicessphere.size();

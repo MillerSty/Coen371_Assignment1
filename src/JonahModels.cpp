@@ -26,77 +26,77 @@ void JonahModels::drawRacketJ(mat4 groupMatrix, vec3 modelTranslationVec, GLint 
         GLuint applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
         float scaley = 5.0f;
         glBindVertexArray(VAO);
-        armTranslate = translate(mat4(1.0f), vec3(modelTranslationVec.x + initTranslate.x, modelTranslationVec.y + initTranslate.y, modelTranslationVec.z + initTranslate.z) / scaley);
+        armTranslate = translate(mat4(1.0f), vec3(modelTranslationVec.x + initTranslate.x, modelTranslationVec.y + initTranslate.y, modelTranslationVec.z + initTranslate.z));
         armRotateMatrix = rotate(mat4(1.0f), radians(rotateAngle), vec3(.0f, 1.0f, .0f));
-        armLocal = rotate(mat4(1.0f), radians(45.0f), vec3(0.0f, 0.0f, 1.0f)) * scale(mat4(1.0f), vec3(2.0f, 0.3f, 0.3f));
+        armLocal = rotate(mat4(1.0f), radians(45.0f), vec3(0.0f, 0.0f, 1.0f)) * scale(mat4(1.0f), vec3(3.0f, 0.5f, 0.5f));
 
         armParentMatrix = scale(mat4(1.0f), vec3(1.0f * scaleFactor, 1.0f * scaleFactor, 1.0f * scaleFactor)) * armTranslate * armRotateMatrix;
         worldMatrix = groupMatrix * armParentMatrix * armLocal;
 
         glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-        glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.94f, .76f, .5f)));
+        glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0f, 219.0f / 255.0f, 172.0f / 255.0f)));
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        upperArmTranslate = translate(mat4(1.0f), vec3(initTranslate.x, initTranslate.y + 0.9f, initTranslate.z)/scaley);
+        upperArmTranslate = translate(mat4(1.0f), vec3(initTranslate.x + 0.4f, initTranslate.y + 1.0f, initTranslate.z)/scaley);
         upperArmRotate = translate(mat4(1.0f), vec3(initTranslate.x, initTranslate.y, initTranslate.z) / scaley) * rotate(mat4(1.0f), radians(0.0f + armRotateAngle), vec3(.0f, .0f, 1.0f)) * translate(mat4(1.0f), vec3(-initTranslate.x, -initTranslate.y, -initTranslate.z) / scaley);
-        upperArmLocal = rotate(mat4(1.0f), radians(90.0f), vec3(0.0f, 0.0f, 1.0f)) * scale(mat4(1.0f), vec3(2.0f, 0.3f, 0.3f));
+        upperArmLocal = rotate(mat4(1.0f), radians(90.0f), vec3(0.0f, 0.0f, 1.0f)) * scale(mat4(1.0f), vec3(3.0f, 0.5f, 0.5f));
         upperArmParent = armParentMatrix * upperArmRotate * upperArmTranslate;
         worldMatrix = groupMatrix * upperArmParent * upperArmLocal;
 
         glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        racketBaseTranslate = translate(mat4(1.0f), vec3(0.0f, 1.75f, 0.0f) / scaley);
-        racketBaseLocal = scale(mat4(1.0f), vec3(0.25f, 1.5f, 0.25f));
+        racketBaseTranslate = translate(mat4(1.0f), vec3(0.0f, 1.25f, 0.0f) / scaley);
+        racketBaseLocal = scale(mat4(1.0f), vec3(0.25f, 2.5f, 0.25f));
         racketParentMatrix = upperArmParent * racketBaseTranslate;
         worldMatrix = groupMatrix * racketParentMatrix * racketBaseLocal;
 
-        glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.94f, .76f, .5f)));
+        glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(0.0f, 0.0f, 204.0f / 255.0f)));
         glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        racketBaseTranslate = translate(mat4(1.0f), vec3(0.0f, 2.5f, 0.0f) / scaley);
+        racketBaseTranslate = translate(mat4(1.0f), vec3(0.0f, 1.90f, 0.0f) / scaley);
         racketBaseLocal = scale(mat4(1.0f), vec3(2.0f, 0.25f, 0.25f));
         racketParentMatrix = upperArmParent * racketBaseTranslate;
         worldMatrix = groupMatrix * racketParentMatrix * racketBaseLocal;
         glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        racketBaseTranslate = translate(mat4(1.0f), vec3(-0.875f, 3.625f, 0.0f) / scaley);
-        racketBaseLocal = scale(mat4(1.0f), vec3(0.25f, 2.5f, 0.25f));
+        racketBaseTranslate = translate(mat4(1.0f), vec3(-0.5f, 2.7f, 0.0f) / scaley);
+        racketBaseLocal = scale(mat4(1.0f), vec3(0.25f, 3.5f, 0.25f));
         racketParentMatrix = upperArmParent * racketBaseTranslate;
         worldMatrix = groupMatrix * racketParentMatrix * racketBaseLocal;
         glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        racketBaseTranslate = translate(mat4(1.0f), vec3(0.875f, 3.625f, 0.0f) / scaley);
-        racketBaseLocal = scale(mat4(1.0f), vec3(0.25f, 2.5f, 0.25f));
+        racketBaseTranslate = translate(mat4(1.0f), vec3(0.5f, 2.7f, 0.0f) / scaley);
+        racketBaseLocal = scale(mat4(1.0f), vec3(0.25f, 3.5f, 0.25f));
         racketParentMatrix = upperArmParent * racketBaseTranslate;
         worldMatrix = groupMatrix * racketParentMatrix * racketBaseLocal;
         glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        racketBaseTranslate = translate(mat4(1.0f), vec3(0.0f, 4.875f, 0.0f) / scaley);
+        racketBaseTranslate = translate(mat4(1.0f), vec3(0.0f, 3.5f, 0.0f) / scaley);
         racketBaseLocal = scale(mat4(1.0f), vec3(2.0f, 0.25f, 0.25f));
         racketParentMatrix = upperArmParent * racketBaseTranslate;
         worldMatrix = groupMatrix * racketParentMatrix * racketBaseLocal;
         glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.94f, .76f, .5f)));
-        for (int i = 1; i < 9; ++i)
+        glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(0.7f, 1.0f, 0.2f)));
+        for (int i = 1; i < 7; ++i)
         {
-            racketBaseTranslate = translate(mat4(1.0f), vec3(0.0f, 4.8125f - (i * 0.25), 0.0f) / scaley);
-            racketBaseLocal = scale(mat4(1.0f), vec3(1.9f, 0.05f, 0.05f));
+            racketBaseTranslate = translate(mat4(1.0f), vec3(0.0f, 3.5f - (i * 0.25), 0.0f) / scaley);
+            racketBaseLocal = scale(mat4(1.0f), vec3(2.0f, 0.05f, 0.05f));
             racketParentMatrix = upperArmParent * racketBaseTranslate;
             worldMatrix = groupMatrix * racketParentMatrix * racketBaseLocal;
             glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
-        for (int i = 1; i < 8; ++i)
+        for (int i = 1; i < 6; ++i)
         {
-            racketBaseTranslate = translate(mat4(1.0f), vec3(0.8f - (i * 0.2), 3.625f, 0.0f) / scaley);
-            racketBaseLocal = scale(mat4(1.0f), vec3(0.05f, 2.4f, 0.05f));
+            racketBaseTranslate = translate(mat4(1.0f), vec3(0.5f - (i * 0.2), 2.70f, 0.0f) / scaley);
+            racketBaseLocal = scale(mat4(1.0f), vec3(0.05f, 2.95f, 0.05f));
             racketParentMatrix = upperArmParent * racketBaseTranslate;
             worldMatrix = groupMatrix * racketParentMatrix * racketBaseLocal;
             glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
