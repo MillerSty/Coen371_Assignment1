@@ -434,13 +434,14 @@ int main(int argc, char* argv[])
 
 	//TEXTURE DEFINITION
 						//diff spec ambient shiny
-	Material courtMaterial(.7f, .20f, 1.0f, .9f, courtTextureID, shaderProgram);
-	Material ropeMaterial(.5f, .60f, .5f, .9f, ropeTextureID, shaderProgram);
-	Material clothMaterial(.5f, .60f, .5f, .9f, clothTextureID, shaderProgram);
-	Material metalMaterial(.6f, .90f, .6f, .00012f, metalTextureID, shaderProgram);
-	Material grassMaterial(.2f, .20f, .2f, .9f, grassTextureID, shaderProgram);
-	Material plasticMaterial(.5f, .60f, .5f, .002f, plasticTextureID, shaderProgram);
-	Material woodMaterial(.5f, .60f, .5f, .002f, woodTextureID, shaderProgram);
+	Material courtMaterial(.7f, .20f, 1.0f, .9f, courtTextureID, shaderProgram); //court shouldnt reflect
+	Material ropeMaterial(.5f, .60f, .5f, .9f, ropeTextureID, shaderProgram); // ropes are just ropes
+	Material clothMaterial(.5f, .60f, .5f, .9f, clothTextureID, shaderProgram); //cloth should have a little reflection?
+	Material metalMaterial(.6f, .90f, .6f, .00012f, metalTextureID, shaderProgram); //metal should shine
+	Material grassMaterial(.2f, .20f, .7f, .9f, grassTextureID, shaderProgram); //just bright, thats all it needs
+	Material plasticMaterial(.5f, .60f, .5f, .002f, plasticTextureID, shaderProgram); //needs to be glossy! This is our racket
+	Material woodMaterial(.5f, .60f, .5f, .002f, woodTextureID, shaderProgram); //this is you matt
+	// Material plasticSkinMaterial...  we need a dull material for skin probaly a copy of the plastic texture with different diff/spec/amb
 
 	Ball.grassTexture = grassMaterial;
 	Ball.shaderProgram = shaderProgram;
