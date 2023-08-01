@@ -53,7 +53,7 @@ bool Racket::Draw() {
 	
 	glBindVertexArray(cubeVao);
 
-	handleTranslate = glm::translate(glm::mat4(1.0f), this->position);
+	handleTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f,0.0f,.009f));
 	handleRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)racketAngle), glm::vec3(.0f, .0f, 1.0f));
 	//this float will determine individualt rotation
 	handleRotate *= glm::rotate(glm::mat4(1.0f),glm::radians(this->jawnAngle), glm::vec3(1.0f, .0f, .0f));
