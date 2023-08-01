@@ -43,7 +43,7 @@ struct Material{
 
 };
 
-uniform Material mats=new Material(0.5f, 0.5f, 0.5f,32.0f);
+uniform Material mats;
 
 vec3 ambientColor() {
     return objectColor * mats.ambientStrength;

@@ -1,7 +1,7 @@
 #include "Material.h"
 
 
-Material::Material(float diff, float spec, float ambient, float shiny, GLint texture, GLint shader) {
+Material::Material(float diff, float spec, float ambient, float shiny, GLuint texture, int shader) {
 	diffuseStrength = diff;
 	specularStrength = spec;
 	ambientStrength = ambient;

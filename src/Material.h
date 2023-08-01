@@ -13,15 +13,15 @@
 class Material
 {
 public:
-	Material();
-	Material(float diff, float spec, float ambient, float shiny, GLint texture, GLint shader);
+	Material() = default;
+	Material(float diff, float spec, float ambient, float shiny, GLuint texture, int shader);
 	float diffuseStrength;
 	float specularStrength;
 	float ambientStrength;
 	float shininessStrength;
 
-	GLint textureId;
-	GLint shaderProgram;
+	GLuint textureId;
+	GLuint shaderProgram;
 	void loadToShader();
 	void bindTexture();
 	void resetShader();

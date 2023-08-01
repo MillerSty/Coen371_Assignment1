@@ -357,7 +357,6 @@ int main(int argc, char* argv[])
 	GLuint plasticTextureID = loadTexture("../src/Assets/plastic.jpg");
 	GLuint woodTextureID = loadTexture("../src/Assets/wood1.jpg");
 
-	Material plasticMaterial(.5f,1.0f,.5f,.2f, plasticTextureID,shaderProgram);
 
 
 	
@@ -419,6 +418,9 @@ int main(int argc, char* argv[])
 	arm.position = glm::vec3(0, .0f, .0f);
 		//glm::vec3(-.5f, 0.0f, .2f);
 
+
+		//plasticMaterial;
+	Material plasticMaterial(2.5f, 2.60f, 2.5f, .002f, plasticTextureID, shaderProgram);
 	Racket racket(unitCubeAO, "racket");
 	racket.jawnAngle = 0;
 	racket.plasticMaterial = plasticMaterial;
