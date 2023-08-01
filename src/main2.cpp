@@ -539,13 +539,15 @@ int main(int argc, char* argv[])
 								evanTranslation.z + 0.0f))
 								* rotate(mat4(1.0f), radians(evanArm.getRotation()), vec3(1.0f, 0.0f, 0.0f));
 		
-		
-		mat4 evanBicepMatrix = rotate(mat4(1.0f), radians(evanArm.getERotation()), vec3(1.0f, 0.0f, 0.0f));
-		evanArm.groupMatrix = evanGroupMatrix;
+		mat4 evanBicepMatrix = rotate(mat4(1.0f), radians(evanArm.getERotation()), vec3(.0f, 0.0f, 1.0f));
+		evanArm.groupMatrix = groupMatrix*evanGroupMatrix;
 		evanArm.bicepMatrix = evanBicepMatrix; //bicep not called
-		evanArm.racket.groupMatrix = evanGroupMatrix;
+		evanArm.racket.groupMatrix = groupMatrix * evanGroupMatrix;
 		evanArm.racket.bicepMatrix = evanBicepMatrix;
 		lastFrameTime = glfwGetTime();
+
+		//float checkest = evanArm.getERotation();
+		//printf("evan rotation: %f\n", checkest);
 		// Must draw scene in 2 passes: once for shadows, and another normally
 		// 1st pass
 		{
@@ -898,7 +900,8 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		 {
 			switch (selectJoint) {
 			case(0): evanArm.setRotation(evanArm.getRotation() - 5);  break;
-			case(1):if (evanArm.getERotation() - 5 < 0)evanArm.setERotation(0); else  evanArm.setERotation(evanArm.getERotation() - 5);  break;
+			case(1):if (evanArm.getERotation() - 5 < 0) { evanArm.setERotation(0); }
+				   else  evanArm.setERotation(evanArm.getERotation() - 5);  break;
 			default: break;
 			}
 			// evanArm.setRotation(evanArm.getRotation() - 5); break;
@@ -908,9 +911,9 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 			evanArm.setTranslateRandom(glm::vec3(number1, number2, number3));
 			
 		}
-	case(1): printf("jonah\n"); break;
-	case(2):printf("evan\n"); break;
-	case(3):printf("noot\n"); break;
+	case(1):  break;
+	case(2): break;
+	case(3): break;
 	default:break;
 
 

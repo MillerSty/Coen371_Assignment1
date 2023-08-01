@@ -32,6 +32,9 @@ in vec3 fragmentPosition;
 in vec4 fragmentPositionLightSpace;
 in vec3 fragmentNormal;
 
+uniform float materialSpec;
+
+
 vec3 ambientColor() {
     return objectColor * shadingAmbientStrength;
 }

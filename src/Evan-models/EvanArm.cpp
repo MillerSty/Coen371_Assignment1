@@ -90,7 +90,7 @@ void EvanArm::draw(GLuint armTexture, GLuint modelMatrixLocation, GLuint objectC
 
     // Transformations to manipulate the cube to make part of the model
     mat4 upperArmMatrix = translate(mat4(1.0f), modelScale * vec3(.2f,.3f, 0.0f));
-    upperArmMatrix = rotate(upperArmMatrix, radians(-60.0f), vec3(0.0f, 0.0f, 1.0f));
+    upperArmMatrix = rotate(upperArmMatrix, radians(0.0f), vec3(0.0f, 0.0f, 1.0f));
     upperArmMatrix = scale(upperArmMatrix, modelScale * vec3(1.0f, 4.0f, 1.0f));
     upperArmMatrix = worldMatrix * groupMatrix * bicepMatrix * upperArmMatrix;
     // Load model matrix into the shader program
