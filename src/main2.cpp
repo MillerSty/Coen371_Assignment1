@@ -400,7 +400,14 @@ int main(int argc, char* argv[])
 	EvanArm evanArm(glm::vec3(0.2f, 0.0f, 0.0f), modelScale, unitCubeAO,
                     unitCubeAO, evanRacket );
 
+
+
+
+
 	JonahModels J = JonahModels(unitCubeAO, shaderProgram);
+
+
+
 
     // Lighting
     float lightAngleOuter = 30.0;
@@ -469,7 +476,7 @@ int main(int argc, char* argv[])
 	GLuint kdepthMap = glGetUniformLocation(shaderProgram, "shadowMap");
 	glUniform1i(kdepthMap, 2);
     //NOTE we have issues when doing mouse jawn with current set up
-
+	
 	while (!glfwWindowShouldClose(window))
 	{
 
@@ -491,15 +498,15 @@ int main(int argc, char* argv[])
             glClear(GL_DEPTH_BUFFER_BIT);
 
             // Draw geometry
-            arm.SetAttr(groupMatrix, renderAs, shaderProgram);
-            arm.DrawArm();
-            racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
-            racket.Draw();
-
-            evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
+           // arm.SetAttr(groupMatrix, renderAs, shaderProgram);
+           // arm.DrawArm();
+           // racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
+           // racket.Draw();
+		   //
+           // evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
 			//evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
-
-			J.drawRacketJ(groupMatrix, translationVec, colorLocation, worldMatrixLocation, 0.0f, 0.0f, 0.0f);
+			
+			J.drawRacketJ(groupMatrix, translationVec, colorLocation, worldMatrixLocation);
 
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
@@ -528,15 +535,15 @@ int main(int argc, char* argv[])
 			glBindTexture(GL_TEXTURE_2D, depth_map_texture);
            
 			// Draw geometry
-            arm.SetAttr(groupMatrix, renderAs, shaderProgram);
-            arm.DrawArm();
-            racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
-            racket.Draw();
+            //arm.SetAttr(groupMatrix, renderAs, shaderProgram);
+            //arm.DrawArm();
+            //racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
+            //racket.Draw();
+			//
+            //evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
+			//evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
 
-            evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
-			evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
-
-			J.drawRacketJ(groupMatrix, translationVec, colorLocation, worldMatrixLocation, 0.0f, 0.0f, 0.0f);
+			J.drawRacketJ(groupMatrix, translationVec, colorLocation, worldMatrixLocation);
 
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();

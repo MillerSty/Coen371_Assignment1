@@ -39,6 +39,6 @@ public:
     JonahModels(GLuint, int);
     ~JonahModels();
 
-    void drawRacketJ(mat4 armParentMatrix, vec3 modelTranslationVec, GLint colorLocation, GLuint worldMatrixLocation, float rotateAngle, float scaleFactor, float armRotateAngle);
+    void drawRacketJ(mat4 armParentMatrix, vec3 modelTranslationVec, GLint colorLocation, GLuint worldMatrixLocation, float rotateAngle = 0.0f, float scaleFactor = 0.2f, float armRotateAngle = 0.0f);
     int createVertexArrayObject();
 };
