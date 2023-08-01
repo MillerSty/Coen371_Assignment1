@@ -56,6 +56,7 @@ public:
 	bool DrawSkyBox();
 	bool DrawGrid();
 	bool DrawCoord();
+	bool DrawLight(glm::vec3 position,glm::vec3 rotation,float i);
 	void DrawScene(bool drawSkyBox);
 };
 
