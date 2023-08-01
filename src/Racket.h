@@ -32,6 +32,8 @@ public:
 	int renderAs;
 	glm::vec3 position;
 	std::string racketName;
+
+
 	Material plasticMaterial;
 
 	//methods like 

@@ -393,14 +393,13 @@ int main(int argc, char* argv[])
     GLint viewPositionLocation = glGetUniformLocation(shaderProgram, "viewPosition");
     GLint applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
     GLint applyShadowsLocation = glGetUniformLocation(shaderProgram, "shouldApplyShadows");
-
+	//maybe update this for shadows
     glUniform3fv(viewPositionLocation, 1, &eye[0]);
 
 	//Scene Jawn
 	SceneObjects SceneObj("scene");
 	SceneObj.InitGrid();
-	SceneObj.setTextures(courtTextureID, ropeTextureID, metalTextureID, clothTextureID, grassTextureID);
-	SceneObj.plasticTexture = plasticTextureID;
+	//SceneObj.plasticTexture = plasticTextureID;
 	glfwGetCursorPos(window, &lastMousePosX, &lastMousePosY);
 	lastMousePosZ = lastMousePosY;
 
@@ -444,6 +443,8 @@ int main(int argc, char* argv[])
 	Material plasticMaterial(.5f, .60f, .5f, .002f, plasticTextureID, shaderProgram);
 	Material woodMaterial(.5f, .60f, .5f, .002f, woodTextureID, shaderProgram);
 
+
+	SceneObj.setMaterials(courtMaterial, clothMaterial, ropeMaterial, metalMaterial, grassMaterial, plasticMaterial);
 	Racket racket(unitCubeAO, "racket");
 	racket.jawnAngle = 0;
 	racket.plasticMaterial = plasticMaterial;
@@ -1138,6 +1139,7 @@ void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos)
 
 		glm::mat4 InitviewMatrix = glm::lookAt(eye, glm::vec3(translateW, translateY, 0.0f), up);
 		setViewMatrix(shaderProgram, InitviewMatrix);
+
 		lastMousePosY = yPos;
 	}
 

@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "Material.h"
 class SceneObjects
 {
 public:
@@ -16,7 +17,7 @@ public:
 	SceneObjects(int cubeVao, std::string objectName);
 	SceneObjects(std::string objectName);
 	void SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram);
-	void setTextures(GLuint court, GLuint rope, GLuint metal, GLuint cloth, GLuint grass);
+	//void setTextures(GLuint court, GLuint rope, GLuint metal, GLuint cloth, GLuint grass);
 	
 	int gridVao;
 	int cubeVao;	
@@ -30,13 +31,13 @@ public:
 	glm::vec3 Translate;
 	glm::vec3 lineArray[808];
 	int gridCount;
-	GLuint courtTexture;
-	GLuint clothTexture;
-	GLuint ropeTexture;
-	GLuint metalTexture;
-	GLuint ballTexture;
-	GLuint grassTexture;
-	GLuint plasticTexture;
+	Material courtTexture;
+	Material clothTexture;
+	Material ropeTexture;
+	Material metalTexture;
+	Material ballTexture;
+	Material grassTexture;
+	Material plasticTexture;
 	//atrributes for court
 
 	//attributes for net
@@ -48,6 +49,12 @@ public:
 
 	//void SetVAO(int cube, int reversecube, int grid);
 	void SetVAO(int cube, int grid);
+	void setMaterials(Material courtTexture,
+		Material clothTexture,
+		Material ropeTexture,
+		Material metalTexture,
+		Material ballTexture,
+		Material plasticTexture);
 	//methods like 
 	void InitGrid();
 	bool DrawBall();
