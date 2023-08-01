@@ -577,27 +577,19 @@ int main(int argc, char* argv[])
 			if (i == 1.0f) i = -1.0f;
 
 			// Draw geometry
-			//arm.SetAttr(groupMatrix, renderAs, shaderProgram);
-			//arm.DrawArm();
-			//racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
-			//racket.Draw();
+			arm.SetAttr(groupMatrix, renderAs, shaderProgram);
+			arm.DrawArm();
+			racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
+			racket.Draw();
 
-<<<<<<< HEAD
-   //         evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
-			////evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
 
-			//mattRacket.setGroupMatrix(groupMatrix);
-			//mattArm.setGroupMatrix(groupMatrix);
-			//mattArm.drawArm();
-			//mattRacket.drawRacket();
-=======
             evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
 			
 			mattRacket.setGroupMatrix(groupMatrix);
 			mattArm.setGroupMatrix(groupMatrix);
 			mattArm.drawArm();
 			mattRacket.drawRacket();
->>>>>>> 86f9cf43f2ddf72b270133f1c2ea5aff665fc377
+
 
 			
 			J.drawRacketJ(groupMatrix, translationVec+ translationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
@@ -624,21 +616,17 @@ int main(int argc, char* argv[])
 			glBindTexture(GL_TEXTURE_2D, depth_map_texture);
 
 			// Draw geometry
-	/*		arm.SetAttr(groupMatrix, renderAs, shaderProgram);
+			arm.SetAttr(groupMatrix, renderAs, shaderProgram);
 			arm.DrawArm();
 			racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
 			racket.Draw();
 
-<<<<<<< HEAD
-            
-=======
->>>>>>> 86f9cf43f2ddf72b270133f1c2ea5aff665fc377
 			evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
 
 			mattRacket.setGroupMatrix(groupMatrix);
 			mattArm.setGroupMatrix(groupMatrix);
 			mattArm.drawArm();
-			mattRacket.drawRacket();*/
+			mattRacket.drawRacket();
 
 			J.drawRacketJ(groupMatrix, translationVec + translationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
 
