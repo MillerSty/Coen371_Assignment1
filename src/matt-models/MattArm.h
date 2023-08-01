@@ -5,6 +5,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "MattRacket.h"
+
 class MattArm
 {
 private:
@@ -15,15 +17,15 @@ private:
 	glm::vec3 initialScale;
 	GLuint shaderProgram;
 	int unitCubeVAO;
-	
+	MattRacket mattRacket;
 
 	void drawUpperArm();
 	void drawLowerArm();
 
 public:
 
+	//MattArm(MattRacket racket);
 	MattArm();
-	//~MattArm();
 
 	void setArmColor(glm::vec3 color);
 	glm::vec3 getArmColor();

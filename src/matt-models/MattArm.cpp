@@ -4,6 +4,7 @@ MattArm::MattArm()
 {
 	worldMatrix = glm::mat4(1.0f);
 	initialScale = glm::vec3(0.2f);
+	//mattRacket = racket;
 }
 
 void MattArm::setArmColor(glm::vec3 color) { armColor = color; }
@@ -50,9 +51,11 @@ void MattArm::drawUpperArm()
 
 	modelMat *= modelTranslate * modelRotate * modelScale;
 
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "worldMatrix"), 1, GL_FALSE, &modelMat[0][0]);
-	glUniform3fv(glGetUniformLocation(shaderProgram, "objectColor"), 1, glm::value_ptr(glm::vec3(0.8f, 0.65f, 0.37f)));
 	glBindVertexArray(unitCubeVAO);
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "worldMatrix"), 1, GL_FALSE, &modelMat[0][0]);
+	
+	// Set to beige
+	glUniform3fv(glGetUniformLocation(shaderProgram, "objectColor"), 1, glm::value_ptr(glm::vec3(0.8f, 0.65f, 0.37f)));
 
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 
@@ -76,4 +79,7 @@ void MattArm::drawLowerArm()
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	glBindVertexArray(0);
+
+	// Draw racket attached to arm
+	//mattRacket.drawRacket();
 }
