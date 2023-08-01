@@ -577,18 +577,18 @@ int main(int argc, char* argv[])
 			if (i == 1.0f) i = -1.0f;
 
 			// Draw geometry
-			arm.SetAttr(groupMatrix, renderAs, shaderProgram);
-			arm.DrawArm();
-			racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
-			racket.Draw();
+			//arm.SetAttr(groupMatrix, renderAs, shaderProgram);
+			//arm.DrawArm();
+			//racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
+			//racket.Draw();
 
-            evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
-			//evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
+   //         evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
+			////evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
 
-			mattRacket.setGroupMatrix(groupMatrix);
-			mattArm.setGroupMatrix(groupMatrix);
-			mattArm.drawArm();
-			mattRacket.drawRacket();
+			//mattRacket.setGroupMatrix(groupMatrix);
+			//mattArm.setGroupMatrix(groupMatrix);
+			//mattArm.drawArm();
+			//mattRacket.drawRacket();
 
 			
 			J.drawRacketJ(groupMatrix, translationVec+ translationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
@@ -615,18 +615,20 @@ int main(int argc, char* argv[])
 			glBindTexture(GL_TEXTURE_2D, depth_map_texture);
 
 			// Draw geometry
-			arm.SetAttr(groupMatrix, renderAs, shaderProgram);
+	/*		arm.SetAttr(groupMatrix, renderAs, shaderProgram);
 			arm.DrawArm();
 			racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
 			racket.Draw();
 
-			J.drawRacketJ(groupMatrix, translationVec + translationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
             
 			evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
 			mattRacket.setGroupMatrix(groupMatrix);
 			mattArm.setGroupMatrix(groupMatrix);
 			mattArm.drawArm();
-			mattRacket.drawRacket();
+			mattRacket.drawRacket();*/
+
+			J.drawRacketJ(groupMatrix, translationVec + translationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
+
 
 			SceneObj.sphereVao = unitSphereAO;
 			SceneObj.sphereVertCount = vertexIndicessphere.size();
