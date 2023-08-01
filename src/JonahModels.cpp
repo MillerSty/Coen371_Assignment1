@@ -26,7 +26,7 @@ void JonahModels::drawRacketJ(mat4 groupMatrix, vec3 modelTranslationVec, GLint 
         GLuint applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
         float scaley = 5.0f;
         glBindVertexArray(VAO);
-        armTranslate = translate(mat4(1.0f), vec3(modelTranslationVec.x + initTranslate.x, modelTranslationVec.y + initTranslate.y, modelTranslationVec.z + initTranslate.z));
+        armTranslate = translate(mat4(1.0f), vec3(modelTranslationVec.x + initTranslate.x, modelTranslationVec.y + initTranslate.y, modelTranslationVec.z + initTranslate.z) / scaley);
         armRotateMatrix = rotate(mat4(1.0f), radians(rotateAngle), vec3(.0f, 1.0f, .0f));
         armLocal = rotate(mat4(1.0f), radians(45.0f), vec3(0.0f, 0.0f, 1.0f)) * scale(mat4(1.0f), vec3(2.0f, 0.3f, 0.3f));
 
@@ -38,7 +38,7 @@ void JonahModels::drawRacketJ(mat4 groupMatrix, vec3 modelTranslationVec, GLint 
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         upperArmTranslate = translate(mat4(1.0f), vec3(initTranslate.x, initTranslate.y + 0.9f, initTranslate.z)/scaley);
-        upperArmRotate = translate(mat4(1.0f), vec3(initTranslate.x, initTranslate.y, initTranslate.z)) * rotate(mat4(1.0f), radians(0.0f + armRotateAngle), vec3(.0f, .0f, 1.0f)) * translate(mat4(1.0f), vec3(-initTranslate.x, -initTranslate.y, -initTranslate.z));
+        upperArmRotate = translate(mat4(1.0f), vec3(initTranslate.x, initTranslate.y, initTranslate.z) / scaley) * rotate(mat4(1.0f), radians(0.0f + armRotateAngle), vec3(.0f, .0f, 1.0f)) * translate(mat4(1.0f), vec3(-initTranslate.x, -initTranslate.y, -initTranslate.z) / scaley);
         upperArmLocal = rotate(mat4(1.0f), radians(90.0f), vec3(0.0f, 0.0f, 1.0f)) * scale(mat4(1.0f), vec3(2.0f, 0.3f, 0.3f));
         upperArmParent = armParentMatrix * upperArmRotate * upperArmTranslate;
         worldMatrix = groupMatrix * upperArmParent * upperArmLocal;
