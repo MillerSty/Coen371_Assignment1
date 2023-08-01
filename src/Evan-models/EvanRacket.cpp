@@ -39,7 +39,7 @@ void EvanRacket::draw(GLuint racketTexutre, GLuint modelMatrixLocation, GLuint o
     // Transformations to manipulate the cube to make part of the model
     mat4 handleMatrix = translate(mat4(1.0f),modelScale * vec3(0.2f,0.3 + 0.375f ,0.0f));
     handleMatrix = scale(handleMatrix,modelScale * vec3(0.5f ,3.5f,0.5f));
-    handleMatrix = worldMatrix * groupMatrix * bicepMatrix * wristMatrix * handleMatrix;
+    handleMatrix = worldMatrix * groupMatrix  * wristMatrix * handleMatrix;
 
     // Load model matrix into the shader program
     glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(handleMatrix));
@@ -56,7 +56,7 @@ void EvanRacket::draw(GLuint racketTexutre, GLuint modelMatrixLocation, GLuint o
     // Transformations to manipulate the cube to make part of the model
     mat4 topHandleMatrix = translate(mat4(1.0f), modelScale * vec3(0.2f, 0.3 + 0.375f + 0.2f,0.0f));
     topHandleMatrix = scale(topHandleMatrix,modelScale * vec3(0.5f,0.5f,0.5f));
-    topHandleMatrix = worldMatrix * groupMatrix * bicepMatrix * wristMatrix * topHandleMatrix;
+    topHandleMatrix = worldMatrix * groupMatrix  * wristMatrix * topHandleMatrix;
 
     // Load model matrix into the shader program
     glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(topHandleMatrix));
@@ -73,7 +73,7 @@ void EvanRacket::draw(GLuint racketTexutre, GLuint modelMatrixLocation, GLuint o
     // Transformations to manipulate the cube to make part of the model
     mat4 lowerFrameMatrix = translate(mat4(1.0f),modelScale * vec3(0.2f, 0.3 + 0.375f + 0.2f + 0.05f,0.0f));
     lowerFrameMatrix = scale(lowerFrameMatrix,modelScale * vec3(3.0f,0.5f,0.5f));
-    lowerFrameMatrix = worldMatrix * groupMatrix * bicepMatrix * wristMatrix * lowerFrameMatrix;
+    lowerFrameMatrix = worldMatrix * groupMatrix  * wristMatrix * lowerFrameMatrix;
 
     // Load model matrix into the shader program
     glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(lowerFrameMatrix));
@@ -90,7 +90,7 @@ void EvanRacket::draw(GLuint racketTexutre, GLuint modelMatrixLocation, GLuint o
     // Transformations to manipulate the cube to make part of the model
     mat4 upperFrameMatrix = translate(mat4(1.0f),modelScale * vec3(0.2f, 0.3 + 0.375f + 0.2f + 0.4f,0.0f));
     upperFrameMatrix = scale(upperFrameMatrix,modelScale * vec3(3.0f,0.5f,0.5f));
-    upperFrameMatrix = worldMatrix * groupMatrix * bicepMatrix * wristMatrix * upperFrameMatrix;
+    upperFrameMatrix = worldMatrix * groupMatrix  * wristMatrix * upperFrameMatrix;
 
     // Load model matrix into the shader program
     glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(upperFrameMatrix));
@@ -107,7 +107,7 @@ void EvanRacket::draw(GLuint racketTexutre, GLuint modelMatrixLocation, GLuint o
     // Transformations to manipulate the cube to make part of the model
     mat4 leftFrameMatrix = translate(mat4(1.0f),modelScale * vec3(0.075, 0.3 + 0.375f + 0.2f + 0.225f,0.0f));
     leftFrameMatrix = scale(leftFrameMatrix,modelScale * vec3(0.5f,4.0f,0.5f));
-    leftFrameMatrix = worldMatrix * groupMatrix * bicepMatrix * wristMatrix * leftFrameMatrix;
+    leftFrameMatrix = worldMatrix * groupMatrix  * wristMatrix * leftFrameMatrix;
 
     // Load model matrix into the shader program
     glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(leftFrameMatrix));
@@ -124,7 +124,7 @@ void EvanRacket::draw(GLuint racketTexutre, GLuint modelMatrixLocation, GLuint o
     // Transformations to manipulate the cube to make part of the model
     mat4 rightFrameMatrix = translate(mat4(1.0f),modelScale * vec3(0.325, 0.3 + 0.375f + 0.2f + 0.225f,0.0f));
     rightFrameMatrix = scale(rightFrameMatrix,modelScale * vec3(0.5f,4.0f,0.5f));
-    rightFrameMatrix = worldMatrix * groupMatrix * bicepMatrix * wristMatrix * rightFrameMatrix;
+    rightFrameMatrix = worldMatrix * groupMatrix  * wristMatrix * rightFrameMatrix;
 
     // Load model matrix into the shader program
     glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(rightFrameMatrix));

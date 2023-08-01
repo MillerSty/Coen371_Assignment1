@@ -242,7 +242,7 @@ glm::vec3 Translate(.0f, .0f, .0f);
 glm::vec3 GroupMatrixScale(1.0f, 1.0f, 1.0f);
 glm::mat4 groupMatrix;
 glm::mat4 rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-Arm arm;
+
 int renderAs = GL_TRIANGLES;
 int shaderProgram;
 double lastMousePosX, lastMousePosY, lastMousePosZ;
@@ -252,6 +252,8 @@ float translateW = 0, translateY = 0, translateZ = 0;
 // Toggles for shadows and textures
 bool shouldApplyShadows = true;
 bool shouldApplyTextures = true;
+Arm arm;
+EvanArm evanArm;
 
 int main(int argc, char* argv[])
 {
@@ -393,8 +395,12 @@ int main(int argc, char* argv[])
     EvanRacket evanRacket(glm::vec3(0.2f, 0.0f, 0.0f), modelScale,
                           unitCubeAO,unitCubeAO,unitCubeAO,
                           unitCubeAO,unitCubeAO, unitCubeAO );
-	EvanArm evanArm(glm::vec3(0.2f, 0.0f, 0.0f), modelScale, unitCubeAO,
-                    unitCubeAO, evanRacket );
+	evanArm.setInitial(
+		glm::vec3(0.2f, 0.0f, 0.0f), 
+		modelScale,
+		unitCubeAO,
+        unitCubeAO, 
+		evanRacket );
 
     // Lighting
     float lightAngleOuter = 30.0;
@@ -464,7 +470,7 @@ int main(int argc, char* argv[])
 	glUniform1i(kdepthMap, 2);
     //NOTE we have issues when doing mouse jawn with current set up
 
-    float lastFrameTime = glfwGetTime();
+	float lastFrameTime = glfwGetTime();
 	while (!glfwWindowShouldClose(window))
 	{
 		// Handle resizing
@@ -477,81 +483,81 @@ int main(int argc, char* argv[])
 
 		// Set initial group matrix
 		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) *
-			          glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
-			          rotationMatrixW;
+			glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
+			rotationMatrixW;
+		glm::vec3 evanTranslation = vec3(evanArm.getTranslateModel().x + evanArm.TranslateRandom.x + evanArm.initialPosition.x, evanArm.getTranslateModel().y + evanArm.TranslateRandom.y + evanArm.initialPosition.y, evanArm.getTranslateModel().z + evanArm.TranslateRandom.z + evanArm.initialPosition.z);
+		// Demo on how to use evan's model
+		mat4 evanGroupMatrix = translate(mat4(1.0f), vec3(evanTranslation.x + -0.2f * sinf((float)0.0f), evanTranslation.y + 0.0f, evanTranslation.z + 0.0f))* rotate(mat4(1.0f), radians(evanArm.getRotation()), vec3(1.0f, 0.0f, 0.0f));
+		mat4 evanBicepMatrix = rotate(mat4(1.0f), radians(evanArm.getRotation()), vec3(1.0f, 0.0f, 0.0f));
+		evanArm.groupMatrix = evanGroupMatrix;
+		evanArm.bicepMatrix = evanBicepMatrix;
+		evanArm.racket.groupMatrix = evanGroupMatrix;
+		evanArm.racket.bicepMatrix = evanBicepMatrix;
+		lastFrameTime = glfwGetTime();
+		// Must draw scene in 2 passes: once for shadows, and another normally
+		// 1st pass
+		{
+			glUniform1i(applyTexturesLocation, false);
+			glUniform1i(applyShadowsLocation, shouldApplyShadows);
+			// Use proper image output size
+			glViewport(0, 0, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE);
+			// Bind depth map texture as output frame buffer
+			glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
+			// Clear depth data on the frame buffer
+			glClear(GL_DEPTH_BUFFER_BIT);
 
-        // Demo on how to use evan's model
-        mat4 evanGroupMatrix = translate(mat4(1.0f), vec3(-0.2f * sinf((float)glfwGetTime()),0.0f,0.0f) );
-        mat4 evanBicepMatrix = rotate(mat4(1.0f), (float)glfwGetTime(), vec3(1.0f,0.0f,0.0f) );
-        evanArm.groupMatrix = evanGroupMatrix;
-        evanArm.bicepMatrix = evanBicepMatrix;
-        evanArm.racket.groupMatrix = evanGroupMatrix;
-        evanArm.racket.bicepMatrix = evanBicepMatrix;
-        lastFrameTime = glfwGetTime();
-        // Must draw scene in 2 passes: once for shadows, and another normally
-        // 1st pass
-        {
-            glUniform1i(applyTexturesLocation, false);
-            glUniform1i(applyShadowsLocation, shouldApplyShadows);
-            // Use proper image output size
-            glViewport(0, 0, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE);
-            // Bind depth map texture as output frame buffer
-            glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
-            // Clear depth data on the frame buffer
-            glClear(GL_DEPTH_BUFFER_BIT);
-
-            // Draw geometry
-            arm.SetAttr(groupMatrix, renderAs, shaderProgram);
-            arm.setTranslation(Translate, translateWSAD);
-            arm.DrawArm();
-            racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
-            racket.Draw();
-
-            evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
-            SceneObj.sphereVao = unitSphereAO;
-            SceneObj.sphereVertCount = vertexIndicessphere.size();
-            SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
-            SceneObj.SetVAO(unitCubeAO, gridAO);
-            SceneObj.DrawScene(false);  // Draw scene without the skybox, so it can't be used to make shadows on the scene
-
-            // Unbind geometry
-            glBindVertexArray(0);
-        }
-
-        // 2nd pass
-        {
-            glUniform1i(applyTexturesLocation, shouldApplyTextures);
-            glUniform1i(applyShadowsLocation, false);
-            // Use proper image output size
-            // Side note: we get the size from the frame buffer instead of using WIDTH and HEIGHT because of a bug with highDPI displays
-            int width, height;
-            glfwGetFramebufferSize(window, &width, &height);
-            glViewport(0, 0, width, height);
-            // Bind screen as output frame buffer
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            // Clear color and depth data on frame buffer
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glActiveTexture(GL_TEXTURE0 + 2);
-			glBindTexture(GL_TEXTURE_2D, depth_map_texture);
-           
 			// Draw geometry
-            arm.SetAttr(groupMatrix, renderAs, shaderProgram);
-            arm.setTranslation(Translate, translateWSAD);
-            arm.DrawArm();
-            racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
-            racket.Draw();
+			arm.SetAttr(groupMatrix, renderAs, shaderProgram);
+			arm.setTranslation(Translate, translateWSAD);
+			arm.DrawArm();
+			racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
+			racket.Draw();
 
-            evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
-
-            SceneObj.sphereVao = unitSphereAO;
-            SceneObj.sphereVertCount = vertexIndicessphere.size();
-            SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
-            SceneObj.SetVAO(unitCubeAO, gridAO);
-            SceneObj.DrawScene(true);  // Draw scene with the skybox
+			evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
+			SceneObj.sphereVao = unitSphereAO;
+			SceneObj.sphereVertCount = vertexIndicessphere.size();
+			SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
+			SceneObj.SetVAO(unitCubeAO, gridAO);
+			SceneObj.DrawScene(false);  // Draw scene without the skybox, so it can't be used to make shadows on the scene
 
 			// Unbind geometry
-            glBindVertexArray(0);
-        }
+			glBindVertexArray(0);
+		}
+
+		// 2nd pass
+		{
+			glUniform1i(applyTexturesLocation, shouldApplyTextures);
+			glUniform1i(applyShadowsLocation, false);
+			// Use proper image output size
+			// Side note: we get the size from the frame buffer instead of using WIDTH and HEIGHT because of a bug with highDPI displays
+			int width, height;
+			glfwGetFramebufferSize(window, &width, &height);
+			glViewport(0, 0, width, height);
+			// Bind screen as output frame buffer
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			// Clear color and depth data on frame buffer
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glActiveTexture(GL_TEXTURE0 + 2);
+			glBindTexture(GL_TEXTURE_2D, depth_map_texture);
+
+			// Draw geometry
+			arm.SetAttr(groupMatrix, renderAs, shaderProgram);
+			arm.setTranslation(Translate, translateWSAD);
+			arm.DrawArm();
+			racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
+			racket.Draw();
+
+			evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
+
+			SceneObj.sphereVao = unitSphereAO;
+			SceneObj.sphereVertCount = vertexIndicessphere.size();
+			SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
+			SceneObj.SetVAO(unitCubeAO, gridAO);
+			SceneObj.DrawScene(true);  // Draw scene with the skybox
+
+			// Unbind geometry
+			glBindVertexArray(0);
+		}
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
@@ -561,6 +567,7 @@ int main(int argc, char* argv[])
 
 	return 0;
 }
+
 
 /***
 Gets the given shaders source code from a file and returns it as a string.
@@ -775,22 +782,22 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		rotationMatrixW *= glm::rotate(glm::mat4(1.0f), glm::radians(2.55f), glm::vec3(.0f, -1.0f, 0.0f));
 
 	else if (state_W == GLFW_PRESS)
-		translateWSAD.y += .005;
+		evanArm.setTranslateModel(glm::vec3(evanArm.getTranslateModel().x, (evanArm.getTranslateModel().y + .005f), evanArm.getTranslateModel().z));
 
 	else if (state_S == GLFW_PRESS)
-		translateWSAD.y -= .005;
+		evanArm.setTranslateModel(glm::vec3(evanArm.getTranslateModel().x, (evanArm.getTranslateModel().y - .005f), evanArm.getTranslateModel().z));
 
 	else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-		translateWSAD.x -= .005;
+		evanArm.setTranslateModel(glm::vec3((evanArm.getTranslateModel().x - .005f), evanArm.getTranslateModel().y, evanArm.getTranslateModel().z));
 
 	else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-		translateWSAD.x += .005;
-
+		evanArm.setTranslateModel(glm::vec3((evanArm.getTranslateModel().x + .005f), evanArm.getTranslateModel().y, evanArm.getTranslateModel().z));
+		
 	else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-		arm.setRotation(arm.getRotation() + 5);
-
+		evanArm.setRotation(evanArm.getRotation() + 5);
+	
 	else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-		arm.setRotation(arm.getRotation() - 5);
+		evanArm.setRotation(evanArm.getRotation() - 5);
 
 	// If p, l, or t is pressed, changed render mode between points, lines, and triangles, respectively
 	else if (state_P == GLFW_PRESS)

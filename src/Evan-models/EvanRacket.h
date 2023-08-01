@@ -33,6 +33,7 @@ public:
     /*
      * This constructor creates the VAOs & sets the initial group matrix
      */
+    EvanRacket() {}
     EvanRacket(vec3 initialPos, vec3 scale, GLuint handleVAO, GLuint topHandleVAO, GLuint lowerFrameVAO,
                GLuint upperFrameVAO, GLuint leftFrameVAO, GLuint rightFrameVAO);
     /*
