@@ -621,10 +621,8 @@ int main(int argc, char* argv[])
 			racket.Draw();
 
 			J.drawRacketJ(groupMatrix, translationVec + translationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
-            //evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
-			//
+            
 			evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
-			//evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
 			mattRacket.setGroupMatrix(groupMatrix);
 			mattArm.setGroupMatrix(groupMatrix);
 			mattArm.drawArm();
@@ -905,7 +903,10 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		{
 			switch (selectJoint) {
 			case(0): evanArm.setRotation(evanArm.getRotation() + 5);  break;
-			case(1):if (evanArm.getERotation() + 5 > 90)evanArm.setERotation(90); else  evanArm.setERotation(evanArm.getERotation() + 5);  break;
+			case(1):if (evanArm.getERotation() + 5 > 90) {
+				evanArm.setERotation(90); break; 
+			}
+				   else { evanArm.setERotation(evanArm.getERotation() + 5);  break; }
 			default: break;
 			}
 
@@ -916,8 +917,14 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		{
 			switch (selectJoint) {
 			case(0): evanArm.setRotation(evanArm.getRotation() - 5);  break;
-			case(1):if (evanArm.getERotation() - 5 < 0) { evanArm.setERotation(0); }
-				   else  evanArm.setERotation(evanArm.getERotation() - 5);  break;
+			case(1):if (evanArm.getERotation() - 5 < 0) {
+				evanArm.setERotation(0);
+				break; 
+			}
+				   else {
+				evanArm.setERotation(evanArm.getERotation() - 5); 
+				break; 
+			}
 			default: break;
 			}
 			// evanArm.setRotation(evanArm.getRotation() - 5); break;
@@ -925,18 +932,21 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		else if (state_SPACE == GLFW_PRESS)
 		{
 			evanArm.setTranslateRandom(glm::vec3(number1, number2, number3));
+			break;
 
 		}
+		break;
+
 	case(1)://jonah's
 		if (state_W == GLFW_PRESS) {
 			translationVec.y += .005f; break;
 		}
 		else if (state_S == GLFW_PRESS) {
-				translationVec.y -= .005f; break;
+			translationVec.y -= .005f; break;
 		}
 		else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT) {
-		translationVec.x += .005f; break;
-	}
+			translationVec.x += .005f; break;
+		}
 		else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT) {
 			translationVec.x -= .005f; break;
 		}
@@ -947,6 +957,13 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 			jonahRotationAngle -= 5.0f;
 			break;
 		}
+		else if (state_SPACE == GLFW_PRESS)
+		{
+			translationRandom=glm::vec3(number1, number2, number3);
+			break;
+
+		}
+		break;
 	case(2)://matt break;
 	case(3)://noot break;
 	default:break;
@@ -968,7 +985,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		if (selectModel == 0) selectModel += 1;
 		else if (selectModel == 4) selectModel = 0;
 		else selectModel += 1;
-		printf("select is: %d\n", selectModel);
+		printf("selectModel is: %d\n", selectModel);
 	}
 	else if (state_TAB == GLFW_PRESS && mods == GLFW_MOD_SHIFT) {
 		/*
