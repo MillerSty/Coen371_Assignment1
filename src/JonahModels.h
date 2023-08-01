@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <list>
+#include "Material.h"
 
 #define GLEW_STATIC 1   
 #include <GL/glew.h>    
@@ -33,6 +34,9 @@ public:
     mat4 upperArmLocal;
     mat4 upperArmParent;
     GLuint VAO;
+
+    Material racketMaterial;
+    Material armMaterial;
 
     int shaderProgram;
 

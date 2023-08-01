@@ -25,6 +25,11 @@ void JonahModels::drawRacketJ(mat4 groupMatrix, vec3 modelTranslationVec, GLint 
         //GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
         GLuint applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
         float scaley = 5.0f;
+
+
+        armMaterial.bindTexture();
+        armMaterial.loadToShader();
+
         glBindVertexArray(VAO);
         armTranslate = translate(mat4(1.0f), vec3(modelTranslationVec.x + initTranslate.x, modelTranslationVec.y + initTranslate.y, modelTranslationVec.z + initTranslate.z));
         armRotateMatrix = rotate(mat4(1.0f), radians(rotateAngle), vec3(.0f, 1.0f, .0f));
@@ -45,6 +50,10 @@ void JonahModels::drawRacketJ(mat4 groupMatrix, vec3 modelTranslationVec, GLint 
 
         glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
         glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        racketMaterial.bindTexture();
+        racketMaterial.loadToShader();
+
 
         racketBaseTranslate = translate(mat4(1.0f), vec3(0.0f, 1.25f, 0.0f) / scaley);
         racketBaseLocal = scale(mat4(1.0f), vec3(0.25f, 2.5f, 0.25f));

@@ -448,6 +448,9 @@ int main(int argc, char* argv[])
 	racket.jawnAngle = 0;
 	racket.plasticMaterial = plasticMaterial;
 
+	
+
+
 
 	// Set mouse and keyboard callbacks
 	glfwSetKeyCallback(window, keyPressCallback);
@@ -467,6 +470,8 @@ int main(int argc, char* argv[])
 		evanRacket );
 
 	JonahModels J = JonahModels(unitCubeAO, shaderProgram);
+	J.racketMaterial = metalMaterial;
+	J.armMaterial = plasticMaterial;
 
     // Lighting
     float lightAngleOuter = 30.0;
