@@ -583,8 +583,7 @@ int main(int argc, char* argv[])
 			racket.Draw();
 
             evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
-			//evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
-
+			
 			mattRacket.setGroupMatrix(groupMatrix);
 			mattArm.setGroupMatrix(groupMatrix);
 			mattArm.drawArm();
@@ -620,13 +619,14 @@ int main(int argc, char* argv[])
 			racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
 			racket.Draw();
 
-			J.drawRacketJ(groupMatrix, translationVec + translationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
-            
 			evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
+
 			mattRacket.setGroupMatrix(groupMatrix);
 			mattArm.setGroupMatrix(groupMatrix);
 			mattArm.drawArm();
 			mattRacket.drawRacket();
+
+			J.drawRacketJ(groupMatrix, translationVec + translationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
 
 			SceneObj.sphereVao = unitSphereAO;
 			SceneObj.sphereVertCount = vertexIndicessphere.size();
@@ -957,18 +957,17 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 			jonahRotationAngle -= 5.0f;
 			break;
 		}
-		else if (state_SPACE == GLFW_PRESS)
-		{
+		else if (state_SPACE == GLFW_PRESS){
 			translationRandom=glm::vec3(number1, number2, number3);
 			break;
-
 		}
 		break;
+
 	case(2)://matt break;
 	case(3)://noot break;
+
+
 	default:break;
-
-
 	}
 
 	// If ESC is pressed, window should closed
