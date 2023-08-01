@@ -15,7 +15,7 @@ uniform vec3 lightColor;
 uniform vec3 lightPosition;
 uniform vec3 lightDirection;
 
-const float shadingAmbientStrength = 0.5;
+const float shadingAmbientStrength = 1.0f;
 const float shadingDiffuseStrength = 0.5;
 const float shadingSpecularStrength = 0.5;
 
@@ -34,7 +34,9 @@ in vec3 fragmentNormal;
 
 uniform float materialSpec;
 
-struct Material{
+//i think there is something wrong with out Lighting
+//material properties dont seem to have an affect
+struct Material{//vec3's~!!!! https://learnopengl.com/Lighting/Materials
 
     float diffuseStrength;
     float specularStrength;
@@ -46,19 +48,19 @@ struct Material{
 uniform Material mats;
 
 vec3 ambientColor() {
-    return objectColor * mats.ambientStrength;
+    return objectColor * shadingAmbientStrength * mats.ambientStrength;
 }
 
 vec3 diffuseColor() {
     vec3 lightDir = normalize(lightPosition - fragmentPosition);
-    return mats.diffuseStrength * objectColor * lightColor * max(dot(normalize(fragmentNormal), lightDir), 0.0f);
+    return mats.diffuseStrength * shadingDiffuseStrength* objectColor * lightColor * max(dot(normalize(fragmentNormal), lightDir), 0.0f);
 }
 
 vec3 specularColor() {
     vec3 lightDir = normalize(lightPosition - fragmentPosition);
     vec3 viewDir = normalize(viewPosition - fragmentPosition);
     vec3 reflectDir = reflect(-lightDir, normalize(fragmentNormal));
-    return mats.specularStrength * lightColor * pow(max(dot(reflectDir, viewDir), 0.0f), mats.shininessStrength);
+    return mats.specularStrength*shadingSpecularStrength * lightColor * pow(max(dot(reflectDir, viewDir), 0.0f), mats.shininessStrength);
 }
 float shadowScalar() {
     // this function returns 1.0 when the surface receives light, and 0.0 when it is in a shadow
@@ -100,10 +102,10 @@ void main()
         vec3 diffuse = vec3(0.0f);
         vec3 specular = vec3(0.0f); 
 
-        //point light?
-        float constantPoint = .50f; //1 for low height
-        float linearPoint = .001932;//3 for low height
-        float quadPoint = .0013; //3 for low height      
+        //point light? can we programmatically set these somehow -> uniforms?
+        float constantPoint = 1.0f;//.50f for high //1 for low height
+            float linearPoint = 3.0f;//  .001932;//3 for low height
+            float quadPoint = 3.0f;//   .0013; //3 for low height      
         vec3 directionPoint = fragmentPosition - lightPosition;
         float distancePoint = length(directionPoint);
         float attenuation = quadPoint * distancePoint * distancePoint + linearPoint * distancePoint + constantPoint;
@@ -116,7 +118,7 @@ void main()
         diffuse = diffuseColor();
         specular = specularColor();
 
-        vec3 color = ambient +  (specular + diffuse)*scalar * attenuation;
+        vec3 color = ambient +  (specular + diffuse)*scalar / attenuation;
            fragColor = color;
 
         if (shouldApplyTexture) {

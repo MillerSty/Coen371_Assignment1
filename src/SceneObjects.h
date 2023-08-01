@@ -12,6 +12,7 @@
 class SceneObjects
 {
 public:
+	SceneObjects() = default;
 	SceneObjects(int cubeVao,
 		glm::mat4 worldMatrix);
 	SceneObjects(int cubeVao, std::string objectName);
@@ -56,6 +57,7 @@ public:
 		Material ballTexture,
 		Material plasticTexture);
 	//methods like 
+	
 	void InitGrid();
 	bool DrawBall();
 	bool DrawCourt();

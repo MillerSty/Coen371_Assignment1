@@ -26,14 +26,6 @@ void SceneObjects::SetVAO(int cube, int grid) {
 	this->cubeVao = cube;
 	this->gridVao = grid;
 }
-//void SceneObjects::setTextures(GLuint court, GLuint rope, GLuint metal, GLuint cloth,GLuint grass) { 
-//	this->courtTexture = court;
-//	this->ropeTexture = rope;
-//	this->metalTexture = metal;
-//	this->clothTexture = cloth;
-//	this->grassTexture = grass;
-//
-//}
 void SceneObjects::setMaterials(Material courtTexture,	Material clothTexture,
 	Material ropeTexture,	Material metalTexture,
 	Material grassTexture,	Material plasticTexture) {

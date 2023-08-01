@@ -369,10 +369,6 @@ int main(int argc, char* argv[])
 	GLuint plasticTextureID  = loadTexture("../src/Assets/plastic.jpg");
 	GLuint woodTextureID       = loadTexture("../src/Assets/wood1.jpg");
 
-
-
-
-
 	
 	// Black background	
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -399,6 +395,8 @@ int main(int argc, char* argv[])
 	//Scene Jawn
 	SceneObjects SceneObj("scene");
 	SceneObj.InitGrid();
+	SceneObjects Ball;
+	
 	//SceneObj.plasticTexture = plasticTextureID;
 	glfwGetCursorPos(window, &lastMousePosX, &lastMousePosY);
 	lastMousePosZ = lastMousePosY;
@@ -435,17 +433,22 @@ int main(int argc, char* argv[])
 
 
 	//TEXTURE DEFINITION
-	Material courtMaterial(.5f, .60f, .5f, .002f, courtTextureID, shaderProgram);
-	Material ropeMaterial(.5f, .60f, .5f, .002f, ropeTextureID, shaderProgram);
-	Material clothMaterial(.5f, .60f, .5f, .002f, clothTextureID, shaderProgram);
-	Material metalMaterial(.5f, .60f, .5f, .002f, metalTextureID, shaderProgram);
-	Material grassMaterial(.5f, .60f, .5f, .002f, grassTextureID, shaderProgram);
+						//diff spec ambient shiny
+	Material courtMaterial(.7f, .20f, 1.0f, .9f, courtTextureID, shaderProgram);
+	Material ropeMaterial(.5f, .60f, .5f, .9f, ropeTextureID, shaderProgram);
+	Material clothMaterial(.5f, .60f, .5f, .9f, clothTextureID, shaderProgram);
+	Material metalMaterial(.6f, .90f, .6f, .00012f, metalTextureID, shaderProgram);
+	Material grassMaterial(.2f, .20f, .2f, .9f, grassTextureID, shaderProgram);
 	Material plasticMaterial(.5f, .60f, .5f, .002f, plasticTextureID, shaderProgram);
 	Material woodMaterial(.5f, .60f, .5f, .002f, woodTextureID, shaderProgram);
 
-
+	Ball.grassTexture = grassMaterial;
+	Ball.shaderProgram = shaderProgram;
+	Ball.sphereVao = unitSphereAO;
+	Ball.sphereVertCount=vertexIndicessphere.size();
 	SceneObj.setMaterials(courtMaterial, clothMaterial, ropeMaterial, metalMaterial, grassMaterial, plasticMaterial);
 	Racket racket(unitCubeAO, "racket");
+	racket.setBall(Ball);
 	racket.jawnAngle = 0;
 	racket.plasticMaterial = plasticMaterial;
 
