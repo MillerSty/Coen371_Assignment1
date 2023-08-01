@@ -361,15 +361,24 @@ int main(int argc, char* argv[])
 #endif
 
 	// Load the textures
-	GLuint courtTextureID = loadTexture("../src/Assets/clay2.jpg");
-	GLuint ropeTextureID = loadTexture("../src/Assets/rope.jpg");
-	GLuint clothTextureID = loadTexture("../src/Assets/cloth.jpg");
-	GLuint metalTextureID = loadTexture("../src/Assets/metal.jpg");
-	GLuint grassTextureID = loadTexture("../src/Assets/grass4.jpg");
-	GLuint plasticTextureID = loadTexture("../src/Assets/plastic.jpg");
-	GLuint woodTextureID = loadTexture("../src/Assets/wood1.jpg");
+	GLuint courtTextureID	 = loadTexture("../src/Assets/clay2.jpg");
+	GLuint ropeTextureID	 = loadTexture("../src/Assets/rope.jpg");
+	GLuint clothTextureID	= loadTexture("../src/Assets/cloth.jpg");
+	GLuint metalTextureID	= loadTexture("../src/Assets/metal.jpg");
+	GLuint grassTextureID     = loadTexture("../src/Assets/grass4.jpg");
+	GLuint plasticTextureID  = loadTexture("../src/Assets/plastic.jpg");
+	GLuint woodTextureID       = loadTexture("../src/Assets/wood1.jpg");
 
 
+
+
+	Material plasticMaterial(.5f, .60f, .5f, .002f, courtTextureID	, shaderProgram);
+	Material ropeMaterial(.5f, .60f, .5f, .002f, ropeTextureID	, shaderProgram);
+	Material clothMaterial(.5f, .60f, .5f, .002f, clothTextureID	, shaderProgram);
+	Material metalMaterial(.5f, .60f, .5f, .002f, metalTextureID	, shaderProgram);
+	Material grassMaterial(.5f, .60f, .5f, .002f, grassTextureID  , shaderProgram);
+	Material plasticMaterial(.5f, .60f, .5f, .002f, plasticTextureID, shaderProgram);
+	Material woodMaterial(.5f, .60f, .5f, .002f, woodTextureID   , shaderProgram);
 
 	
 	// Black background	
@@ -431,13 +440,14 @@ int main(int argc, char* argv[])
 		//glm::vec3(-.5f, 0.0f, .2f);
 
 
-		//plasticMaterial;
-	Material plasticMaterial(.5f, .60f, .5f, .002f, plasticTextureID, shaderProgram);
+
+
+
+
 	Racket racket(unitCubeAO, "racket");
 	racket.jawnAngle = 0;
 	racket.plasticMaterial = plasticMaterial;
-	//int* newWidth = new int;
-	//int* newHeight = new int;
+
 
 	// Set mouse and keyboard callbacks
 	glfwSetKeyCallback(window, keyPressCallback);
