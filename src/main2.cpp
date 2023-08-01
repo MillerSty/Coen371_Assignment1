@@ -426,9 +426,9 @@ int main(int argc, char* argv[])
 	glfwSetCursorPosCallback(window, mouseCursorPostionCallback);
 	//glfwSetWindowSizeCallback(window, windowSizeCallback);
 
-     vec3 modelScaley = vec3(0.03, 0.03, 0.03);
+
 	glm::vec3 modelScale(0.25, 0.25, 0.25);
-    EvanRacket evanRacket(glm::vec3(0.2f, 0.0f, 0.0f), modelScaley,
+    EvanRacket evanRacket(glm::vec3(0.2f, 0.0f, 0.0f), modelScale,
                           unitCubeAO,unitCubeAO,unitCubeAO,
                           unitCubeAO,unitCubeAO, unitCubeAO );
 	evanArm.setInitial(
@@ -531,12 +531,18 @@ int main(int argc, char* argv[])
 		i += .02;
 			glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
 			rotationMatrixW;
-		glm::vec3 evanTranslation = vec3(evanArm.getTranslateModel().x + evanArm.TranslateRandom.x + evanArm.initialPosition.x, evanArm.getTranslateModel().y + evanArm.TranslateRandom.y + evanArm.initialPosition.y, evanArm.getTranslateModel().z + evanArm.TranslateRandom.z + evanArm.initialPosition.z);
+			//evan Translation for smaller 
+		glm::vec3 evanTranslation = vec3(evanArm.getTranslateModel().x + evanArm.getTranslateRandom().x + evanArm.initialPosition.x, evanArm.getTranslateModel().y + evanArm.getTranslateRandom().y + evanArm.initialPosition.y, evanArm.getTranslateModel().z + evanArm.getTranslateRandom().z + evanArm.initialPosition.z);
 		// Demo on how to use evan's model
-		mat4 evanGroupMatrix = translate(mat4(1.0f), vec3(evanTranslation.x + -0.2f * sinf((float)0.0f), evanTranslation.y + 0.0f, evanTranslation.z + 0.0f))* rotate(mat4(1.0f), radians(evanArm.getRotation()), vec3(1.0f, 0.0f, 0.0f));
-		mat4 evanBicepMatrix = rotate(mat4(1.0f), radians(evanArm.getRotation()), vec3(1.0f, 0.0f, 0.0f));
+		mat4 evanGroupMatrix = translate(mat4(1.0f), vec3(evanTranslation.x + -0.2f * sinf((float)0.0f),
+								evanTranslation.y + 0.0f,
+								evanTranslation.z + 0.0f))
+								* rotate(mat4(1.0f), radians(evanArm.getRotation()), vec3(1.0f, 0.0f, 0.0f));
+		
+		
+		mat4 evanBicepMatrix = rotate(mat4(1.0f), radians(evanArm.getERotation()), vec3(1.0f, 0.0f, 0.0f));
 		evanArm.groupMatrix = evanGroupMatrix;
-		evanArm.bicepMatrix = evanBicepMatrix;
+		evanArm.bicepMatrix = evanBicepMatrix; //bicep not called
 		evanArm.racket.groupMatrix = evanGroupMatrix;
 		evanArm.racket.bicepMatrix = evanBicepMatrix;
 		lastFrameTime = glfwGetTime();
@@ -824,8 +830,9 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		number2 = number2 / (float)(RAND_MAX);
 	if (number3 >= .75f)
 		number3 = number3 / (float)(RAND_MAX);
+	
 	switch (selectModel) {//prints twice per button press maybe this is okay?
-	case(-1)://Jon's Model		
+	case(4)://Jon's Model		
 		if (state_W == GLFW_PRESS)			
 			arm.setTranslateModel(glm::vec3(arm.getTranslateModel().x, (arm.getTranslateModel().y + .005f), arm.getTranslateModel().z));		
 		else if (state_S == GLFW_PRESS)
@@ -836,20 +843,21 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 			arm.setTranslateModel(glm::vec3((arm.getTranslateModel().x + .005f), arm.getTranslateModel().y, arm.getTranslateModel().z));
 		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
 			switch(selectJoint) {
-			case(-1): arm.setRotation(arm.getRotation() + 5);  break;
-			case(0):if (arm.getERotation() + 5 > 90)arm.setERotation(90); else  arm.setERotation(arm.getERotation() + 5);  break;
-			case(1):if (arm.getWRotation() + 5 > 65)arm.setWRotation(65); else  arm.setWRotation(arm.getWRotation() + 5); break;
+			case(0): arm.setRotation(arm.getRotation() + 5);  break;
+			case(1):if (arm.getERotation() + 5 > 90)arm.setERotation(90); else  arm.setERotation(arm.getERotation() + 5);  break;
+			case(2):if (arm.getWRotation() + 5 > 65)arm.setWRotation(65); else  arm.setWRotation(arm.getWRotation() + 5); break;
 			default: break;
 		}
 		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
 			switch (selectJoint) {
-			case(-1): arm.setRotation(arm.getRotation() - 5);  break;
-			case(0):if (arm.getERotation() - 5 < 0)arm.setERotation(0); else  arm.setERotation(arm.getERotation() - 5);  break;
-			case(1):if (arm.getWRotation() - 5 < -85 )arm.setWRotation(-85); else  arm.setWRotation(arm.getWRotation() - 5); break;
+			case(0): arm.setRotation(arm.getRotation() - 5);  break;
+			case(1):if (arm.getERotation() - 5 < 0)arm.setERotation(0); else  arm.setERotation(arm.getERotation() - 5);  break;
+			case(2):if (arm.getWRotation() - 5 < -85 )arm.setWRotation(-85); else  arm.setWRotation(arm.getWRotation() - 5); break;
 			default: break;
 		}
 		else if (state_SPACE == GLFW_PRESS)
 		{
+
 			arm.setTranslateRandom(glm::vec3(number1, number2, number3));
 		}		
 		break;
@@ -867,23 +875,39 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		 }
 		   else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
 		 {
-			 evanArm.setTranslateModel(glm::vec3((evanArm.getTranslateModel().x - .005f), evanArm.getTranslateModel().y, evanArm.getTranslateModel().z));
+			 evanArm.setTranslateModel(glm::vec3((evanArm.getTranslateModel().x + .005f), evanArm.getTranslateModel().y, evanArm.getTranslateModel().z));
 			 break;
 		 }
 		   else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
 		 {
-			 evanArm.setTranslateModel(glm::vec3((evanArm.getTranslateModel().x + .005f), evanArm.getTranslateModel().y, evanArm.getTranslateModel().z));
+			 evanArm.setTranslateModel(glm::vec3((evanArm.getTranslateModel().x - .005f), evanArm.getTranslateModel().y, evanArm.getTranslateModel().z));
 			 break;
 		 }
 		   else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
 		 {
-			 evanArm.setRotation(evanArm.getRotation() + 5); break;
+			switch (selectJoint) {
+			case(0): evanArm.setRotation(evanArm.getRotation() + 5);  break;
+			case(1):if (evanArm.getERotation() + 5 > 90)evanArm.setERotation(90); else  evanArm.setERotation(evanArm.getERotation() + 5);  break;
+			default: break;
+			}
+
+			// evanArm.setRotation(evanArm.getRotation() + 5); break;
 		 }
 
 		   else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
 		 {
-			 evanArm.setRotation(evanArm.getRotation() - 5); break;
+			switch (selectJoint) {
+			case(0): evanArm.setRotation(evanArm.getRotation() - 5);  break;
+			case(1):if (evanArm.getERotation() - 5 < 0)evanArm.setERotation(0); else  evanArm.setERotation(evanArm.getERotation() - 5);  break;
+			default: break;
+			}
+			// evanArm.setRotation(evanArm.getRotation() - 5); break;
 		 }
+		   else if (state_SPACE == GLFW_PRESS)
+		{
+			evanArm.setTranslateRandom(glm::vec3(number1, number2, number3));
+			
+		}
 	case(1): printf("jonah\n"); break;
 	case(2):printf("evan\n"); break;
 	case(3):printf("noot\n"); break;
