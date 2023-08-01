@@ -269,7 +269,7 @@ glm::vec3 Translate(.0f, .0f, .0f);
 glm::vec3 GroupMatrixScale(1.0f, 1.0f, 1.0f);
 glm::mat4 groupMatrix;
 glm::mat4 rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-Arm arm;
+//Arm arm;
 
 // Create Matt model parts
 MattRacket mattRacket;
@@ -562,7 +562,7 @@ int main(int argc, char* argv[])
 			racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
 			racket.Draw();
 
-            //evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
+            evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
 			//evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
 
 			mattRacket.setGroupMatrix(groupMatrix);
@@ -598,8 +598,9 @@ int main(int argc, char* argv[])
 			racket.Draw();
 
             //evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
-			//evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
+			//
 			evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
+			//evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
 			mattRacket.setGroupMatrix(groupMatrix);
 			mattArm.setGroupMatrix(groupMatrix);
 			mattArm.drawArm();
@@ -853,7 +854,36 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		}		
 		break;
 
-	case(0):printf("Matthew model\n"); break;
+	case(0):	
+		if (state_W == GLFW_PRESS)
+		{
+			evanArm.setTranslateModel(glm::vec3(evanArm.getTranslateModel().x, (evanArm.getTranslateModel().y + .005f), evanArm.getTranslateModel().z));
+			break;
+		}
+		 else if (state_S == GLFW_PRESS)
+		 {
+			 evanArm.setTranslateModel(glm::vec3(evanArm.getTranslateModel().x, (evanArm.getTranslateModel().y - .005f), evanArm.getTranslateModel().z));
+			 break;
+		 }
+		   else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
+		 {
+			 evanArm.setTranslateModel(glm::vec3((evanArm.getTranslateModel().x - .005f), evanArm.getTranslateModel().y, evanArm.getTranslateModel().z));
+			 break;
+		 }
+		   else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
+		 {
+			 evanArm.setTranslateModel(glm::vec3((evanArm.getTranslateModel().x + .005f), evanArm.getTranslateModel().y, evanArm.getTranslateModel().z));
+			 break;
+		 }
+		   else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
+		 {
+			 evanArm.setRotation(evanArm.getRotation() + 5); break;
+		 }
+
+		   else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
+		 {
+			 evanArm.setRotation(evanArm.getRotation() - 5); break;
+		 }
 	case(1): printf("jonah\n"); break;
 	case(2):printf("evan\n"); break;
 	case(3):printf("noot\n"); break;
@@ -919,23 +949,23 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	else if (state_DOWN == GLFW_PRESS)
 		rotationMatrixW *= glm::rotate(glm::mat4(1.0f), glm::radians(2.55f), glm::vec3(.0f, -1.0f, 0.0f));
 
-	else if (state_W == GLFW_PRESS)
-		evanArm.setTranslateModel(glm::vec3(evanArm.getTranslateModel().x, (evanArm.getTranslateModel().y + .005f), evanArm.getTranslateModel().z));
-
-	else if (state_S == GLFW_PRESS)
-		evanArm.setTranslateModel(glm::vec3(evanArm.getTranslateModel().x, (evanArm.getTranslateModel().y - .005f), evanArm.getTranslateModel().z));
-
-	else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-		evanArm.setTranslateModel(glm::vec3((evanArm.getTranslateModel().x - .005f), evanArm.getTranslateModel().y, evanArm.getTranslateModel().z));
-
-	else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-		evanArm.setTranslateModel(glm::vec3((evanArm.getTranslateModel().x + .005f), evanArm.getTranslateModel().y, evanArm.getTranslateModel().z));
-		
-	else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-		evanArm.setRotation(evanArm.getRotation() + 5);
-	
-	else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-		evanArm.setRotation(evanArm.getRotation() - 5);
+	//else if (state_W == GLFW_PRESS)
+	//	evanArm.setTranslateModel(glm::vec3(evanArm.getTranslateModel().x, (evanArm.getTranslateModel().y + .005f), evanArm.getTranslateModel().z));
+	//
+	//else if (state_S == GLFW_PRESS)
+	//	evanArm.setTranslateModel(glm::vec3(evanArm.getTranslateModel().x, (evanArm.getTranslateModel().y - .005f), evanArm.getTranslateModel().z));
+	//
+	//else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
+	//	evanArm.setTranslateModel(glm::vec3((evanArm.getTranslateModel().x - .005f), evanArm.getTranslateModel().y, evanArm.getTranslateModel().z));
+	//
+	//else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
+	//	evanArm.setTranslateModel(glm::vec3((evanArm.getTranslateModel().x + .005f), evanArm.getTranslateModel().y, evanArm.getTranslateModel().z));
+	//	
+	//else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
+	//	evanArm.setRotation(evanArm.getRotation() + 5);
+	//
+	//else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
+	//	evanArm.setRotation(evanArm.getRotation() - 5);
 
 	// If p, l, or t is pressed, changed render mode between points, lines, and triangles, respectively
 	else if (state_P == GLFW_PRESS)
