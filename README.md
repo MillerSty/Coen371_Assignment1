@@ -28,13 +28,12 @@
 - [x] Render scene with shadows using two pass shadow algorithm
 - [x] Make the racket movements possible by rotating arm at various joints -> translation forward and backward, as well as clockwise anticlockwise  
 - [x] windows should handle resize events and correctly adjust aspect ratio
-- [x] mesh turn right of left by a small amount
-- 	 NOTE: here mesh means the model
+- [x] mesh turn right of left by a small amount NOTE: here mesh means the model	 
 - [x] application must use OpenGL 4.1 
 - [x] more elaborate model of the arm with finger movements and rotating light etc
 - [x] put shaders in .glsl files
 - [x] convert to CMake
-- user inputs:
+# user inputs:
 - [x] X toggles textures on and off
 - [x] B toggles Shadows
 # Checklist of Functionality:
