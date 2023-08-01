@@ -1,26 +1,28 @@
 # Accepted input:
- <p>W - positive y movement  <br>
- Shift+ A - Positive x movement<br>
- S - Negative y movement<br>
- Shift + D - Negative x movement<br>
- U - Scale up<br>
- J - Scale down<br>
- a / d - pressing a or d allows for model rotation about y axis<br>
- SPACE - will randomly reposition model inside viewing area<br>
- arrow left - rotate  world about positive x axis          <br>
- arrow right - rotate world about negative x axis               <br>
- arrow up - rotate    world about positive y axis          <br>
- arrow down - rotate  world  about negative y axis         <br>
- P - render model as points                                <br>
- L - render model as lines                                 <br>
- T- Render model as triangles                              <br>
- HOME - resets projection, view, world matrix to initial position<br>
- Mouse button left- Movement with left mouse button up/down will tilt the camera<br>
- Mouse button right - Movement with right mouse button left/right will pan the camera<br>
- Mouse Button Middle - Movement up/down will zoom in and out the camera<br>
- TAB- Changes model selection<br>
- SHIFT+TAB - Change Joint selection for enabled models</p>
-# toDo Assignment2:
+
+ - W - positive y movement  
+ - Shift + A - Positive x movement
+ - S - Negative y movement
+ - Shift + D - Negative x movement
+ - U - Scale up
+ - J - Scale down
+ - a / d - pressing a or d allows for model rotation about y axis
+ - SPACE - will randomly reposition model inside viewing area
+ - arrow left - rotate  world about positive x axis          
+ - arrow right - rotate world about negative x axis               
+ - arrow up - rotate    world about positive y axis          
+ - arrow down - rotate  world  about negative y axis         
+ - P - render model as points                                
+ - L - render model as lines                                 
+ - T - Render model as triangles                              
+ - HOME - resets projection, view, world matrix to initial position
+ - Mouse button left- Movement with left mouse button up/down will tilt the camera
+ - Mouse button right - Movement with right mouse button left/right will pan the camera
+ - Mouse Button Middle - Movement up/down will zoom in and out the camera
+ - TAB- Changes model selection
+ - SHIFT+TAB - Change Joint selection for enabled models
+
+# TODO Assignment2:
 - [ ] individual scaling
 - [x] create spherical tennis ball using triangle mesh representations
 - [x] illuminate scene with point light (white) 30 units above the mesh using Phong Model
@@ -33,11 +35,13 @@
 - [x] more elaborate model of the arm with finger movements and rotating light etc
 - [x] put shaders in .glsl files
 - [x] convert to CMake
+
 # user inputs:
 - [x] X toggles textures on and off
 - [x] B toggles Shadows
+
 # Checklist of Functionality:
-- [x] 1 model needs upper and lower arm, ideally independent of each other
+- [x] 1: model needs upper and lower arm, ideally independent of each other
 - [x] 2: grid needs to be 100 x 100
 - [x] 3: coordinate axes need to be 5 grids long in each direction
 - [x] 4: GLFW 1024x 768, using perspective view and back face culling [-> res is set, should be set in perspective, and back face culling enabled]
@@ -56,18 +60,19 @@
 - [x] 11: Camera zoom in and out of the scene - while  mouse left button is pressed → mouse movement to move into/out of the scene
 
 # Possible Add-ons:
- <p>ADDON: rotate forearm independently<br>
- ADDON: E and W for z axis<br>
- ADDON: Mouse scroll zoom and mouse movement pan/tilt</p>
+- [ ] 1: rotate forearm independently
+- [ ] 2: E and W for z axis
+- [ ] 3:  Mouse scroll zoom and mouse movement pan/tilt
 
- ## Build Instructions
-### Command Line
+# Build Instructions
+
+## Command Line
 
 1. Download and Install CMake
 2. Open a terminal
 3. Run CMake:
 
-```
+```shell
 cd <source_folder>
 cmake -S . -B <build_folder>
 cmake --build <build_folder> --target install
@@ -75,7 +80,7 @@ cmake --build <build_folder> --target install
 
 To generate an XCode project from the command line use:
 
-```
+```shell
 cd <source_folder>
 cmake -S . -B <build_folder> -G Xcode
 cmake --build <build_folder> --target install
