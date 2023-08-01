@@ -372,13 +372,6 @@ int main(int argc, char* argv[])
 
 
 
-	Material courtMaterial(.5f, .60f, .5f, .002f, courtTextureID	, shaderProgram);
-	Material ropeMaterial(.5f, .60f, .5f, .002f, ropeTextureID	, shaderProgram);
-	Material clothMaterial(.5f, .60f, .5f, .002f, clothTextureID	, shaderProgram);
-	Material metalMaterial(.5f, .60f, .5f, .002f, metalTextureID	, shaderProgram);
-	Material grassMaterial(.5f, .60f, .5f, .002f, grassTextureID  , shaderProgram);
-	Material plasticMaterial(.5f, .60f, .5f, .002f, plasticTextureID, shaderProgram);
-	Material woodMaterial(.5f, .60f, .5f, .002f, woodTextureID   , shaderProgram);
 
 	
 	// Black background	
@@ -442,7 +435,14 @@ int main(int argc, char* argv[])
 
 
 
-
+	//TEXTURE DEFINITION
+	Material courtMaterial(.5f, .60f, .5f, .002f, courtTextureID, shaderProgram);
+	Material ropeMaterial(.5f, .60f, .5f, .002f, ropeTextureID, shaderProgram);
+	Material clothMaterial(.5f, .60f, .5f, .002f, clothTextureID, shaderProgram);
+	Material metalMaterial(.5f, .60f, .5f, .002f, metalTextureID, shaderProgram);
+	Material grassMaterial(.5f, .60f, .5f, .002f, grassTextureID, shaderProgram);
+	Material plasticMaterial(.5f, .60f, .5f, .002f, plasticTextureID, shaderProgram);
+	Material woodMaterial(.5f, .60f, .5f, .002f, woodTextureID, shaderProgram);
 
 	Racket racket(unitCubeAO, "racket");
 	racket.jawnAngle = 0;
@@ -648,7 +648,7 @@ int main(int argc, char* argv[])
 			J.drawRacketJ(groupMatrix, jonahTranslationModel + jonahTranslationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
 
 
-			J.drawRacketJ(groupMatrix, translationVec + translationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
+			//J.drawRacketJ(groupMatrix, translationVec + translationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
 
 			SceneObj.sphereVao = unitSphereAO;
 			SceneObj.sphereVertCount = vertexIndicessphere.size();
@@ -1096,7 +1096,10 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	else if (state_HOME == GLFW_PRESS) {		
 		jonahTranslationModel +=( - 1.0f * jonahTranslationModel);
 		jonahTranslationRandom += (-1.0f * jonahTranslationRandom);
+		mattTranslationModel += (-1.0f * mattTranslationModel);
+		mattTranslationRandom += (-1.0f * mattTranslationRandom);
 		arm.resetArm();
+		evanArm.resetArm();
 		GroupMatrixScale = glm::vec3(1.0f);
 		rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 		glm::mat4 InitviewMatrix = glm::lookAt(eye, center, up);

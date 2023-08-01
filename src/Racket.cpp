@@ -40,8 +40,10 @@ bool Racket::Draw() {
 	GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
 	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
+
 	plasticMaterial.bindTexture();
 	plasticMaterial.loadToShader();
+
 	glm::mat4 worldMatrix;
 	glm::mat4 handleTranslate;
 	glm::mat4 handleRotate;
