@@ -32,6 +32,7 @@ void Arm::resetArm() {
 	armRotate = 0.0f;
 	wristRotate = 0.0f;
 	elbowRotate = 0.0f;
+	fingerRotate = 0.0f;
 	//Scale= 1.0f
 }
 void Arm::SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram) {
@@ -64,7 +65,7 @@ bool Arm::DrawArm() {
 
 	glBindVertexArray(cubeVao);
 	glm::mat4 bicepParent; //so for initiali parent , it has local.global translate plus local rotate 
-	glm::mat4 biTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(TranslateRandom.x + TranslateModel.x + -.0f, TranslateModel.y + TranslateRandom.y + -.0f, TranslateRandom.z + -.0f));
+	glm::mat4 biTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(TranslateRandom.x + TranslateModel.x + position.x, TranslateModel.y + TranslateRandom.y +position.y, TranslateRandom.z + position.z));
 	glm::mat4 biRotate = glm::rotate(glm::mat4(1.0f), glm::radians(armRotate), glm::vec3(.0f, 1.0f, .0f));
 	bicepParent = biTranslate * biRotate;
 
@@ -98,7 +99,7 @@ bool Arm::DrawArm() {
 
 	// hand
 	glm::mat4 handTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(constArmScaler.x *.0666f, .0f, .0f));
-	glm::mat4 handRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)wristRotate), glm::vec3(.0f, .0f, 1.0f)); //this rotates hand
+	glm::mat4 handRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)wristRotate), glm::vec3(.0f, 1.0f, .0f)); //this rotates hand
 	glm::mat4 handParent = forarmParent * handTranslate * handRotate;
 
 	partScale = glm::scale(glm::mat4(1.0f), glm::vec3(constArmScaler.x *.4878f, constArmScaler.y*1.1236f, constArmScaler.z));
@@ -114,34 +115,26 @@ bool Arm::DrawArm() {
 
 	////NOTE FINGERS WILL DIRECTLY INHERIT FROM HAND -> HAND IS THEIR PARENT
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.94f, .76f, .5f))); //al have the same colour
-	//
-	//// finger1 
 	glm::mat4 fingerTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.02f, -.012f, -.0f));
-	glm::mat4 fingerRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, 1.0f, .0f)); //finger rotation needs work
-	//probably due to its translation?
-	glm::mat4 fingerParent = handParent * fingerTranslate * fingerRotate;
-
-	partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.187f, 0.05f, .130f));//part scale is universal finger scale maybe put in finger parent?
+	glm::mat4 fingerRotater = glm::rotate(glm::mat4(1.0f), glm::radians(fingerRotate), glm::vec3(.0f, -1.0f, .0f));
+	glm::mat4 fingerparent= handParent * fingerTranslate ;
+	glm::mat4 fingerParent = handParent * fingerTranslate * fingerRotater;
+	//// finger1a 
+	partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.17f, 0.05f, .130f));//part scale is universal finger scale maybe put in finger parent?
 	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.1f, -.0f, -.0f));
 	partMatrix = partScale;
 	worldMatrix = groupMatrix * fingerParent * partMatrix;
 
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
-	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 
-
-	//could probably for loop it for multiDraw
 	////// finger2
-	//partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.187f, .05f, .130f));
 	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .008f, -.0f));
 	partMatrix = partTranslate * partScale;
 	worldMatrix = groupMatrix * fingerParent * partMatrix;
 
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
-	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
-	//
 	//// finger3
 	//partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.187f, .05f, .130f));
 	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .016f, -.0f));
@@ -150,23 +143,69 @@ bool Arm::DrawArm() {
 
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
-	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
-	//
 	////// finger4
 	//partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.187f, .059f, .130f));
 	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .024f, -.0f));
 	partMatrix = partTranslate * partScale;
 	worldMatrix = groupMatrix * fingerParent * partMatrix;
+	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
+	glDrawArrays(renderAs, 0, 36);
+	
+	////// thumb //thumb rotates wrong
+	partScale = glm::scale(glm::mat4(1.0f), glm::vec3(-.187f, -.075f, .10f));
+	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-.02f, .029f, -.0f));
+	partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, 1.0f, .0f));
+	partMatrix = partTranslate * partScale;
+	worldMatrix = groupMatrix * fingerparent * partMatrix;
+	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
+	glDrawArrays(renderAs, 0, 36);
+
+	//setting up finger inheritance
+	//glm::mat4 fingerChild = handParent * fingerParent * glm::translate(glm::mat4(1.0f), glm::vec3(.017f, .0f, -.0f));
+	partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.17f, .05f, .130f));
+	glm::mat4 fingerchildTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.015f, -.0f, -.0f));
+	glm::mat4 fingerchildRotater = glm::rotate(glm::mat4(1.0f), glm::radians(fingerRotate / 2.0f), glm::vec3(.0f, -1.0f, .0f));
+
+	glm::mat4 fingerChild = fingerParent* fingerchildTranslate *  fingerchildRotater;
+	worldMatrix = groupMatrix * fingerChild * partMatrix;
+	//finger 1b
+	//partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.187f, 0.05f, .130f));//part scale is universal finger scale maybe put in finger parent?
+	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, -.0f));
+	partRo = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(.0f, 1.0f, .0f));
+	partMatrix = partTranslate * partScale * partRo;
+	worldMatrix = groupMatrix * fingerChild * partMatrix;
+	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
+	glDrawArrays(renderAs, 0, 36);
+	//finger 2b
+	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .008f, -.0f));
+	partRo = glm::mat4(1.0f);
+	partMatrix = partTranslate * partScale * partRo;
+	worldMatrix = groupMatrix * fingerChild * partMatrix;
 
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
-	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
-	//
-	////// thumb
-	partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.187f, .075f, .10f));
-	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-.02f, .029f, -.00f));
-	partMatrix = partTranslate * partScale;
-	worldMatrix = groupMatrix * fingerParent * partMatrix;
+	//finger 3b
+	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .016f, -.0f));
+	partRo = glm::mat4(1.0f);
+	partMatrix = partTranslate * partScale * partRo;
+	worldMatrix = groupMatrix * fingerChild * partMatrix;
+
+	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
+	glDrawArrays(renderAs, 0, 36);
+	//finger 4b
+	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .024f, -.0f));
+	partRo = glm::mat4(1.0f);
+	partMatrix = partTranslate * partScale * partRo;
+	worldMatrix = groupMatrix * fingerChild * partMatrix;
+
+	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
+	glDrawArrays(renderAs, 0, 36);
+
+	//partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.17f, 0.05f, .130f));//part scale is universal finger scale maybe put in finger parent?
+	//partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.1f, -.0f, -.0f));
+	//partMatrix = partScale;
+	//worldMatrix = groupMatrix * fingerParent * partMatrix;
+
 
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
