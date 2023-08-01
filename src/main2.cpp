@@ -21,6 +21,8 @@
 
 #include "Evan-models/EvanArm.h"
 #include "Evan-models/EvanRacket.h"
+#include "matt-models/MattArm.h"
+#include "matt-models/MattRacket.h"
 
 // Set the shader paths
 const char* vertex = "../src/shaders/unifiedVertex.glsl";
@@ -267,6 +269,12 @@ glm::vec3 GroupMatrixScale(1.0f, 1.0f, 1.0f);
 glm::mat4 groupMatrix;
 glm::mat4 rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 Arm arm;
+
+// Create Matt model parts
+MattRacket mattRacket;
+//MattArm mattArm(mattRacket);
+MattArm mattArm;
+
 int renderAs = GL_TRIANGLES;
 int shaderProgram;
 double lastMousePosX, lastMousePosY, lastMousePosZ;
@@ -344,6 +352,7 @@ int main(int argc, char* argv[])
 	GLuint metalTextureID = loadTexture("../src/Assets/metal.jpg");
 	GLuint grassTextureID = loadTexture("../src/Assets/grass4.jpg");
 	GLuint plasticTextureID = loadTexture("../src/Assets/plastic.jpg");
+	GLuint woodTextureID = loadTexture("../src/Assets/wood1.jpg");
 	
 	// Black background	
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -487,6 +496,14 @@ int main(int argc, char* argv[])
 	GLuint kdepthMap = glGetUniformLocation(shaderProgram, "shadowMap");
 	glUniform1i(kdepthMap, 2);
 
+	// Set Matt VAO and shader program
+	mattArm.setShaderProgram(shaderProgram);
+	mattArm.setVAO(unitCubeAO);
+	mattRacket.setShaderProgram(shaderProgram);
+	mattRacket.setVAO(unitCubeAO);
+	mattRacket.setTexture(woodTextureID);
+
+	//NOTE we have issues when doing mouse jawn with current set up
     //NOTE we have issues when doing mouse jawn with current set up
 	float i = -1;
 	float spin = 0;
@@ -526,14 +543,19 @@ int main(int argc, char* argv[])
 			racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
 			racket.Draw();
 
-			evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
+            //evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
 			//evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
 
-			SceneObj.sphereVao = unitSphereAO;
-			SceneObj.sphereVertCount = vertexIndicessphere.size();
-			SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
-			SceneObj.SetVAO(unitCubeAO, gridAO);
-			SceneObj.DrawScene(false);  // Draw scene without the skybox, so it can't be used to make shadows on the scene
+			mattRacket.setGroupMatrix(groupMatrix);
+			mattArm.setGroupMatrix(groupMatrix);
+			mattArm.drawArm();
+			mattRacket.drawRacket();
+
+            SceneObj.sphereVao = unitSphereAO;
+            SceneObj.sphereVertCount = vertexIndicessphere.size();
+            SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
+            SceneObj.SetVAO(unitCubeAO, gridAO);
+            SceneObj.DrawScene(false);  // Draw scene without the skybox, so it can't be used to make shadows on the scene
 
 		}
 		{ // 2nd pass  
@@ -556,8 +578,13 @@ int main(int argc, char* argv[])
 			racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
 			racket.Draw();
 
-			evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
-			evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
+            //evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
+			//evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
+
+			mattRacket.setGroupMatrix(groupMatrix);
+			mattArm.setGroupMatrix(groupMatrix);
+			mattArm.drawArm();
+			mattRacket.drawRacket();
 
 			SceneObj.sphereVao = unitSphereAO;
 			SceneObj.sphereVertCount = vertexIndicessphere.size();
