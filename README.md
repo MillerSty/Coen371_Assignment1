@@ -17,7 +17,7 @@
  HOME - resets projection, view, world matrix to initial position<br>
  Mouse button left- Movement with left mouse button up/down will tilt the camera<br>
  Mouse button right - Movement with right mouse button left/right will pan the camera<br>
- Mouse Button Middle - Movement up/down will zoom in and out the camera
+ Mouse Button Middle - Movement up/down will zoom in and out the camera<br>
  TAB- Changes model selection<br>
  SHIFT+TAB - Change Joint selection for enabled models</p>
 # toDo Assignment2:
