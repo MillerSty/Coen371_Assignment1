@@ -26,8 +26,7 @@
 - [x] illuminate scene with point light (white) 30 units above the mesh using Phong Model
 - [x] render scene with clay texture on ground mesh, green texture on ball, and glossy finish for racket
 - [x] Render scene with shadows using two pass shadow algorithm
-- [x] Make the racket movements possible by rotating arm at various joints
--     -> translation forward and backward, as well as clockwise anticlockwise
+- [x] Make the racket movements possible by rotating arm at various joints -> translation forward and backward, as well as clockwise anticlockwise  
 - [x] windows should handle resize events and correctly adjust aspect ratio
 - [x] mesh turn right of left by a small amount
 - 	 NOTE: here mesh means the model
