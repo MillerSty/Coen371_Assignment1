@@ -24,6 +24,7 @@
 #include "matt-models/MattArm.h"
 #include "matt-models/MattRacket.h"
 
+
 // Set the shader paths
 const char* vertex = "../src/shaders/unifiedVertex.glsl";
 const char* fragment = "../src/shaders/unifiedFragment.glsl";
@@ -284,6 +285,8 @@ float translateW = 0, translateY = 0, translateZ = 0;
 // Toggles for shadows and textures
 bool shouldApplyShadows = true;
 bool shouldApplyTextures = true;
+Arm arm;
+EvanArm evanArm;
 int selectModel = -1;
 int selectJoint = -1;
 
@@ -428,8 +431,12 @@ int main(int argc, char* argv[])
     EvanRacket evanRacket(glm::vec3(0.2f, 0.0f, 0.0f), modelScaley,
                           unitCubeAO,unitCubeAO,unitCubeAO,
                           unitCubeAO,unitCubeAO, unitCubeAO );
-	EvanArm evanArm(glm::vec3(0.2f, 0.0f, 0.0f), modelScale, unitCubeAO,
-                    unitCubeAO, evanRacket );
+	evanArm.setInitial(
+		glm::vec3(0.2f, 0.0f, 0.0f), 
+		modelScale,
+		unitCubeAO,
+        unitCubeAO, 
+		evanRacket );
 
     // Lighting
     float lightAngleOuter = 30.0;
@@ -496,6 +503,7 @@ int main(int argc, char* argv[])
 	GLuint kdepthMap = glGetUniformLocation(shaderProgram, "shadowMap");
 	glUniform1i(kdepthMap, 2);
 
+	float lastFrameTime = glfwGetTime();
 	// Set Matt VAO and shader program
 	mattArm.setShaderProgram(shaderProgram);
 	mattArm.setVAO(unitCubeAO);
@@ -521,15 +529,26 @@ int main(int argc, char* argv[])
 		float x = sin(i);
 		float z = cos(i);
 		i += .02;
+			glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
+			rotationMatrixW;
+		glm::vec3 evanTranslation = vec3(evanArm.getTranslateModel().x + evanArm.TranslateRandom.x + evanArm.initialPosition.x, evanArm.getTranslateModel().y + evanArm.TranslateRandom.y + evanArm.initialPosition.y, evanArm.getTranslateModel().z + evanArm.TranslateRandom.z + evanArm.initialPosition.z);
+		// Demo on how to use evan's model
+		mat4 evanGroupMatrix = translate(mat4(1.0f), vec3(evanTranslation.x + -0.2f * sinf((float)0.0f), evanTranslation.y + 0.0f, evanTranslation.z + 0.0f))* rotate(mat4(1.0f), radians(evanArm.getRotation()), vec3(1.0f, 0.0f, 0.0f));
+		mat4 evanBicepMatrix = rotate(mat4(1.0f), radians(evanArm.getRotation()), vec3(1.0f, 0.0f, 0.0f));
+		evanArm.groupMatrix = evanGroupMatrix;
+		evanArm.bicepMatrix = evanBicepMatrix;
+		evanArm.racket.groupMatrix = evanGroupMatrix;
+		evanArm.racket.bicepMatrix = evanBicepMatrix;
+		lastFrameTime = glfwGetTime();
 		// Must draw scene in 2 passes: once for shadows, and another normally
 		// 1st pass
 		{
 			glUniform1i(applyTexturesLocation, false);
 			glUniform1i(applyShadowsLocation, shouldApplyShadows);
-			// Bind depth map texture as output frame buffer
-			glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
 			// Use proper image output size
 			glViewport(0, 0, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE);
+			// Bind depth map texture as output frame buffer
+			glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
 			// Clear depth data on the frame buffer
 			glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -543,7 +562,7 @@ int main(int argc, char* argv[])
 			racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
 			racket.Draw();
 
-            //evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
+            //evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
 			//evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
 
 			mattRacket.setGroupMatrix(groupMatrix);
@@ -580,7 +599,7 @@ int main(int argc, char* argv[])
 
             //evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
 			//evanRacket.draw(worldMatrixLocation, colorLocation, shaderProgram);
-
+			evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
 			mattRacket.setGroupMatrix(groupMatrix);
 			mattArm.setGroupMatrix(groupMatrix);
 			mattArm.drawArm();
@@ -625,6 +644,7 @@ int main(int argc, char* argv[])
 
 	return 0;
 }
+
 
 /***
 Gets the given shaders source code from a file and returns it as a string.
@@ -899,23 +919,23 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	else if (state_DOWN == GLFW_PRESS)
 		rotationMatrixW *= glm::rotate(glm::mat4(1.0f), glm::radians(2.55f), glm::vec3(.0f, -1.0f, 0.0f));
 
-	//else if (state_W == GLFW_PRESS)
-	//	arm.setTranslateModel(glm::vec3(arm.getTranslateModel().x, (arm.getTranslateModel().y + .005f), arm.getTranslateModel().z));
-	//
-	//else if (state_S == GLFW_PRESS)
-	//	arm.setTranslateModel(glm::vec3(arm.getTranslateModel().x, (arm.getTranslateModel().y - .005f), arm.getTranslateModel().z));
-	//
-	//else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-	//	arm.setTranslateModel(glm::vec3((arm.getTranslateModel().x - .005f), arm.getTranslateModel().y, arm.getTranslateModel().z));
-	//
-	//else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-	//	arm.setTranslateModel(glm::vec3((arm.getTranslateModel().x + .005f), arm.getTranslateModel().y, arm.getTranslateModel().z));
-	//	
-	//else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-	//	arm.setRotation(arm.getRotation() + 5);
-	//
-	//else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-	//	arm.setRotation(arm.getRotation() - 5);
+	else if (state_W == GLFW_PRESS)
+		evanArm.setTranslateModel(glm::vec3(evanArm.getTranslateModel().x, (evanArm.getTranslateModel().y + .005f), evanArm.getTranslateModel().z));
+
+	else if (state_S == GLFW_PRESS)
+		evanArm.setTranslateModel(glm::vec3(evanArm.getTranslateModel().x, (evanArm.getTranslateModel().y - .005f), evanArm.getTranslateModel().z));
+
+	else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
+		evanArm.setTranslateModel(glm::vec3((evanArm.getTranslateModel().x - .005f), evanArm.getTranslateModel().y, evanArm.getTranslateModel().z));
+
+	else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
+		evanArm.setTranslateModel(glm::vec3((evanArm.getTranslateModel().x + .005f), evanArm.getTranslateModel().y, evanArm.getTranslateModel().z));
+		
+	else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
+		evanArm.setRotation(evanArm.getRotation() + 5);
+	
+	else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
+		evanArm.setRotation(evanArm.getRotation() - 5);
 
 	// If p, l, or t is pressed, changed render mode between points, lines, and triangles, respectively
 	else if (state_P == GLFW_PRESS)

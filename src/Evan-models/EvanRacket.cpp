@@ -10,9 +10,10 @@ EvanRacket::EvanRacket(vec3 initialPos, vec3 scale, GLuint handleVAO, GLuint top
     this->frameColor = FRAME_COLOR;
     this->handleColor = HANDLE_COLOR;
 
-    this->groupMatrix = translate(mat4(1.0f), initialPos) ;
     this->worldMatrix = mat4(1.0f);
+    this->groupMatrix = translate(mat4(1.0f), initialPos) ;
     this->wristMatrix = mat4(1.0f);
+    this->bicepMatrix = mat4(1.0f);
     this->modelScale = scale;
 
     // Create VAOs for each of the parts and set them
@@ -24,119 +25,111 @@ EvanRacket::EvanRacket(vec3 initialPos, vec3 scale, GLuint handleVAO, GLuint top
     this->rightFrameVAO = rightFrameVAO;
 }
 
-void EvanRacket::drawHandle(GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const {
+void EvanRacket::draw(GLuint racketTexutre, GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const {
+
+    glActiveTexture(GL_TEXTURE0);
+    GLint textureLocation = glGetUniformLocation(shaderProgram, "textureSampler");
+    glBindTexture(GL_TEXTURE_2D, racketTexutre);
+    glUniform1i(textureLocation, 0);
+    // ---------------------
+    // Draw handle
+    // ---------------------
     glUniform3fv(objectColorLocation, 1, value_ptr(handleColor));
 
     // Transformations to manipulate the cube to make part of the model
-    mat4 modelMatrix = this->worldMatrix * this->groupMatrix;
-    modelMatrix = scale(modelMatrix,modelScale);
-    modelMatrix = translate(modelMatrix,vec3(0.5f+ 1.5f,1.75f + 5.0f,0.0f));
-    modelMatrix = scale(modelMatrix,vec3(0.5f,3.5f,0.5f));
+    mat4 handleMatrix = translate(mat4(1.0f),modelScale * vec3(0.2f,0.3 + 0.375f ,0.0f));
+    handleMatrix = scale(handleMatrix,modelScale * vec3(0.5f ,3.5f,0.5f));
+    handleMatrix = worldMatrix * groupMatrix  * wristMatrix * handleMatrix;
 
     // Load model matrix into the shader program
-    glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(modelMatrix));
+    glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(handleMatrix));
 
     // Render it
-    glBindVertexArray(this->handleVAO);
+    glBindVertexArray(handleVAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
-    //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-}
 
-void EvanRacket::drawTopHandle(GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const {
+    // ---------------------
+    // Draw top handle
+    // ---------------------
     glUniform3fv(objectColorLocation, 1, value_ptr(frameColor));
 
     // Transformations to manipulate the cube to make part of the model
-    mat4 modelMatrix = this->worldMatrix * this->groupMatrix;
-    modelMatrix = scale(modelMatrix,modelScale);
-    modelMatrix = translate(modelMatrix,vec3(0.5f+ 1.5f,3.75f+ 5.0f,0.0f));
-    modelMatrix = scale(modelMatrix,vec3(0.5f,0.5f,0.5f));
+    mat4 topHandleMatrix = translate(mat4(1.0f), modelScale * vec3(0.2f, 0.3 + 0.375f + 0.2f,0.0f));
+    topHandleMatrix = scale(topHandleMatrix,modelScale * vec3(0.5f,0.5f,0.5f));
+    topHandleMatrix = worldMatrix * groupMatrix  * wristMatrix * topHandleMatrix;
 
     // Load model matrix into the shader program
-    glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(modelMatrix));
+    glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(topHandleMatrix));
 
     // Render it
-    glBindVertexArray(this->topHandleVAO);
+    glBindVertexArray(topHandleVAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
-    //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-}
 
-void EvanRacket::drawLowerFrame(GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const {
+    // ---------------------
+    // Draw lower frame
+    // ---------------------
     glUniform3fv(objectColorLocation, 1, value_ptr(frameColor));
 
     // Transformations to manipulate the cube to make part of the model
-    mat4 modelMatrix = this->worldMatrix * this->groupMatrix;
-    modelMatrix = scale(modelMatrix,modelScale);
-    modelMatrix = translate(modelMatrix,vec3(0.5f+ 1.5f,4.25f+ 5.0f,0.0f));
-    modelMatrix = scale(modelMatrix,vec3(3.0f,0.5f,0.5f));
+    mat4 lowerFrameMatrix = translate(mat4(1.0f),modelScale * vec3(0.2f, 0.3 + 0.375f + 0.2f + 0.05f,0.0f));
+    lowerFrameMatrix = scale(lowerFrameMatrix,modelScale * vec3(3.0f,0.5f,0.5f));
+    lowerFrameMatrix = worldMatrix * groupMatrix  * wristMatrix * lowerFrameMatrix;
 
     // Load model matrix into the shader program
-    glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(modelMatrix));
+    glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(lowerFrameMatrix));
 
     // Render it
-    glBindVertexArray(this->lowerFrameVAO);
+    glBindVertexArray(lowerFrameVAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
-    //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-}
 
-void EvanRacket::drawUpperFrame(GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const {
+    // ---------------------
+    // Draw Upper frame
+    // ---------------------
     glUniform3fv(objectColorLocation, 1, value_ptr(frameColor));
 
     // Transformations to manipulate the cube to make part of the model
-    mat4 modelMatrix = this->worldMatrix * this->groupMatrix;
-    modelMatrix = scale(modelMatrix,modelScale);
-    modelMatrix = translate(modelMatrix,vec3(0.5f+ 1.5f,8.25f+ 5.0f,0.0f));
-    modelMatrix = scale(modelMatrix,vec3(3.0f,0.5f,0.5f));
+    mat4 upperFrameMatrix = translate(mat4(1.0f),modelScale * vec3(0.2f, 0.3 + 0.375f + 0.2f + 0.4f,0.0f));
+    upperFrameMatrix = scale(upperFrameMatrix,modelScale * vec3(3.0f,0.5f,0.5f));
+    upperFrameMatrix = worldMatrix * groupMatrix  * wristMatrix * upperFrameMatrix;
 
     // Load model matrix into the shader program
-    glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(modelMatrix));
+    glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(upperFrameMatrix));
 
     // Render it
-    glBindVertexArray(this->upperFrameVAO);
+    glBindVertexArray(upperFrameVAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
-    //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-}
 
-void EvanRacket::drawLeftFrame(GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const {
+    // ---------------------
+    // Draw Left frame
+    // ---------------------
     glUniform3fv(objectColorLocation, 1, value_ptr(frameColor));
 
     // Transformations to manipulate the cube to make part of the model
-    mat4 modelMatrix = this->worldMatrix * this->groupMatrix;
-    modelMatrix = scale(modelMatrix,modelScale);
-    modelMatrix = translate(modelMatrix,vec3(-1.25f+ 1.5f,6.25f+ 5.0f,0.0f));
-    modelMatrix = scale(modelMatrix,vec3(0.5f,4.0f,0.5f));
+    mat4 leftFrameMatrix = translate(mat4(1.0f),modelScale * vec3(0.075, 0.3 + 0.375f + 0.2f + 0.225f,0.0f));
+    leftFrameMatrix = scale(leftFrameMatrix,modelScale * vec3(0.5f,4.0f,0.5f));
+    leftFrameMatrix = worldMatrix * groupMatrix  * wristMatrix * leftFrameMatrix;
 
     // Load model matrix into the shader program
-    glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(modelMatrix));
+    glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(leftFrameMatrix));
 
     // Render it
-    glBindVertexArray(this->leftFrameVAO);
+    glBindVertexArray(leftFrameVAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
-    //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-}
 
-void EvanRacket::drawRightFrame(GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const {
+    // ---------------------
+    // Draw Right frame
+    // ---------------------
     glUniform3fv(objectColorLocation, 1, value_ptr(frameColor));
 
     // Transformations to manipulate the cube to make part of the model
-    mat4 modelMatrix = this->worldMatrix * this->groupMatrix;
-    modelMatrix = scale(modelMatrix,modelScale);
-    modelMatrix = translate(modelMatrix,vec3(2.25f + 1.5f,6.25f+ 5.0f,0.0f));
-    modelMatrix = scale(modelMatrix,vec3(0.5f,4.0f,0.5f));
+    mat4 rightFrameMatrix = translate(mat4(1.0f),modelScale * vec3(0.325, 0.3 + 0.375f + 0.2f + 0.225f,0.0f));
+    rightFrameMatrix = scale(rightFrameMatrix,modelScale * vec3(0.5f,4.0f,0.5f));
+    rightFrameMatrix = worldMatrix * groupMatrix  * wristMatrix * rightFrameMatrix;
 
     // Load model matrix into the shader program
-    glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(modelMatrix));
+    glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(rightFrameMatrix));
 
     // Render it
-    glBindVertexArray(this->rightFrameVAO);
+    glBindVertexArray(rightFrameVAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
-    //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-}
-
-void EvanRacket::draw(GLuint modelMatrixLocation, GLuint objectColorLocation, GLuint shaderProgram) const {
-    drawHandle(modelMatrixLocation, objectColorLocation, shaderProgram);
-    drawTopHandle(modelMatrixLocation, objectColorLocation, shaderProgram);
-    drawLowerFrame(modelMatrixLocation, objectColorLocation, shaderProgram);
-    drawUpperFrame(modelMatrixLocation, objectColorLocation, shaderProgram);
-    drawLeftFrame(modelMatrixLocation, objectColorLocation, shaderProgram);
-    drawRightFrame(modelMatrixLocation, objectColorLocation, shaderProgram);
 }
