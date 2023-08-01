@@ -372,7 +372,7 @@ int main(int argc, char* argv[])
 
 
 
-	Material plasticMaterial(.5f, .60f, .5f, .002f, courtTextureID	, shaderProgram);
+	Material courtMaterial(.5f, .60f, .5f, .002f, courtTextureID	, shaderProgram);
 	Material ropeMaterial(.5f, .60f, .5f, .002f, ropeTextureID	, shaderProgram);
 	Material clothMaterial(.5f, .60f, .5f, .002f, clothTextureID	, shaderProgram);
 	Material metalMaterial(.5f, .60f, .5f, .002f, metalTextureID	, shaderProgram);
