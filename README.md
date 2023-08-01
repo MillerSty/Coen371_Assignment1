@@ -24,8 +24,8 @@
 - [ ] individual scaling
 - [x] create spherical tennis ball using triangle mesh representations
 - [x] illuminate scene with point light (white) 30 units above the mesh using Phong Model
-- [x] render scene with clay texture on ground mesh, green texture on ball, and glossy finish for racket
-- 	-> for this we need UV coordinates
+- [x] render scene with clay texture on ground mesh, green texture on ball, and glossy finish for racket<br>
+ 	-> for this we need UV coordinates
 - [x] Render scene with shadows using two pass shadow algorithm
 - [x] Make the racket movements possible by rotating arm at various joints
 -     -> translation forward and backward, as well as clockwise anticlockwise
