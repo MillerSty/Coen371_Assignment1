@@ -299,7 +299,7 @@ bool shouldApplyShadows = true;
 bool shouldApplyTextures = true;
 Arm arm;
 EvanArm evanArm;
-int selectModel = 0;
+int selectModel = 0; //we can se to 0 but then user has to toggle to before any thing
 int selectJoint =0;
 
 int main(int argc, char* argv[])
@@ -924,7 +924,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
 		{
 			switch (selectJoint) {
-			case(0): evanArm.setRotation(evanArm.getRotation() + 5);  break;
+			case(0): { evanArm.setRotation(evanArm.getRotation() + 5);  break; }
 			case(1):if (evanArm.getERotation() + 5 > 90) {
 				evanArm.setERotation(90); break; 
 			}
@@ -938,7 +938,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
 		{
 			switch (selectJoint) {
-			case(0): evanArm.setRotation(evanArm.getRotation() - 5);  break;
+			case(0): { evanArm.setRotation(evanArm.getRotation() - 5);  break; }
 			case(1):if (evanArm.getERotation() - 5 < 0) {
 				evanArm.setERotation(0);
 				break; 
@@ -1030,7 +1030,15 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		if (selectModel == 0) selectModel += 1;
 		else if (selectModel == 4) selectModel = 0;
 		else selectModel += 1;
-		printf("selectModel is: %d\n", selectModel);
+		//printf("selectModel is: %d\n", selectModel);
+		switch (selectModel) {
+		case(0):printf("selectModel is: %d , selected Evan Greenstein id: 40173229\n", selectModel); break;
+		case(1):printf("selectModel is: %d , selected Jonah Ball id: 40178421\n", selectModel); break;
+		case(2):printf("selectModel is: %d , selected Matthew Segal id: 40031839	\n", selectModel); break;
+		case(3):printf("selectModel is: %d , selected Sabrina Kim id: 40066662\n", selectModel); break;
+		case(4):printf("selectModel is: %d , selected Jonathan Miller id: 40135070\n", selectModel); break;
+		default: break;
+		}
 	}
 	else if (state_TAB == GLFW_PRESS && mods == GLFW_MOD_SHIFT) {
 		/*
@@ -1039,10 +1047,16 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		1 is wrist y
 		2 is wrist x?
 		*/
-		if (selectJoint == 0) selectJoint += 1;
-		else if (selectJoint == 3) selectJoint = 0;
+		if (selectJoint == 0) selectJoint += 1; 
+		else if (selectJoint == 2) selectJoint = 0;
 		else selectJoint += 1;
-		printf("selectJoint is: %d\n", selectJoint);
+		switch (selectJoint) {
+		case(0):printf("selectJoint is: %d , selected shoulder\n", selectJoint); break;
+		case(1):printf("selectJoint is: %d , selected elbow\n", selectJoint); break;
+		case(2):printf("selectJoint is: %d , selected wrist\n", selectJoint); break;
+		default: break;
+		}
+		//printf("selectJoint is: %d\n", selectJoint);
 	}
 
 	// If SPACE is pressed, should reposition at random place on grid
