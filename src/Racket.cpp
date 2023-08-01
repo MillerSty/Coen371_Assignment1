@@ -10,6 +10,7 @@ Racket::Racket(int cubeVao, glm::mat4 worldMatrix)   {
 	this->rotationW= glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 	this->jawnAngle = 0;
 
+
 }
 Racket::Racket(int cubeVao, std::string racketName) {
 	this->cubeVao = cubeVao;
@@ -204,5 +205,10 @@ bool Racket::Draw() {
 	}
 	plasticMaterial.resetShader();
 	glBindVertexArray(0);
+
+	ball.shaderProgram = shaderProgram;
+	ball.groupMatrix = partParent* glm::translate(glm::mat4(1.0f), glm::vec3(-0.03f, -.20f, .03f));;
+	ball.renderAs = renderAs;
+	ball.DrawBall();
 	return true;
 }

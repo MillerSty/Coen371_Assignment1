@@ -26,14 +26,17 @@ void SceneObjects::SetVAO(int cube, int grid) {
 	this->cubeVao = cube;
 	this->gridVao = grid;
 }
-void SceneObjects::setTextures(GLuint court, GLuint rope, GLuint metal, GLuint cloth,GLuint grass) { 
-	this->courtTexture = court;
-	this->ropeTexture = rope;
-	this->metalTexture = metal;
-	this->clothTexture = cloth;
-	this->grassTexture = grass;
-
+void SceneObjects::setMaterials(Material courtTexture,	Material clothTexture,
+	Material ropeTexture,	Material metalTexture,
+	Material grassTexture,	Material plasticTexture) {
+		this->courtTexture =  courtTexture;
+		this->ropeTexture   = ropeTexture ;
+		this->metalTexture =  metalTexture;
+		this->clothTexture =  clothTexture;
+		this->grassTexture =  grassTexture;
+		this->plasticTexture = plasticTexture;
 }
+
 void SceneObjects::InitGrid() {
 	this->gridCount = 0;
 	//int o = j;
@@ -76,7 +79,10 @@ void SceneObjects::DrawScene(bool drawSkyBox) {
 }
 
 bool SceneObjects::DrawBall() {
-	glBindTexture(GL_TEXTURE_2D, grassTexture);
+	grassTexture.bindTexture();
+	grassTexture.loadToShader();
+	
+	//glBindTexture(GL_TEXTURE_2D, grassTexture);
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
 	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
 
@@ -102,10 +108,13 @@ bool SceneObjects::DrawBall() {
 
 bool SceneObjects::DrawCourt() {
 	//set as textureshader and bind texture
-	glActiveTexture(GL_TEXTURE0);
-	GLuint textureLocation = glGetUniformLocation(shaderProgram, "textureSampler");
-	glBindTexture(GL_TEXTURE_2D, courtTexture);
-	glUniform1i(textureLocation, 0);
+
+	courtTexture.bindTexture();
+	courtTexture.loadToShader();
+	//glActiveTexture(GL_TEXTURE0);
+	//GLuint textureLocation = glGetUniformLocation(shaderProgram, "textureSampler");
+	//glBindTexture(GL_TEXTURE_2D, courtTexture);
+	//glUniform1i(textureLocation, 0);
 
 
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
@@ -151,7 +160,10 @@ bool SceneObjects::DrawCourt() {
 bool SceneObjects::DrawNet() {
 
 	//bind texture Metal
-	glBindTexture(GL_TEXTURE_2D, metalTexture);
+
+	metalTexture.bindTexture();
+	metalTexture.loadToShader();
+	//glBindTexture(GL_TEXTURE_2D, metalTexture);
 
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
 	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
@@ -193,8 +205,10 @@ bool SceneObjects::DrawNet() {
 	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 
 	// Strings of net
+	ropeTexture.bindTexture();
+	ropeTexture.loadToShader();
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));  // Set net colour
-	glBindTexture(GL_TEXTURE_2D, ropeTexture); //Bind texture Ropes
+	//glBindTexture(GL_TEXTURE_2D, ropeTexture); //Bind texture Ropes
 
 	// Loop to draw net. i is our translation offset
 	for (float i = .0; i <= .07f; i += .01) {
@@ -222,7 +236,10 @@ bool SceneObjects::DrawNet() {
 	}
 
 	// Top bar of the net
-	glBindTexture(GL_TEXTURE_2D, clothTexture); //bind top cloth of net
+
+	clothTexture.bindTexture();
+	clothTexture.loadToShader();
+	//glBindTexture(GL_TEXTURE_2D, clothTexture); //bind top cloth of net
 	//glUniform1i(textureLocation, 0);
 
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.00f, 1.0f, 1.0f)));
@@ -241,7 +258,9 @@ bool SceneObjects::DrawNet() {
 }
 
 bool SceneObjects::DrawSkyBox() {
-	glBindTexture(GL_TEXTURE_2D, plasticTexture);
+	plasticTexture.bindTexture();
+	plasticTexture.loadToShader();
+	//glBindTexture(GL_TEXTURE_2D, plasticTexture);
 	//glUseProgram(shaderProgram);
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
 	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
@@ -336,7 +355,8 @@ bool SceneObjects::DrawCoord() {
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-
+	plasticTexture.bindTexture();
+	plasticTexture.loadToShader();
 	glBindVertexArray(0); // Unbind unit cube VAO
 
 	return true;

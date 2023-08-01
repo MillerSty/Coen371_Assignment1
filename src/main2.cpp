@@ -299,7 +299,7 @@ bool shouldApplyShadows = true;
 bool shouldApplyTextures = true;
 Arm arm;
 EvanArm evanArm;
-int selectModel = 0;
+int selectModel = 0; //we can se to 0 but then user has to toggle to before any thing
 int selectJoint =0;
 
 int main(int argc, char* argv[])
@@ -369,10 +369,6 @@ int main(int argc, char* argv[])
 	GLuint plasticTextureID  = loadTexture("../src/Assets/plastic.jpg");
 	GLuint woodTextureID       = loadTexture("../src/Assets/wood1.jpg");
 
-
-
-
-
 	
 	// Black background	
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -393,14 +389,15 @@ int main(int argc, char* argv[])
     GLint viewPositionLocation = glGetUniformLocation(shaderProgram, "viewPosition");
     GLint applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
     GLint applyShadowsLocation = glGetUniformLocation(shaderProgram, "shouldApplyShadows");
-
+	//maybe update this for shadows
     glUniform3fv(viewPositionLocation, 1, &eye[0]);
 
 	//Scene Jawn
 	SceneObjects SceneObj("scene");
 	SceneObj.InitGrid();
-	SceneObj.setTextures(courtTextureID, ropeTextureID, metalTextureID, clothTextureID, grassTextureID);
-	SceneObj.plasticTexture = plasticTextureID;
+	SceneObjects Ball;
+	
+	//SceneObj.plasticTexture = plasticTextureID;
 	glfwGetCursorPos(window, &lastMousePosX, &lastMousePosY);
 	lastMousePosZ = lastMousePosY;
 
@@ -436,15 +433,22 @@ int main(int argc, char* argv[])
 
 
 	//TEXTURE DEFINITION
-	Material courtMaterial(.5f, .60f, .5f, .002f, courtTextureID, shaderProgram);
-	Material ropeMaterial(.5f, .60f, .5f, .002f, ropeTextureID, shaderProgram);
-	Material clothMaterial(.5f, .60f, .5f, .002f, clothTextureID, shaderProgram);
-	Material metalMaterial(.5f, .60f, .5f, .002f, metalTextureID, shaderProgram);
-	Material grassMaterial(.5f, .60f, .5f, .002f, grassTextureID, shaderProgram);
+						//diff spec ambient shiny
+	Material courtMaterial(.7f, .20f, 1.0f, .9f, courtTextureID, shaderProgram);
+	Material ropeMaterial(.5f, .60f, .5f, .9f, ropeTextureID, shaderProgram);
+	Material clothMaterial(.5f, .60f, .5f, .9f, clothTextureID, shaderProgram);
+	Material metalMaterial(.6f, .90f, .6f, .00012f, metalTextureID, shaderProgram);
+	Material grassMaterial(.2f, .20f, .2f, .9f, grassTextureID, shaderProgram);
 	Material plasticMaterial(.5f, .60f, .5f, .002f, plasticTextureID, shaderProgram);
 	Material woodMaterial(.5f, .60f, .5f, .002f, woodTextureID, shaderProgram);
 
+	Ball.grassTexture = grassMaterial;
+	Ball.shaderProgram = shaderProgram;
+	Ball.sphereVao = unitSphereAO;
+	Ball.sphereVertCount=vertexIndicessphere.size();
+	SceneObj.setMaterials(courtMaterial, clothMaterial, ropeMaterial, metalMaterial, grassMaterial, plasticMaterial);
 	Racket racket(unitCubeAO, "racket");
+	racket.setBall(Ball);
 	racket.jawnAngle = 0;
 	racket.plasticMaterial = plasticMaterial;
 
@@ -920,7 +924,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
 		{
 			switch (selectJoint) {
-			case(0): evanArm.setRotation(evanArm.getRotation() + 5);  break;
+			case(0): { evanArm.setRotation(evanArm.getRotation() + 5);  break; }
 			case(1):if (evanArm.getERotation() + 5 > 90) {
 				evanArm.setERotation(90); break; 
 			}
@@ -934,7 +938,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
 		{
 			switch (selectJoint) {
-			case(0): evanArm.setRotation(evanArm.getRotation() - 5);  break;
+			case(0): { evanArm.setRotation(evanArm.getRotation() - 5);  break; }
 			case(1):if (evanArm.getERotation() - 5 < 0) {
 				evanArm.setERotation(0);
 				break; 
@@ -1026,7 +1030,15 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		if (selectModel == 0) selectModel += 1;
 		else if (selectModel == 4) selectModel = 0;
 		else selectModel += 1;
-		printf("selectModel is: %d\n", selectModel);
+		//printf("selectModel is: %d\n", selectModel);
+		switch (selectModel) {
+		case(0):printf("selectModel is: %d , selected Evan Greenstein id: 40173229\n", selectModel); break;
+		case(1):printf("selectModel is: %d , selected Jonah Ball id: 40178421\n", selectModel); break;
+		case(2):printf("selectModel is: %d , selected Matthew Segal id: 40031839	\n", selectModel); break;
+		case(3):printf("selectModel is: %d , selected Sabrina Kim id: 40066662\n", selectModel); break;
+		case(4):printf("selectModel is: %d , selected Jonathan Miller id: 40135070\n", selectModel); break;
+		default: break;
+		}
 	}
 	else if (state_TAB == GLFW_PRESS && mods == GLFW_MOD_SHIFT) {
 		/*
@@ -1035,10 +1047,16 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		1 is wrist y
 		2 is wrist x?
 		*/
-		if (selectJoint == 0) selectJoint += 1;
-		else if (selectJoint == 3) selectJoint = 0;
+		if (selectJoint == 0) selectJoint += 1; 
+		else if (selectJoint == 2) selectJoint = 0;
 		else selectJoint += 1;
-		printf("selectJoint is: %d\n", selectJoint);
+		switch (selectJoint) {
+		case(0):printf("selectJoint is: %d , selected shoulder\n", selectJoint); break;
+		case(1):printf("selectJoint is: %d , selected elbow\n", selectJoint); break;
+		case(2):printf("selectJoint is: %d , selected wrist\n", selectJoint); break;
+		default: break;
+		}
+		//printf("selectJoint is: %d\n", selectJoint);
 	}
 
 	// If SPACE is pressed, should reposition at random place on grid
@@ -1138,6 +1156,7 @@ void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos)
 
 		glm::mat4 InitviewMatrix = glm::lookAt(eye, glm::vec3(translateW, translateY, 0.0f), up);
 		setViewMatrix(shaderProgram, InitviewMatrix);
+
 		lastMousePosY = yPos;
 	}
 
