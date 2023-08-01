@@ -283,7 +283,6 @@ glm::vec3 translationRandom(.0f, .0f, .0f);
 glm::vec3 translationVec(.0f, .0f, .0f);
 float jonahRotationAngle = 0.0f;
 
-Arm arm;
 int renderAs = GL_TRIANGLES;
 int shaderProgram;
 double lastMousePosX, lastMousePosY, lastMousePosZ;
@@ -445,7 +444,6 @@ int main(int argc, char* argv[])
 		unitCubeAO,
         unitCubeAO, 
 		evanRacket );
-
 
 
 	JonahModels J = JonahModels(unitCubeAO, shaderProgram);
@@ -622,6 +620,7 @@ int main(int argc, char* argv[])
 			racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
 			racket.Draw();
 
+			J.drawRacketJ(groupMatrix, translationVec + translationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
             //evanArm.draw(worldMatrixLocation, colorLocation, shaderProgram);
 			//
 			evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
@@ -852,33 +851,33 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	
 	switch (selectModel) {//prints twice per button press maybe this is okay?
 	case(4)://Jon's Model		
-		if (state_W == GLFW_PRESS)			
-			arm.setTranslateModel(glm::vec3(arm.getTranslateModel().x, (arm.getTranslateModel().y + .005f), arm.getTranslateModel().z));		
+		if (state_W == GLFW_PRESS)
+			arm.setTranslateModel(glm::vec3(arm.getTranslateModel().x, (arm.getTranslateModel().y + .005f), arm.getTranslateModel().z));
 		else if (state_S == GLFW_PRESS)
-			arm.setTranslateModel(glm::vec3(arm.getTranslateModel().x, (arm.getTranslateModel().y - .005f), arm.getTranslateModel().z));		
+			arm.setTranslateModel(glm::vec3(arm.getTranslateModel().x, (arm.getTranslateModel().y - .005f), arm.getTranslateModel().z));
 		else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
 			arm.setTranslateModel(glm::vec3((arm.getTranslateModel().x - .005f), arm.getTranslateModel().y, arm.getTranslateModel().z));
 		else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
 			arm.setTranslateModel(glm::vec3((arm.getTranslateModel().x + .005f), arm.getTranslateModel().y, arm.getTranslateModel().z));
 		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-			switch(selectJoint) {
+			switch (selectJoint) {
 			case(0): arm.setRotation(arm.getRotation() + 5);  break;
 			case(1):if (arm.getERotation() + 5 > 90)arm.setERotation(90); else  arm.setERotation(arm.getERotation() + 5);  break;
 			case(2):if (arm.getWRotation() + 5 > 65)arm.setWRotation(65); else  arm.setWRotation(arm.getWRotation() + 5); break;
 			default: break;
-		}
+			}
 		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
 			switch (selectJoint) {
 			case(0): arm.setRotation(arm.getRotation() - 5);  break;
 			case(1):if (arm.getERotation() - 5 < 0)arm.setERotation(0); else  arm.setERotation(arm.getERotation() - 5);  break;
-			case(2):if (arm.getWRotation() - 5 < -85 )arm.setWRotation(-85); else  arm.setWRotation(arm.getWRotation() - 5); break;
+			case(2):if (arm.getWRotation() - 5 < -85)arm.setWRotation(-85); else  arm.setWRotation(arm.getWRotation() - 5); break;
 			default: break;
-		}
+			}
 		else if (state_SPACE == GLFW_PRESS)
 		{
 
 			arm.setTranslateRandom(glm::vec3(number1, number2, number3));
-		}		
+		}
 		break;
 
 	case(0):	//Evans model
@@ -887,23 +886,23 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 			evanArm.setTranslateModel(glm::vec3(evanArm.getTranslateModel().x, (evanArm.getTranslateModel().y + .005f), evanArm.getTranslateModel().z));
 			break;
 		}
-		 else if (state_S == GLFW_PRESS)
-		 {
-			 evanArm.setTranslateModel(glm::vec3(evanArm.getTranslateModel().x, (evanArm.getTranslateModel().y - .005f), evanArm.getTranslateModel().z));
-			 break;
-		 }
-		   else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-		 {
-			 evanArm.setTranslateModel(glm::vec3((evanArm.getTranslateModel().x + .005f), evanArm.getTranslateModel().y, evanArm.getTranslateModel().z));
-			 break;
-		 }
-		   else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-		 {
-			 evanArm.setTranslateModel(glm::vec3((evanArm.getTranslateModel().x - .005f), evanArm.getTranslateModel().y, evanArm.getTranslateModel().z));
-			 break;
-		 }
-		   else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-		 {
+		else if (state_S == GLFW_PRESS)
+		{
+			evanArm.setTranslateModel(glm::vec3(evanArm.getTranslateModel().x, (evanArm.getTranslateModel().y - .005f), evanArm.getTranslateModel().z));
+			break;
+		}
+		else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
+		{
+			evanArm.setTranslateModel(glm::vec3((evanArm.getTranslateModel().x + .005f), evanArm.getTranslateModel().y, evanArm.getTranslateModel().z));
+			break;
+		}
+		else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
+		{
+			evanArm.setTranslateModel(glm::vec3((evanArm.getTranslateModel().x - .005f), evanArm.getTranslateModel().y, evanArm.getTranslateModel().z));
+			break;
+		}
+		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
+		{
 			switch (selectJoint) {
 			case(0): evanArm.setRotation(evanArm.getRotation() + 5);  break;
 			case(1):if (evanArm.getERotation() + 5 > 90)evanArm.setERotation(90); else  evanArm.setERotation(evanArm.getERotation() + 5);  break;
@@ -911,10 +910,10 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 			}
 
 			// evanArm.setRotation(evanArm.getRotation() + 5); break;
-		 }
+		}
 
-		   else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-		 {
+		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
+		{
 			switch (selectJoint) {
 			case(0): evanArm.setRotation(evanArm.getRotation() - 5);  break;
 			case(1):if (evanArm.getERotation() - 5 < 0) { evanArm.setERotation(0); }
@@ -922,15 +921,34 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 			default: break;
 			}
 			// evanArm.setRotation(evanArm.getRotation() - 5); break;
-		 }
-		   else if (state_SPACE == GLFW_PRESS)
+		}
+		else if (state_SPACE == GLFW_PRESS)
 		{
 			evanArm.setTranslateRandom(glm::vec3(number1, number2, number3));
-			
+
 		}
-	case(1):  break;
-	case(2): break;
-	case(3): break;
+	case(1)://jonah's
+		if (state_W == GLFW_PRESS) {
+			translationVec.y += .005f; break;
+		}
+		else if (state_S == GLFW_PRESS) {
+				translationVec.y -= .005f; break;
+		}
+		else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT) {
+		translationVec.x += .005f; break;
+	}
+		else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT) {
+			translationVec.x -= .005f; break;
+		}
+		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT) {
+			jonahRotationAngle += 5.0f; break;
+		}
+		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT) {
+			jonahRotationAngle -= 5.0f;
+			break;
+		}
+	case(2)://matt break;
+	case(3)://noot break;
 	default:break;
 
 
@@ -993,19 +1011,18 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	else if (state_DOWN == GLFW_PRESS)
 		rotationMatrixW *= glm::rotate(glm::mat4(1.0f), glm::radians(2.55f), glm::vec3(.0f, -1.0f, 0.0f));
 
-	else if (state_W == GLFW_PRESS)
-		translationVec.y += .005f;
-	else if (state_S == GLFW_PRESS)
-		translationVec.y -= .005f;
-	else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-		translationVec.x += .005f;
-	else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-		translationVec.x -= .005f;
-	else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)		
-		jonahRotationAngle += 5.0f;
-
-	else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-		jonahRotationAngle -= 5.0f;
+	//else if (state_W == GLFW_PRESS)
+	//	translationVec.y += .005f;
+	//else if (state_S == GLFW_PRESS)
+	//	translationVec.y -= .005f;
+	//else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
+	//	translationVec.x += .005f;
+	//else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
+	//	translationVec.x -= .005f;
+	//else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)		
+	//	jonahRotationAngle += 5.0f;
+	//else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
+	//	jonahRotationAngle -= 5.0f;
 
 	// If p, l, or t is pressed, changed render mode between points, lines, and triangles, respectively
 	else if (state_P == GLFW_PRESS)
