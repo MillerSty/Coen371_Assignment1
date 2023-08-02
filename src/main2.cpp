@@ -604,16 +604,15 @@ int main(int argc, char* argv[])
 			racket.SetAttr(groupMatrix, renderAs, shaderProgram, jonArm.partParent);
 			racket.Draw();
 
-
             evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
 			
 			mattRacket.setGroupMatrix(groupMatrix);
 			mattArm.setGroupMatrix(groupMatrix);
+			mattArm.setRenderAs(renderAs);
 			mattArm.drawArm(MattTranslation, mattRotationAngle);
+			mattRacket.setRenderAs(renderAs);
 			mattRacket.drawRacket(MattTranslation, mattRotationAngle);
 
-
-			
 			J.drawRacketJ(groupMatrix, jonahTranslationModel+ jonahTranslationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
 
             SceneObj.sphereVao = unitSphereAO;
@@ -621,7 +620,6 @@ int main(int argc, char* argv[])
             SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
             SceneObj.SetVAO(unitCubeAO, gridAO);
             SceneObj.DrawScene(false);  // Draw scene without the skybox, so it can't be used to make shadows on the scene
-
 		}
 		{ // 2nd pass  
 			//reset 
@@ -647,11 +645,12 @@ int main(int argc, char* argv[])
 
 			mattRacket.setGroupMatrix(groupMatrix);
 			mattArm.setGroupMatrix(groupMatrix);
+			mattArm.setRenderAs(renderAs);
 			mattArm.drawArm(MattTranslation,mattRotationAngle);
+			mattRacket.setRenderAs(renderAs);
 			mattRacket.drawRacket(MattTranslation, mattRotationAngle);
 
 			J.drawRacketJ(groupMatrix, jonahTranslationModel + jonahTranslationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
-
 
 			//J.drawRacketJ(groupMatrix, translationVec + translationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
 
