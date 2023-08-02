@@ -72,7 +72,7 @@ float shadowScalar() {
     // get depth of current fragment from light's perspective
     float currentDepth = normalizedDeviceCoordinates.z;
     // check whether current frag pos is in shadow
-    float bias = 0.001f;  // bias applied in depth map: see shadow_vertex.glsl
+    float bias = 0.0001f;  // bias applied in depth map: see shadow_vertex.glsl
     return ((currentDepth - bias) < closestDepth) ? 1.0 : 0.0;
 }
 
