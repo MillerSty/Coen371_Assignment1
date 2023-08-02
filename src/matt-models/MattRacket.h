@@ -16,6 +16,7 @@ private:
 	GLuint shaderProgram;
 	GLuint texture;
 	int unitCubeVAO;
+	int renderAs;
 
 	void drawHandle(glm::vec3 TranslateModel, float rotation = 0.0f);
 	void drawPaddle(glm::vec3 TranslateModel, float rotation = 0.0f);
@@ -39,6 +40,8 @@ public:
 	GLuint getTexture();
 	void setVAO(int vao);
 	int getVAO();
+	void setRenderAs(int as);
+	int getRenderAs();
 
 	void drawRacket(glm::vec3 TranslateModel, float rotation = 0.0f);
 };
