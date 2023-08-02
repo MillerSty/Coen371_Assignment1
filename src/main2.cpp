@@ -270,7 +270,7 @@ glm::vec3 Translate(.0f, .0f, .0f);
 glm::vec3 GroupMatrixScale(1.0f, 1.0f, 1.0f);
 glm::mat4 groupMatrix;
 glm::mat4 rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-//Arm arm;
+
 
 // Create Matt model parts
 MattRacket mattRacket;
@@ -297,7 +297,7 @@ float translateW = 0, translateY = 0, translateZ = 0;
 // Toggles for shadows and textures
 bool shouldApplyShadows = true;
 bool shouldApplyTextures = true;
-Arm arm;
+Arm jonArm;
 EvanArm evanArm;
 int selectModel = 0; //we can se to 0 but then user has to toggle to before any thing
 int selectJoint =0;
@@ -425,20 +425,20 @@ int main(int argc, char* argv[])
 	int unitSphereAO = createVertexArrayElementObject2(vertexIndicessphere, verticessphere, normalssphere, UVssphere);
 	int unitCubeAO = createVertexArrayObject2();
 
-	arm.setVAO(unitCubeAO);
-	arm.position = glm::vec3(0, .0f, .0f);
-		//glm::vec3(-.5f, 0.0f, .2f);
+	jonArm.setVAO(unitCubeAO);
+	jonArm.position = glm::vec3(0.0f,0.0f,0.0f);
+		//jonArm ref position:glm::vec3(-.5f, 0.0f, .2f);
 
 
 
 
 	//TEXTURE DEFINITION
 						//diff spec ambient shiny
-	Material courtMaterial(.7f, .20f, 1.0f, .9f, courtTextureID, shaderProgram); //court shouldnt reflect
+	Material courtMaterial(.2f, .20f, 1.0f, .1f, courtTextureID, shaderProgram); //court shouldnt reflect
 	Material ropeMaterial(.5f, .60f, .5f, .9f, ropeTextureID, shaderProgram); // ropes are just ropes
 	Material clothMaterial(.5f, .60f, .5f, .9f, clothTextureID, shaderProgram); //cloth should have a little reflection?
 	Material metalMaterial(.6f, .90f, .6f, .00012f, metalTextureID, shaderProgram); //metal should shine
-	Material grassMaterial(.2f, .20f, .7f, .9f, grassTextureID, shaderProgram); //just bright, thats all it needs
+	Material grassMaterial(.2f, .20f, .7f, 1.5f, grassTextureID, shaderProgram); //just bright, thats all it needs
 	Material plasticMaterial(.5f, .60f, .5f, .002f, plasticTextureID, shaderProgram); //needs to be glossy! This is our racket
 	Material woodMaterial(.5f, .60f, .5f, .002f, woodTextureID, shaderProgram); //this is you matt
 	// Material plasticSkinMaterial...  we need a dull material for skin probaly a copy of the plastic texture with different diff/spec/amb
@@ -599,9 +599,9 @@ int main(int argc, char* argv[])
 			if (i == 1.0f) i = -1.0f;
 
 			// Draw geometry
-			arm.SetAttr(groupMatrix, renderAs, shaderProgram);
-			arm.DrawArm();
-			racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
+			jonArm.SetAttr(groupMatrix, renderAs, shaderProgram);
+			jonArm.DrawArm();
+			racket.SetAttr(groupMatrix, renderAs, shaderProgram, jonArm.partParent);
 			racket.Draw();
 
 
@@ -638,9 +638,9 @@ int main(int argc, char* argv[])
 			glBindTexture(GL_TEXTURE_2D, depth_map_texture);
 
 			// Draw geometry
-			arm.SetAttr(groupMatrix, renderAs, shaderProgram);
-			arm.DrawArm();
-			racket.SetAttr(groupMatrix, renderAs, shaderProgram, arm.partParent);
+			jonArm.SetAttr(groupMatrix, renderAs, shaderProgram);
+			jonArm.DrawArm();
+			racket.SetAttr(groupMatrix, renderAs, shaderProgram, jonArm.partParent);
 			racket.Draw();
 
 			evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
@@ -664,22 +664,22 @@ int main(int argc, char* argv[])
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noshowLightBox);
 		}
 		//trying to add finger manipulation
-		float check = arm.getFRotation();
-		if ((arm.getFRotation() + spin) > 90.0f && reverse == false) { 
+		float check = jonArm.getFRotation();
+		if ((jonArm.getFRotation() + spin) > 90.0f && reverse == false) { 
 			
-			arm.setFRotation(arm.getFRotation() - spin); 
+			jonArm.setFRotation(jonArm.getFRotation() - spin); 
 			reverse = true;
 		}
-		else if (arm.getFRotation() + spin < 0.0f && reverse == true) {
-			arm.setFRotation(arm.getFRotation() + spin); 
+		else if (jonArm.getFRotation() + spin < 0.0f && reverse == true) {
+			jonArm.setFRotation(jonArm.getFRotation() + spin); 
 			reverse = false; 
 		}
 		else if (reverse == true){
-			arm.setFRotation(arm.getFRotation() - spin);
+			jonArm.setFRotation(jonArm.getFRotation() - spin);
 			spin -= .01f;
 			}
 		else { 
-			arm.setFRotation(arm.getFRotation() + spin);
+			jonArm.setFRotation(jonArm.getFRotation() + spin);
 			spin += .01f;
 		}		
 		//printf("%f\n", spin);
@@ -873,31 +873,31 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	switch (selectModel) {//prints twice per button press maybe this is okay?
 	case(4)://Jon's Model		
 		if (state_W == GLFW_PRESS)
-			arm.setTranslateModel(glm::vec3(arm.getTranslateModel().x, (arm.getTranslateModel().y + .005f), arm.getTranslateModel().z));
+			jonArm.setTranslateModel(glm::vec3(jonArm.getTranslateModel().x, (jonArm.getTranslateModel().y + .005f), jonArm.getTranslateModel().z));
 		else if (state_S == GLFW_PRESS)
-			arm.setTranslateModel(glm::vec3(arm.getTranslateModel().x, (arm.getTranslateModel().y - .005f), arm.getTranslateModel().z));
+			jonArm.setTranslateModel(glm::vec3(jonArm.getTranslateModel().x, (jonArm.getTranslateModel().y - .005f), jonArm.getTranslateModel().z));
 		else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-			arm.setTranslateModel(glm::vec3((arm.getTranslateModel().x - .005f), arm.getTranslateModel().y, arm.getTranslateModel().z));
+			jonArm.setTranslateModel(glm::vec3((jonArm.getTranslateModel().x - .005f), jonArm.getTranslateModel().y, jonArm.getTranslateModel().z));
 		else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-			arm.setTranslateModel(glm::vec3((arm.getTranslateModel().x + .005f), arm.getTranslateModel().y, arm.getTranslateModel().z));
+			jonArm.setTranslateModel(glm::vec3((jonArm.getTranslateModel().x + .005f), jonArm.getTranslateModel().y, jonArm.getTranslateModel().z));
 		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
 			switch (selectJoint) {
-			case(0): arm.setRotation(arm.getRotation() + 5);  break;
-			case(1):if (arm.getERotation() + 5 > 90)arm.setERotation(90); else  arm.setERotation(arm.getERotation() + 5);  break;
-			case(2):if (arm.getWRotation() + 5 > 65)arm.setWRotation(65); else  arm.setWRotation(arm.getWRotation() + 5); break;
+			case(0): jonArm.setRotation(jonArm.getRotation() + 5);  break;
+			case(1):if (jonArm.getERotation() + 5 > 90)jonArm.setERotation(90); else  jonArm.setERotation(jonArm.getERotation() + 5);  break;
+			case(2):if (jonArm.getWRotation() + 5 > 65)jonArm.setWRotation(65); else  jonArm.setWRotation(jonArm.getWRotation() + 5); break;
 			default: break;
 			}
 		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
 			switch (selectJoint) {
-			case(0): arm.setRotation(arm.getRotation() - 5);  break;
-			case(1):if (arm.getERotation() - 5 < 0)arm.setERotation(0); else  arm.setERotation(arm.getERotation() - 5);  break;
-			case(2):if (arm.getWRotation() - 5 < -85)arm.setWRotation(-85); else  arm.setWRotation(arm.getWRotation() - 5); break;
+			case(0): jonArm.setRotation(jonArm.getRotation() - 5);  break;
+			case(1):if (jonArm.getERotation() - 5 < 0)jonArm.setERotation(0); else  jonArm.setERotation(jonArm.getERotation() - 5);  break;
+			case(2):if (jonArm.getWRotation() - 5 < -85)jonArm.setWRotation(-85); else  jonArm.setWRotation(jonArm.getWRotation() - 5); break;
 			default: break;
 			}
 		else if (state_SPACE == GLFW_PRESS)
 		{
 
-			arm.setTranslateRandom(glm::vec3(number1, number2, number3));
+			jonArm.setTranslateRandom(glm::vec3(number1, number2, number3));
 		}
 		break;
 
@@ -1117,7 +1117,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		jonahTranslationRandom += (-1.0f * jonahTranslationRandom);
 		mattTranslationModel += (-1.0f * mattTranslationModel);
 		mattTranslationRandom += (-1.0f * mattTranslationRandom);
-		arm.resetArm();
+		jonArm.resetArm();
 		evanArm.resetArm();
 		GroupMatrixScale = glm::vec3(1.0f);
 		rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
