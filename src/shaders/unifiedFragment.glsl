@@ -42,7 +42,6 @@ struct Material{//vec3's~!!!! https://learnopengl.com/Lighting/Materials
     float specularStrength;
     float ambientStrength;
     float shininessStrength;
-
 };
 
 uniform Material mats;
@@ -73,7 +72,7 @@ float shadowScalar() {
     // get depth of current fragment from light's perspective
     float currentDepth = normalizedDeviceCoordinates.z;
     // check whether current frag pos is in shadow
-    float bias = 0.00001f;  // bias applied in depth map: see shadow_vertex.glsl
+    float bias = 0.001f;  // bias applied in depth map: see shadow_vertex.glsl
     return ((currentDepth - bias) < closestDepth) ? 1.0 : 0.0;
 }
 
@@ -102,24 +101,24 @@ void main()
         vec3 diffuse = vec3(0.0f);
         vec3 specular = vec3(0.0f); 
 
-        //point light? can we programmatically set these somehow -> uniforms?
+        //point light? can we programatically set these somehow -> uniforms?
         float constantPoint = .50f;// for high //1 for low height
-            float linearPoint = .001932f; //3 for low height
-            float quadPoint = .0013f; //3 for low height      
+        float linearPoint = .001932f; //3 for low height
+        float quadPoint = .0013f; //3 for low height      
         vec3 directionPoint = fragmentPosition - lightPosition;
         float distancePoint = length(directionPoint);
-        float attenuation = quadPoint * distancePoint * distancePoint + linearPoint * distancePoint + constantPoint;
+        float attenuation = (quadPoint * distancePoint * distancePoint) + (linearPoint * distancePoint) + constantPoint;
 
         float shadow = shadowScalar();
         float spotlight = spotlightScalar();
-        float scalar = shadow* spotlight;
+        float scalar = shadow * spotlight;
 
         ambient = ambientColor();
         diffuse = diffuseColor();
         specular = specularColor();
 
-        vec3 color = ambient +  (specular + diffuse)*scalar / attenuation;
-           fragColor = color;
+        vec3 color = ambient + (specular + diffuse) * scalar / attenuation;
+        fragColor = color;
 
         if (shouldApplyTexture) {
             vec3 textureColor = texture(textureSampler, vertexUV).xyz;
