@@ -27,8 +27,10 @@ set(EXEC Coen371_Project)
 file(GLOB SRC src/*.cpp)
 file(GLOB EVAN_SRC src/Evan-models/*.cpp)
 file(GLOB MATT_SRC src/matt-models/*.cpp)
+file(GLOB SABRINA_SRC src/Sabrina-models/*.cpp)
 
-add_executable(${EXEC} ${SRC} ${EVAN_SRC} ${MATT_SRC})
+
+add_executable(${EXEC} ${SRC} ${EVAN_SRC} ${MATT_SRC} ${SABRINA_SRC})
 
 target_link_libraries(${EXEC} OpenGL::GL glew_s glfw glm)
 

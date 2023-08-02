@@ -23,6 +23,7 @@
 #include "Evan-models/EvanRacket.h"
 #include "matt-models/MattArm.h"
 #include "matt-models/MattRacket.h"
+#include "Sabrina-models/SabrinaArm.h"
 
 #include "JonahModels.h"
 
@@ -287,6 +288,8 @@ glm::vec3 mattTranslationRandom(.0f, .0f, .0f);
 glm::vec3 mattTranslationModel(.0f, .0f, .0f);
 float mattRotationAngle = 0.0f;
 
+// Create Sabrina model parts
+SabrinaArm sabrinaArm;
 
 int renderAs = GL_TRIANGLES;
 int shaderProgram;
@@ -546,6 +549,10 @@ int main(int argc, char* argv[])
 	mattRacket.setVAO(unitCubeAO);
 	mattRacket.setTexture(woodTextureID);
 
+	// Set Sabrina VAO and shader program
+	sabrinaArm.setShaderProgram(shaderProgram);
+	sabrinaArm.setVAO(unitCubeAO);
+
 	float i = -1;
 	float spin = 0;
 	bool reverse = false;
@@ -612,7 +619,10 @@ int main(int argc, char* argv[])
 			mattArm.drawArm(MattTranslation, mattRotationAngle);
 			mattRacket.setRenderAs(renderAs);
 			mattRacket.drawRacket(MattTranslation, mattRotationAngle);
-
+      
+			sabrinaArm.setGroupMatrix(groupMatrix);
+			sabrinaArm.drawArm();
+      
 			J.drawRacketJ(groupMatrix, jonahTranslationModel+ jonahTranslationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
 
             SceneObj.sphereVao = unitSphereAO;
@@ -649,6 +659,12 @@ int main(int argc, char* argv[])
 			mattArm.drawArm(MattTranslation,mattRotationAngle);
 			mattRacket.setRenderAs(renderAs);
 			mattRacket.drawRacket(MattTranslation, mattRotationAngle);
+
+
+			sabrinaArm.setGroupMatrix(groupMatrix);
+			sabrinaArm.drawArm();
+
+
 
 			J.drawRacketJ(groupMatrix, jonahTranslationModel + jonahTranslationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
 
