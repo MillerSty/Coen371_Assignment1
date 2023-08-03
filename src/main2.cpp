@@ -287,6 +287,7 @@ int main(int argc, char* argv[])
 	GLuint grassTextureID   = loadTexture("../src/Assets/grass4.jpg");
 	GLuint plasticTextureID = loadTexture("../src/Assets/plastic.jpg");
 	GLuint woodTextureID    = loadTexture("../src/Assets/wood1.jpg");
+	GLuint tattooTextureID  = loadTexture("../src/Assets/tattoo.jpg");
 
 	// Black background	
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -339,6 +340,7 @@ int main(int argc, char* argv[])
 	Material grassMaterial(.2f, .20f, .7f, 1.5f, grassTextureID, shaderProgram);
 	Material plasticMaterial(.5f, .60f, .5f, .002f, plasticTextureID, shaderProgram);
 	Material woodMaterial(.5f, .60f, .5f, .002f, woodTextureID, shaderProgram);
+	Material tattooMaterial(0.5f, 0.2f, 0.5f, 0.002f, tattooTextureID, shaderProgram);
 
 	SceneObj.setMaterials(courtMaterial, clothMaterial, ropeMaterial, metalMaterial, grassMaterial, plasticMaterial);
 
@@ -418,8 +420,10 @@ int main(int argc, char* argv[])
 	// Set Matt VAO and shader program
 	mattModel1.setShaderProgram(shaderProgram);
 	mattModel1.setVAO(unitCubeAO);
+	mattModel1.setMaterials(metalMaterial, tattooMaterial, woodMaterial, ropeMaterial, clothMaterial, grassMaterial);
 	mattModel2.setShaderProgram(shaderProgram);
 	mattModel2.setVAO(unitCubeAO);
+	mattModel2.setMaterials(metalMaterial, tattooMaterial, woodMaterial, ropeMaterial, clothMaterial, grassMaterial);
 
 	//float i = -1;
 	float spin = 0;

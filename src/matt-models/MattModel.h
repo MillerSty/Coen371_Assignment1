@@ -5,6 +5,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "../Material.h"
+
 class MattModel
 {
 private:
@@ -18,6 +20,13 @@ private:
 	glm::vec3 translationModel;
 	int modelNum;
 	float rotationAngle;
+
+	Material racketTexture;
+	Material ArmTexture;
+	Material STexture;
+	Material ETexture;
+	Material ATexture;
+	Material LTexture;
 
 public:
 	MattModel(int num);
@@ -42,6 +51,8 @@ public:
 	void setTranslationModel(glm::vec3 trans);
 	void setRotationAngle(float angle);
 	float getRotationAngle();
+
+	void setMaterials(Material racket, Material arm, Material s, Material e, Material a, Material l);
 
 	void drawModel();
 };

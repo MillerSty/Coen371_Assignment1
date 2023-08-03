@@ -48,14 +48,28 @@ void MattModel::setRotationAngle(float angle) { rotationAngle = angle; }
 
 float MattModel::getRotationAngle() { return rotationAngle; }
 
+void MattModel::setMaterials(Material racket, Material arm, Material s, Material e, Material a, Material l)
+{
+	racketTexture = racket;
+	ArmTexture = arm;
+	STexture = s;
+	ETexture = e;
+	ATexture = a;
+	LTexture = l;
+}
+
 void MattModel::drawModel()
 {
+	// The total translation this frame is the translation of the model, plus any random translation from SPACE
 	glm::vec3 translation = translationModel + translationRandom;
 
+	// Bind cube VAO
 	glBindVertexArray(unitCubeVAO);
 	
 	// DRAW ARM
-	const glm::vec3 ARM_COLOR(0.8f, 0.65f, 0.37f);
+	const glm::vec3 ARM_COLOR(0.8f, 0.65f, 0.37f);  // Set arm color
+	ArmTexture.bindTexture();  // Activate texture
+	ArmTexture.loadToShader();
 
 	// Draw forearm
 	glm::mat4 modelMat = worldMatrix * groupMatrix;
@@ -64,6 +78,7 @@ void MattModel::drawModel()
 	glm::mat4 modelRotate;
 	glm::mat4 modelTranslate;
 
+	// Use different rotations and translations depending on whether this is model 1 or 2
 	if (modelNum == 1)
 	{
 		modelRotate = glm::rotate(glm::mat4(1.0f), glm::radians(20.0f), glm::vec3(0.0f, 0.0f, -1.0f));
@@ -75,13 +90,15 @@ void MattModel::drawModel()
 		modelTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(translation.x + 0.35f, translation.y + 0.20f, translation.z));
 	}
 
+	// Create combined MVP matrix from scaling, rotation, and translation
 	modelMat *= modelTranslate * modelRotate * modelScale;
 
+	// Send to shader
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "worldMatrix"), 1, GL_FALSE, &modelMat[0][0]);
 
 	glUniform3fv(glGetUniformLocation(shaderProgram, "objectColor"), 1, &ARM_COLOR[0]);
 
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glDrawArrays(GL_TRIANGLES, 0, 36); // Draw
 
 	// Draw bicep
 	modelMat = worldMatrix * groupMatrix;
@@ -107,6 +124,8 @@ void MattModel::drawModel()
 
 	// DRAW RACKET
 	const glm::vec3 RACKET_COLOR(0.42f, 0.3f, 0.0f);
+	racketTexture.bindTexture();
+	racketTexture.loadToShader();
 
 	// Draw handle
 	modelMat = worldMatrix * groupMatrix;
@@ -150,6 +169,8 @@ void MattModel::drawModel()
 	{
 		// Draw E
 		const glm::vec3 E_COLOR(1.0f, 0.0f, 0.0f);
+		ETexture.bindTexture();
+		ETexture.loadToShader();
 		
 		// Left stick
 		modelMat = worldMatrix * groupMatrix;
@@ -198,6 +219,8 @@ void MattModel::drawModel()
 		
 		// Draw L
 		const glm::vec3 L_COLOR(0.0f, 1.0f, 0.0f);
+		LTexture.bindTexture();
+		LTexture.loadToShader();
 
 		// Left stick
 		modelMat = worldMatrix * groupMatrix;
@@ -226,6 +249,8 @@ void MattModel::drawModel()
 	{
 		// Draw A
 		const glm::vec3 A_COLOR(0.0f, 0.0f, 1.0f);
+		ATexture.bindTexture();
+		ATexture.loadToShader();
 
 		// Left stick
 		modelMat = worldMatrix * groupMatrix;
@@ -274,6 +299,8 @@ void MattModel::drawModel()
 
 		// Draw S
 		const glm::vec3 S_COLOR(1.0f, 1.0f, 0.0f);
+		STexture.bindTexture();
+		STexture.loadToShader();
 
 		// Left-up stick
 		modelMat = worldMatrix * groupMatrix;
