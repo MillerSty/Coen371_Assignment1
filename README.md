@@ -1,68 +1,30 @@
-# Accepted input:
+# Controls
 
- - W - positive y movement  
- - Shift + A - Positive x movement
- - S - Negative y movement
- - Shift + D - Negative x movement
- - U - Scale up
- - J - Scale down
- - a / d - pressing a or d allows for model rotation about y axis
- - SPACE - will randomly reposition model inside viewing area
- - arrow left - rotate  world about positive x axis          
- - arrow right - rotate world about negative x axis               
- - arrow up - rotate    world about positive y axis          
- - arrow down - rotate  world  about negative y axis         
- - P - render model as points                                
- - L - render model as lines                                 
- - T - Render model as triangles                              
- - HOME - resets projection, view, world matrix to initial position
- - Mouse button left- Movement with left mouse button up/down will tilt the camera
- - Mouse button right - Movement with right mouse button left/right will pan the camera
- - Mouse Button Middle - Movement up/down will zoom in and out the camera
- - TAB- Changes model selection
- - SHIFT+TAB - Change Joint selection for enabled models
+## Keyboard
 
-# TODO Assignment2:
-- [ ] individual scaling
-- [x] create spherical tennis ball using triangle mesh representations
-- [x] illuminate scene with point light (white) 30 units above the mesh using Phong Model
-- [x] render scene with clay texture on ground mesh, green texture on ball, and glossy finish for racket
-- [x] Render scene with shadows using two pass shadow algorithm
-- [x] Make the racket movements possible by rotating arm at various joints -> translation forward and backward, as well as clockwise anticlockwise  
-- [x] windows should handle resize events and correctly adjust aspect ratio
-- [x] mesh turn right of left by a small amount NOTE: here mesh means the model	 
-- [x] application must use OpenGL 4.1 
-- [x] more elaborate model of the arm with finger movements and rotating light etc
-- [x] put shaders in .glsl files
-- [x] convert to CMake
+- 1: Select racket 1.
+- 2: Select racket 2.
+- W/ S: Move selected racket up or down.
+- A/ D: Move selected racket backward or forward.
+- U/ J: Scale selected racket up or down.
+- M: Toggle camera. There is 1 main camera, and 1 camera for each racket.
+- R: Switch to main camera (regardless of which camera was active).
+- HOME: Reset camera and racket translations. Switch to main camera.
+- LEFT/ RIGHT arrow: Rotate world around Z-axis.
+- UP/ DOWN arrow: Rotate world around Y-axis.
+- B: Toggle shadows on or off.
+- X: Toggle textures on or of.
+- SPACE: Translate selected racket randomly around the scene.
+- L: Toggle light on or off.
 
-# user inputs:
-- [x] X toggles textures on and off
-- [x] B toggles Shadows
+*Note:* Switching to a camera attached to a model does not automatically switch to the model itself.
+This way, it's possible to switch between cameras and models independently of each other.
 
-# Checklist of Functionality:
-- [x] 1: model needs upper and lower arm, ideally independent of each other
-- [x] 2: grid needs to be 100 x 100
-- [x] 3: coordinate axes need to be 5 grids long in each direction
-- [x] 4: GLFW 1024x 768, using perspective view and back face culling [-> res is set, should be set in perspective, and back face culling enabled]
-- [x] 5: pressing space bar should move model  to random grid location
-- [x] 6: U scales up hand ; J scales down -> small increments
-- [x] 7: Move model positions WASD for direction ;
-- [x] 7.1 : a d for rotation about y axis (5 degrees)
-- [x] 8: World orientation using (left arrow -> Rx) ; (right arrow -> R -x ) ; (up arrow -> Ry) ; (down arrow -> R -y) 
-  			Rx denotes a small anti-clockwise
-  			rotation about positive x axis, R-x about negative x axis, etc
-- [x] 8.1: home reset to initial position and orientation  
-- [x] 9: User can change rendering mode for the model i.e.: points, line, triangles based on keyboard input (P L T)
-- [x] 10: Pan and tilt camera -> tilt being move the camera up and down
-			mouse right button is pressed → use mouse movement in x direction to pan;
-			mouse middle button is pressed → use mouse movement in y direction to tilt.
-- [x] 11: Camera zoom in and out of the scene - while  mouse left button is pressed → mouse movement to move into/out of the scene
+## Mouse
 
-# Possible Add-ons:
-- [ ] 1: rotate forearm independently
-- [ ] 2: E and W for z axis
-- [ ] 3:  Mouse scroll zoom and mouse movement pan/tilt
+- LEFT click and mouse forward or back: Tilt camera up or down.
+- RIGHT click and mouse left or right: Pan camera left or right.
+- MIDDLE click and mouse forward or back: Zoom camera in or out.
 
 # Build Instructions
 
