@@ -174,8 +174,10 @@ glm::vec3 center(.00f, .0f, 0.0f);
 glm::vec3 up(0.0f, 1.0f, 0.0f);
 glm::vec3 translateWSAD(0.0f, 0.0f, 0.0f);
 glm::vec3 Translate(.0f, .0f, .0f);
-glm::vec3 GroupMatrixScale(1.0f, 1.0f, 1.0f);
-glm::mat4 groupMatrix;
+glm::vec3 GroupMatrixScale1(1.0f, 1.0f, 1.0f);
+glm::vec3 GroupMatrixScale2(1.0f, 1.0f, 1.0f);
+glm::mat4 groupMatrix1;
+glm::mat4 groupMatrix2;
 glm::mat4 rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
 // Create 2 models
@@ -408,7 +410,8 @@ int main(int argc, char* argv[])
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), GroupMatrixScale) * rotationMatrixW;
+		groupMatrix1 = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), GroupMatrixScale1) * rotationMatrixW;
+		groupMatrix2 = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), GroupMatrixScale2) * rotationMatrixW;
 
 		float lightDepth = 1.0f;
 		bool noshowLightBox = false;
@@ -435,9 +438,9 @@ int main(int argc, char* argv[])
 			glClear(GL_DEPTH_BUFFER_BIT);
 
 			// Draw geometry
-			mattModel1.setGroupMatrix(groupMatrix);
+			mattModel1.setGroupMatrix(groupMatrix1);
 			mattModel1.drawModel();
-			mattModel2.setGroupMatrix(groupMatrix);
+			mattModel2.setGroupMatrix(groupMatrix2);
 			mattModel2.drawModel();
 
             SceneObj.SetAttr(rotationMatrixW, GL_TRIANGLES, shaderProgram);
@@ -460,9 +463,9 @@ int main(int argc, char* argv[])
 			glBindTexture(GL_TEXTURE_2D, depth_map_texture);
 
 			// Draw geometry
-			mattModel1.setGroupMatrix(groupMatrix);
+			mattModel1.setGroupMatrix(groupMatrix1);
 			mattModel1.drawModel();
-			mattModel2.setGroupMatrix(groupMatrix);
+			mattModel2.setGroupMatrix(groupMatrix2);
 			mattModel2.drawModel();
 
 			SceneObj.SetAttr(rotationMatrixW, GL_TRIANGLES, shaderProgram);
@@ -735,10 +738,20 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 
 	// If u or j is pressed, scale up or down accordingly
 	else if (state_U == GLFW_PRESS)
-		GroupMatrixScale += .05f;
+	{
+		if (selectModel == 0)
+			GroupMatrixScale1 += 0.05f;
+		else if (selectModel == 1)
+			GroupMatrixScale2 += 0.05f;
+	}
 
 	else if (state_J == GLFW_PRESS)
-		GroupMatrixScale -= .05f;
+	{
+		if (selectModel == 0)
+			GroupMatrixScale1 -= 0.05f;
+		else if (selectModel == 1)
+			GroupMatrixScale2 -= 0.05f;
+	}
 
 	// If the arrow keys are pressed, rotate accordingly
 	else if (state_LEFT == GLFW_PRESS)
@@ -765,7 +778,8 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		mattModel2.setTranslationRandom(mattModel2.getTranslationRandom() + (-1.0f * mattModel2.getTranslationRandom()));
 		//mattTranslationModel += (-1.0f * mattTranslationModel);
 		//mattTranslationRandom += (-1.0f * mattTranslationRandom);
-		GroupMatrixScale = glm::vec3(1.0f);
+		GroupMatrixScale1 = glm::vec3(1.0f);
+		GroupMatrixScale2 = glm::vec3(1.0f);
 		rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 		glm::mat4 InitviewMatrix = glm::lookAt(eye, center, up);
 		glm::mat4 projectionMatrix = glm::perspective(FOV, AR, near, far);
