@@ -162,6 +162,14 @@ bool SceneObjects::DrawNet() {
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 
+	// Draw middle pole
+	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0375f, 0.0f));
+	partMatrix = partTranslate * partScale * partRo;
+	worldMatrix = groupMatrix * partMatrix;
+
+	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+
 	// Strings of net
 	ropeTexture.bindTexture();
 	ropeTexture.loadToShader();
