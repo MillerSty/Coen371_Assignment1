@@ -18,6 +18,9 @@
 #include "SceneObjects.h"
 #include "matt-models/MattModel.h"
 
+// THE CODE FOR THIS QUIZ IS HEAVILY BASED ON MY TEAMS SUBMISSION FOR ASSIGNMENT 2. PARTS THAT DON'T PERTAIN TO ME HAVE BEEN REMOVED.
+// THE SOLUTION TO THIS QUIZ IS WHOLLY ORIGINAL, EXCEPT IN CASES WHERE LINKS ARE PROVIDED TO EXTERNAL SOURCES
+
 // Set the shader paths
 const char* vertex = "../src/shaders/unifiedVertex.glsl";
 const char* fragment = "../src/shaders/unifiedFragment.glsl";
@@ -75,33 +78,6 @@ struct TexturedNormaledVertex
 	glm::vec3 normals;
 	glm::vec2 uv;
 };
-
-//void updateLight(glm::vec3 newPosition,glm::vec3 newFocus,SceneObjects SceneObj,GLuint shaderProgram,float i,bool applyShadow) {
-//	// light parameters
-//	glm::vec3 lightPosition(-.30f, .30f, .0f); // the location of the light in 3D space
-//	glm::vec3 lightFocus(0.0, 0.0, -1.0);      // the point in 3D space the light "looks" at
-//	glm::vec3 lightDirection = glm::normalize(newFocus - newPosition);
-//
-//	GLint lightPositionLoc = glGetUniformLocation(shaderProgram, "lightPosition");
-//	GLint lightDirectionLoc = glGetUniformLocation(shaderProgram, "lightDirection");
-//	GLint lightViewProjMatrixLoc = glGetUniformLocation(shaderProgram, "lightViewProjMatrix");
-//
-//	// Set light position on scene shader
-//	glUniform3fv(lightPositionLoc, 1, &newPosition[0]);
-//
-//	// Set light direction on scene shader
-//	glUniform3fv(lightDirectionLoc, 1, &lightDirection[0]);
-//	float lightNearPlane = 0.1f;
-//	float lightFarPlane = 180.0f;
-//
-//	glm::mat4 lightProjectionMatrix = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, lightNearPlane, lightFarPlane);
-//	glm::mat4 lightViewMatrix = glm::lookAt(newPosition, newFocus, glm::vec3(0.0f, 1.0f, 0.0f));
-//	glm::mat4 lightSpaceMatrix = lightProjectionMatrix * lightViewMatrix;
-//	glUniformMatrix4fv(lightViewProjMatrixLoc, 1, GL_FALSE, &lightSpaceMatrix[0][0]);
-//	if (!applyShadow) {
-//		SceneObj.DrawLight(newPosition, glm::vec3(0.0f, 1.0f, 0.0f), i);
-//	}
-//}
 
 // Textured Cube model
 TexturedNormaledVertex texturedCubeVertexArray[] = {
@@ -458,10 +434,6 @@ int main(int argc, char* argv[])
 			// Clear depth data on the frame buffer
 			glClear(GL_DEPTH_BUFFER_BIT);
 
-			//Note .8 != 30 for the height so that we can visually see the affects of rotating
-			//updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, true);
-			//if (i == 1.0f) i = -1.0f;
-
 			// Draw geometry
 			mattModel1.setGroupMatrix(groupMatrix);
 			mattModel1.drawModel();
@@ -496,8 +468,6 @@ int main(int argc, char* argv[])
 			SceneObj.SetAttr(rotationMatrixW, GL_TRIANGLES, shaderProgram);
 			SceneObj.SetVAO(unitCubeAO, gridAO);
 			SceneObj.DrawScene(true);  // Draw scene with the skybox
-
-			//updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noshowLightBox);
 		}
 		glfwSwapBuffers(window);
 		glfwPollEvents();
