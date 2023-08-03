@@ -169,15 +169,21 @@ int createVertexArrayObject2()
 const int WIDTH = 1024, HEIGHT = 768;
 
 // Set/ declare some variables
-glm::vec3 eye(.7650f, .250f, .7650f);
-glm::vec3 center(.00f, .0f, 0.0f);
-glm::vec3 up(0.0f, 1.0f, 0.0f);
+glm::vec3 eye(.765f, .25f, .765f);  // Main camera eye
+glm::vec3 eyeRacket1(-0.35f, 0.20f, 0.0f);  // Racket 1 camera eye
+glm::vec3 eyeRacket2(0.35f, 0.20f, 0.0f);  // Racket 2 camera eye
+glm::vec3 center(0.0f, 0.0f, 0.0f);  // Center for main camera
+glm::vec3 centerRacket1(1.0f, 0.0f, 0.0f);  // Center for racket 1 camera
+glm::vec3 centerRacket2(-1.0f, 0.0f, 0.0f);  // Center for racket 2 camera
+glm::vec3 up(0.0f, 1.0f, 0.0f); // Common up for all cameras
 glm::vec3 translateWSAD(0.0f, 0.0f, 0.0f);
 glm::vec3 Translate(.0f, .0f, .0f);
+// 2 Different group matrices for the 2 different models
 glm::vec3 GroupMatrixScale1(1.0f, 1.0f, 1.0f);
 glm::vec3 GroupMatrixScale2(1.0f, 1.0f, 1.0f);
 glm::mat4 groupMatrix1;
 glm::mat4 groupMatrix2;
+// A rotation matrix, probably won't be used
 glm::mat4 rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
 // Create 2 models
@@ -667,69 +673,178 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	// Use m to toggle between selected cameras
 	else if (state_M == GLFW_PRESS)
 	{
-		if (selectCamera == 3)
+		// Toggle between cameras
+		if (selectCamera == 2)
 			selectCamera = 0;
 		else
 			selectCamera++;
+
+		// Main camera
+		if (selectCamera == 0)
+		{
+			glm::mat4 viewMatrix = glm::lookAt(eye, center, up);
+			setViewMatrix(shaderProgram, viewMatrix);
+		}
+		// Racket 1 camera
+		else if (selectCamera == 1)
+		{
+			glm::mat4 viewMatrix = glm::lookAt(eyeRacket1, centerRacket1, up);
+			setViewMatrix(shaderProgram, viewMatrix);
+		}
+		// Racket 2 camera
+		else if (selectCamera == 2)
+		{
+			glm::mat4 viewMatrix = glm::lookAt(eyeRacket2, centerRacket2, up);
+			setViewMatrix(shaderProgram, viewMatrix);
+		}
 	}
 
 	// Use r to return to main camera
 	else if (state_R == GLFW_PRESS)
 	{
 		selectCamera = 0;
+		glm::mat4 viewMatrix = glm::lookAt(eye, center, up);
+		setViewMatrix(shaderProgram, viewMatrix);
 	}
 
 	// Translate the models
 	else if (state_W == GLFW_PRESS) {
+		glm::vec3 change = glm::vec3(0.0f, 0.005f, 0.0f);
+
 		if (selectModel == 0)
-			mattModel1.setTranslationModel(mattModel1.getTranslationModel() + glm::vec3(0.0f, 0.005f, 0.0f));
+		{
+			mattModel1.setTranslationModel(mattModel1.getTranslationModel() + change);
+
+			eyeRacket1 += change;
+			if (selectCamera == 1)
+			{
+				glm::mat4 viewMatrix = glm::lookAt(eyeRacket1, centerRacket1, up);
+				setViewMatrix(shaderProgram, viewMatrix);
+			}
+		}
 		else if (selectModel == 1)
-			mattModel2.setTranslationModel(mattModel2.getTranslationModel() + glm::vec3(0.0f, 0.005f, 0.0f));
-		//mattTranslationModel.y += .005f;
+		{
+			mattModel2.setTranslationModel(mattModel2.getTranslationModel() + change);
+			eyeRacket2 += change;
+			if (selectCamera == 2)
+			{
+				glm::mat4 viewMatrix = glm::lookAt(eyeRacket2, centerRacket2, up);
+				setViewMatrix(shaderProgram, viewMatrix);
+			}
+		}
 	}
 	else if (state_S == GLFW_PRESS) {
+		glm::vec3 change = glm::vec3(0.0f, 0.005f, 0.0f);
+
 		if (selectModel == 0)
-			mattModel1.setTranslationModel(mattModel1.getTranslationModel() - glm::vec3(0.0f, 0.005f, 0.0f));
+		{
+			mattModel1.setTranslationModel(mattModel1.getTranslationModel() - change);
+			eyeRacket1 -= change;
+			if (selectCamera == 1)
+			{
+				glm::mat4 viewMatrix = glm::lookAt(eyeRacket1, centerRacket1, up);
+				setViewMatrix(shaderProgram, viewMatrix);
+			}
+
+		}
 		else if (selectModel == 1)
-			mattModel2.setTranslationModel(mattModel2.getTranslationModel() - glm::vec3(0.0f, 0.005f, 0.0f));
-		//mattTranslationModel.y -= .005f;
+		{
+			mattModel2.setTranslationModel(mattModel2.getTranslationModel() - change);
+			eyeRacket2 -= change;
+			if (selectCamera == 2)
+			{
+				glm::mat4 viewMatrix = glm::lookAt(eyeRacket2, centerRacket2, up);
+				setViewMatrix(shaderProgram, viewMatrix);
+			}
+		}
 	}
-	else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT) {
+	else if (state_D == GLFW_PRESS) {
+		glm::vec3 change = glm::vec3(0.005f, 0.0f, 0.0f);
+
 		if (selectModel == 0)
-			mattModel1.setTranslationModel(mattModel1.getTranslationModel() + glm::vec3(0.005f, 0.0f, 0.0f));
+		{
+			mattModel1.setTranslationModel(mattModel1.getTranslationModel() + change);
+			eyeRacket1 += change;
+			if (selectCamera == 1)
+			{
+				glm::mat4 viewMatrix = glm::lookAt(eyeRacket1, centerRacket1, up);
+				setViewMatrix(shaderProgram, viewMatrix);
+			}
+		}
 		else if (selectModel == 1)
-			mattModel2.setTranslationModel(mattModel2.getTranslationModel() + glm::vec3(0.005f, 0.0f, 0.0f));
-		//mattTranslationModel.x += .005f;
+		{
+			mattModel2.setTranslationModel(mattModel2.getTranslationModel() + change);
+			eyeRacket2 += change;
+			if (selectCamera == 2)
+			{
+				glm::mat4 viewMatrix = glm::lookAt(eyeRacket2, centerRacket2, up);
+				setViewMatrix(shaderProgram, viewMatrix);
+			}
+		}
 	}
-	else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT) {
+	else if (state_A == GLFW_PRESS) {
+		glm::vec3 change = glm::vec3(0.005f, 0.0f, 0.0f);
 		if (selectModel == 0)
-			mattModel1.setTranslationModel(mattModel1.getTranslationModel() - glm::vec3(0.005f, 0.0f, 0.0f));
+		{
+			mattModel1.setTranslationModel(mattModel1.getTranslationModel() - change);
+			eyeRacket1 -= change;
+			if (selectCamera == 1)
+			{
+				glm::mat4 viewMatrix = glm::lookAt(eyeRacket1, centerRacket1, up);
+				setViewMatrix(shaderProgram, viewMatrix);
+			}
+		}
 		else if (selectModel == 1)
-			mattModel2.setTranslationModel(mattModel2.getTranslationModel() - glm::vec3(0.005f, 0.0f, 0.0f));
-		//mattTranslationModel.x -= .005f;
+		{
+			mattModel2.setTranslationModel(mattModel2.getTranslationModel() - change);
+			eyeRacket2 -= change;
+			if (selectCamera == 2)
+			{
+				glm::mat4 viewMatrix = glm::lookAt(eyeRacket2, centerRacket2, up);
+				setViewMatrix(shaderProgram, viewMatrix);
+			}
+		}
 	}
-	else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT) {
-		if (selectModel == 0)
-			mattModel1.setRotationAngle(mattModel1.getRotationAngle() + 5.0f);
-		else if (selectModel == 1)
-			mattModel2.setRotationAngle(mattModel2.getRotationAngle() + 5.0f);
-		//mattRotationAngle += 5.0f;
-	}
-	else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT) {
-		if (selectModel == 0)
-			mattModel1.setRotationAngle(mattModel1.getRotationAngle() - 5.0f);
-		else if (selectModel == 1)
-			mattModel2.setRotationAngle(mattModel2.getRotationAngle() + -5.0f);
-		//mattRotationAngle -= 5.0f;
-	}
+
+	//else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT) {
+	//	if (selectModel == 0)
+	//		mattModel1.setRotationAngle(mattModel1.getRotationAngle() + 5.0f);
+	//	else if (selectModel == 1)
+	//		mattModel2.setRotationAngle(mattModel2.getRotationAngle() + 5.0f);
+	//}
+	//else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT) {
+	//	if (selectModel == 0)
+	//		mattModel1.setRotationAngle(mattModel1.getRotationAngle() - 5.0f);
+	//	else if (selectModel == 1)
+	//		mattModel2.setRotationAngle(mattModel2.getRotationAngle() + -5.0f);
+	//}
 
 	// If SPACE is pressed, translate randomly around the scene
 	else if (state_SPACE == GLFW_PRESS) {
+		glm::vec3 change = glm::vec3(number1, number2, number3);
+		glm::vec3 defaultEyeRacket1 = glm::vec3(-0.35f, 0.20f, 0.0f);
+		glm::vec3 defaultEyeRacket2 = glm::vec3(0.35f, 0.20f, 0.0f);
+
 		if (selectModel == 0)
-			mattModel1.setTranslationRandom(glm::vec3(number1, number2, number3));
+		{
+			mattModel1.setTranslationRandom(change);
+			eyeRacket1 = defaultEyeRacket1 + change;
+			if (selectCamera == 1)
+			{
+				glm::mat4 viewMatrix = glm::lookAt(eyeRacket1, centerRacket1, up);
+				setViewMatrix(shaderProgram, viewMatrix);
+			}
+		}
 		else if (selectModel == 1)
-			mattModel2.setTranslationRandom(glm::vec3(number1, number2, number3));
-		//mattTranslationRandom = glm::vec3(number1, number2, number3);
+		{
+			mattModel2.setTranslationRandom(change);
+			eyeRacket2 = defaultEyeRacket2 + change;
+			if (selectCamera == 2)
+			{
+				glm::mat4 viewMatrix = glm::lookAt(eyeRacket2, centerRacket2, up);
+				setViewMatrix(shaderProgram, viewMatrix);
+			}
+		}
 	}
 
 	// If ESC is pressed, window should closed
@@ -770,16 +885,18 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	else if (state_L == GLFW_PRESS)
 		lightOn = !lightOn;
 
-	// If HOME is pressed, remove translations, rotations, and scalings
+	// If HOME is pressed, remove translations, rotations, scalings, cameras, etc.
 	else if (state_HOME == GLFW_PRESS) {
 		mattModel1.setTranslationModel(mattModel1.getTranslationModel() + (-1.0f * mattModel1.getTranslationModel()));
 		mattModel2.setTranslationModel(mattModel2.getTranslationModel() + (-1.0f * mattModel2.getTranslationModel()));
 		mattModel1.setTranslationRandom(mattModel1.getTranslationRandom() + (-1.0f * mattModel1.getTranslationRandom()));
 		mattModel2.setTranslationRandom(mattModel2.getTranslationRandom() + (-1.0f * mattModel2.getTranslationRandom()));
-		//mattTranslationModel += (-1.0f * mattTranslationModel);
-		//mattTranslationRandom += (-1.0f * mattTranslationRandom);
 		GroupMatrixScale1 = glm::vec3(1.0f);
 		GroupMatrixScale2 = glm::vec3(1.0f);
+		selectCamera = 0;
+		selectModel = 0;
+		eyeRacket1 = glm::vec3(-0.35f, 0.20f, 0.0f);
+		eyeRacket2 = glm::vec3(0.35f, 0.20f, 0.0f);
 		rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 		glm::mat4 InitviewMatrix = glm::lookAt(eye, center, up);
 		glm::mat4 projectionMatrix = glm::perspective(FOV, AR, near, far);
