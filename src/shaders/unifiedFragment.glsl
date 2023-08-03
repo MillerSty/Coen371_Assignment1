@@ -15,8 +15,8 @@ uniform vec3 lightColor;
 uniform vec3 lightPosition;
 uniform vec3 lightDirection;
 
-const float shadingAmbientStrength = .60f;
-const float shadingDiffuseStrength = 0.5;
+float shadingAmbientStrength = .60f;
+const float shadingDiffuseStrength = 0.8;
 const float shadingSpecularStrength = 0.5;
 
 uniform float lightCutoffOuter;
@@ -33,6 +33,8 @@ in vec4 fragmentPositionLightSpace;
 in vec3 fragmentNormal;
 
 uniform float materialSpec;
+
+uniform bool lightOn;
 
 //i think there is something wrong with out Lighting
 //material properties dont seem to have an affect
@@ -101,7 +103,6 @@ void main()
         vec3 diffuse = vec3(0.0f);
         vec3 specular = vec3(0.0f); 
 
-        //point light? can we programatically set these somehow -> uniforms?
         float constantPoint = .50f;// for high //1 for low height
         float linearPoint = .001932f; //3 for low height
         float quadPoint = .0013f; //3 for low height      
@@ -113,11 +114,18 @@ void main()
         float spotlight = spotlightScalar();
         float scalar = shadow * spotlight;
 
+        if (lightOn){
+            shadingAmbientStrength = 0.35f;
+        } else {
+            shadingAmbientStrength = 0.65f;
+        }
+
         ambient = ambientColor();
         diffuse = diffuseColor();
         specular = specularColor();
 
         vec3 color = ambient + (specular + diffuse) * scalar / attenuation;
+
         fragColor = color;
 
         if (shouldApplyTexture) {

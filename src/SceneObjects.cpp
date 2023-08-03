@@ -67,55 +67,18 @@ void SceneObjects::DrawScene(bool drawSkyBox) {
 		check = DrawSkyBox();
 		if (!check) printf("Draw DrawSkyBox failed");
 	}
-	//check = DrawGrid();
-	//if (!check) printf("Draw DrawGrid failed");
-	//check = DrawCoord();
-	if (!check) printf("Draw DrawCoord failed");
-	//check = DrawBall();
-	if (!check) printf("Draw DrawBall failed");
 	check = DrawCoord();
 	if (!check) printf("Draw DrawCoord failed");
-	
+	check = DrawCoord();
+	if (!check) printf("Draw DrawCoord failed");
 }
 
-bool SceneObjects::DrawBall() {
-	grassTexture.bindTexture();
-	grassTexture.loadToShader();
-	
-	//glBindTexture(GL_TEXTURE_2D, grassTexture);
-	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
-	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
-
-	glm::mat4 ballScale = glm::scale(glm::mat4(1.0f), glm::vec3( .50f, .50f, .50f));
-	glm::mat4 ballTranslate = glm::translate(glm::mat4(1.0f), glm::vec3( .0666f, .3f, .0f));
-	glm::mat4 ballRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, .0f, 1.0f)); //this rotates hand
-	glm::mat4 ballParent = ballTranslate * ballScale * ballRotate;
-
-	//partScale = glm::scale(glm::mat4(1.0f), glm::vec3(constArmScaler.x * .4878f, constArmScaler.y * 1.1236f, constArmScaler.z));
-	//partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, .0f, 1.0f));
-	//
-	//partMatrix = partScale * partRo;
-	glm::mat4 worldMatrix = groupMatrix * ballParent;
-
-	glBindVertexArray(sphereVao);
-	//translate
-	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.1180f, 1.0f, .122f)));
-	glDrawElements(renderAs, sphereVertCount, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-	return true;
-}
 
 bool SceneObjects::DrawCourt() {
 	//set as textureshader and bind texture
 
 	courtTexture.bindTexture();
 	courtTexture.loadToShader();
-	//glActiveTexture(GL_TEXTURE0);
-	//GLuint textureLocation = glGetUniformLocation(shaderProgram, "textureSampler");
-	//glBindTexture(GL_TEXTURE_2D, courtTexture);
-	//glUniform1i(textureLocation, 0);
-
 
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
 	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
@@ -279,21 +242,6 @@ bool SceneObjects::DrawSkyBox() {
 	return true;
 }
 
-bool SceneObjects::DrawGrid() {
-	glUseProgram(shaderProgram);
-	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
-	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
-	//glm::mat4 grid = glm::scale(groupMatrix, glm::vec3(1.0f, 1.0f, 1.0f)); probably uneeded
-	//glm::mat4 gridWorld =groupMatrix ;
-
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.61, 0.610, 0.610)));
-	glBindVertexArray(gridVao);
-	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &groupMatrix[0][0]);
-	glDrawArrays(GL_LINES, 0, gridCount);
-	glBindVertexArray(0);
-	return true;
-}
-
 bool SceneObjects::DrawCoord() {
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
 	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
@@ -314,7 +262,7 @@ bool SceneObjects::DrawCoord() {
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(0.0, 0.0, 1.0)));//blue (x)
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
-	//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+	
 	//child z 
 	glm::mat4 cubeChild;
 	glm::mat4 cubeChildRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)90), glm::vec3(.0f, 1.0f, .0f));
@@ -329,7 +277,7 @@ bool SceneObjects::DrawCoord() {
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 0.0, 0.0))); //red (z)
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
-	//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+	
 	//child y
 	cubeChildRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)90), glm::vec3(.0f, 0.0f, 1.0f));
 	cubeChildTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-.0f, .043f, .001f));
@@ -343,7 +291,6 @@ bool SceneObjects::DrawCoord() {
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.0, 1.0, 0.0))); //green (y)
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
-	//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	plasticTexture.bindTexture();
 	plasticTexture.loadToShader();
 	glBindVertexArray(0); // Unbind unit cube VAO
@@ -352,7 +299,6 @@ bool SceneObjects::DrawCoord() {
 }
 
 bool SceneObjects::DrawLight(glm::vec3 position,glm::vec3 rotation,float i) {
-	//glBindTexture(GL_TEXTURE_2D, plasticTexture);
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
 	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
 
@@ -361,7 +307,7 @@ bool SceneObjects::DrawLight(glm::vec3 position,glm::vec3 rotation,float i) {
 	glm::mat4 partRo = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), rotation);
 
 	glm::mat4 partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.50f, .5f, .50f));
-	glm::mat4 partMatrix = partTranslate * partScale* partRo;  // Part matrix for sky box
+	glm::mat4 partMatrix = partTranslate * partScale * partRo;  // Part matrix for sky box
 	glm::mat4 worldMatrix = groupMatrix * partMatrix;  // World matrix for sky box
 
 	// Bind the vertex array object to be the cube VAO with reverse winding order

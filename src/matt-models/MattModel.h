@@ -5,44 +5,43 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
-class SabrinaArm
+class MattModel
 {
 private:
-	glm::vec3 armColor;
+	GLuint unitCubeVAO;
+	GLuint shaderProgram;
 	glm::mat4 groupMatrix;
 	glm::mat4 worldMatrix;
 	glm::vec3 initialPosition;
 	glm::vec3 initialScale;
-	GLuint shaderProgram;
-	int unitCubeVAO;
-	int renderAs;
-
-	void drawUpperArm();
-	void drawLowerArm();
+	glm::vec3 translationRandom;
+	glm::vec3 translationModel;
+	int modelNum;
+	float rotationAngle;
 
 public:
+	MattModel(int num);
 
-	//SabrinaArm(MattRacket racket);
-	SabrinaArm();
-
-	void setArmColor(glm::vec3 color);
-	glm::vec3 getArmColor();
 	void setGroupMatrix(glm::mat4 groupMat);
 	glm::mat4 getGroupMatrix();
 	void setWorldMatrix(glm::mat4 worldMat);
 	glm::mat4 getWorldMatrix();
 	void setShaderProgram(GLuint shaderProg);
+	GLuint getShaderProgram();
 	void setInitialPosition(glm::vec3 postion);
 	glm::vec3 getInitialPosition();
 	void setInitialScale(glm::vec3 scale);
 	glm::vec3 getInitialScale();
-	GLuint getShaderProgram();
-	void setVAO(int vao);
-	int getVAO();
-	void setRenderAs(int as);
-	int getRenderAs();
+	void setVAO(GLuint vao);
+	GLuint getVAO();
+	void setModelNum(int num);
+	int getModelNum();
+	glm::vec3 getTranslationRandom();
+	void setTranslationRandom(glm::vec3 trans);
+	glm::vec3 getTranslationModel();
+	void setTranslationModel(glm::vec3 trans);
+	void setRotationAngle(float angle);
+	float getRotationAngle();
 
-
-	void drawArm();
+	void drawModel();
 };

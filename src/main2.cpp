@@ -1,6 +1,6 @@
-// Comp 371 - Assignment 2
+// Comp 371 - Quiz 2
+
 // System includes
-#pragma once
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
@@ -15,17 +15,8 @@
 #include <stb_image.h>
 
 // Source code includes
-#include "Arm.h"
-#include "Racket.h"
 #include "SceneObjects.h"
-#include "Material.h"
-#include "Evan-models/EvanArm.h"
-#include "Evan-models/EvanRacket.h"
-#include "matt-models/MattArm.h"
-#include "matt-models/MattRacket.h"
-#include "Sabrina-models/SabrinaArm.h"
-
-#include "JonahModels.h"
+#include "matt-models/MattModel.h"
 
 // Set the shader paths
 const char* vertex = "../src/shaders/unifiedVertex.glsl";
@@ -40,9 +31,6 @@ void setProjectionMatrix(int shaderProgram, glm::mat4 projectionMatrix);
 void setViewMatrix(int shaderProgram, glm::mat4 viewMatrix);
 void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos);
-//void windowSizeCallback(GLFWwindow* window, int width, int height);
-bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm::vec3>& temp_vertices,
-	          std::vector<glm::vec3>& out_normals, std::vector<glm::vec2>& out_uvs);
 
 /**
 Create a vertex array object for the grid
@@ -87,32 +75,34 @@ struct TexturedNormaledVertex
 	glm::vec3 normals;
 	glm::vec2 uv;
 };
-void updateLight(glm::vec3 newPosition,glm::vec3 newFocus,SceneObjects SceneObj,GLuint shaderProgram,float i,bool applyShadow) {
-	// light parameters
-	glm::vec3 lightPosition(-.30f, .30f, .0f); // the location of the light in 3D space
-	glm::vec3 lightFocus(0.0, 0.0, -1.0);      // the point in 3D space the light "looks" at
-	glm::vec3 lightDirection = glm::normalize(newFocus - newPosition);
 
-	GLint lightPositionLoc = glGetUniformLocation(shaderProgram, "lightPosition");
-	GLint lightDirectionLoc = glGetUniformLocation(shaderProgram, "lightDirection");
-	GLint lightViewProjMatrixLoc = glGetUniformLocation(shaderProgram, "lightViewProjMatrix");
+//void updateLight(glm::vec3 newPosition,glm::vec3 newFocus,SceneObjects SceneObj,GLuint shaderProgram,float i,bool applyShadow) {
+//	// light parameters
+//	glm::vec3 lightPosition(-.30f, .30f, .0f); // the location of the light in 3D space
+//	glm::vec3 lightFocus(0.0, 0.0, -1.0);      // the point in 3D space the light "looks" at
+//	glm::vec3 lightDirection = glm::normalize(newFocus - newPosition);
+//
+//	GLint lightPositionLoc = glGetUniformLocation(shaderProgram, "lightPosition");
+//	GLint lightDirectionLoc = glGetUniformLocation(shaderProgram, "lightDirection");
+//	GLint lightViewProjMatrixLoc = glGetUniformLocation(shaderProgram, "lightViewProjMatrix");
+//
+//	// Set light position on scene shader
+//	glUniform3fv(lightPositionLoc, 1, &newPosition[0]);
+//
+//	// Set light direction on scene shader
+//	glUniform3fv(lightDirectionLoc, 1, &lightDirection[0]);
+//	float lightNearPlane = 0.1f;
+//	float lightFarPlane = 180.0f;
+//
+//	glm::mat4 lightProjectionMatrix = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, lightNearPlane, lightFarPlane);
+//	glm::mat4 lightViewMatrix = glm::lookAt(newPosition, newFocus, glm::vec3(0.0f, 1.0f, 0.0f));
+//	glm::mat4 lightSpaceMatrix = lightProjectionMatrix * lightViewMatrix;
+//	glUniformMatrix4fv(lightViewProjMatrixLoc, 1, GL_FALSE, &lightSpaceMatrix[0][0]);
+//	if (!applyShadow) {
+//		SceneObj.DrawLight(newPosition, glm::vec3(0.0f, 1.0f, 0.0f), i);
+//	}
+//}
 
-	// Set light position on scene shader
-	glUniform3fv(lightPositionLoc, 1, &newPosition[0]);
-
-	// Set light direction on scene shader
-	glUniform3fv(lightDirectionLoc, 1, &lightDirection[0]);
-	float lightNearPlane = 0.1f;
-	float lightFarPlane = 180.0f;
-
-	glm::mat4 lightProjectionMatrix = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, lightNearPlane, lightFarPlane);
-	glm::mat4 lightViewMatrix = glm::lookAt(newPosition, newFocus, glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 lightSpaceMatrix = lightProjectionMatrix * lightViewMatrix;
-	glUniformMatrix4fv(lightViewProjMatrixLoc, 1, GL_FALSE, &lightSpaceMatrix[0][0]);
-	if (!applyShadow) {
-		SceneObj.DrawLight(newPosition, glm::vec3(0.0f, 1.0f, 0.0f), i);
-	}
-}
 // Textured Cube model
 TexturedNormaledVertex texturedCubeVertexArray[] = {
 	// LEFT
@@ -199,66 +189,6 @@ int createVertexArrayObject2()
 	return vertexArrayObject;
 }
 
-GLuint IBO;
-
-/**
-Create a index buffer object for the sphere
-@param vertexIndices: The indices for the vertices of the sphere
-@param vertices: The vertices of the sphere
-@param normals: The normals of the sphere
-@UVs: The UVs of the sphere
-@return The IBO
-*/
-int createVertexArrayElementObject2(std::vector<int> vertexIndices, std::vector<glm::vec3> vertices, 
-	                                std::vector<glm::vec3> normals, std::vector<glm::vec2> UVs)
-{
-	// Create a vertex array
-	GLuint vertexArrayObject;
-	glGenVertexArrays(1, &vertexArrayObject);
-	glBindVertexArray(vertexArrayObject);
-
-	glGenBuffers(1, &IBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertexIndices.size() * sizeof(unsigned int), &vertexIndices.front(), GL_STATIC_DRAW);
-
-	// Upload Vertex Buffer to the GPU, keep a reference to it (vertexBufferObject)
-	GLuint vertexBufferObject;
-	glGenBuffers(1, &vertexBufferObject);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-	//int check = arraySize;
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices.front(), GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0,    // attribute 0 matches aPos in Vertex Shader
-		3,                      // size
-		GL_FLOAT,               // type
-		GL_FALSE,               // normalized?
-		1 * sizeof(glm::vec3),  // stride - each vertex contain 2 vec3 (position, color)
-		(void*)0                // array buffer offset
-	);
-	glEnableVertexAttribArray(0);
-
-	//Normals VBO setup taken from lab
-	GLuint normals_VBO;
-	glGenBuffers(1, &normals_VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, normals_VBO);
-	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals.front(), GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec3), (GLvoid*)0);
-	glEnableVertexAttribArray(1);
-
-	//UVs VBO setup
-	GLuint uvs_VBO;
-	glGenBuffers(1, &uvs_VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, uvs_VBO);
-	glBufferData(GL_ARRAY_BUFFER, UVs.size() * sizeof(glm::vec3), &UVs.front(), GL_STATIC_DRAW);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec3), (GLvoid*)0);
-	glEnableVertexAttribArray(2);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-
-	return vertexArrayObject;
-}
-
 // Set aspect ratio of the window
 const int WIDTH = 1024, HEIGHT = 768;
 
@@ -272,24 +202,13 @@ glm::vec3 GroupMatrixScale(1.0f, 1.0f, 1.0f);
 glm::mat4 groupMatrix;
 glm::mat4 rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
+// Create 2 models
+MattModel mattModel1(1);
+MattModel mattModel2(2);
 
-// Create Matt model parts
-MattRacket mattRacket;
-//MattArm mattArm(mattRacket);
-MattArm mattArm;
-
-
-
-glm::vec3 jonahTranslationRandom(.0f, .0f, .0f);
-glm::vec3 jonahTranslationModel(.0f, .0f, .0f);
-float jonahRotationAngle = 0.0f;
-
-glm::vec3 mattTranslationRandom(.0f, .0f, .0f);
-glm::vec3 mattTranslationModel(.0f, .0f, .0f);
-float mattRotationAngle = 0.0f;
-
-// Create Sabrina model parts
-SabrinaArm sabrinaArm;
+//glm::vec3 mattTranslationRandom(.0f, .0f, .0f);
+//glm::vec3 mattTranslationModel(.0f, .0f, .0f);
+//float mattRotationAngle = 0.0f;
 
 int renderAs = GL_TRIANGLES;
 int shaderProgram;
@@ -300,10 +219,10 @@ float translateW = 0, translateY = 0, translateZ = 0;
 // Toggles for shadows and textures
 bool shouldApplyShadows = true;
 bool shouldApplyTextures = true;
-Arm jonArm;
-EvanArm evanArm;
-int selectModel = 0; //we can se to 0 but then user has to toggle to before any thing
-int selectJoint =0;
+
+int selectModel = 0; // Which model is selected
+int selectCamera = 0; // Which camera is selected
+bool lightOn = true; // Whether the light is on or off
 
 int main(int argc, char* argv[])
 {
@@ -356,26 +275,21 @@ int main(int argc, char* argv[])
 	// Print OpenGL version
 	std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
-#if defined(__APPLE__) // NOTE Rez: Youll need to path the textures
-#else
 	// Enable debug output
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(messageCallback, 0);
-#endif
 
 	// Load the textures
-	GLuint courtTextureID	 = loadTexture("../src/Assets/clay2.jpg");
-	GLuint ropeTextureID	 = loadTexture("../src/Assets/rope.jpg");
+	GLuint courtTextureID	= loadTexture("../src/Assets/clay2.jpg");
+	GLuint ropeTextureID	= loadTexture("../src/Assets/rope.jpg");
 	GLuint clothTextureID	= loadTexture("../src/Assets/cloth.jpg");
 	GLuint metalTextureID	= loadTexture("../src/Assets/metal.jpg");
-	GLuint grassTextureID     = loadTexture("../src/Assets/grass4.jpg");
-	GLuint plasticTextureID  = loadTexture("../src/Assets/plastic.jpg");
-	GLuint woodTextureID       = loadTexture("../src/Assets/wood1.jpg");
+	GLuint grassTextureID   = loadTexture("../src/Assets/grass4.jpg");
+	GLuint plasticTextureID = loadTexture("../src/Assets/plastic.jpg");
+	GLuint woodTextureID    = loadTexture("../src/Assets/wood1.jpg");
 
-	
 	// Black background	
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_FALSE);
 
 	// Set frame rate to refresh rate of monitor
 	glfwSwapInterval(1);
@@ -385,22 +299,21 @@ int main(int argc, char* argv[])
 
 	// Initialize uniform locations
 	glUseProgram(shaderProgram);
-	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
+	GLuint worldMatrixLocation      = glGetUniformLocation(shaderProgram, "worldMatrix");
 	GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
-	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
-	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
-    GLint viewPositionLocation = glGetUniformLocation(shaderProgram, "viewPosition");
-    GLint applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
-    GLint applyShadowsLocation = glGetUniformLocation(shaderProgram, "shouldApplyShadows");
+	GLuint viewMatrixLocation       = glGetUniformLocation(shaderProgram, "viewMatrix");
+	GLuint colorLocation            = glGetUniformLocation(shaderProgram, "objectColor");
+    GLint viewPositionLocation      = glGetUniformLocation(shaderProgram, "viewPosition");
+    GLint applyTexturesLocation     = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
+    GLint applyShadowsLocation      = glGetUniformLocation(shaderProgram, "shouldApplyShadows");
+    GLint lightOnLocation           = glGetUniformLocation(shaderProgram, "lightOn");
+
 	//maybe update this for shadows
     glUniform3fv(viewPositionLocation, 1, &eye[0]);
-
-	//Scene Jawn
+	
+	//Scene
 	SceneObjects SceneObj("scene");
 	SceneObj.InitGrid();
-	SceneObjects Ball;
-	
-	//SceneObj.plasticTexture = plasticTextureID;
 	glfwGetCursorPos(window, &lastMousePosX, &lastMousePosY);
 	lastMousePosZ = lastMousePosY;
 
@@ -412,69 +325,28 @@ int main(int argc, char* argv[])
 	setProjectionMatrix(shaderProgram, projectionMatrix);
 	setViewMatrix(shaderProgram, InitviewMatrix);
 
-    std::vector<int> vertexIndicessphere;
-	std::vector<glm::vec3> verticessphere, normalssphere;
-	std::vector<glm::vec2> UVscube, UVssphere;
-	std::string pathSphere = "../src/Assets/mesh/unitSphere.obj";
-	loadOBJ2(pathSphere.c_str(), vertexIndicessphere, verticessphere, normalssphere, UVssphere);
-  
-	// Scale the vertex positions of the sphere
-	for (int i = 0; i < verticessphere.size(); i++) {
-		verticessphere[i] = verticessphere[i] * .05f;
-	}
+	std::vector<glm::vec2> UVscube;
 	
 	// Create VAOs
 	int gridAO = createVertexArrayObject(SceneObj.lineArray, sizeof(SceneObj.lineArray));
-	int unitSphereAO = createVertexArrayElementObject2(vertexIndicessphere, verticessphere, normalssphere, UVssphere);
 	int unitCubeAO = createVertexArrayObject2();
 
-	jonArm.setVAO(unitCubeAO);
-	jonArm.position = glm::vec3(0.0f,0.0f,0.0f);
-		//jonArm ref position:glm::vec3(-.5f, 0.0f, .2f);
-
-
-
-
 	//TEXTURE DEFINITION
-						//diff spec ambient shiny
-	Material courtMaterial(.2f, .20f, 1.0f, .1f, courtTextureID, shaderProgram); //court shouldnt reflect
-	Material ropeMaterial(.5f, .60f, .5f, .9f, ropeTextureID, shaderProgram); // ropes are just ropes
-	Material clothMaterial(.5f, .60f, .5f, .9f, clothTextureID, shaderProgram); //cloth should have a little reflection?
-	Material metalMaterial(.6f, .90f, .6f, .00012f, metalTextureID, shaderProgram); //metal should shine
-	Material grassMaterial(.2f, .20f, .7f, 1.5f, grassTextureID, shaderProgram); //just bright, thats all it needs
-	Material plasticMaterial(.5f, .60f, .5f, .002f, plasticTextureID, shaderProgram); //needs to be glossy! This is our racket
-	Material woodMaterial(.5f, .60f, .5f, .002f, woodTextureID, shaderProgram); //this is you matt
-	// Material plasticSkinMaterial...  we need a dull material for skin probaly a copy of the plastic texture with different diff/spec/amb
+	Material courtMaterial(.2f, .20f, 1.0f, .1f, courtTextureID, shaderProgram);
+	Material ropeMaterial(.5f, .60f, .5f, .9f, ropeTextureID, shaderProgram);
+	Material clothMaterial(.5f, .60f, .5f, .9f, clothTextureID, shaderProgram);
+	Material metalMaterial(.6f, .90f, .6f, .00012f, metalTextureID, shaderProgram);
+	Material grassMaterial(.2f, .20f, .7f, 1.5f, grassTextureID, shaderProgram);
+	Material plasticMaterial(.5f, .60f, .5f, .002f, plasticTextureID, shaderProgram);
+	Material woodMaterial(.5f, .60f, .5f, .002f, woodTextureID, shaderProgram);
 
-	Ball.grassTexture = grassMaterial;
-	Ball.shaderProgram = shaderProgram;
-	Ball.sphereVao = unitSphereAO;
-	Ball.sphereVertCount=vertexIndicessphere.size();
 	SceneObj.setMaterials(courtMaterial, clothMaterial, ropeMaterial, metalMaterial, grassMaterial, plasticMaterial);
-	Racket racket(unitCubeAO, "racket");
-	racket.setBall(Ball);
-	racket.jawnAngle = 0;
-	racket.plasticMaterial = plasticMaterial;
-
 
 	// Set mouse and keyboard callbacks
 	glfwSetKeyCallback(window, keyPressCallback);
 	glfwSetCursorPosCallback(window, mouseCursorPostionCallback);
-	//glfwSetWindowSizeCallback(window, windowSizeCallback);
-
 
 	glm::vec3 modelScale(0.25, 0.25, 0.25);
-    EvanRacket evanRacket(glm::vec3(0.2f, 0.0f, 0.0f), modelScale,
-                          unitCubeAO,unitCubeAO,unitCubeAO,
-                          unitCubeAO,unitCubeAO, unitCubeAO );
-	evanArm.setInitial(
-		glm::vec3(0.2f, 0.0f, 0.0f), 
-		modelScale,
-		unitCubeAO,
-        unitCubeAO, 
-		evanRacket );
-
-	JonahModels J = JonahModels(unitCubeAO, shaderProgram);
 
     // Lighting
     float lightAngleOuter = 30.0;
@@ -487,15 +359,15 @@ int main(int argc, char* argv[])
 
     GLint lightColorLoc = glGetUniformLocation( shaderProgram, "lightColor");
 
-    glUniform3fv(lightColorLoc, 1, glm::value_ptr(vec3(1.0f, 1.0f, 1.0f)));
+    glUniform3fv(lightColorLoc, 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));
 
     // light parameters
-    glm::vec3 lightPosition(-.30f, .30f, .0f); // the location of the light in 3D space
-	glm::vec3 lightFocus(0.0, 0.0, -1.0);      // the point in 3D space the light "looks" at
+    glm::vec3 lightPosition(0.0f, 2.5f, 0.3f); // the location of the light in 3D space
+	glm::vec3 lightFocus(0.0, 0.0, -0.1);      // the point in 3D space the light "looks" at
 	glm::vec3 lightDirection = glm::normalize(lightFocus - lightPosition);
 
-    float lightNearPlane = 0.1f;
-    float lightFarPlane = 180.0f;
+    float lightNearPlane = 0.001f;
+    float lightFarPlane = 50.0f;
 
 	glm::mat4 lightProjectionMatrix = glm::ortho(-.7f, .70f, -.70f, .70f, lightNearPlane, lightFarPlane);
 	glm::mat4 lightViewMatrix = glm::lookAt(lightPosition, lightFocus, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -541,59 +413,40 @@ int main(int argc, char* argv[])
 	GLuint kdepthMap = glGetUniformLocation(shaderProgram, "shadowMap");
 	glUniform1i(kdepthMap, 2);
 
-	float lastFrameTime = glfwGetTime();
+	//float lastFrameTime = glfwGetTime();
+
 	// Set Matt VAO and shader program
-	mattArm.setShaderProgram(shaderProgram);
-	mattArm.setVAO(unitCubeAO);
-	mattRacket.setShaderProgram(shaderProgram);
-	mattRacket.setVAO(unitCubeAO);
-	mattRacket.setTexture(woodTextureID);
+	mattModel1.setShaderProgram(shaderProgram);
+	mattModel1.setVAO(unitCubeAO);
+	mattModel2.setShaderProgram(shaderProgram);
+	mattModel2.setVAO(unitCubeAO);
 
-	// Set Sabrina VAO and shader program
-	sabrinaArm.setShaderProgram(shaderProgram);
-	sabrinaArm.setVAO(unitCubeAO);
-
-	float i = -1;
+	//float i = -1;
 	float spin = 0;
 	bool reverse = false;
 	while (!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) *
-			glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
-			rotationMatrixW;
+		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), GroupMatrixScale) * rotationMatrixW;
 
-		float lightDepth = 1.0f; //we can do 30, but it works better lower because the scale?
+		float lightDepth = 1.0f;
 		bool noshowLightBox = false;
-		float x = sin(i);
-		float z = cos(i);
-		i += .02;
-			glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
-			rotationMatrixW;
-			//evan Translation for smaller 
-		glm::vec3 evanTranslation = vec3(evanArm.getTranslateModel().x + evanArm.getTranslateRandom().x + evanArm.initialPosition.x, evanArm.getTranslateModel().y + evanArm.getTranslateRandom().y + evanArm.initialPosition.y, evanArm.getTranslateModel().z + evanArm.getTranslateRandom().z + evanArm.initialPosition.z);
-		vec3 MattTranslation = mattTranslationModel + mattTranslationRandom;
-		// Demo on how to use evan's model
-		mat4 evanGroupMatrix = translate(mat4(1.0f), vec3(evanTranslation.x + -0.2f * sinf((float)0.0f),
-								evanTranslation.y + 0.0f,
-								evanTranslation.z + 0.0f))
-								* rotate(mat4(1.0f), radians(evanArm.getRotation()), vec3(1.0f, 0.0f, 0.0f));
-		
-		mat4 evanBicepMatrix = rotate(mat4(1.0f), radians(evanArm.getERotation()), vec3(.0f, 0.0f, 1.0f));
-		evanArm.groupMatrix = groupMatrix*evanGroupMatrix;
-		evanArm.bicepMatrix = evanBicepMatrix; //bicep not called
-		evanArm.racket.groupMatrix = groupMatrix * evanGroupMatrix;
-		evanArm.racket.bicepMatrix = evanBicepMatrix;
-		lastFrameTime = glfwGetTime();
+		//float x = sin(i);
+		//float z = cos(i);
+		//i += .02;
+		//glm::scale(glm::mat4(1.0f), GroupMatrixScale) * rotationMatrixW;
+		//glm::vec3 MattTranslation = mattTranslationModel + mattTranslationRandom;
 
-		//float checkest = evanArm.getERotation();
-		//printf("evan rotation: %f\n", checkest);
+		//lastFrameTime = glfwGetTime();
+
 		// Must draw scene in 2 passes: once for shadows, and another normally
 		// 1st pass
 		{
 			glUniform1i(applyTexturesLocation, false);
 			glUniform1i(applyShadowsLocation, shouldApplyShadows);
+			glUniform1i(lightOnLocation, lightOn);
+
 			// Use proper image output size
 			glViewport(0, 0, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE);
 			// Bind depth map texture as output frame buffer
@@ -602,35 +455,20 @@ int main(int argc, char* argv[])
 			glClear(GL_DEPTH_BUFFER_BIT);
 
 			//Note .8 != 30 for the height so that we can visually see the affects of rotating
-			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, true);
-			if (i == 1.0f) i = -1.0f;
+			//updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, true);
+			//if (i == 1.0f) i = -1.0f;
 
 			// Draw geometry
-			jonArm.SetAttr(groupMatrix, renderAs, shaderProgram);
-			jonArm.DrawArm();
-			racket.SetAttr(groupMatrix, renderAs, shaderProgram, jonArm.partParent);
-			racket.Draw();
+			mattModel1.setGroupMatrix(groupMatrix);
+			mattModel1.drawModel();
+			mattModel2.setGroupMatrix(groupMatrix);
+			mattModel2.drawModel();
 
-            evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
-			
-			mattRacket.setGroupMatrix(groupMatrix);
-			mattArm.setGroupMatrix(groupMatrix);
-			mattArm.setRenderAs(renderAs);
-			mattArm.drawArm(MattTranslation, mattRotationAngle);
-			mattRacket.setRenderAs(renderAs);
-			mattRacket.drawRacket(MattTranslation, mattRotationAngle);
-      
-			sabrinaArm.setGroupMatrix(groupMatrix);
-			sabrinaArm.drawArm();
-      
-			J.drawRacketJ(groupMatrix, jonahTranslationModel+ jonahTranslationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
-
-            SceneObj.sphereVao = unitSphereAO;
-            SceneObj.sphereVertCount = vertexIndicessphere.size();
-            SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
+            SceneObj.SetAttr(rotationMatrixW, GL_TRIANGLES, shaderProgram);
             SceneObj.SetVAO(unitCubeAO, gridAO);
             SceneObj.DrawScene(false);  // Draw scene without the skybox, so it can't be used to make shadows on the scene
 		}
+
 		{ // 2nd pass  
 			//reset 
 			glUniform1i(applyTexturesLocation, shouldApplyTextures);
@@ -646,58 +484,17 @@ int main(int argc, char* argv[])
 			glBindTexture(GL_TEXTURE_2D, depth_map_texture);
 
 			// Draw geometry
-			jonArm.SetAttr(groupMatrix, renderAs, shaderProgram);
-			jonArm.DrawArm();
-			racket.SetAttr(groupMatrix, renderAs, shaderProgram, jonArm.partParent);
-			racket.Draw();
+			mattModel1.setGroupMatrix(groupMatrix);
+			mattModel1.drawModel();
+			mattModel2.setGroupMatrix(groupMatrix);
+			mattModel2.drawModel();
 
-			evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
-
-			mattRacket.setGroupMatrix(groupMatrix);
-			mattArm.setGroupMatrix(groupMatrix);
-			mattArm.setRenderAs(renderAs);
-			mattArm.drawArm(MattTranslation,mattRotationAngle);
-			mattRacket.setRenderAs(renderAs);
-			mattRacket.drawRacket(MattTranslation, mattRotationAngle);
-
-
-			sabrinaArm.setGroupMatrix(groupMatrix);
-			sabrinaArm.drawArm();
-
-
-
-			J.drawRacketJ(groupMatrix, jonahTranslationModel + jonahTranslationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
-
-			//J.drawRacketJ(groupMatrix, translationVec + translationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
-
-			SceneObj.sphereVao = unitSphereAO;
-			SceneObj.sphereVertCount = vertexIndicessphere.size();
-			SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
+			SceneObj.SetAttr(rotationMatrixW, GL_TRIANGLES, shaderProgram);
 			SceneObj.SetVAO(unitCubeAO, gridAO);
 			SceneObj.DrawScene(true);  // Draw scene with the skybox
 
-			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noshowLightBox);
+			//updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noshowLightBox);
 		}
-		//trying to add finger manipulation
-		float check = jonArm.getFRotation();
-		if ((jonArm.getFRotation() + spin) > 90.0f && reverse == false) { 
-			
-			jonArm.setFRotation(jonArm.getFRotation() - spin); 
-			reverse = true;
-		}
-		else if (jonArm.getFRotation() + spin < 0.0f && reverse == true) {
-			jonArm.setFRotation(jonArm.getFRotation() + spin); 
-			reverse = false; 
-		}
-		else if (reverse == true){
-			jonArm.setFRotation(jonArm.getFRotation() - spin);
-			spin -= .01f;
-			}
-		else { 
-			jonArm.setFRotation(jonArm.getFRotation() + spin);
-			spin += .01f;
-		}		
-		//printf("%f\n", spin);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
@@ -854,7 +651,6 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	// Get states of each relevant key
 	int state_ESC = glfwGetKey(window, GLFW_KEY_ESCAPE);
 	int state_SPACE = glfwGetKey(window, GLFW_KEY_SPACE);
-	int state_TAB = glfwGetKey(window, GLFW_KEY_TAB);
 	int state_U = glfwGetKey(window, GLFW_KEY_U);
 	int state_J = glfwGetKey(window, GLFW_KEY_J);
 	int state_W = glfwGetKey(window, GLFW_KEY_W);
@@ -866,13 +662,14 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	int state_LEFT = glfwGetKey(window, GLFW_KEY_LEFT);
 	int state_RIGHT = glfwGetKey(window, GLFW_KEY_RIGHT);
 	int state_HOME = glfwGetKey(window, GLFW_KEY_HOME);
-	int state_P = glfwGetKey(window, GLFW_KEY_P);
 	int state_L = glfwGetKey(window, GLFW_KEY_L);
-	int state_T = glfwGetKey(window, GLFW_KEY_T);
+	int state_M = glfwGetKey(window, GLFW_KEY_M);
+	int state_R = glfwGetKey(window, GLFW_KEY_R);
 	int state_B = glfwGetKey(window, GLFW_KEY_B);
 	int state_X = glfwGetKey(window, GLFW_KEY_X);
 	int state_1 = glfwGetKey(window, GLFW_KEY_1);
 	int state_2 = glfwGetKey(window, GLFW_KEY_2);
+	
 	//global random
 	float number1 = (rand()) / (float)(RAND_MAX);
 	float number2 = (rand()) / (float)(RAND_MAX);
@@ -880,208 +677,87 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	// Constrain to visible grid locations
 	if (number1 >= .75f)
 		number1 = number1 / (float)(RAND_MAX);
-	if (number2 >= .25f)
+	else if (number2 >= .25f)
 		number2 = number2 / (float)(RAND_MAX);
-	if (number3 >= .75f)
+	else if (number3 >= .75f)
 		number3 = number3 / (float)(RAND_MAX);
+
+	if (state_1 == GLFW_PRESS)
+		selectModel = 0;
+	else if (state_2 == GLFW_PRESS)
+		selectModel = 1;
 	
-	switch (selectModel) {//prints twice per button press maybe this is okay?
-	case(4)://Jon's Model		
-		if (state_W == GLFW_PRESS)
-			jonArm.setTranslateModel(glm::vec3(jonArm.getTranslateModel().x, (jonArm.getTranslateModel().y + .005f), jonArm.getTranslateModel().z));
-		else if (state_S == GLFW_PRESS)
-			jonArm.setTranslateModel(glm::vec3(jonArm.getTranslateModel().x, (jonArm.getTranslateModel().y - .005f), jonArm.getTranslateModel().z));
-		else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-			jonArm.setTranslateModel(glm::vec3((jonArm.getTranslateModel().x - .005f), jonArm.getTranslateModel().y, jonArm.getTranslateModel().z));
-		else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-			jonArm.setTranslateModel(glm::vec3((jonArm.getTranslateModel().x + .005f), jonArm.getTranslateModel().y, jonArm.getTranslateModel().z));
-		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-			switch (selectJoint) {
-			case(0): jonArm.setRotation(jonArm.getRotation() + 5);  break;
-			case(1):if (jonArm.getERotation() + 5 > 90)jonArm.setERotation(90); else  jonArm.setERotation(jonArm.getERotation() + 5);  break;
-			case(2):if (jonArm.getWRotation() + 5 > 65)jonArm.setWRotation(65); else  jonArm.setWRotation(jonArm.getWRotation() + 5); break;
-			default: break;
-			}
-		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-			switch (selectJoint) {
-			case(0): jonArm.setRotation(jonArm.getRotation() - 5);  break;
-			case(1):if (jonArm.getERotation() - 5 < 0)jonArm.setERotation(0); else  jonArm.setERotation(jonArm.getERotation() - 5);  break;
-			case(2):if (jonArm.getWRotation() - 5 < -85)jonArm.setWRotation(-85); else  jonArm.setWRotation(jonArm.getWRotation() - 5); break;
-			default: break;
-			}
-		else if (state_SPACE == GLFW_PRESS)
-		{
+	// Use m to toggle between selected cameras
+	else if (state_M == GLFW_PRESS)
+	{
+		if (selectCamera == 3)
+			selectCamera = 0;
+		else
+			selectCamera++;
+	}
 
-			jonArm.setTranslateRandom(glm::vec3(number1, number2, number3));
-		}
-		break;
+	// Use r to return to main camera
+	else if (state_R == GLFW_PRESS)
+	{
+		selectCamera = 0;
+	}
 
-	case(0):	//Evans model
-		if (state_W == GLFW_PRESS)
-		{
-			evanArm.setTranslateModel(glm::vec3(evanArm.getTranslateModel().x, (evanArm.getTranslateModel().y + .005f), evanArm.getTranslateModel().z));
-			break;
-		}
-		else if (state_S == GLFW_PRESS)
-		{
-			evanArm.setTranslateModel(glm::vec3(evanArm.getTranslateModel().x, (evanArm.getTranslateModel().y - .005f), evanArm.getTranslateModel().z));
-			break;
-		}
-		else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-		{
-			evanArm.setTranslateModel(glm::vec3((evanArm.getTranslateModel().x + .005f), evanArm.getTranslateModel().y, evanArm.getTranslateModel().z));
-			break;
-		}
-		else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-		{
-			evanArm.setTranslateModel(glm::vec3((evanArm.getTranslateModel().x - .005f), evanArm.getTranslateModel().y, evanArm.getTranslateModel().z));
-			break;
-		}
-		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-		{
-			switch (selectJoint) {
-			case(0): { evanArm.setRotation(evanArm.getRotation() + 5);  break; }
-			case(1):if (evanArm.getERotation() + 5 > 90) {
-				evanArm.setERotation(90); break; 
-			}
-				   else { evanArm.setERotation(evanArm.getERotation() + 5);  break; }
-			default: break;
-			}
+	// Translate the models
+	else if (state_W == GLFW_PRESS) {
+		if (selectModel == 0)
+			mattModel1.setTranslationModel(mattModel1.getTranslationModel() + glm::vec3(0.0f, 0.005f, 0.0f));
+		else if (selectModel == 1)
+			mattModel2.setTranslationModel(mattModel2.getTranslationModel() + glm::vec3(0.0f, 0.005f, 0.0f));
+		//mattTranslationModel.y += .005f;
+	}
+	else if (state_S == GLFW_PRESS) {
+		if (selectModel == 0)
+			mattModel1.setTranslationModel(mattModel1.getTranslationModel() - glm::vec3(0.0f, 0.005f, 0.0f));
+		else if (selectModel == 1)
+			mattModel2.setTranslationModel(mattModel2.getTranslationModel() - glm::vec3(0.0f, 0.005f, 0.0f));
+		//mattTranslationModel.y -= .005f;
+	}
+	else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT) {
+		if (selectModel == 0)
+			mattModel1.setTranslationModel(mattModel1.getTranslationModel() + glm::vec3(0.005f, 0.0f, 0.0f));
+		else if (selectModel == 1)
+			mattModel2.setTranslationModel(mattModel2.getTranslationModel() + glm::vec3(0.005f, 0.0f, 0.0f));
+		//mattTranslationModel.x += .005f;
+	}
+	else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT) {
+		if (selectModel == 0)
+			mattModel1.setTranslationModel(mattModel1.getTranslationModel() - glm::vec3(0.005f, 0.0f, 0.0f));
+		else if (selectModel == 1)
+			mattModel2.setTranslationModel(mattModel2.getTranslationModel() - glm::vec3(0.005f, 0.0f, 0.0f));
+		//mattTranslationModel.x -= .005f;
+	}
+	else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT) {
+		if (selectModel == 0)
+			mattModel1.setRotationAngle(mattModel1.getRotationAngle() + 5.0f);
+		else if (selectModel == 1)
+			mattModel2.setRotationAngle(mattModel2.getRotationAngle() + 5.0f);
+		//mattRotationAngle += 5.0f;
+	}
+	else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT) {
+		if (selectModel == 0)
+			mattModel1.setRotationAngle(mattModel1.getRotationAngle() - 5.0f);
+		else if (selectModel == 1)
+			mattModel2.setRotationAngle(mattModel2.getRotationAngle() + -5.0f);
+		//mattRotationAngle -= 5.0f;
+	}
 
-			// evanArm.setRotation(evanArm.getRotation() + 5); break;
-		}
-
-		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-		{
-			switch (selectJoint) {
-			case(0): { evanArm.setRotation(evanArm.getRotation() - 5);  break; }
-			case(1):if (evanArm.getERotation() - 5 < 0) {
-				evanArm.setERotation(0);
-				break; 
-			}
-				   else {
-				evanArm.setERotation(evanArm.getERotation() - 5); 
-				break; 
-			}
-			default: break;
-			}
-			// evanArm.setRotation(evanArm.getRotation() - 5); break;
-		}
-		else if (state_SPACE == GLFW_PRESS)
-		{
-			evanArm.setTranslateRandom(glm::vec3(number1, number2, number3));
-			break;
-
-		}
-		break;
-
-	case(1)://jonah's
-		if (state_W == GLFW_PRESS) {
-			jonahTranslationModel.y += .005f; break;
-		}
-		else if (state_S == GLFW_PRESS) {
-			jonahTranslationModel.y -= .005f; break;
-		}
-		else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT) {
-			jonahTranslationModel.x += .005f; break;
-		}
-		else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT) {
-			jonahTranslationModel.x -= .005f; break;
-		}
-		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT) {
-			jonahRotationAngle += 5.0f; break;
-		}
-		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT) {
-			jonahRotationAngle -= 5.0f;
-			break;
-		}
-		else if (state_SPACE == GLFW_PRESS){
-			jonahTranslationRandom=glm::vec3(number1, number2, number3);
-			break;
-		}
-		break;
-
-	case(2)://matt break;
-		if (state_W == GLFW_PRESS) {
-			mattTranslationModel.y += .005f; break;
-		}
-		else if (state_S == GLFW_PRESS) {
-			mattTranslationModel.y -= .005f; break;
-		}
-		else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT) {
-			mattTranslationModel.x += .005f; break;
-		}
-		else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT) {
-			mattTranslationModel.x -= .005f; break;
-		}
-		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT) {
-			mattRotationAngle += 5.0f; break;
-		}
-		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT) {
-			mattRotationAngle -= 5.0f;
-			break;
-		}
-		else if (state_SPACE == GLFW_PRESS) {
-			mattTranslationRandom = glm::vec3(number1, number2, number3);
-			break;
-		}
-		break;
-	case(3)://noot break;
-
-
-	default:break;
+	// If SPACE is pressed, translate randomly around the scene
+	else if (state_SPACE == GLFW_PRESS) {
+		if (selectModel == 0)
+			mattModel1.setTranslationRandom(glm::vec3(number1, number2, number3));
+		else if (selectModel == 1)
+			mattModel2.setTranslationRandom(glm::vec3(number1, number2, number3));
+		//mattTranslationRandom = glm::vec3(number1, number2, number3);
 	}
 
 	// If ESC is pressed, window should closed
-	if (state_ESC == GLFW_PRESS)
+	else if (state_ESC == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-	else if (state_TAB == GLFW_PRESS && mods != GLFW_MOD_SHIFT) {
-		/*
-		select -1 is original model micah
-		0 is second model matthew
-		1 is third model evan
-		2 is fouth jonah
-		3 is five Noot
-		*/
-		if (selectModel == 0) selectModel += 1;
-		else if (selectModel == 4) selectModel = 0;
-		else selectModel += 1;
-		//printf("selectModel is: %d\n", selectModel);
-		switch (selectModel) {
-		case(0):printf("selectModel is: %d , selected Evan Greenstein id: 40173229\n", selectModel); break;
-		case(1):printf("selectModel is: %d , selected Jonah Ball id: 40178421\n", selectModel); break;
-		case(2):printf("selectModel is: %d , selected Matthew Segal id: 40031839	\n", selectModel); break;
-		case(3):printf("selectModel is: %d , selected Sabrina Kim id: 40066662\n", selectModel); break;
-		case(4):printf("selectModel is: %d , selected Jonathan Miller id: 40135070\n", selectModel); break;
-		default: break;
-		}
-	}
-	else if (state_TAB == GLFW_PRESS && mods == GLFW_MOD_SHIFT) {
-		/*
-		select -1 is bicep
-		0 is elbow
-		1 is wrist y
-		2 is wrist x?
-		*/
-		if (selectJoint == 0) selectJoint += 1; 
-		else if (selectJoint == 2) selectJoint = 0;
-		else selectJoint += 1;
-		switch (selectJoint) {
-		case(0):printf("selectJoint is: %d , selected shoulder\n", selectJoint); break;
-		case(1):printf("selectJoint is: %d , selected elbow\n", selectJoint); break;
-		case(2):printf("selectJoint is: %d , selected wrist\n", selectJoint); break;
-		default: break;
-		}
-		//printf("selectJoint is: %d\n", selectJoint);
-	}
-
-	// If SPACE is pressed, should reposition at random place on grid
-	else if (state_SPACE == GLFW_PRESS)
-	{
-		//arm.setTranslateRandom(glm::vec3(number1, number2, number3));
-	}
-
-
 
 	// If u or j is pressed, scale up or down accordingly
 	else if (state_U == GLFW_PRESS)
@@ -1103,37 +779,18 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	else if (state_DOWN == GLFW_PRESS)
 		rotationMatrixW *= glm::rotate(glm::mat4(1.0f), glm::radians(2.55f), glm::vec3(.0f, -1.0f, 0.0f));
 
-	//else if (state_W == GLFW_PRESS)
-	//	translationVec.y += .005f;
-	//else if (state_S == GLFW_PRESS)
-	//	translationVec.y -= .005f;
-	//else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-	//	translationVec.x += .005f;
-	//else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-	//	translationVec.x -= .005f;
-	//else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)		
-	//	jonahRotationAngle += 5.0f;
-	//else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-	//	jonahRotationAngle -= 5.0f;
-
-	// If p, l, or t is pressed, changed render mode between points, lines, and triangles, respectively
-	else if (state_P == GLFW_PRESS)
-		renderAs = GL_POINTS;
-
+	// l is pressed turn light on or off
 	else if (state_L == GLFW_PRESS)
-		renderAs = GL_LINES;
-
-	else if (state_T == GLFW_PRESS)
-		renderAs = GL_TRIANGLES;
+		lightOn = !lightOn;
 
 	// If HOME is pressed, remove translations, rotations, and scalings
-	else if (state_HOME == GLFW_PRESS) {		
-		jonahTranslationModel +=( - 1.0f * jonahTranslationModel);
-		jonahTranslationRandom += (-1.0f * jonahTranslationRandom);
-		mattTranslationModel += (-1.0f * mattTranslationModel);
-		mattTranslationRandom += (-1.0f * mattTranslationRandom);
-		jonArm.resetArm();
-		evanArm.resetArm();
+	else if (state_HOME == GLFW_PRESS) {
+		mattModel1.setTranslationModel(mattModel1.getTranslationModel() + (-1.0f * mattModel1.getTranslationModel()));
+		mattModel2.setTranslationModel(mattModel2.getTranslationModel() + (-1.0f * mattModel2.getTranslationModel()));
+		mattModel1.setTranslationRandom(mattModel1.getTranslationRandom() + (-1.0f * mattModel1.getTranslationRandom()));
+		mattModel2.setTranslationRandom(mattModel2.getTranslationRandom() + (-1.0f * mattModel2.getTranslationRandom()));
+		//mattTranslationModel += (-1.0f * mattTranslationModel);
+		//mattTranslationRandom += (-1.0f * mattTranslationRandom);
 		GroupMatrixScale = glm::vec3(1.0f);
 		rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 		glm::mat4 InitviewMatrix = glm::lookAt(eye, center, up);
@@ -1204,136 +861,5 @@ void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos)
 		setProjectionMatrix(shaderProgram, projectionMatrix);
 		lastMousePosZ = zPos;
 	}
-}
-
-//void windowSizeCallback(GLFWwindow* window, int width, int height)
-//{
-//	glfwSetWindowSize(window, width, height);
-//}
-
-bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm::vec3>& temp_vertices,
-	          std::vector<glm::vec3>& out_normals, std::vector<glm::vec2>& out_uvs)
-{
-
-	std::vector<int> uvIndices, normalIndices;
-	std::vector<glm::vec2> temp_uvs;
-	std::vector<glm::vec3> temp_normals;
-
-	FILE* file;
-	file = fopen(path, "r");
-	if (!file) {
-		printf("Impossible to open the file ! Are you in the right path ?\n");
-		getchar();
-		return false;
-	}
-
-	while (1) {
-
-		char lineHeader[128];
-		// read the first word of the line
-		int res = fscanf(file, "%s", lineHeader);
-		if (res == EOF)
-			break; // EOF = End Of File. Quit the loop.
-
-		// else : parse lineHeader
-
-		if (strcmp(lineHeader, "v") == 0) {
-			glm::vec3 vertex;
-			res = fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
-
-			temp_vertices.push_back(vertex);
-		}
-		else if (strcmp(lineHeader, "vt") == 0) {
-			glm::vec2 uv;
-			res = fscanf(file, "%f %f\n", &uv.x, &uv.y);
-			if (res != 2) {
-				printf("Missing uv information!\n");
-			}
-			uv.y = -uv.y; // Invert V coordinate since we will only use DDS texture, which are inverted. Remove if you want to use TGA or BMP loaders.
-			temp_uvs.push_back(uv);
-		}
-		else if (strcmp(lineHeader, "vn") == 0) {
-			glm::vec3 normal;
-			res = fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
-			if (res != 3) {
-				printf("Missing normal information!\n");
-			}
-			temp_normals.push_back(normal);
-		}
-		else if (strcmp(lineHeader, "f") == 0) {
-			char* getRes;
-			int vertexIndex[3], uvIndex[3], normalIndex[3];
-			bool uv = true;
-			bool norm = true;
-			char line[128];
-			getRes = fgets(line, 128, file);
-			if (getRes == 0) {
-				printf("incomplete face\n");
-			}
-
-			//vertex, uv, norm
-			int matches = sscanf(line, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
-			if (matches != 9) {
-				//vertex, norm
-				matches = sscanf(line, "%d//%d %d//%d %d//%d\n", &vertexIndex[0], &normalIndex[0], &vertexIndex[1], &normalIndex[1], &vertexIndex[2], &normalIndex[2]);
-				if (matches != 6) {
-					//vertex, uv
-					matches = sscanf(line, "%d/%d %d/%d %d/%d\n", &vertexIndex[0], &uvIndex[0], &vertexIndex[1], &uvIndex[1], &vertexIndex[2], &uvIndex[2]);
-					if (matches != 6) {
-						//vertex
-						matches = sscanf(line, "%d %d %d\n", &vertexIndex[0], &vertexIndex[1], &vertexIndex[2]);
-						if (matches != 3) {
-							printf("File can't be read by our simple parser. 'f' format expected: d/d/d d/d/d d/d/d || d/d d/d d/d || d//d d//d d//d\n");
-							printf("Character at %ld", ftell(file));
-							return false;
-						}
-						uv, norm = false;
-					}
-					else {
-						norm = false;
-					}
-				}
-				else {
-					uv = false;
-				}
-			}
-			vertexIndices.push_back(abs(vertexIndex[0]) - 1);
-			vertexIndices.push_back(abs(vertexIndex[1]) - 1);
-			vertexIndices.push_back(abs(vertexIndex[2]) - 1);
-			if (norm) {
-				normalIndices.push_back(abs(normalIndex[0]) - 1);
-				normalIndices.push_back(abs(normalIndex[1]) - 1);
-				normalIndices.push_back(abs(normalIndex[2]) - 1);
-			}
-			if (uv) {
-				uvIndices.push_back(abs(uvIndex[0]) - 1);
-				uvIndices.push_back(abs(uvIndex[1]) - 1);
-				uvIndices.push_back(abs(uvIndex[2]) - 1);
-			}
-		}
-		else {
-			char clear[1000];
-			char* getsRes = fgets(clear, 1000, file);
-		}
-	}
-	if (normalIndices.size() != 0)
-		out_normals.resize(temp_normals.size());
-	if (uvIndices.size() != 0)
-		out_uvs.resize(temp_uvs.size());
-	out_normals = temp_normals;
-	out_uvs = temp_uvs;
-	//for (unsigned int i = 0; i < vertexIndices.size(); i++) {
-	//	int vi = vertexIndices[i];
-	//	if (normalIndices.size() != 0) {
-	//		int ni = normalIndices[i];
-	//		out_normals[vi] = temp_normals[ni];
-	//	}
-	//	if (uvIndices.size() != 0 && i < uvIndices.size()) {
-	//		int ui = uvIndices[i];
-	//		out_uvs[vi] = temp_uvs[ui];
-	//	}
-	//}
-
-	return true;
 }
 
