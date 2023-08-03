@@ -31,6 +31,7 @@ public:
 	glm::mat4 rotationW;
 	glm::mat4 partParent;
 	glm::mat4 partMatrix;
+	glm::mat4 partChild;
 	glm::mat4 groupMatrix;
 
 	int shaderProgram;

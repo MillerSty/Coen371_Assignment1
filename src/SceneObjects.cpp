@@ -100,7 +100,7 @@ bool SceneObjects::DrawBall() {
 	glBindVertexArray(sphereVao);
 	//translate
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.1180f, 1.0f, .122f)));
+	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(.1180f, 1.0f, .122f,1.0f)));
 	glDrawElements(renderAs, sphereVertCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 	return true;
@@ -122,7 +122,7 @@ bool SceneObjects::DrawCourt() {
 
 	glBindVertexArray(cubeVao);
 	//2d texture
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 0.0, .0)));//red (x)
+	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(1.0f, 0.0f, .0f,1.0f)));//red (x)
 	glm::mat4 partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.2f, .2f, .2f));
 	int absX = 0;
 	int absZ = 0;
@@ -133,19 +133,19 @@ bool SceneObjects::DrawCourt() {
 			glm::mat4 partMatrix = partTranslate * partScale;
 			glm::mat4 worldMatrix =  groupMatrix* partMatrix;
 			if (abs(pitchx) == 74 && (abs(pitchz) < 31)) {	 //back horizontal				 
-				glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 1.0, 1.0)));//white
+				glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(1.0f, 1.0f, 1.0f,1.0f)));//white
 			}
 			else if ((abs(pitchz) == 32) && abs(pitchx) < 76) {	//length lines			
-				glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 1.0, 1.0)));//white
+				glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(1.0f, 1.0f, 1.0f,1.0f)));//white
 			}
 			else if (abs(pitchx) == 54 && (abs(pitchz) <= 30)) { //inside horizontal	
-				glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 1.0, 1.0)));//white
+				glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(1.0f, 1.0f, 1.0f,1.0f)));//white
 			}
 			else if (abs(pitchx) < 54 && (abs(pitchz) == 0)) { //inside vertical			
-				glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 1.0, 1.0)));//white
+				glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(1.0f, 1.0f, 1.0f,1.0f)));//white
 			}
 			else { //pitch is green
-				glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.0, 0.522, .40)));// 
+				glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(.0f, 0.522f, .40f,1.0f)));// 
 			}
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -169,7 +169,7 @@ bool SceneObjects::DrawNet() {
 	//bind VAO
 	glBindVertexArray(cubeVao);
 	// Set colour of net poles
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.60f, .6f, .60f)));
+	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(.60f, .6f, .60f,1.0f)));
 		
 	// Rotate net poles
 	glm::mat4 partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, 1.0f, 1.0f));
@@ -188,6 +188,16 @@ bool SceneObjects::DrawNet() {
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 
+	//net at origion
+		// Translate only the new pole. Can reuse scale and translation matrices from first pole
+	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0375f, .0f));
+	partMatrix = partTranslate * partScale * partRo;
+	worldMatrix = groupMatrix * partMatrix;
+
+	// Draw again
+	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
+	glDrawArrays(GL_TRIANGLES, 0, 36);	
+	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(1.0f, 1.0f, 1.0f,1.0f)));  // Set net colour
 
 	//+ve Z net
 	// Translate only the new pole. Can reuse scale and translation matrices from first pole
@@ -202,7 +212,7 @@ bool SceneObjects::DrawNet() {
 	// Strings of net
 	ropeTexture.bindTexture();
 	ropeTexture.loadToShader();
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));  // Set net colour
+	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(1.0f, 1.0f, 1.0f,1.0f)));  // Set net colour
 	
 
 	// Loop to draw net. i is our translation offset
@@ -232,7 +242,7 @@ bool SceneObjects::DrawNet() {
 	clothTexture.bindTexture();
 	clothTexture.loadToShader();
 
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.00f, 1.0f, 1.0f)));
+	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(1.00f, 1.0f, 1.0f,1.0f)));
 	partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, 1.0f, 1.0f));
 	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.003f, .071f, .0f));
 	partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.1f, .1f, 6.6f));
@@ -247,8 +257,8 @@ bool SceneObjects::DrawNet() {
 }
 
 bool SceneObjects::DrawSkyBox() {
-	plasticTexture.bindTexture();
-	plasticTexture.loadToShader();
+	skyTexture.bindTexture();
+	skyTexture.loadToShader();
 	//glBindTexture(GL_TEXTURE_2D, plasticTexture);
 	//glUseProgram(shaderProgram);
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
@@ -259,17 +269,17 @@ bool SceneObjects::DrawSkyBox() {
 	glm::mat4 partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 
 	// Unused but usable
-	//glm::mat4 partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(0.0f, 1.0f, 1.0f));
+	glm::mat4 partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)90), glm::vec3(1.0f, .0f, .0f));
 
 	// Sets sky box scale 
-	glm::mat4 partScale = glm::scale(glm::mat4(1.0f), glm::vec3(50.0f, skyBoxY, 50.0f));
+	glm::mat4 partScale = glm::scale(glm::mat4(1.0f), glm::vec3(25.0f, skyBoxY, 25.0f));
 
-	glm::mat4 partMatrix = partTranslate * partScale;  // Part matrix for sky box
+	glm::mat4 partMatrix = partTranslate * partScale* partRo;  // Part matrix for sky box
 	glm::mat4 worldMatrix = groupMatrix * partMatrix;  // World matrix for sky box
 
 	// Bind the vertex array object to be the cube VAO with reverse winding order
-	glBindVertexArray(cubeVao);
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.008f, .8f, .9999999f))); // Sky box colour
+	glBindVertexArray(skyVao);
+	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(.008f, .8f, .9999999f,1.0f))); // Sky box colour
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]); // Send to shader
 	glDisable(GL_CULL_FACE);
 	glDrawArrays(renderAs, 0, 36);
@@ -286,7 +296,7 @@ bool SceneObjects::DrawGrid() {
 	//glm::mat4 grid = glm::scale(groupMatrix, glm::vec3(1.0f, 1.0f, 1.0f)); probably uneeded
 	//glm::mat4 gridWorld =groupMatrix ;
 
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.61, 0.610, 0.610)));
+	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(.61f, 0.610f, 0.610f,1.0f)));
 	glBindVertexArray(gridVao);
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &groupMatrix[0][0]);
 	glDrawArrays(GL_LINES, 0, gridCount);
@@ -311,7 +321,7 @@ bool SceneObjects::DrawCoord() {
 	glm::mat4 partMatrix = partTranslate * cubeScale * partRo;
 
 	glm::mat4 worldMatrix = cubeParent * partMatrix;
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(0.0, 0.0, 1.0)));//blue (x)
+	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(0.0, 0.0, 1.0,1.0f)));//blue (x)
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
@@ -326,7 +336,7 @@ bool SceneObjects::DrawCoord() {
 	partMatrix = partTranslate * partScale * partRo;
 	worldMatrix = cubeChild * partMatrix;
 
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.0, 0.0, 0.0))); //red (z)
+	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(1.0f, 0.0f, 0.0f,1.0f))); //red (z)
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
@@ -340,7 +350,7 @@ bool SceneObjects::DrawCoord() {
 	partMatrix = partTranslate * partScale * partRo;
 	worldMatrix = cubeChild * partMatrix;
 
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.0, 1.0, 0.0))); //green (y)
+	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(.0f, 1.0f, 0.0f,1.0f))); //green (y)
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
@@ -366,7 +376,7 @@ bool SceneObjects::DrawLight(glm::vec3 position,glm::vec3 rotation,float i) {
 
 	// Bind the vertex array object to be the cube VAO with reverse winding order
 	glBindVertexArray(cubeVao);
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.00f, 1.0f, 1.0f))); // Sky box colour
+	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(1.00f, 1.0f, 1.0f,1.0f))); // Sky box colour
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]); // Send to shader
 	glDisable(GL_CULL_FACE);
 	glDrawArrays(renderAs, 0, 36);

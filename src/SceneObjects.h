@@ -20,6 +20,7 @@ public:
 	void SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram);
 	//void setTextures(GLuint court, GLuint rope, GLuint metal, GLuint cloth, GLuint grass);
 	
+	int skyVao;
 	int gridVao;
 	int cubeVao;	
 	//int reverseCubeVao;
@@ -39,6 +40,7 @@ public:
 	Material ballTexture;
 	Material grassTexture;
 	Material plasticTexture;
+	Material skyTexture;
 	//atrributes for court
 
 	//attributes for net

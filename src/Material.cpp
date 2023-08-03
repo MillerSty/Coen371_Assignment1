@@ -25,8 +25,11 @@ void Material::loadToShader( ) {
 
 void Material::bindTexture() {
 	glActiveTexture(GL_TEXTURE0);
+	
 	GLuint textureLocation = glGetUniformLocation(shaderProgram, "textureSampler");
 	glBindTexture(GL_TEXTURE_2D, this->textureId);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glUniform1i(textureLocation, 0);
 
 }

@@ -67,14 +67,15 @@ bool Racket::Draw() {
 	glm::mat4 handleParent = partParent*handleTranslate*handleScale* handleRotate;
 	RacketGroupMatrix = groupMatrix * handleParent;
 	glm::mat4 check= handleTranslate * handleRotate;
-	//this->partParent = handleTranslate* handleRotate;
+	//this->partChild = handleTranslate* handleRotate;
 
+	this->partChild = RacketGroupMatrix;
 	partScale = glm::scale(glm::mat4(1.0f), glm::vec3(1.75f, .25f, .150f));
 	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f));
 	partRo = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(.0f, .0f, 1.0f));
 	worldMatrix = RacketGroupMatrix * partTranslate * partScale * partRo;
 
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(1.f, .0f, .0f)));
+	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(1.f, .0f, .0f,1.0f)));
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
 	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
@@ -89,7 +90,7 @@ bool Racket::Draw() {
 	//groupMatrix*
 	partMatrix = partTranslate * partRo * partScale;
 	worldMatrix = RacketGroupMatrix * partMatrix;
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.61f, .61f, .65f)));
+	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(.61f, .61f, .65f,1.0f)));
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
 	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
@@ -101,7 +102,7 @@ bool Racket::Draw() {
 	//groupMatrix *
 	partMatrix = partTranslate * partRo * partScale;
 	worldMatrix = RacketGroupMatrix * partMatrix;
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.98f, .56f, .5f)));
+	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(.98f, .56f, .5f,1.0f)));
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
 	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
@@ -113,7 +114,7 @@ bool Racket::Draw() {
 	
 	partMatrix = partTranslate * partRo * partScale;
 	worldMatrix = RacketGroupMatrix * partMatrix;
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.661f, .61f, .61)));
+	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(.661f, .61f, .61f,1.0f)));
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
 	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
@@ -126,7 +127,7 @@ bool Racket::Draw() {
 	
 	partMatrix = partTranslate * partRo * partScale;
 	worldMatrix = RacketGroupMatrix * partMatrix;
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.61f, .61f, .661f)));
+	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(.61f, .61f, .661f,1.0)));
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
 	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
@@ -139,7 +140,7 @@ bool Racket::Draw() {
 	
 	partMatrix = partTranslate * partRo * partScale;
 	worldMatrix = RacketGroupMatrix * partMatrix;
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.98f, .56f, .5f)));
+	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(.98f, .56f, .5f,1.0f)));
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
 	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
@@ -151,7 +152,7 @@ bool Racket::Draw() {
 	
 	partMatrix = partTranslate * partRo * partScale;
 	worldMatrix = RacketGroupMatrix * partMatrix;
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.61f, .616f, .61f)));
+	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(.61f, .616f, .61f,1.0f)));
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
 	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
@@ -163,7 +164,7 @@ bool Racket::Draw() {
 	
 	partMatrix = partTranslate * partRo * partScale;
 	worldMatrix = RacketGroupMatrix * partMatrix;
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.98f, .56f, .5f)));
+	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(.98f, .56f, .5f,1.0f)));
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
 	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
@@ -175,13 +176,13 @@ bool Racket::Draw() {
 	
 	partMatrix = partTranslate * partRo * partScale;
 	worldMatrix = RacketGroupMatrix * partMatrix;
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.98f, .56f, .5f)));
+	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(.98f, .56f, .5f,1.0f)));
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
 	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 	
 	
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.0f, 1.0f, .0f)));
+	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(.0f, 1.0f, .0f,1.0f)));
 	for (float i = -.05; i <= .06; i += .01) {
 		partScale = glm::scale(glm::mat4(1.0f), glm::vec3(1.375f, .08f, .080f));
 		partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.202, i, -.0f));
@@ -206,8 +207,9 @@ bool Racket::Draw() {
 	plasticMaterial.resetShader();
 	glBindVertexArray(0);
 
+	//partChild= partParent * glm::translate(glm::mat4(1.0f), glm::vec3(-0.03f, -.20f, .03f));
 	ball.shaderProgram = shaderProgram;
-	ball.groupMatrix = partParent* glm::translate(glm::mat4(1.0f), glm::vec3(-0.03f, -.20f, .03f));;
+	ball.groupMatrix = partParent* glm::translate(glm::mat4(1.0f), glm::vec3(-0.03f, -.20f, .03f));
 	ball.renderAs = renderAs;
 	ball.DrawBall();
 	return true;

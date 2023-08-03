@@ -49,11 +49,11 @@ void Arm::setTranslation(glm::vec3 TranslateRandom, glm::vec3 TranslateModel) {
 }
 
 bool Arm::DrawArm() {
-	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
-	GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
-	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
-	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
-	GLuint applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
+	GLint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
+	GLint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
+	GLint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
+	GLint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
+	GLint applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
 	
 	glm::mat4 worldMatrix;
 
@@ -62,7 +62,8 @@ bool Arm::DrawArm() {
 	glm::mat4 partRo;
 	glm::mat4 partMatrix;
 	//note this works
-
+	tattoo.bindTexture();
+	tattoo.loadToShader();
 	glBindVertexArray(cubeVao);
 	glm::mat4 bicepParent; //so for initiali parent , it has local.global translate plus local rotate 
 	glm::mat4 biTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(TranslateRandom.x + TranslateModel.x + position.x, TranslateModel.y + TranslateRandom.y +position.y, TranslateRandom.z + position.z));
@@ -76,7 +77,8 @@ bool Arm::DrawArm() {
 
 	partMatrix = partScale * partRo;
 	worldMatrix = groupMatrix * bicepParent * partMatrix;
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.94f, .76f, .5f)));
+	//1
+	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(.94f, .76f, .5f,1.0f)));
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
 	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
@@ -91,12 +93,13 @@ bool Arm::DrawArm() {
 
 	partMatrix = partScale * partRo;
 	worldMatrix = groupMatrix * forarmParent * partMatrix;
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.94f, .76f, .5f)));
+	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(.94f, .76f, .5f , 1.0f)));
 	//glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.98f, .56f, .5f)));
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
 	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
-
+	skin.bindTexture();
+	skin.loadToShader();
 	// hand
 	glm::mat4 handTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(constArmScaler.x *.0666f, .0f, .0f));
 	glm::mat4 handRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)wristRotate), glm::vec3(.0f, 1.0f, .0f)); //this rotates hand
@@ -107,14 +110,14 @@ bool Arm::DrawArm() {
 
 	partMatrix = partScale * partRo;
 	worldMatrix = groupMatrix * handParent * partMatrix;
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.0f, .36f, .3f)));
+	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(.0f, .36f, .3f,1.0f)));
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
 	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 	partParent = handParent;
 
 	////NOTE FINGERS WILL DIRECTLY INHERIT FROM HAND -> HAND IS THEIR PARENT
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.94f, .76f, .5f))); //al have the same colour
+	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(.94f, .76f, .5f,1.0f))); //al have the same colour
 	glm::mat4 fingerTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.02f, -.012f, -.0f));
 	glm::mat4 fingerRotater = glm::rotate(glm::mat4(1.0f), glm::radians(fingerRotate), glm::vec3(.0f, -1.0f, .0f));
 	glm::mat4 fingerparent= handParent * fingerTranslate ;

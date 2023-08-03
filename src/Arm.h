@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "Material.h"
 
 class Arm
 {
@@ -45,6 +46,10 @@ public:
 	float getFRotation() {
 		return this->fingerRotate;
 	}
+	glm::vec3 getTranslation() {
+		return TranslateRandom
+			+ TranslateModel;
+	}
 	glm::vec3 getTranslateRandom() { return this->TranslateRandom; }
 	void setTranslateRandom(glm::vec3 TranslateRandom) { this->TranslateRandom = TranslateRandom; }
 	glm::vec3 getTranslateModel() { return this->TranslateModel; }
@@ -65,6 +70,8 @@ public:
 	int renderAs;
 	glm::vec3 position;
 	std::string letterName;
+	Material tattoo;
+	Material skin;
 
 
 	//methods like 
