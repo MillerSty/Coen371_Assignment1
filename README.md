@@ -26,6 +26,30 @@ This way, it's possible to switch between cameras and models independently of ea
 - RIGHT click and mouse left or right: Pan camera left or right.
 - MIDDLE click and mouse forward or back: Zoom camera in or out.
 
+# Required Features Implemented
+
+- [x] Modeled 2 rackets, each in the middle on either side of the court. 
+- [x] Modeled 4 letters, taken from my last name, 2 on each racket.
+- [x] Each model contains 2 letters, an arm, and a racket, modeled as 1 entity.
+- [x] 3 cubic poles for the tennis net. The poles have a textures.
+- [x] Can transform all aspects of 1 model (the arm, racket, and 2 letters) together (only translation and scaling are implemented).
+- [x] Racket has a metallic texture.
+- [x] Arm has a tattoo texture. 
+- [x] Each letter has a different texture.
+- [x] Skybox has a distinct texture.
+- [x] Light can be toggled with L key (did not interpret this is a secondary spot light, but the existing light from A2).
+- [x] Each racket model has a camera attached to the front of it for a total of 3 cameras: main, racket 1, and racket 2.
+- [x] The racket cameras move along with the rackets.
+- [x] Shadows rendered with 2 pass algorithm (toggle-able with B key).
+- [x] Uses OpenGL 4.1. Includes many comments
+
+# Required Features Not implemented
+
+- [ ] A fourth camera circling around the center of the scene.
+- [ ] A spotlight attached to 4th camera.
+- [ ] The spotlight was assumed to be the spotlight from A2, so there is no additional light. 
+
+
 # Build Instructions
 
 ## Command Line
