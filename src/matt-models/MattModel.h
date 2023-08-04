@@ -11,7 +11,7 @@ class MattModel
 {
 private:
 	GLuint unitCubeVAO;
-	//Gluint sphereVAO;
+	GLuint sphereVAO;
 	GLuint shaderProgram;
 	glm::mat4 groupMatrix;
 	glm::mat4 worldMatrix;
@@ -21,9 +21,11 @@ private:
 	glm::vec3 translationModel;
 	float rotationAngle;
 	int renderAs = GL_TRIANGLES;
+	int sphereVertCount;
 
 	Material racketTexture;
-	Material ArmTexture;
+	Material armTexture;
+	Material ballTexture;
 
 public:
 	MattModel();
@@ -38,8 +40,9 @@ public:
 	glm::vec3 getInitialPosition();
 	void setInitialScale(glm::vec3 scale);
 	glm::vec3 getInitialScale();
-	void setVAO(GLuint vao);
-	GLuint getVAO();
+	void setVAO(GLuint cubeVao, GLuint sphereVao);
+	GLuint getCubeVAO();
+	GLuint getSphereVAO();
 	glm::vec3 getTranslationRandom();
 	void setTranslationRandom(glm::vec3 trans);
 	glm::vec3 getTranslationModel();
@@ -48,8 +51,10 @@ public:
 	float getRotationAngle();
 	void setRenderAs(int as);
 	int getRenderAs();
+	void setSphereVertCount(int count);
+	int getSphereVertCount();
 
-	void setMaterials(Material racket, Material arm);
+	void setMaterials(Material racket, Material arm, Material ball);
 
 	void resetModel();
 

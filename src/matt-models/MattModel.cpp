@@ -28,9 +28,11 @@ void MattModel::setInitialScale(glm::vec3 scale) { initialScale = scale; }
 
 glm::vec3 MattModel::getInitialScale() { return initialScale; }
 
-void MattModel::setVAO(GLuint vao) { unitCubeVAO = vao; }
+void MattModel::setVAO(GLuint cubeVao, GLuint sphereVao) { unitCubeVAO = cubeVao; sphereVAO = sphereVao; }
 
-GLuint MattModel::getVAO() { return unitCubeVAO; }
+GLuint MattModel::getCubeVAO() { return unitCubeVAO; }
+
+GLuint MattModel::getSphereVAO() { return sphereVAO; }
 
 glm::vec3 MattModel::getTranslationRandom() { return translationRandom; }
 
@@ -48,10 +50,15 @@ void MattModel::setRenderAs(int as) { renderAs = as; }
 
 int MattModel::getRenderAs() { return renderAs; }
 
-void MattModel::setMaterials(Material racket, Material arm)
+void MattModel::setSphereVertCount(int count) { sphereVertCount = count; }
+
+int MattModel::getSphereVertCount() { return sphereVertCount; }
+
+void MattModel::setMaterials(Material racket, Material arm, Material ball)
 {
 	racketTexture = racket;
-	ArmTexture = arm;
+	armTexture = arm;
+	ballTexture = ball;
 }
 
 void MattModel::drawModel()
@@ -64,8 +71,8 @@ void MattModel::drawModel()
 
 	// DRAW ARM
 	const glm::vec3 ARM_COLOR(0.8f, 0.65f, 0.37f);  // Set arm color
-	ArmTexture.bindTexture();  // Activate texture
-	ArmTexture.loadToShader();
+	armTexture.bindTexture();  // Activate texture
+	armTexture.loadToShader();
 
 	// Draw forearm
 	glm::mat4 modelMat = worldMatrix * groupMatrix;
@@ -129,6 +136,32 @@ void MattModel::drawModel()
 	glDrawArrays(renderAs, 0, 36);
 
 	// Unbind VAO
+	glBindVertexArray(0);
+
+	// Draw ball
+	
+	// Bind sphere VAO
+	glBindVertexArray(sphereVAO);
+	
+	glm::vec3 SPHERE_COLOR(0.6f, 0.23f, 0.004f);
+
+	ballTexture.bindTexture();
+	ballTexture.loadToShader();
+
+	modelMat = worldMatrix * groupMatrix;
+
+	modelScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.45f));
+	modelTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(translation.x - 0.2f, translation.y + 0.4f, translation.z - 0.2f));
+
+	modelMat *= modelTranslate * modelScale;
+
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "worldMatrix"), 1, GL_FALSE, &modelMat[0][0]);
+
+	glUniform3fv(glGetUniformLocation(shaderProgram, "objectColor"), 1, &SPHERE_COLOR[0]);
+
+	glDrawElements(renderAs, sphereVertCount, GL_UNSIGNED_INT, 0);
+
+	// Unbind geometry
 	glBindVertexArray(0);
 }
 
