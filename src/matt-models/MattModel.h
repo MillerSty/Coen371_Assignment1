@@ -24,10 +24,6 @@ private:
 
 	Material racketTexture;
 	Material ArmTexture;
-	Material STexture;
-	Material ETexture;
-	Material ATexture;
-	Material LTexture;
 
 public:
 	MattModel();
@@ -53,7 +49,7 @@ public:
 	void setRenderAs(int as);
 	int getRenderAs();
 
-	void setMaterials(Material racket, Material arm, Material s, Material e, Material a, Material l);
+	void setMaterials(Material racket, Material arm);
 
 	void resetModel();
 

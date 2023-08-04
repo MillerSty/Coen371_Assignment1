@@ -48,14 +48,10 @@ void MattModel::setRenderAs(int as) { renderAs = as; }
 
 int MattModel::getRenderAs() { return renderAs; }
 
-void MattModel::setMaterials(Material racket, Material arm, Material s, Material e, Material a, Material l)
+void MattModel::setMaterials(Material racket, Material arm)
 {
 	racketTexture = racket;
 	ArmTexture = arm;
-	STexture = s;
-	ETexture = e;
-	ATexture = a;
-	LTexture = l;
 }
 
 void MattModel::drawModel()

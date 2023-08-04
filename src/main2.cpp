@@ -536,7 +536,7 @@ int main(int argc, char* argv[])
 	// Set Matt VAO and shader program
 	mattModel.setShaderProgram(shaderProgram);
 	mattModel.setVAO(unitCubeAO);
-	mattModel.setMaterials(metalMaterial, tattooMaterial, woodMaterial, ropeMaterial, clothMaterial, grassMaterial);
+	mattModel.setMaterials(woodMaterial, tattooMaterial);
 	mattModel.setRenderAs(renderAs);
 
 	// Set Sabrina VAO and shader program
