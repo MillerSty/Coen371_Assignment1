@@ -21,29 +21,30 @@ uniform bool shouldApplyMLight;
 //so directional light has colour, ambInt,diffInt, direction
 //      Plight has color, ambInt,diffInt,position, constants
 //      Slight has color, ambInt,diffInt, direction, edge?
-uniform vec3 lightColor;
-uniform vec3 lightPosition;
-uniform vec3 lightDirection;
+uniform vec3 mlightColor;
+uniform vec3 mlightPosition;
+uniform vec3 mlightDirection;
 
 uniform float dAmb;
 uniform float dDiff;
-
-uniform vec3 splightColor;
-uniform vec3 splightPosition;
-uniform vec3 splightDirection;
+//
+//uniform vec3 splightColor;
 //uniform vec3 splightPosition;
-uniform float spAmb;
-uniform float spDiff;
+//uniform vec3 splightDirection;
+//uniform float spAmb;
+//uniform float spDiff;
+//uniform vec3 splightPosition;
+
 //uniform vec3 lightColor;
 //uniform vec3 lightPosition;
 //uniform vec3 lightDirection;
 
-const float shadingAmbientStrength = .30f;
+const float shadingAmbientStrength = .50f;
 const float shadingDiffuseStrength = 0.3;
 const float shadingSpecularStrength = 0.3;
 
-uniform float lightCutoffOuter;
-uniform float lightCutoffInner;
+//uniform float lightCutoffOuter;
+//uniform float lightCutoffInner;
 
 uniform vec3 viewPosition;
 uniform sampler2D shadowMap;
@@ -61,17 +62,29 @@ struct Material{//vec3's~!!!! https://learnopengl.com/Lighting/Materials
 };
 uniform Material mats;
 
+const int MAX_SPOT_LIGHTS = 3;
+struct SpotLight {//vec3's~!!!! https://learnopengl.com/Lighting/Materials
+    vec3 lightColor;
+    vec3 lightPosition;
+    vec3 lightDirection;
+    float Amb;
+    float Diff;
+    float lightCutoffInner;
+    float lightCutoffOuter;
+};
+uniform int spotlightCount;
+uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
 
 vec3 ambientColor() {
     return vec3(objectColor).xyz  ;
 }
-vec3 diffuseColor() { //times in light color
-    vec3 lightDir = normalize(lightPosition - fragmentPosition);
+vec3 diffuseColor(vec3 Position) { //times in light color
+    vec3 lightDir = normalize(Position - fragmentPosition);
     return  vec3(objectColor).xyz *  max(dot(normalize(fragmentNormal), lightDir), 0.0f);
 }
 
-vec3 specularColor() { //times in light color
-    vec3 lightDir = normalize(lightPosition - fragmentPosition);
+vec3 specularColor(vec3 Position) { //times in light color
+    vec3 lightDir = normalize(Position - fragmentPosition);
     vec3 viewDir = normalize(viewPosition - fragmentPosition);
     vec3 reflectDir = reflect(-lightDir, normalize(fragmentNormal));
     return vec3(  pow(max(dot(reflectDir, viewDir), 0.0f),32));
@@ -91,22 +104,38 @@ float shadowScalar() {
     return ((currentDepth - bias) < closestDepth) ? 1.0 : 0.0;
 }
 
-float spotlightScalar() {
-    float theta = dot(normalize(fragmentPosition - splightPosition), splightDirection);
+float spotlightScalar(SpotLight sp) {
+    float theta = dot(normalize(fragmentPosition - sp.lightPosition), sp.lightDirection);
 
-    if (theta > lightCutoffInner) {
+    if (theta > sp.lightCutoffInner) {
         return 1.0;
     }
-    else if (theta > lightCutoffOuter) {
-        return (1.0 - cos(3.14f * (theta - lightCutoffOuter) / (lightCutoffInner - lightCutoffOuter))) / 2.0;
+    else if (theta > sp.lightCutoffOuter) {
+        return (1.0 - cos(3.14f * (theta - sp.lightCutoffOuter) / (sp.lightCutoffInner - sp.lightCutoffOuter))) / 2.0;
     }
     else {
         return 0.0;
     }
 }
-
+//
 vec3 calcSpotlightColor() {
-    return ambientColor() * spAmb + (diffuseColor() * splightColor * spDiff + specularColor() * splightColor)*shadowScalar() * spotlightScalar();
+    vec3 color=vec3(0.0f, 0.0f, 0.0f);
+    vec3 ambient = vec3(0.0f);
+    vec3 diffuse = vec3(0.0f);
+    vec3 specular = vec3(0.0f);
+    for (int i = 0; i < spotlightCount; i++) {
+    ambient = ambientColor() * spotLights[i].Amb;
+    diffuse = diffuseColor(spotLights[i].lightPosition) * spotLights[i].lightColor * spotLights[i].Diff;
+    specular = specularColor(spotLights[i].lightPosition) * spotLights[i].lightColor;
+    float scalar = shadowScalar() * spotlightScalar(spotLights[i]);
+        color+= (ambient + (diffuse + specular) * scalar);
+
+    }
+    return color;
+   // return ambientColor() * spAmb +
+    //  diffuseColor() * splightColor * spDiff + 
+    //     specularColor() * splightColor)*
+    //     shadowScalar() * spotlightScalar();
 
 }
 
@@ -115,7 +144,7 @@ vec3 calcSpotlightColor() {
 //
 //}
 vec3 calcMainLight() {
-    return ambientColor() * dAmb + (diffuseColor() * lightColor* dDiff + specularColor()*lightColor)  * shadowScalar();
+    return ambientColor() * dAmb + (diffuseColor(mlightPosition) * mlightColor* dDiff + specularColor(mlightPosition)*mlightColor)  * shadowScalar();
 
 }
 void main()
@@ -135,19 +164,19 @@ void main()
         float linearPoint = .001932f; //3 for low height
         float quadPoint = .0013f; //3 for low height      
 
-        vec3 directionPoint = fragmentPosition - lightPosition;
+        vec3 directionPoint = fragmentPosition - mlightPosition;
         float distancePoint = length(directionPoint);
         float attenuation = (quadPoint * distancePoint * distancePoint) + (linearPoint * distancePoint) + constantPoint;
 
         float shadow = shadowScalar();
-        float spotlight = spotlightScalar();
+        //float spotlight = spotlightScalar();
         float scalar = shadow;
 
         vec3 color=vec3(0, 0, 0);
         ambient = ambientColor()*shadingAmbientStrength;
-        diffuse = diffuseColor() * shadingDiffuseStrength;
-        specular = specularColor() * shadingSpecularStrength;
-        vec3 check = calcSpotlightColor();
+        diffuse = diffuseColor(mlightPosition) * shadingDiffuseStrength;
+        specular = specularColor(mlightPosition) * shadingSpecularStrength;
+        //vec3 check = calcSpotlightColor();
         vec3 checkMain = calcMainLight();
         //vec3 color = ambient + (specular + diffuse) *(scalar)*(1/attenuation)+ ambient + (specular + diffuse) * (scalar) * spotlight;
         //vec3 color = calcMainLight() * (1.0f / attenuation) + calcSpotlightColor();
@@ -156,10 +185,12 @@ void main()
         
         if (shouldApplyMLight)
             color += calcMainLight() * (1.0f / attenuation);
+
         if (shouldApplySpLight)
             color += calcSpotlightColor();
+
         if (!shouldApplyMLight && !shouldApplySpLight)
-            color += ambient +( diffuse + specular)*shadowScalar();
+            color += ambient;
         fragColor = color;
         if (shouldApplyTexture) {
             vec3 textureColor = texture(textureSampler, vertexUV).xyz;

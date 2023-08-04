@@ -48,7 +48,7 @@ public:
 	}
 	glm::vec3 getTranslation() {
 		return TranslateRandom
-			+ TranslateModel;
+			+ TranslateModel+position;
 	}
 	glm::vec3 getTranslateRandom() { return this->TranslateRandom; }
 	void setTranslateRandom(glm::vec3 TranslateRandom) { this->TranslateRandom = TranslateRandom; }

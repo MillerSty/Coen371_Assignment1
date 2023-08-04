@@ -19,19 +19,14 @@
 #include "Racket.h"
 #include "SceneObjects.h"
 #include "Material.h"
-#include "Evan-models/EvanArm.h"
-#include "Evan-models/EvanRacket.h"
-#include "matt-models/MattArm.h"
-#include "matt-models/MattRacket.h"
-#include "Sabrina-models/SabrinaArm.h"
-
-#include "JonahModels.h"
 #include "Letters.h"
+#include "SpotLight.h"
+using namespace glm;
 
 // Set the shader paths
 const char* vertex = "../src/shaders/unifiedVertex.glsl";
 const char* fragment = "../src/shaders/unifiedFragment.glsl";
-
+void updateCamera(Arm arm, vec3 Translation);
 void doRandomColour(Letters& letterJ, Letters& letterM, Letters& letterI, Letters& letterL);
 
 // Declare some functions for later use
@@ -92,39 +87,58 @@ struct TexturedNormaledVertex
 };
 void updateLight(glm::vec3 newPosition,glm::vec3 newFocus,SceneObjects SceneObj,GLuint shaderProgram,float i,bool applyShadow,bool follow) {
 	// light parameters
-	glm::vec3 lightPosition(-.30f, .30f, .0f); // the location of the light in 3D space
-	glm::vec3 lightFocus(newPosition.x+.01f, newPosition.y-3.0f* newPosition.y, newPosition.z+.01f);      // the point in 3D space the light "looks" at
+	//glm::vec3 lightPosition(-.30f, .30f, .0f); // the location of the light in 3D space
+	glm::vec3 lightFocus(newPosition.x+.01f, newPosition.y-3.0f* newPosition.y, newPosition.z+.01f); 
+     // the point in 3D space the light "looks" at
 	glm::vec3 lightDirection =normalize(lightFocus - newPosition);
 
-	GLint lightPositionLoc = glGetUniformLocation(shaderProgram, "splightPosition");
-	GLint lightDirectionLoc = glGetUniformLocation(shaderProgram, "splightDirection");
-	GLint lightViewProjMatrixLoc = glGetUniformLocation(shaderProgram, "lightViewProjMatrix");
+	GLint lightPositionLoc = glGetUniformLocation(shaderProgram, "spotLights[0].lightPosition");
+	GLint lightDirectionLoc = glGetUniformLocation(shaderProgram, "spotLights[0].lightDirection");
+	//GLint lightViewProjMatrixLoc = glGetUniformLocation(shaderProgram, "lightViewProjMatrix");
 	GLint viewMatrix = glGetUniformLocation(shaderProgram, "viewMatrix");
 	// Set light position on scene shader
 	glUniform3fv(lightPositionLoc, 1, &newPosition[0]);
-
 	// Set light direction on scene shader
 	glUniform3fv(lightDirectionLoc, 1, &lightDirection[0]);
-	float lightNearPlane = 0.01f;
-	float lightFarPlane = 180.0f;
 
-	glm::mat4 lightProjectionMatrix = glm::ortho(-1.5f, 1.5f, -1.5f, 1.5f, lightNearPlane, lightFarPlane);
-	glm::mat4 lightViewMatrix = glm::lookAt(newPosition, lightFocus, glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 lightSpaceMatrix = lightProjectionMatrix * lightViewMatrix;
-	//glUniformMatrix4fv(lightViewProjMatrixLoc, 1, GL_FALSE, &lightSpaceMatrix[0][0]);
-	//glUniform3fv(lightPositionLoc, 1, &newPosition[0]);
+
+
+	//splightPositio = vec3(-.0f, .50f, 3.0f); blue light location
+	//this is just for location not focus
+	////vec3 lightPos = vec3(newPosition.x + .01f, newPosition.y - .50f * newPosition.y, 1.0f);
+	//lightFocus = vec3(newPosition.x, newPosition.y, -1.0f);
+	//// the point in 3D space the light "looks" at
+	//lightDirection = normalize(lightFocus - vec3(-.0f, .0f, 3.0f));
+	//
+	//lightPositionLoc = glGetUniformLocation(shaderProgram, "spotLights[1].lightPosition");
+	//lightDirectionLoc = glGetUniformLocation(shaderProgram, "spotLights[1].lightDirection");
+	////GLint lightViewProjMatrixLoc = glGetUniformLocation(shaderProgram, "lightViewProjMatrix");
+	////GLint viewMatrix = glGetUniformLocation(shaderProgram, "viewMatrix");
+	//// Set light position on scene shader
+	////glUniform3fv(lightPositionLoc, 1, &lightPos[0]);
+	//// Set light direction on scene shader
 	//glUniform3fv(lightDirectionLoc, 1, &lightDirection[0]);
-	glUniformMatrix4fv(lightViewProjMatrixLoc, 1, GL_FALSE, &lightSpaceMatrix[0][0]);
+
+	//float lightNearPlane = 0.01f;
+	//float lightFarPlane = 180.0f;
+
+	//glm::mat4 lightProjectionMatrix = glm::ortho(-1.5f, 1.5f, -1.5f, 1.5f, lightNearPlane, lightFarPlane);
+	//glm::mat4 splViewMatrix = glm::lookAt(newPosition, lightFocus, glm::vec3(0.0f, 1.0f, 0.0f));
+	//glm::mat4 lightSpaceMatrix = lightProjectionMatrix * splViewMatrix;
+
+	//glUniformMatrix4fv(lightViewProjMatrixLoc, 1, GL_FALSE, &lightSpaceMatrix[0][0]);
 
 	if (!applyShadow) {
 		SceneObj.DrawLight(newPosition, glm::vec3(0.0f, 1.0f, 0.0f), i);
 	}
+
 
 	if (follow) {
 		glm::mat4 InitviewMatrix = glm::lookAt(vec3(newPosition.x,  newPosition.y+.3,  newPosition.z),  // eye
 			vec3(.01f,.01f,.01f),  // center
 			vec3(0,1,0));// 
 		setViewMatrix(shaderProgram, InitviewMatrix);
+
 		//glUniformMatrix4fv(viewMatrix, 1, GL_FALSE, &InitviewMatrix[0][0]);
 	
 	}
@@ -391,11 +405,16 @@ bool shouldApplyMLight = true;
 Arm jonArm;
 Arm micahArm;
 
+//bool reset view;
+int camereSelect = -1;
 int selectModel = 0; //we can se to 0 but then user has to toggle to before any thing
 int selectJoint =0;
 float lightDepth = .50f;
 
 float lightRotation = -1;
+
+
+
 int main(int argc, char* argv[])
 {
 	// Initialize GLFW and OpenGL version
@@ -529,18 +548,16 @@ int main(int argc, char* argv[])
 		//jonArm ref position:glm::vec3(-.5f, 0.0f, .2f);
 
 
-
-
 	//TEXTURE DEFINITION
 	vec4 generalMat;
-						//diff spec ambient shiny
+						
 						//diff spec ambient shiny
 	Material courtMaterial(.2f, .20f, 1.0f, .1f, courtTextureID, shaderProgram); //court shouldnt reflect
 	Material ropeMaterial(.5f, .60f, .5f, .9f, ropeTextureID, shaderProgram); // ropes are just ropes
 	Material clothMaterial(.5f, .60f, .5f, .9f, clothTextureID, shaderProgram); //cloth should have a little reflection?
 	Material metalMaterial(.6f, .90f, .6f, .00012f, metalTextureID, shaderProgram); //metal should shine
 	Material grassMaterial(.2f, .20f, .7f, 1.5f, grassTextureID, shaderProgram); //just bright, thats all it needs
-	Material plasticMaterial(.5f, .60f, .5f, .002f, plasticTextureID, shaderProgram); //needs to be glossy! This is our racket
+	Material plasticMaterial(.5f, .30f, .5f, .002f, plasticTextureID, shaderProgram); //needs to be glossy! This is our racket
 	Material woodMaterial(.5f, .60f, .5f, .002f, woodTextureID, shaderProgram); //this is you matt
 	Material tattooMaterial(.5f, .60f, .5f, .002f, tattooTextureID, shaderProgram); //this is you matt
 	Material cloudMaterial(.5f, .60f, .5f, .002f, cloudTextureID, shaderProgram); //this is you matt
@@ -584,37 +601,60 @@ int main(int argc, char* argv[])
 	glUniform1f(glGetUniformLocation(shaderProgram, "dAmb"), dAmbInt);
 	glUniform1f(glGetUniformLocation(shaderProgram, "dDiff"), dDiffInt);
 	//Splight
-	vec3 spColor((float)255/255,(float)0/255,.0f);
+	vec3 spColor(1.0f,0.0f,0.0f);
 	float spAmbInt = .10f;
 	float spDiffInt = 1.0f;
 	vec3 spDir = vec3(0, 0, -1);
-	vec3 splightPositio(-.4f, 0, .4f);
-	vec3 splightDirectio(0, 0, -1);
-	splightDirectio = normalize(splightPositio - splightDirectio);
-	glUniform1f(glGetUniformLocation(shaderProgram, "spAmb"),spAmbInt);
-	glUniform1f(glGetUniformLocation(shaderProgram, "spDiff"), spDiffInt);
+	vec3 splightPositio=vec3(-.0f,.5f, .0f);
+	vec3 splightDirectio(0, -1, 0);
+	splightDirectio = normalize(splightDirectio-splightPositio );
 
-	glUniform3fv(glGetUniformLocation(shaderProgram, "splightPosition"), 1, &splightPositio[0]);
-	glUniform3fv(glGetUniformLocation(shaderProgram, "splightDirection"), 1, &splightDirectio[0]);
-	//edge is the inner/outer/ 
-		
-	GLint splightColor = glGetUniformLocation(shaderProgram, "splightColor");
-	GLint splightPosition = glGetUniformLocation(shaderProgram, "splightPosition");
-	GLint splightDirection = glGetUniformLocation(shaderProgram, "splightDirection");
-	GLint spAmb = glGetUniformLocation(shaderProgram, "spAmb");
-	GLint spDiff = glGetUniformLocation(shaderProgram, "spDiff");
+	//SPOTLIGHT 1
+	SpotLight sp[2];
+	sp[0].lightColor = spColor;
+	sp[0].AmbInt = .10f;
+	sp[0].DiffInt = 1.0f;
+	sp[0].lightPosition = splightPositio;
+	sp[0].lightDirection = splightDirectio; //always going to be normalized?
+	sp[0].lightCutoffInner = .01f;
+	sp[0].lightCutoffOuter = 32.0f;
 
-	float lightAngleOuter = 32.50;
-	float lightAngleInner = 0.01;
-	glUniform1f(glGetUniformLocation(shaderProgram, "lightCutoffInner"), (float)cos(glm::radians(lightAngleInner)));
-	glUniform1f(glGetUniformLocation(shaderProgram, "lightCutoffOuter"), (float)cos(glm::radians(lightAngleOuter)));
-	//Light color -> WHITE
-	glUniform3fv(splightColor, 1, glm::value_ptr(spColor));
+	int count = sizeof(sp)/sizeof(SpotLight);
+	glUniform1i(glGetUniformLocation(shaderProgram, "spotlightCount"), count);
+	glUniform1f(glGetUniformLocation(shaderProgram, "spotLights[0].Amb"), sp[0].AmbInt);
+	glUniform1f(glGetUniformLocation(shaderProgram, "spotLights[0].Diff"), sp[0].DiffInt);
+	glUniform1f(glGetUniformLocation(shaderProgram, "spotLights[0].lightCutoffInner"), (float)cos(radians(sp[0].lightCutoffInner)));
+	glUniform1f(glGetUniformLocation(shaderProgram, "spotLights[0].lightCutoffOuter"), (float)cos(radians(sp[0].lightCutoffOuter)));
+	
+	glUniform3fv(glGetUniformLocation(shaderProgram, "spotLights[0].lightColor"), 1, glm::value_ptr(sp[0].lightColor));
+	glUniform3fv(glGetUniformLocation(shaderProgram, "spotLights[0].lightPosition"), 1, &sp[0].lightPosition[0]);
+	glUniform3fv(glGetUniformLocation(shaderProgram, "spotLights[0].lightDirection"), 1, &sp[0].lightDirection[0]);	
+	//SPOTLIGHT @
+	spColor=vec3(.0f, 0.0f, 1.0f);
+	splightPositio = vec3(-.0f, .50f, 3.0f);
+	splightDirectio=vec3(0, -0.0f, -1.0f);
+	splightDirectio = normalize(  splightDirectio-splightPositio);
+	sp[1].lightColor = spColor;
+	sp[1].AmbInt = .1f;
+	sp[1].DiffInt = 5.01f;
+	sp[1].lightPosition = splightPositio;
+	sp[1].lightDirection = splightDirectio; //always going to be normalized?
+	sp[1].lightCutoffInner = .01f;
+	sp[1].lightCutoffOuter = 5.0f;
+	//struct jawn spotlight
+		//int count = sizeof(sp)/sizeof(SpotLight);
+	glUniform1f(glGetUniformLocation(shaderProgram, "spotLights[1].Amb"), sp[1].AmbInt);
+	glUniform1f(glGetUniformLocation(shaderProgram, "spotLights[1].Diff"), sp[1].DiffInt);
+	glUniform1f(glGetUniformLocation(shaderProgram, "spotLights[1].lightCutoffInner"), (float)cos(radians(sp[1].lightCutoffInner)));
+	glUniform1f(glGetUniformLocation(shaderProgram, "spotLights[1].lightCutoffOuter"), (float)cos(radians(sp[1].lightCutoffOuter)));
+
+	glUniform3fv(glGetUniformLocation(shaderProgram, "spotLights[1].lightColor"), 1, glm::value_ptr(sp[1].lightColor));
+	glUniform3fv(glGetUniformLocation(shaderProgram, "spotLights[1].lightPosition"), 1, &splightPositio[0]);
+	glUniform3fv(glGetUniformLocation(shaderProgram, "spotLights[1].lightDirection"), 1, &splightDirectio[0]);
 
 
-
-	//Light color -> WHITE
-    GLint lightColorLoc = glGetUniformLocation( shaderProgram, "lightColor");
+	//MAIN LIGHT
+    GLint lightColorLoc = glGetUniformLocation( shaderProgram, "mlightColor");
     glUniform3fv(lightColorLoc, 1, glm::value_ptr(lightColor));
     // light parameters
     glm::vec3 lightPosition(.0f, 3.50f, 3.0f); // the location of the light in 3D space
@@ -622,7 +662,7 @@ int main(int argc, char* argv[])
 	glm::vec3 lightDirection = glm::normalize(lightFocus - lightPosition);
 
 	//set position
-	GLint lightPositionLoc = glGetUniformLocation(shaderProgram, "lightPosition");
+	GLint lightPositionLoc = glGetUniformLocation(shaderProgram, "mlightPosition");
 	glUniform3fv(lightPositionLoc, 1, &lightPosition[0]);
 
 	// Get lighting-related uniform locations
@@ -634,23 +674,14 @@ int main(int argc, char* argv[])
     GLint lightViewProjMatrixLoc = glGetUniformLocation( shaderProgram, "lightViewProjMatrix");
 
 	// Set light position and direction on scene shader
-	GLint lightDirectionLoc = glGetUniformLocation(shaderProgram, "lightDirection");
+	GLint lightDirectionLoc = glGetUniformLocation(shaderProgram, "mlightDirection");
 	glUniform3fv(lightDirectionLoc, 1, &lightDirection[0]);
-
-	//// Lighting ANGLES
-	//float lightAngleOuter = 30.0;
-	//float lightAngleInner = 20.0;
-	//// Set light cutoff angles on scene shader
-	//GLint lightCutoffInnerLoc = glGetUniformLocation(shaderProgram, "lightCutoffInner");
-	//GLint lightCutoffOuterLoc = glGetUniformLocation(shaderProgram, "lightCutoffOuter");
-
 
 	// Set light far and near planes on scene shader
 	GLint lightNearPlaneLoc = glGetUniformLocation(shaderProgram, "lightNearPlane");
 	GLint lightFarPlaneLoc = glGetUniformLocation(shaderProgram, "lightFarPlane");
 	glUniform1f(lightNearPlaneLoc, lightNearPlane);
 	glUniform1f(lightFarPlaneLoc, lightFarPlane);
-
 	// Set light view projection matrix
     glUniformMatrix4fv(lightViewProjMatrixLoc, 1, GL_FALSE, &lightSpaceMatrix[0][0]);
 
@@ -692,6 +723,8 @@ int main(int argc, char* argv[])
 	letterL.L = grassMaterial;
 	glm::vec4 jawn;
 	jawn = glm::vec4(1.0f);
+
+
 	float AMPz = (rand()) / (float)(RAND_MAX);
 	float AMPx = (rand()) / (float)(RAND_MAX);
 	float PHASEz = (rand()) / (float)(RAND_MAX);
@@ -714,9 +747,9 @@ int main(int argc, char* argv[])
 			AMPz = (rand()) / (float)(RAND_MAX);
 			AMPx = (rand()) / (float)(RAND_MAX);
 			PHASEz = (rand()) / 10;
-			PHASEx = (rand()) / 10;
-			//spin = .004;
+			PHASEx = (rand()) / 10;			
 		}
+
 		lightRotation += .03;
 			glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
 			rotationMatrixW;
@@ -732,16 +765,7 @@ int main(int argc, char* argv[])
 		letterL.renderAs=renderAs;
 
 		bool draw;
-		//eye = glm::vec3(micahArm.position.x + micahArm.getTranslation().x, micahArm.position.y + micahArm.getTranslation().y + .2f, micahArm.position.z + micahArm.getTranslation().z + .2f);
-		//center = micahArm.position + micahArm.getTranslation();
-		//glm::mat4 InitviewMatrix = glm::lookAt(RESETeye,  // eye
-		//	RESETcenter,  // center
-		//	up);// 
-		//
-		//glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "viewMatrix"), 1, GL_FALSE, &InitviewMatrix[0][0]);
 
-		//float checkest = evanArm.getERotation();
-		//printf("evan rotation: %f\n", checkest);
 		// Must draw scene in 2 passes: once for shadows, and another normally
 		// 1st pass
 		{
@@ -826,6 +850,10 @@ int main(int argc, char* argv[])
 			
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, lightRotation, noshowLightBox,follow);
 		}
+		
+
+
+		//SceneObj.DrawLight(cameraPos, vec3(0,1,0), 0);
 		//finger manipulation works add one for micah arm
 		float check = jonArm.getFRotation();
 		if ((jonArm.getFRotation() + spin) > 90.0f && reverse == false) { 
@@ -848,16 +876,6 @@ int main(int argc, char* argv[])
 			jonArm.setFRotation(jonArm.getFRotation() + spin);
 			spin += .01f;
 		}		
-
-		//NOTE THIS WORKS AS FOLLOWING CAMERA
-		//eye = glm::vec3(micahArm.position.x + micahArm.getTranslation().x , micahArm.position.y + micahArm.getTranslation().y + .2f, micahArm.position.z + micahArm.getTranslation().z + .2f);
-		//center = micahArm.position + micahArm.getTranslation();
-		//InitviewMatrix = glm::lookAt(eye,  // eye
-		//	center,  // center
-		//	up);// 
-		//
-		//glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "viewMatrix"), 1, GL_FALSE, &InitviewMatrix[0][0]);
-
 		//printf("%f\n", spin);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -1012,7 +1030,19 @@ void setViewMatrix(int shaderProgram, glm::mat4 viewMatrix)
 	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
 	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &viewMatrix[0][0]);
 }
+void updateCamera(Arm arm,vec3 Translation) {
+	camereSelect = 1;
+	vec3 cameraPos = vec3(arm.getTranslation().x - .15f, arm.getTranslation().y + .08, arm.getTranslation().z + .01f);
+	center = vec3(cameraPos.x + .01f, cameraPos.y, cameraPos.z);
+	eye = cameraPos;
+	glm::mat4 InitviewMatrix = glm::lookAt(cameraPos,  // eye
+		Translation,  // center
+		up);// 
 
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "viewMatrix"), 1, GL_FALSE, &InitviewMatrix[0][0]);
+
+
+}
 /**
 GLFW callback function for handling keyboard inputs
 */
@@ -1100,20 +1130,39 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 			jonArm.setTranslateRandom(glm::vec3(number1, number2, number3));
 		}
 		else if (state_M == GLFW_PRESS) { 
-			eye = glm::vec3(jonArm.position.x , jonArm.position.y, jonArm.position.z );
-			center = jonArm.position;
-			glm::mat4 InitviewMatrix = glm::lookAt(eye,  // eye
-				center,  // center
-				up);// 
-			
-			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "viewMatrix"), 1, GL_FALSE, &InitviewMatrix[0][0]);
+			if (camereSelect ==0) {
+				camereSelect = -1;
+				glm::mat4 InitviewMatrix = glm::lookAt(RESETeye,  // eye
+					RESETcenter,  // center
+					up);// 
+
+				glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "viewMatrix"), 1, GL_FALSE, &InitviewMatrix[0][0]);
+			}
+			else {
+				camereSelect = 0;
+				vec3 cameraPos = vec3(jonArm.getTranslation().x - .15f, jonArm.getTranslation().y + .08, jonArm.getTranslation().z + .01f);
+				//eye = glm::vec3(jonArm.position.x - .25, jonArm.position.y + .5f, jonArm.position.z - .25);
+
+				center = vec3(cameraPos.x + .01f, cameraPos.y, cameraPos.z);
+				eye = cameraPos;
+				glm::mat4 InitviewMatrix = glm::lookAt(cameraPos,  // eye
+					jonArm.position,  // center
+					up);// 
+
+				glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "viewMatrix"), 1, GL_FALSE, &InitviewMatrix[0][0]);
+
+			}
+
 		}
 
 		break;
 
 	case(1):
-		if (state_W == GLFW_PRESS)
+		if (state_W == GLFW_PRESS) {
 			micahArm.setTranslateModel(glm::vec3(micahArm.getTranslateModel().x, (micahArm.getTranslateModel().y + .005f), micahArm.getTranslateModel().z));
+			//updateCamera(micahArm, micahArm.getTranslation());
+		
+		}
 		else if (state_S == GLFW_PRESS)
 			micahArm.setTranslateModel(glm::vec3(micahArm.getTranslateModel().x, (micahArm.getTranslateModel().y - .005f), micahArm.getTranslateModel().z));
 		else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
@@ -1139,25 +1188,31 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 
 			micahArm.setTranslateRandom(glm::vec3(number1, number2, number3));
 		}
-		else if (state_M == GLFW_PRESS) {//maybe this sets a bool variable
-			eye = glm::vec3(micahArm.position.x+micahArm.getTranslation().x + .2f, micahArm.position.y + micahArm.getTranslation().y + .3f, micahArm.position.z + micahArm.getTranslation().z + .2f);
-			center = micahArm.position;
-			glm::mat4 InitviewMatrix = glm::lookAt(eye,  // eye
-				center,  // center
-				up);// 
+		else if (state_M == GLFW_PRESS) {
+			if (camereSelect == 1) {
+				camereSelect = -1;
+				glm::mat4 InitviewMatrix = glm::lookAt(RESETeye,  // eye
+					RESETcenter,  // center
+					up);// 
 
-			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "viewMatrix"), 1, GL_FALSE, &InitviewMatrix[0][0]);
+				glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "viewMatrix"), 1, GL_FALSE, &InitviewMatrix[0][0]);
+			}
+			else {
+				camereSelect = 1;
+				vec3 cameraPos = vec3(micahArm.getTranslation().x - .15f, micahArm.getTranslation().y + .08, micahArm.getTranslation().z + .01f);
+				center = vec3(cameraPos.x + .01f, cameraPos.y, cameraPos.z);
+				eye = cameraPos;
+				glm::mat4 InitviewMatrix = glm::lookAt(cameraPos,  // eye
+					micahArm.position,  // center
+					up);// 
+
+				glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "viewMatrix"), 1, GL_FALSE, &InitviewMatrix[0][0]);
+			}
+
 		}
 		break;
 	}
 	if (state_TAB == GLFW_PRESS && mods != GLFW_MOD_SHIFT) {
-		/*
-		select -1 is original model micah
-		0 is second model matthew
-		1 is third model evan
-		2 is fouth jonah
-		3 is five Noot
-		*/
 		if (selectModel == 0) selectModel += 1;
 		else if (selectModel == 1) selectModel = 0;
 		else selectModel += 1;
@@ -1238,7 +1293,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	// If HOME is pressed, remove translations, rotations, and scalings
 	else if ( state_R == GLFW_PRESS) {		
 		jonArm.resetArm();
-		micahArm.resetArm();
+		
 		GroupMatrixScale = glm::vec3(1.0f);
 		rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 		glm::mat4 InitviewMatrix = glm::lookAt(RESETeye, RESETcenter, up);
@@ -1267,12 +1322,12 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		glUniform1i(glGetUniformLocation(shaderProgram, "shouldApplyMLight"), shouldApplyMLight);
 		printf("Apply Mainlight: %d:\n", shouldApplyMLight);
 }
-	else 	if (state_3 == GLFW_PRESS) {//should toggle third postlight
+	else 	if (state_3 == GLFW_PRESS) {
 		shouldApplySpLight = false;
 		shouldApplyMLight = false;
 		glUniform1i(glGetUniformLocation(shaderProgram, "shouldApplySpLight"), false);
 		glUniform1i(glGetUniformLocation(shaderProgram, "shouldApplyMLight"), false);
-		printf("Apply no light\n");
+		printf("Apply no light\n", shouldApplyMLight);
 }
 }
 
@@ -1309,10 +1364,32 @@ void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos)
 			translateW -= .005;
 		else if (dx > 0)
 			translateW += .005;
+		if (camereSelect == 0) {
+			vec3 jawn = glm::vec3(translateW , 0.0f , 0.0f) + jonArm.getTranslation();
+			//glm::mat4 InitviewMatrix = glm::lookAt(eye, glm::vec3(translateW + center.x, translateY + center.y, 0.0f), up);
+			//setViewMatrix(shaderProgram, InitviewMatrix);
+			lastMousePosX = xPos;
+			updateCamera(jonArm, jawn);
+		
+		}
+		if (camereSelect == 1) {
+			vec3 jawn = glm::vec3(translateW , 0.0f, 0.0f) + jonArm.getTranslation();
+			//glm::mat4 InitviewMatrix = glm::lookAt(eye, glm::vec3(translateW + center.x, translateY + center.y, 0.0f), up);
+			//setViewMatrix(shaderProgram, InitviewMatrix);
+			lastMousePosX = xPos;
+			updateCamera(micahArm, jawn);
 
-		glm::mat4 InitviewMatrix = glm::lookAt(eye, glm::vec3(translateW + center.x, translateY + center.y, 0.0f), up);
-		setViewMatrix(shaderProgram, InitviewMatrix);
-		lastMousePosX = xPos;
+
+		}
+		else {
+				glm::mat4 InitviewMatrix = glm::lookAt(RESETeye, glm::vec3(translateW + RESETcenter.x, translateY + RESETcenter.y, 0.0f), up);
+				setViewMatrix(shaderProgram, InitviewMatrix);
+				lastMousePosX = xPos;
+
+
+			
+		
+		}
 	}
 
 	else if (state_MIDDLE == GLFW_PRESS)
@@ -1330,11 +1407,6 @@ void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos)
 		lastMousePosZ = zPos;
 	}
 }
-
-//void windowSizeCallback(GLFWwindow* window, int width, int height)
-//{
-//	glfwSetWindowSize(window, width, height);
-//}
 
 bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm::vec3>& temp_vertices,
 	          std::vector<glm::vec3>& out_normals, std::vector<glm::vec2>& out_uvs)
