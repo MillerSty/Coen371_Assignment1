@@ -21,6 +21,7 @@
 #include "Material.h"
 #include "Letters.h"
 #include "SpotLight.h"
+#include "Camera.h"
 using namespace glm;
 
 // Set the shader paths
@@ -404,7 +405,7 @@ bool shouldApplyMLight = true;
 
 Arm jonArm;
 Arm micahArm;
-
+Camera camera;
 //bool reset view;
 int camereSelect = -1;
 int selectModel = 0; //we can se to 0 but then user has to toggle to before any thing
@@ -556,13 +557,13 @@ int main(int argc, char* argv[])
 	Material ropeMaterial(.5f, .60f, .5f, .9f, ropeTextureID, shaderProgram); // ropes are just ropes
 	Material clothMaterial(.5f, .60f, .5f, .9f, clothTextureID, shaderProgram); //cloth should have a little reflection?
 	Material metalMaterial(.6f, .90f, .6f, .00012f, metalTextureID, shaderProgram); //metal should shine
-	Material grassMaterial(.2f, .20f, .7f, 1.5f, grassTextureID, shaderProgram); //just bright, thats all it needs
+	Material grassMaterial(.1f, .0f, .1f, .00f, grassTextureID, shaderProgram); //just bright, thats all it needs
 	Material plasticMaterial(.5f, .30f, .5f, .002f, plasticTextureID, shaderProgram); //needs to be glossy! This is our racket
 	Material woodMaterial(.5f, .60f, .5f, .002f, woodTextureID, shaderProgram); //this is you matt
 	Material tattooMaterial(.5f, .60f, .5f, .002f, tattooTextureID, shaderProgram); //this is you matt
 	Material cloudMaterial(.5f, .60f, .5f, .002f, cloudTextureID, shaderProgram); //this is you matt
 
-	Material skyMaterial(.5f, .60f, .5f, .002f, skyTextureID, shaderProgram); //this is you matt
+	Material skyMaterial(.2f, .20f, .5f, .002f, plasticTextureID, shaderProgram); //this is you matt
 	// Material plasticSkinMaterial...  we need a dull material for skin probaly a copy of the plastic texture with different diff/spec/amb
 
 	Ball.grassTexture = grassMaterial;
@@ -571,7 +572,7 @@ int main(int argc, char* argv[])
 	Ball.sphereVertCount=vertexIndicessphere.size();
 	SceneObj.setMaterials(courtMaterial, clothMaterial, ropeMaterial, metalMaterial, grassMaterial, plasticMaterial);
 	SceneObj.skyVao = unitCubeSkyAO;
-	SceneObj.skyTexture = plasticMaterial;
+	SceneObj.skyTexture = skyMaterial;
 	Racket racket(unitCubeAO, "racket");
 	racket.setBall(Ball);
 	racket.jawnAngle = 0;
@@ -725,6 +726,8 @@ int main(int argc, char* argv[])
 	jawn = glm::vec4(1.0f);
 
 
+	camera=Camera(RESETeye,up, -60.0f, 0.0f, 5.0f, 0.5f);
+
 	float AMPz = (rand()) / (float)(RAND_MAX);
 	float AMPx = (rand()) / (float)(RAND_MAX);
 	float PHASEz = (rand()) / (float)(RAND_MAX);
@@ -849,12 +852,15 @@ int main(int argc, char* argv[])
 			SceneObj.DrawScene(true);  // Draw scene with the skybox
 			
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, lightRotation, noshowLightBox,follow);
+
+			//flex arm function?
 		}
 		
 
 
 		//SceneObj.DrawLight(cameraPos, vec3(0,1,0), 0);
 		//finger manipulation works add one for micah arm
+
 		float check = jonArm.getFRotation();
 		if ((jonArm.getFRotation() + spin) > 90.0f && reverse == false) { 
 			micahArm.setFRotation(micahArm.getFRotation() - spin);
@@ -876,6 +882,9 @@ int main(int argc, char* argv[])
 			jonArm.setFRotation(jonArm.getFRotation() + spin);
 			spin += .01f;
 		}		
+
+
+
 		//printf("%f\n", spin);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -982,14 +991,10 @@ GLuint loadTexture(const char* filename)
 
 	// Step2 Set filter parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	//Texparameteri repeat
-	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+ 
 	// Step3 Load Textures with dimension data
 	int width, height, nrChannels;
 	unsigned char* data = stbi_load(filename, &width, &height, &nrChannels, 0);
@@ -1031,16 +1036,14 @@ void setViewMatrix(int shaderProgram, glm::mat4 viewMatrix)
 	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &viewMatrix[0][0]);
 }
 void updateCamera(Arm arm,vec3 Translation) {
-	camereSelect = 1;
-	vec3 cameraPos = vec3(arm.getTranslation().x - .15f, arm.getTranslation().y + .08, arm.getTranslation().z + .01f);
-	center = vec3(cameraPos.x + .01f, cameraPos.y, cameraPos.z);
-	eye = cameraPos;
+	//camereSelect = 1;
+	vec3 cameraPos = vec3(arm.getTranslation().x + .15f, arm.getTranslation().y + .08, arm.getTranslation().z + .01f);//update position
+
 	glm::mat4 InitviewMatrix = glm::lookAt(cameraPos,  // eye
-		Translation,  // center
+		Translation,  // center//update view
 		up);// 
 
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "viewMatrix"), 1, GL_FALSE, &InitviewMatrix[0][0]);
-
+	setViewMatrix(shaderProgram, InitviewMatrix);
 
 }
 /**
@@ -1099,11 +1102,13 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 
 
 
-	// ACTUALLY BRING BACK SWITCH FOR SHIT
+	// ACTUALLY BRING BACK SWITCH FOR THIGNS
 	switch (selectModel) {//prints twice per button press maybe this is okay?
 	case(0)://Jon's Model		
-		if (state_W == GLFW_PRESS)
+		if (state_W == GLFW_PRESS) 
 			jonArm.setTranslateModel(glm::vec3(jonArm.getTranslateModel().x, (jonArm.getTranslateModel().y + .005f), jonArm.getTranslateModel().z));
+		
+		
 		else if (state_S == GLFW_PRESS)
 			jonArm.setTranslateModel(glm::vec3(jonArm.getTranslateModel().x, (jonArm.getTranslateModel().y - .005f), jonArm.getTranslateModel().z));
 		else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
@@ -1112,14 +1117,14 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 			jonArm.setTranslateModel(glm::vec3((jonArm.getTranslateModel().x + .005f), jonArm.getTranslateModel().y, jonArm.getTranslateModel().z));
 		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
 			switch (selectJoint) {
-			case(0): jonArm.setRotation(jonArm.getRotation() + 5);  break;
+			case(0): jonArm.setRotation(jonArm.getRotation() + 5); center.z -= .15;  break;
 			case(1):if (jonArm.getERotation() + 5 > 90)jonArm.setERotation(90); else  jonArm.setERotation(jonArm.getERotation() + 5);  break;
 			case(2):if (jonArm.getWRotation() + 5 > 65)jonArm.setWRotation(65); else  jonArm.setWRotation(jonArm.getWRotation() + 5); break;
 			default: break;
 			}
 		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
 			switch (selectJoint) {
-			case(0): jonArm.setRotation(jonArm.getRotation() - 5);  break;
+			case(0): jonArm.setRotation(jonArm.getRotation() - 5);  center.z += .15; break;
 			case(1):if (jonArm.getERotation() - 5 < 0)jonArm.setERotation(0); else  jonArm.setERotation(jonArm.getERotation() - 5);  break;
 			case(2):if (jonArm.getWRotation() - 5 < -85)jonArm.setWRotation(-85); else  jonArm.setWRotation(jonArm.getWRotation() - 5); break;
 			default: break;
@@ -1142,19 +1147,21 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 				camereSelect = 0;
 				vec3 cameraPos = vec3(jonArm.getTranslation().x - .15f, jonArm.getTranslation().y + .08, jonArm.getTranslation().z + .01f);
 				//eye = glm::vec3(jonArm.position.x - .25, jonArm.position.y + .5f, jonArm.position.z - .25);
-
-				center = vec3(cameraPos.x + .01f, cameraPos.y, cameraPos.z);
+				translateW = 0;
+				translateY = 0;
+				//center = (vec3(cameraPos.x + .01f, cameraPos.y, cameraPos.z);
+				center = vec3(1, 0, 0);
 				eye = cameraPos;
-				glm::mat4 InitviewMatrix = glm::lookAt(cameraPos,  // eye
+				glm::mat4 InitviewMatrix = glm::lookAt(eye,  // eye
 					jonArm.position,  // center
 					up);// 
-
-				glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "viewMatrix"), 1, GL_FALSE, &InitviewMatrix[0][0]);
+				updateCamera(jonArm, center);
+				//glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "viewMatrix"), 1, GL_FALSE, &InitviewMatrix[0][0]);
 
 			}
 
 		}
-
+		if (camereSelect==0)updateCamera(jonArm, center);
 		break;
 
 	case(1):
@@ -1171,14 +1178,14 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 			micahArm.setTranslateModel(glm::vec3((micahArm.getTranslateModel().x + .005f), micahArm.getTranslateModel().y, micahArm.getTranslateModel().z));
 		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
 			switch (selectJoint) {
-			case(0): micahArm.setRotation(micahArm.getRotation() + 5);  break;
+			case(0): micahArm.setRotation(micahArm.getRotation() + 5); center.z -= .15; break;
 			case(1):if (micahArm.getERotation() + 5 > 90)micahArm.setERotation(90); else  micahArm.setERotation(micahArm.getERotation() + 5);  break;
 			case(2):if (micahArm.getWRotation() + 5 > 65)micahArm.setWRotation(65); else  micahArm.setWRotation(micahArm.getWRotation() + 5); break;
 			default: break;
 			}
 		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
 			switch (selectJoint) {
-			case(0): micahArm.setRotation(micahArm.getRotation() - 5);  break;
+			case(0): micahArm.setRotation(micahArm.getRotation() - 5); center.z += .15;  break;
 			case(1):if (micahArm.getERotation() - 5 < 0)micahArm.setERotation(0); else  micahArm.setERotation(micahArm.getERotation() - 5);  break;
 			case(2):if (micahArm.getWRotation() - 5 < -85)micahArm.setWRotation(-85); else  micahArm.setWRotation(micahArm.getWRotation() - 5); break;
 			default: break;
@@ -1199,38 +1206,32 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 			}
 			else {
 				camereSelect = 1;
-				vec3 cameraPos = vec3(micahArm.getTranslation().x - .15f, micahArm.getTranslation().y + .08, micahArm.getTranslation().z + .01f);
-				center = vec3(cameraPos.x + .01f, cameraPos.y, cameraPos.z);
+				translateW = 0;
+				translateY = 0;
+				vec3 cameraPos = vec3(micahArm.getTranslation().x- .15f, micahArm.getTranslation().y + .08, micahArm.getTranslation().z + .01f);
+				center = vec3(cameraPos.x - .015f, cameraPos.y, cameraPos.z);
+				center = vec3(1, 0, 0);
 				eye = cameraPos;
-				glm::mat4 InitviewMatrix = glm::lookAt(cameraPos,  // eye
-					micahArm.position,  // center
-					up);// 
-
-				glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "viewMatrix"), 1, GL_FALSE, &InitviewMatrix[0][0]);
+				updateCamera(micahArm, center);
 			}
 
 		}
+
+		if (camereSelect == 1)updateCamera(micahArm, center);
 		break;
 	}
 	if (state_TAB == GLFW_PRESS && mods != GLFW_MOD_SHIFT) {
 		if (selectModel == 0) selectModel += 1;
 		else if (selectModel == 1) selectModel = 0;
 		else selectModel += 1;
-		//printf("selectModel is: %d\n", selectModel);
 		switch (selectModel) {
 		case(0):printf("selectModel is: %d , selected jonArm\n", selectModel); break;
 		case(1):printf("selectModel is: %d , selected micahArm\n", selectModel); break;
-
 		default: break;
 		}
 	}
 	else if (state_TAB == GLFW_PRESS && mods == GLFW_MOD_SHIFT) {
-		/*
-		select -1 is bicep
-		0 is elbow
-		1 is wrist y
-		2 is wrist x?
-		*/
+
 		if (selectJoint == 0) selectJoint += 1;
 		else if (selectJoint == 2) selectJoint = 0;
 		else selectJoint += 1;
@@ -1258,42 +1259,28 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	// If the arrow keys are pressed, rotate accordingly
 	else if (state_LEFT == GLFW_PRESS)
 		rotationMatrixW *= glm::rotate(glm::mat4(1.0f), glm::radians(2.55f), glm::vec3(1.0f, 0.0f, 0.0f));
-
 	else if (state_RIGHT == GLFW_PRESS)
 		rotationMatrixW *= glm::rotate(glm::mat4(1.0f), glm::radians(2.55f), glm::vec3(-1.0f, 0.0f, 0.0f));
-
 	else if (state_UP == GLFW_PRESS)
 		rotationMatrixW *= glm::rotate(glm::mat4(1.0f), glm::radians(2.55f), glm::vec3(.0f, 1.0f, 0.0f));
-
 	else if (state_DOWN == GLFW_PRESS)
 		rotationMatrixW *= glm::rotate(glm::mat4(1.0f), glm::radians(2.55f), glm::vec3(.0f, -1.0f, 0.0f));
-
 	else if (state_DEL == GLFW_PRESS )
 		lightRotation -= .05f;
-
 	else if (state_PAGEDOWN == GLFW_PRESS)
 		lightRotation += .05f;
-
 	else if (state_HOME == GLFW_PRESS )
 		lightDepth += .02;
-
 	else if (state_END == GLFW_PRESS )
 		lightDepth -= .02;
-
-	// If p, l, or t is pressed, changed render mode between points, lines, and triangles, respectively
 	else if (state_P == GLFW_PRESS)
 		renderAs = GL_POINTS;
-
 	else if (state_L == GLFW_PRESS)
 		renderAs = GL_LINES;
-
 	else if (state_T == GLFW_PRESS)
 		renderAs = GL_TRIANGLES;
-
-	// If HOME is pressed, remove translations, rotations, and scalings
 	else if ( state_R == GLFW_PRESS) {		
-		jonArm.resetArm();
-		
+		jonArm.resetArm();		
 		GroupMatrixScale = glm::vec3(1.0f);
 		rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 		glm::mat4 InitviewMatrix = glm::lookAt(RESETeye, RESETcenter, up);
@@ -1301,18 +1288,13 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		setProjectionMatrix(shaderProgram, projectionMatrix);
 		setViewMatrix(shaderProgram, InitviewMatrix);
 	}
-
-	// If b is pressed, toggle shadows
 	else if (state_B == GLFW_PRESS)
 		shouldApplyShadows = !shouldApplyShadows;
-
-	// If x is pressed, toggle textures
 	else if (state_X == GLFW_PRESS)
 		shouldApplyTextures = !shouldApplyTextures;
 	else 	if (state_ESC == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-	else 	if (state_1 == GLFW_PRESS) {
-		
+	else 	if (state_1 == GLFW_PRESS) {		
 		shouldApplySpLight = !shouldApplySpLight;
 		glUniform1i(glGetUniformLocation(shaderProgram, "shouldApplySpLight"), shouldApplySpLight);
 		printf("Apply Spotlight: %d:\n", shouldApplySpLight);
@@ -1327,7 +1309,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		shouldApplyMLight = false;
 		glUniform1i(glGetUniformLocation(shaderProgram, "shouldApplySpLight"), false);
 		glUniform1i(glGetUniformLocation(shaderProgram, "shouldApplyMLight"), false);
-		printf("Apply no light\n", shouldApplyMLight);
+		printf("Apply no light\n");
 }
 }
 
@@ -1344,16 +1326,44 @@ void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos)
 	if (state_LEFT == GLFW_PRESS)
 	{
 		double dy = yPos - lastMousePosY;
-
+		//translateY = 0;
 		if (dy < 0)
-			translateY += .005;
+			translateY += .05;
 		else if (dy > 0)
-			translateY -= .005;
+			translateY -= .05;
 
 		glm::mat4 InitviewMatrix = glm::lookAt(eye, glm::vec3(translateW, translateY, 0.0f), up);
 		setViewMatrix(shaderProgram, InitviewMatrix);
-
 		lastMousePosY = yPos;
+
+		if (camereSelect == 0) {
+			vec3 jawn = glm::vec3(0.0f,  0.0f, 0.0f) + jonArm.getTranslation();
+			lastMousePosX = xPos;
+			glm::mat4 InitviewMatrix = glm::lookAt(jawn, glm::vec3(1, translateY + center.y, translateW + center.z), up);
+	
+			jawn= glm::vec3(1, translateY, translateW);
+			updateCamera(jonArm, jawn);
+		
+		}
+		else if (camereSelect == 1) {
+			vec3 jawn = glm::vec3(0.0f, 0.0f, 0.0f) + micahArm.getTranslation();
+			glm::mat4 InitviewMatrix = glm::lookAt(jawn, glm::vec3(1, translateY+center.y, translateW + center.z), up);
+
+			updateCamera(micahArm, vec3(1, translateY, translateW));
+			lastMousePosY = yPos;
+		
+		
+		}
+		else {
+			glm::mat4 InitviewMatrix = glm::lookAt(RESETeye, glm::vec3(translateW + RESETcenter.x, translateY + RESETcenter.y, 0.0f), up);
+			setViewMatrix(shaderProgram, InitviewMatrix);
+			lastMousePosY = yPos;
+		
+		}
+
+
+
+
 	}
 
 	else if (state_RIGHT == GLFW_PRESS)
@@ -1364,31 +1374,34 @@ void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos)
 			translateW -= .005;
 		else if (dx > 0)
 			translateW += .005;
+
+		glm::mat4 InitviewMatrix = glm::lookAt(eye, glm::vec3(translateW, translateY, 0.0f), up);
+		setViewMatrix(shaderProgram, InitviewMatrix);
+		lastMousePosY = yPos;
 		if (camereSelect == 0) {
-			vec3 jawn = glm::vec3(translateW , 0.0f , 0.0f) + jonArm.getTranslation();
-			//glm::mat4 InitviewMatrix = glm::lookAt(eye, glm::vec3(translateW + center.x, translateY + center.y, 0.0f), up);
-			//setViewMatrix(shaderProgram, InitviewMatrix);
-			lastMousePosX = xPos;
+			vec3 jawn = glm::vec3(0 , 0.0f ,0) + jonArm.getTranslation();
+			glm::mat4 InitviewMatrix = glm::lookAt(jawn, glm::vec3(1, translateY, translateW), up);
+	
+			jawn = glm::vec3(1, translateY, translateW);
 			updateCamera(jonArm, jawn);
+
+			lastMousePosX = xPos;
 		
 		}
-		if (camereSelect == 1) {
-			vec3 jawn = glm::vec3(translateW , 0.0f, 0.0f) + jonArm.getTranslation();
-			//glm::mat4 InitviewMatrix = glm::lookAt(eye, glm::vec3(translateW + center.x, translateY + center.y, 0.0f), up);
-			//setViewMatrix(shaderProgram, InitviewMatrix);
+		else if (camereSelect == 1) {
+			vec3 jawn = glm::vec3( 0.0f, 0.0f,0 ) + micahArm.getTranslation();
+			glm::mat4 InitviewMatrix = glm::lookAt(jawn, glm::vec3(1, translateY, translateW), up);
+		
+			updateCamera(micahArm, vec3(1, translateY, translateW));
+
 			lastMousePosX = xPos;
-			updateCamera(micahArm, jawn);
-
-
+		
+		
 		}
 		else {
-				glm::mat4 InitviewMatrix = glm::lookAt(RESETeye, glm::vec3(translateW + RESETcenter.x, translateY + RESETcenter.y, 0.0f), up);
-				setViewMatrix(shaderProgram, InitviewMatrix);
-				lastMousePosX = xPos;
-
-
-			
-		
+			glm::mat4 InitviewMatrix = glm::lookAt(RESETeye, glm::vec3(translateW + RESETcenter.x, translateY + RESETcenter.y, 0.0f), up);
+			setViewMatrix(shaderProgram, InitviewMatrix);
+			lastMousePosX = xPos;
 		}
 	}
 
