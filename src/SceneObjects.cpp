@@ -103,6 +103,8 @@ bool SceneObjects::DrawBall() {
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.1180f, 1.0f, .122f)));
 	glDrawElements(renderAs, sphereVertCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
+	//skyTexture.bindTexture();
+	//skyTexture.loadToShader();
 	return true;
 }
 
@@ -247,8 +249,8 @@ bool SceneObjects::DrawNet() {
 }
 
 bool SceneObjects::DrawSkyBox() {
-	plasticTexture.bindTexture();
-	plasticTexture.loadToShader();
+	skyTexture.bindTexture();
+	skyTexture.loadToShader();
 	//glBindTexture(GL_TEXTURE_2D, plasticTexture);
 	//glUseProgram(shaderProgram);
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
@@ -372,5 +374,36 @@ bool SceneObjects::DrawLight(glm::vec3 position,glm::vec3 rotation,float i) {
 	glDrawArrays(renderAs, 0, 36);
 	glEnable(GL_CULL_FACE);
 	glBindVertexArray(0); // Unbind vertex array object
+	return true;
+}
+
+
+bool SceneObjects::DrawJBall() {
+	grassTexture.bindTexture();
+	grassTexture.loadToShader();
+
+	//glBindTexture(GL_TEXTURE_2D, grassTexture);
+	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
+	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
+
+	glm::mat4 ballScale = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+	glm::mat4 ballTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.15f, .0f, .05f));
+	glm::mat4 ballRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, .0f, 1.0f)); //this rotates hand
+	glm::mat4 ballParent = ballTranslate * ballScale * ballRotate;
+
+	//partScale = glm::scale(glm::mat4(1.0f), glm::vec3(constArmScaler.x * .4878f, constArmScaler.y * 1.1236f, constArmScaler.z));
+	//partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, .0f, 1.0f));
+	//
+	//partMatrix = partScale * partRo;
+	glm::mat4 worldMatrix = groupMatrix * ballParent;
+
+	glBindVertexArray(sphereVao);
+	//translate
+	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
+	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.1180f, 1.0f, .122f)));
+	glDrawElements(renderAs, sphereVertCount, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+	//skyTexture.bindTexture();
+	//skyTexture.loadToShader();
 	return true;
 }

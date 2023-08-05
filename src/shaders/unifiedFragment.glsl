@@ -47,19 +47,19 @@ struct Material{//vec3's~!!!! https://learnopengl.com/Lighting/Materials
 uniform Material mats;
 
 vec3 ambientColor() {
-    return objectColor *shadingAmbientStrength*  mats.ambientStrength;
+    return objectColor *  mats.ambientStrength;
 }
 
 vec3 diffuseColor() {
     vec3 lightDir = normalize(lightPosition - fragmentPosition);
-    return mats.diffuseStrength *shadingDiffuseStrength* objectColor * lightColor * max(dot(normalize(fragmentNormal), lightDir), 0.0f);
+    return mats.diffuseStrength * objectColor * lightColor * max(dot(normalize(fragmentNormal), lightDir), 0.0f);
 }
 
 vec3 specularColor() {
     vec3 lightDir = normalize(lightPosition - fragmentPosition);
     vec3 viewDir = normalize(viewPosition - fragmentPosition);
     vec3 reflectDir = reflect(-lightDir, normalize(fragmentNormal));
-    return mats.specularStrength *shadingSpecularStrength* lightColor * pow(max(dot(reflectDir, viewDir), 0.0f), mats.shininessStrength);
+    return mats.specularStrength * lightColor * pow(max(dot(reflectDir, viewDir), 0.0f), mats.shininessStrength);
 }
 float shadowScalar() {
     // this function returns 1.0 when the surface receives light, and 0.0 when it is in a shadow
@@ -111,7 +111,7 @@ void main()
 
         float shadow = shadowScalar();
         float spotlight = spotlightScalar();
-        float scalar = shadow * spotlight;
+        float scalar = shadow ;
 
         ambient = ambientColor();
         diffuse = diffuseColor();

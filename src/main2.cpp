@@ -89,7 +89,7 @@ struct TexturedNormaledVertex
 void updateLight(glm::vec3 newPosition,glm::vec3 newFocus,SceneObjects SceneObj,GLuint shaderProgram,float i,bool applyShadow) {
 	// light parameters
 	glm::vec3 lightPosition(-.30f, .30f, .0f); // the location of the light in 3D space
-	glm::vec3 lightFocus(0.0, 0.0, -1.0);      // the point in 3D space the light "looks" at
+	glm::vec3 lightFocus(0.0, 0.0, 0.0);      // the point in 3D space the light "looks" at
 	glm::vec3 lightDirection = glm::normalize(newFocus - newPosition);
 
 	GLint lightPositionLoc = glGetUniformLocation(shaderProgram, "lightPosition");
@@ -355,16 +355,6 @@ int main(int argc, char* argv[])
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(messageCallback, 0);
 #endif
-
-	// Load the textures
-	GLuint courtTextureID	= loadTexture("../src/Assets/clay2.jpg");
-	GLuint ropeTextureID	= loadTexture("../src/Assets/rope.jpg");
-	GLuint clothTextureID	= loadTexture("../src/Assets/cloth.jpg");
-	GLuint metalTextureID	= loadTexture("../src/Assets/metal.jpg");
-	GLuint grassTextureID   = loadTexture("../src/Assets/grass4.jpg");
-	GLuint plasticTextureID = loadTexture("../src/Assets/plastic.jpg");
-	GLuint woodTextureID    = loadTexture("../src/Assets/wood1.jpg");
-	GLuint tattooTextureID  = loadTexture("../src/Assets/tattoo.jpg");
 	
 	// Black background	
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -373,6 +363,8 @@ int main(int argc, char* argv[])
 
 	// Compile and link shaders here
 	shaderProgram = compileAndLinkShaders(vertex, fragment);
+
+
 
 	// Initialize uniform locations
 	glUseProgram(shaderProgram);
@@ -392,7 +384,6 @@ int main(int argc, char* argv[])
 	SceneObj.InitGrid();
 	SceneObjects Ball;
 	
-	//SceneObj.plasticTexture = plasticTextureID;
 	glfwGetCursorPos(window, &lastMousePosX, &lastMousePosY);
 	lastMousePosZ = lastMousePosY;
 
@@ -420,32 +411,44 @@ int main(int argc, char* argv[])
 	int unitSphereAO = createVertexArrayElementObject2(vertexIndicessphere, verticessphere, normalssphere, UVssphere);
 	int unitCubeAO = createVertexArrayObject2();
 
-	jonArm.setVAO(unitCubeAO);
-	jonArm.position = glm::vec3(0.0f,0.0f,0.0f);
-	//jonArm ref position:glm::vec3(-.5f, 0.0f, .2f);
 
 	//TEXTURE DEFINITION
+	// 	// Load the textures
+	GLuint courtTextureID = loadTexture("../src/Assets/clay2.jpg");
+	GLuint ropeTextureID = loadTexture("../src/Assets/rope.jpg");
+	GLuint clothTextureID = loadTexture("../src/Assets/cloth.jpg");
+	GLuint metalTextureID = loadTexture("../src/Assets/metal.jpg");
+	GLuint grassTextureID = loadTexture("../src/Assets/grass4.jpg");
+	GLuint plasticTextureID = loadTexture("../src/Assets/plastic.jpg");
+	GLuint woodTextureID = loadTexture("../src/Assets/wood1.jpg");
+	GLuint tattooTextureID = loadTexture("../src/Assets/tattoo.jpg");
 						//diff spec ambient shiny
-	Material courtMaterial(.2f, .20f, 1.0f, .1f, courtTextureID, shaderProgram); //court shouldnt reflect
-	Material ropeMaterial(.5f, .60f, .5f, .9f, ropeTextureID, shaderProgram); // ropes are just ropes
-	Material clothMaterial(.5f, .60f, .5f, .9f, clothTextureID, shaderProgram); //cloth should have a little reflection?
-	Material metalMaterial(.6f, .90f, .6f, .00012f, metalTextureID, shaderProgram); //metal should shine
-	Material grassMaterial(.2f, .20f, .7f, 1.5f, grassTextureID, shaderProgram); //just bright, thats all it needs
-	Material plasticMaterial(.5f, .60f, .5f, .002f, plasticTextureID, shaderProgram); //needs to be glossy! This is our racket
-	Material woodMaterial(0.5f, 0.6f, 0.5f, 0.002f, woodTextureID, shaderProgram);
+	Material courtMaterial(.2f, .20f, 1.0f, .001f, courtTextureID, shaderProgram); //court shouldnt reflect
+	Material ropeMaterial(.5f, .60f, .5f, .09f, ropeTextureID, shaderProgram); // ropes are just ropes
+	Material clothMaterial(.5f, .30f, .5f, .02f, clothTextureID, shaderProgram); //cloth should have a little reflection?
+	Material metalMaterial(.6f, .90f, .6f, .12f, metalTextureID, shaderProgram); //metal should shine
+	Material grassMaterial(.60f, .001f, .6f, .0001f, grassTextureID, shaderProgram); //just bright, thats all it needs
+	Material plasticMaterial(.5f, .30f, .4f, .1f, plasticTextureID, shaderProgram); //needs to be glossy! This is our racket
+	Material woodMaterial(.5f, .60f, .5f, .002f, woodTextureID, shaderProgram); //this is you matt
 	Material tattooMaterial(0.5f, 0.2f, 0.5f, 0.002f, tattooTextureID, shaderProgram);
-	// Material plasticSkinMaterial...  we need a dull material for skin probaly a copy of the plastic texture with different diff/spec/amb
+	Material skinMaterial(.1f, .0f, .66f, .001f, plasticTextureID, shaderProgram); //this is skin
+	Material skyMaterial(.3f, .001f, .9f, .0001f, plasticTextureID, shaderProgram); //Flat blue sky
 
+
+	SceneObj.setMaterials(courtMaterial, clothMaterial, ropeMaterial, metalMaterial, grassMaterial, plasticMaterial);
+	SceneObj.skyTexture = skyMaterial;
+	
+	//Jons Racket and Arm ****	
+	jonArm.InitArm(glm::vec3(-.5f, 0.0f, .2f), unitCubeAO,skinMaterial,clothMaterial);
 	Ball.grassTexture = grassMaterial;
 	Ball.shaderProgram = shaderProgram;
 	Ball.sphereVao = unitSphereAO;
 	Ball.sphereVertCount=vertexIndicessphere.size();
-	SceneObj.setMaterials(courtMaterial, clothMaterial, ropeMaterial, metalMaterial, grassMaterial, plasticMaterial);
 	Racket racket(unitCubeAO, "racket");
-	racket.setBall(Ball);
-	racket.jawnAngle = 0;
 	racket.plasticMaterial = plasticMaterial;
-
+	racket.setBall(Ball);
+	//**** End jons jawn
+	
 
 	// Set mouse and keyboard callbacks
 	glfwSetKeyCallback(window, keyPressCallback);
@@ -466,8 +469,8 @@ int main(int argc, char* argv[])
 	JonahModels J = JonahModels(unitCubeAO, shaderProgram);
 
     // Lighting
-    float lightAngleOuter = 30.0;
-    float lightAngleInner = 20.0;
+    float lightAngleOuter = 10.0;
+    float lightAngleInner = 0.01;
     // Set light cutoff angles on scene shader
     GLint lightCutoffInnerLoc = glGetUniformLocation( shaderProgram, "lightCutoffInner");
     GLint lightCutoffOuterLoc = glGetUniformLocation( shaderProgram, "lightCutoffOuter");
@@ -480,13 +483,13 @@ int main(int argc, char* argv[])
 
     // light parameters
     glm::vec3 lightPosition(-.30f, .30f, .0f); // the location of the light in 3D space
-	glm::vec3 lightFocus(0.0, 0.0, -1.0);      // the point in 3D space the light "looks" at
+	glm::vec3 lightFocus(0.0, -0.01, .0f);      // the point in 3D space the light "looks" at
 	glm::vec3 lightDirection = glm::normalize(lightFocus - lightPosition);
 
-    float lightNearPlane = 0.1f;
+    float lightNearPlane = 0.01f;
     float lightFarPlane = 180.0f;
 
-	glm::mat4 lightProjectionMatrix = glm::ortho(-.7f, .70f, -.70f, .70f, lightNearPlane, lightFarPlane);
+	glm::mat4 lightProjectionMatrix = glm::ortho(-1.5f, 1.50f, -1.50f, 1.50f, lightNearPlane, lightFarPlane);
 	glm::mat4 lightViewMatrix = glm::lookAt(lightPosition, lightFocus, glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 lightSpaceMatrix = lightProjectionMatrix * lightViewMatrix;
 
@@ -662,25 +665,27 @@ int main(int argc, char* argv[])
 
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noshowLightBox);
 		}
+		jonArm.flexFingers();
+		//micahArm.flexFingers(spin, reverse);
 		//trying to add finger manipulation
-		float check = jonArm.getFRotation();
-		if ((jonArm.getFRotation() + spin) > 90.0f && reverse == false) { 
-			
-			jonArm.setFRotation(jonArm.getFRotation() - spin); 
-			reverse = true;
-		}
-		else if (jonArm.getFRotation() + spin < 0.0f && reverse == true) {
-			jonArm.setFRotation(jonArm.getFRotation() + spin); 
-			reverse = false; 
-		}
-		else if (reverse == true){
-			jonArm.setFRotation(jonArm.getFRotation() - spin);
-			spin -= .01f;
-			}
-		else { 
-			jonArm.setFRotation(jonArm.getFRotation() + spin);
-			spin += .01f;
-		}		
+		//float check = jonArm.getFRotation();
+		//if ((jonArm.getFRotation() + spin) > 90.0f && reverse == false) { 
+		//	
+		//	jonArm.setFRotation(jonArm.getFRotation() - spin); 
+		//	reverse = true;
+		//}
+		//else if (jonArm.getFRotation() + spin < 0.0f && reverse == true) {
+		//	jonArm.setFRotation(jonArm.getFRotation() + spin); 
+		//	reverse = false; 
+		//}
+		//else if (reverse == true){
+		//	jonArm.setFRotation(jonArm.getFRotation() - spin);
+		//	spin -= .01f;
+		//	}
+		//else { 
+		//	jonArm.setFRotation(jonArm.getFRotation() + spin);
+		//	spin += .01f;
+		//}		
 		//printf("%f\n", spin);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -870,34 +875,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		number3 = number3 / (float)(RAND_MAX);
 	
 	switch (selectModel) {//prints twice per button press maybe this is okay?
-	case(4)://Jon's Model		
-		if (state_W == GLFW_PRESS)
-			jonArm.setTranslateModel(glm::vec3(jonArm.getTranslateModel().x, (jonArm.getTranslateModel().y + .005f), jonArm.getTranslateModel().z));
-		else if (state_S == GLFW_PRESS)
-			jonArm.setTranslateModel(glm::vec3(jonArm.getTranslateModel().x, (jonArm.getTranslateModel().y - .005f), jonArm.getTranslateModel().z));
-		else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-			jonArm.setTranslateModel(glm::vec3((jonArm.getTranslateModel().x - .005f), jonArm.getTranslateModel().y, jonArm.getTranslateModel().z));
-		else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-			jonArm.setTranslateModel(glm::vec3((jonArm.getTranslateModel().x + .005f), jonArm.getTranslateModel().y, jonArm.getTranslateModel().z));
-		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-			switch (selectJoint) {
-			case(0): jonArm.setRotation(jonArm.getRotation() + 5);  break;
-			case(1):if (jonArm.getERotation() + 5 > 90)jonArm.setERotation(90); else  jonArm.setERotation(jonArm.getERotation() + 5);  break;
-			case(2):if (jonArm.getWRotation() + 5 > 65)jonArm.setWRotation(65); else  jonArm.setWRotation(jonArm.getWRotation() + 5); break;
-			default: break;
-			}
-		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-			switch (selectJoint) {
-			case(0): jonArm.setRotation(jonArm.getRotation() - 5);  break;
-			case(1):if (jonArm.getERotation() - 5 < 0)jonArm.setERotation(0); else  jonArm.setERotation(jonArm.getERotation() - 5);  break;
-			case(2):if (jonArm.getWRotation() - 5 < -85)jonArm.setWRotation(-85); else  jonArm.setWRotation(jonArm.getWRotation() - 5); break;
-			default: break;
-			}
-		else if (state_SPACE == GLFW_PRESS)
-		{
 
-			jonArm.setTranslateRandom(glm::vec3(number1, number2, number3));
-		}
 
 	case(0):	//Evans model
 		if (state_W == GLFW_PRESS)
@@ -956,7 +934,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 			break;
 
 		}
-
+		break;
 	case(1)://jonah's
 		if (state_W == GLFW_PRESS) {
 			jonahTranslationModel.y += .005f; break;
@@ -981,7 +959,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 			jonahTranslationRandom=glm::vec3(number1, number2, number3);
 			break;
 		}
-	
+		break;
 	// Matt's model
 	case(2):
 		if (state_W == GLFW_PRESS) {
@@ -1017,7 +995,36 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		break;
 		
 	case(3)://noot break;
+		break;
+	case(4)://Jon's Model		
+		if (state_W == GLFW_PRESS)
+			jonArm.setTranslateModel(glm::vec3(jonArm.getTranslateModel().x, (jonArm.getTranslateModel().y + .005f), jonArm.getTranslateModel().z));
+		else if (state_S == GLFW_PRESS)
+			jonArm.setTranslateModel(glm::vec3(jonArm.getTranslateModel().x, (jonArm.getTranslateModel().y - .005f), jonArm.getTranslateModel().z));
+		else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
+			jonArm.setTranslateModel(glm::vec3((jonArm.getTranslateModel().x - .005f), jonArm.getTranslateModel().y, jonArm.getTranslateModel().z));
+		else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
+			jonArm.setTranslateModel(glm::vec3((jonArm.getTranslateModel().x + .005f), jonArm.getTranslateModel().y, jonArm.getTranslateModel().z));
+		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
+			switch (selectJoint) {
+			case(0): jonArm.setRotation(jonArm.getRotation() + 5);  break;
+			case(1):if (jonArm.getERotation() + 5 > 90)jonArm.setERotation(90); else  jonArm.setERotation(jonArm.getERotation() + 5);  break;
+			case(2):if (jonArm.getWRotation() + 5 > 65)jonArm.setWRotation(65); else  jonArm.setWRotation(jonArm.getWRotation() + 5); break;
+			default: break;
+			}
+		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
+			switch (selectJoint) {
+			case(0): jonArm.setRotation(jonArm.getRotation() - 5);  break;
+			case(1):if (jonArm.getERotation() - 5 < 0)jonArm.setERotation(0); else  jonArm.setERotation(jonArm.getERotation() - 5);  break;
+			case(2):if (jonArm.getWRotation() - 5 < -85)jonArm.setWRotation(-85); else  jonArm.setWRotation(jonArm.getWRotation() - 5); break;
+			default: break;
+			}
+		else if (state_SPACE == GLFW_PRESS)
+		{
 
+			jonArm.setTranslateRandom(glm::vec3(number1, number2, number3));
+		}
+		break;
 
 	default:break;
 	}
@@ -1201,6 +1208,7 @@ bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm
 	std::vector<int> uvIndices, normalIndices;
 	std::vector<glm::vec2> temp_uvs;
 	std::vector<glm::vec3> temp_normals;
+	std::vector<glm::vec3> my_normals;
 
 	FILE* file;
 	file = fopen(path, "r");
@@ -1209,7 +1217,8 @@ bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm
 		getchar();
 		return false;
 	}
-
+	int count = 0;
+	int indexCount = 0;
 	while (1) {
 
 		char lineHeader[128];
@@ -1225,6 +1234,32 @@ bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm
 			res = fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
 
 			temp_vertices.push_back(vertex);
+			count += 1;
+			indexCount += 1;
+			int IndC = indexCount - 3;
+			int IndB = indexCount - 2;
+			int IndA = indexCount - 1;
+			int pause = 1000;
+			if (count == 3&& indexCount==3) {
+				//my_normals.push_back(temp_vertices[0]);
+				//my_normals.push_back(temp_vertices[1]);
+				//my_normals.push_back(temp_vertices[2]);
+				my_normals.push_back(normalize(cross(temp_vertices[1] - temp_vertices[0], temp_vertices[2] - temp_vertices[0])));
+				my_normals.push_back(normalize(cross(temp_vertices[1] - temp_vertices[0], temp_vertices[2] - temp_vertices[0])));
+				my_normals.push_back(normalize(cross(temp_vertices[1] - temp_vertices[0], temp_vertices[2] - temp_vertices[0])));
+				count = 0;
+			}
+			else if (count==3 ){
+				int IndC = indexCount - 3;
+					int IndB = indexCount - 2;
+					int IndA = indexCount - 1;
+				my_normals.push_back(normalize(cross(temp_vertices[indexCount-2] - temp_vertices[indexCount-3], temp_vertices[indexCount-1] - temp_vertices[indexCount - 3])));
+				my_normals.push_back(normalize(cross(temp_vertices[indexCount - 2] - temp_vertices[indexCount - 3], temp_vertices[indexCount-1] - temp_vertices[indexCount - 3])));
+				my_normals.push_back(normalize(cross(temp_vertices[indexCount - 2] - temp_vertices[indexCount - 3], temp_vertices[indexCount-1] - temp_vertices[indexCount - 3])));
+				count = 0;
+			}
+			
+
 		}
 		else if (strcmp(lineHeader, "vt") == 0) {
 			glm::vec2 uv;
@@ -1303,19 +1338,19 @@ bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm
 		out_normals.resize(temp_normals.size());
 	if (uvIndices.size() != 0)
 		out_uvs.resize(temp_uvs.size());
-	out_normals = temp_normals;
+	out_normals = my_normals;
 	out_uvs = temp_uvs;
-	//for (unsigned int i = 0; i < vertexIndices.size(); i++) {
-	//	int vi = vertexIndices[i];
-	//	if (normalIndices.size() != 0) {
-	//		int ni = normalIndices[i];
-	//		out_normals[vi] = temp_normals[ni];
-	//	}
-	//	if (uvIndices.size() != 0 && i < uvIndices.size()) {
-	//		int ui = uvIndices[i];
-	//		out_uvs[vi] = temp_uvs[ui];
-	//	}
-	//}
+	for (unsigned int i = 0; i < vertexIndices.size(); i++) {
+		int vi = vertexIndices[i];
+		if (normalIndices.size() != 0) {
+			int ni = normalIndices[i];
+			out_normals[vi] = temp_normals[ni];
+		}
+		if (uvIndices.size() != 0 && i < uvIndices.size()) {
+			int ui = uvIndices[i];
+			out_uvs[vi] = temp_uvs[ui];
+		}
+	}
 
 	return true;
 }

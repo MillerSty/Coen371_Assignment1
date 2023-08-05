@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "Material.h"
 
 class Arm
 {
@@ -50,7 +51,11 @@ public:
 	glm::vec3 getTranslateModel() { return this->TranslateModel; }
 	void setTranslateModel(glm::vec3 TranslateModel) { this->TranslateModel = TranslateModel; }
 	void resetArm();
+	bool flexFingers();
+	void InitArm(glm::vec3 position, int VAO, Material skinMaterial, Material clothMaterial);
 
+	bool reverse;
+	float spin;
 	int cubeVao;
 	glm::mat4 partParent;
 	glm::mat4 partMatrix;
@@ -60,6 +65,8 @@ public:
 
 	glm::vec3 TranslateModel;
 	float armRotate,elbowRotate,wristRotate, fingerRotate;
+	Material skinMaterial;
+	Material clothMaterial;
 
 	int shaderProgram;
 	int renderAs;
