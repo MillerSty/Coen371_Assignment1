@@ -21,8 +21,6 @@
 #include "Material.h"
 #include "Evan-models/EvanArm.h"
 #include "Evan-models/EvanRacket.h"
-#include "matt-models/MattArm.h"
-#include "matt-models/MattRacket.h"
 #include "matt-models/MattModel.h"
 #include "Sabrina-models/SabrinaArm.h"
 #include "JonahModels.h"
@@ -1016,6 +1014,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 			glm::vec3 change = glm::vec3(number1, number2, number3);
 			mattModel.setTranslationRandom(change);
 		}
+		break;
 		
 	case(3)://noot break;
 
