@@ -434,6 +434,7 @@ int main(int argc, char* argv[])
 	Material plasticMaterial(.5f, .30f, .4f, .1f, plasticTextureID, shaderProgram); //needs to be glossy! This is our racket
 	Material woodMaterial(.5f, .60f, .5f, .002f, woodTextureID, shaderProgram); //this is you matt
 
+	Material tattooMaterial(0.5f, 0.2f, 0.5f, 0.002f, tattooTextureID, shaderProgram);
 	Material skinMaterial(.1f, .0f, .66f, .001f, plasticTextureID, shaderProgram); //this is skin
 	Material skyMaterial(.3f, .001f, .9f, .0001f, plasticTextureID, shaderProgram); //Flat blue sky
 
