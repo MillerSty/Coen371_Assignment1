@@ -355,16 +355,6 @@ int main(int argc, char* argv[])
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(messageCallback, 0);
 #endif
-
-	// Load the textures
-	GLuint courtTextureID	= loadTexture("../src/Assets/clay2.jpg");
-	GLuint ropeTextureID	= loadTexture("../src/Assets/rope.jpg");
-	GLuint clothTextureID	= loadTexture("../src/Assets/cloth.jpg");
-	GLuint metalTextureID	= loadTexture("../src/Assets/metal.jpg");
-	GLuint grassTextureID   = loadTexture("../src/Assets/grass4.jpg");
-	GLuint plasticTextureID = loadTexture("../src/Assets/plastic.jpg");
-	GLuint woodTextureID    = loadTexture("../src/Assets/wood1.jpg");
-	GLuint tattooTextureID  = loadTexture("../src/Assets/tattoo.jpg");
 	
 	// Black background	
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -373,6 +363,8 @@ int main(int argc, char* argv[])
 
 	// Compile and link shaders here
 	shaderProgram = compileAndLinkShaders(vertex, fragment);
+
+
 
 	// Initialize uniform locations
 	glUseProgram(shaderProgram);
@@ -392,7 +384,6 @@ int main(int argc, char* argv[])
 	SceneObj.InitGrid();
 	SceneObjects Ball;
 	
-	//SceneObj.plasticTexture = plasticTextureID;
 	glfwGetCursorPos(window, &lastMousePosX, &lastMousePosY);
 	lastMousePosZ = lastMousePosY;
 
@@ -420,11 +411,17 @@ int main(int argc, char* argv[])
 	int unitSphereAO = createVertexArrayElementObject2(vertexIndicessphere, verticessphere, normalssphere, UVssphere);
 	int unitCubeAO = createVertexArrayObject2();
 
-	jonArm.setVAO(unitCubeAO);
-	jonArm.position = glm::vec3(0.0f,0.0f,0.0f);
-	//jonArm ref position:glm::vec3(-.5f, 0.0f, .2f);
 
 	//TEXTURE DEFINITION
+	// 	// Load the textures
+	GLuint courtTextureID = loadTexture("../src/Assets/clay2.jpg");
+	GLuint ropeTextureID = loadTexture("../src/Assets/rope.jpg");
+	GLuint clothTextureID = loadTexture("../src/Assets/cloth.jpg");
+	GLuint metalTextureID = loadTexture("../src/Assets/metal.jpg");
+	GLuint grassTextureID = loadTexture("../src/Assets/grass4.jpg");
+	GLuint plasticTextureID = loadTexture("../src/Assets/plastic.jpg");
+	GLuint woodTextureID = loadTexture("../src/Assets/wood1.jpg");
+	GLuint tattooTextureID = loadTexture("../src/Assets/tattoo.jpg");
 						//diff spec ambient shiny
 	Material courtMaterial(.2f, .20f, 1.0f, .001f, courtTextureID, shaderProgram); //court shouldnt reflect
 	Material ropeMaterial(.5f, .60f, .5f, .09f, ropeTextureID, shaderProgram); // ropes are just ropes
@@ -433,23 +430,25 @@ int main(int argc, char* argv[])
 	Material grassMaterial(.60f, .001f, .6f, .0001f, grassTextureID, shaderProgram); //just bright, thats all it needs
 	Material plasticMaterial(.5f, .30f, .4f, .1f, plasticTextureID, shaderProgram); //needs to be glossy! This is our racket
 	Material woodMaterial(.5f, .60f, .5f, .002f, woodTextureID, shaderProgram); //this is you matt
-
 	Material tattooMaterial(0.5f, 0.2f, 0.5f, 0.002f, tattooTextureID, shaderProgram);
 	Material skinMaterial(.1f, .0f, .66f, .001f, plasticTextureID, shaderProgram); //this is skin
 	Material skyMaterial(.3f, .001f, .9f, .0001f, plasticTextureID, shaderProgram); //Flat blue sky
 
+
+	SceneObj.setMaterials(courtMaterial, clothMaterial, ropeMaterial, metalMaterial, grassMaterial, plasticMaterial);
+	SceneObj.skyTexture = skyMaterial;
+	
+	//Jons Racket and Arm ****	
+	jonArm.InitArm(glm::vec3(-.5f, 0.0f, .2f), unitCubeAO,skinMaterial,clothMaterial);
 	Ball.grassTexture = grassMaterial;
 	Ball.shaderProgram = shaderProgram;
 	Ball.sphereVao = unitSphereAO;
 	Ball.sphereVertCount=vertexIndicessphere.size();
-	SceneObj.setMaterials(courtMaterial, clothMaterial, ropeMaterial, metalMaterial, grassMaterial, plasticMaterial);
-	SceneObj.skyTexture = skyMaterial;
 	Racket racket(unitCubeAO, "racket");
-	racket.setBall(Ball);
-	racket.jawnAngle = 0;
 	racket.plasticMaterial = plasticMaterial;
-	jonArm.skinMaterial = skinMaterial;
-	jonArm.clothMaterial = clothMaterial;
+	racket.setBall(Ball);
+	//**** End jons jawn
+	
 
 	// Set mouse and keyboard callbacks
 	glfwSetKeyCallback(window, keyPressCallback);
@@ -470,7 +469,7 @@ int main(int argc, char* argv[])
 	JonahModels J = JonahModels(unitCubeAO, shaderProgram);
 
     // Lighting
-    float lightAngleOuter = 279.0;
+    float lightAngleOuter = 10.0;
     float lightAngleInner = 0.01;
     // Set light cutoff angles on scene shader
     GLint lightCutoffInnerLoc = glGetUniformLocation( shaderProgram, "lightCutoffInner");
@@ -484,7 +483,7 @@ int main(int argc, char* argv[])
 
     // light parameters
     glm::vec3 lightPosition(-.30f, .30f, .0f); // the location of the light in 3D space
-	glm::vec3 lightFocus(0.0, 0.0, -1.0);      // the point in 3D space the light "looks" at
+	glm::vec3 lightFocus(0.0, -0.01, .0f);      // the point in 3D space the light "looks" at
 	glm::vec3 lightDirection = glm::normalize(lightFocus - lightPosition);
 
     float lightNearPlane = 0.01f;
@@ -666,25 +665,27 @@ int main(int argc, char* argv[])
 
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noshowLightBox);
 		}
+		jonArm.flexFingers();
+		//micahArm.flexFingers(spin, reverse);
 		//trying to add finger manipulation
-		float check = jonArm.getFRotation();
-		if ((jonArm.getFRotation() + spin) > 90.0f && reverse == false) { 
-			
-			jonArm.setFRotation(jonArm.getFRotation() - spin); 
-			reverse = true;
-		}
-		else if (jonArm.getFRotation() + spin < 0.0f && reverse == true) {
-			jonArm.setFRotation(jonArm.getFRotation() + spin); 
-			reverse = false; 
-		}
-		else if (reverse == true){
-			jonArm.setFRotation(jonArm.getFRotation() - spin);
-			spin -= .01f;
-			}
-		else { 
-			jonArm.setFRotation(jonArm.getFRotation() + spin);
-			spin += .01f;
-		}		
+		//float check = jonArm.getFRotation();
+		//if ((jonArm.getFRotation() + spin) > 90.0f && reverse == false) { 
+		//	
+		//	jonArm.setFRotation(jonArm.getFRotation() - spin); 
+		//	reverse = true;
+		//}
+		//else if (jonArm.getFRotation() + spin < 0.0f && reverse == true) {
+		//	jonArm.setFRotation(jonArm.getFRotation() + spin); 
+		//	reverse = false; 
+		//}
+		//else if (reverse == true){
+		//	jonArm.setFRotation(jonArm.getFRotation() - spin);
+		//	spin -= .01f;
+		//	}
+		//else { 
+		//	jonArm.setFRotation(jonArm.getFRotation() + spin);
+		//	spin += .01f;
+		//}		
 		//printf("%f\n", spin);
 		glfwSwapBuffers(window);
 		glfwPollEvents();

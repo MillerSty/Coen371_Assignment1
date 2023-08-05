@@ -6,11 +6,7 @@ Arm::Arm(int cubeVao, glm::mat4 worldMatrix) {
 	this->position = glm::vec3(0.0f, 0.0f, 0.0f);
 	this->TranslateModel = glm::vec3(0.0f, 0.0f, 0.0f);
 	this->TranslateRandom = glm::vec3(0.0f, 0.0f, 0.0f);
-	//colours should be set before while loops if we want 
-	//random
-//colour[0] = glm::vec3(1.0f, 0.0f, 0.0f);
-//colour[1] = glm::vec3(0.0f, 1.0f, 0.0f);
-//colour[2] = glm::vec3(0.0f, 0.0f, 1.0f);
+
 }
 Arm::Arm(int cubeVao, std::string letterName) {
 	this->cubeVao = cubeVao;
@@ -24,7 +20,14 @@ Arm::Arm(int cubeVao, std::string letterName) {
 	this->TranslateRandom = glm::vec3(0.0f, 0.0f, 0.0f);
 	this->letterName = letterName;
 }
-
+void Arm::InitArm(glm::vec3 position, int VAO, Material skinMaterial, Material clothMaterial) {
+	this->position = position;
+	this->cubeVao = VAO;
+	this->skinMaterial = skinMaterial;
+	this->clothMaterial = clothMaterial;
+	spin = 0;
+	reverse = false;
+}
 Arm::Arm() {}
 void Arm::resetArm() {
 	TranslateModel += -1.0f * TranslateModel;
@@ -39,6 +42,8 @@ void Arm::SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram) {
 	this->groupMatrix = groupMatrix;
 	this->renderAs = renderAs;
 	this->shaderProgram = shaderProgram;
+	float spin = 0;
+	bool reverse = false;
 }
 
 void Arm::setVAO(int vao) { cubeVao = vao; }
@@ -218,4 +223,27 @@ bool Arm::DrawArm() {
 	glBindVertexArray(0);
 	
 	return true;
+}
+
+bool Arm::flexFingers() {
+	
+	if ((this->getFRotation() + spin) > 90.0f && reverse == false) {
+
+		this->setFRotation(this->getFRotation() - spin);
+		reverse = true;
+	}
+	else if (this->getFRotation() + spin < 0.0f && reverse == true) {
+		this->setFRotation(this->getFRotation() + spin);
+		reverse = false;
+	}
+	else if (reverse == true) {
+		this->setFRotation(this->getFRotation() - spin);
+		spin -= .01f;
+	}
+	else {
+		this->setFRotation(this->getFRotation() + spin);
+		spin += .01f;
+	}
+
+	return reverse;
 }
