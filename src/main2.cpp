@@ -22,7 +22,10 @@
 #include "Evan-models/EvanArm.h"
 #include "Evan-models/EvanRacket.h"
 #include "matt-models/MattModel.h"
+//#include "matt-models/MattArm.h"
+//#include "matt-models/MattRacket.h"
 #include "Sabrina-models/SabrinaArm.h"
+
 #include "JonahModels.h"
 
 // Set the shader paths
@@ -85,7 +88,6 @@ struct TexturedNormaledVertex
 	glm::vec3 normals;
 	glm::vec2 uv;
 };
-
 void updateLight(glm::vec3 newPosition,glm::vec3 newFocus,SceneObjects SceneObj,GLuint shaderProgram,float i,bool applyShadow) {
 	// light parameters
 	glm::vec3 lightPosition(-.30f, .30f, .0f); // the location of the light in 3D space
@@ -269,16 +271,21 @@ glm::vec3 translateWSAD(0.0f, 0.0f, 0.0f);
 glm::vec3 Translate(.0f, .0f, .0f);
 glm::vec3 GroupMatrixScale(1.0f, 1.0f, 1.0f);
 glm::mat4 groupMatrix;
-glm::mat4 mattGroupMatrix;
 glm::mat4 rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
-// Create MattModel
-MattModel mattModel;
+
+// Create Matt model parts
+MattRacket mattRacket;
+MattArm mattArm;
+
+
 
 glm::vec3 jonahTranslationRandom(.0f, .0f, .0f);
 glm::vec3 jonahTranslationModel(.0f, .0f, .0f);
 float jonahRotationAngle = 0.0f;
 
+glm::vec3 mattTranslationRandom(.0f, .0f, .0f);
+glm::vec3 mattTranslationModel(.0f, .0f, .0f);
 float mattRotationAngle = 0.0f;
 
 // Create Sabrina model parts
@@ -357,17 +364,19 @@ int main(int argc, char* argv[])
 #endif
 
 	// Load the textures
-	GLuint courtTextureID	= loadTexture("../src/Assets/clay2.jpg");
-	GLuint ropeTextureID	= loadTexture("../src/Assets/rope.jpg");
+	GLuint courtTextureID	 = loadTexture("../src/Assets/clay2.jpg");
+	GLuint ropeTextureID	 = loadTexture("../src/Assets/rope.jpg");
 	GLuint clothTextureID	= loadTexture("../src/Assets/cloth.jpg");
 	GLuint metalTextureID	= loadTexture("../src/Assets/metal.jpg");
-	GLuint grassTextureID   = loadTexture("../src/Assets/grass4.jpg");
-	GLuint plasticTextureID = loadTexture("../src/Assets/plastic.jpg");
-	GLuint woodTextureID    = loadTexture("../src/Assets/wood1.jpg");
-	GLuint tattooTextureID  = loadTexture("../src/Assets/tattoo.jpg");
+	GLuint grassTextureID     = loadTexture("../src/Assets/grass4.jpg");
+	GLuint plasticTextureID  = loadTexture("../src/Assets/plastic.jpg");
+	GLuint woodTextureID       = loadTexture("../src/Assets/wood1.jpg");
+
 	
 	// Black background	
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_FALSE);
+
 	// Set frame rate to refresh rate of monitor
 	glfwSwapInterval(1);
 
@@ -376,15 +385,14 @@ int main(int argc, char* argv[])
 
 	// Initialize uniform locations
 	glUseProgram(shaderProgram);
-	GLuint worldMatrixLocation      = glGetUniformLocation(shaderProgram, "worldMatrix");
+	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
 	GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
-	GLuint viewMatrixLocation       = glGetUniformLocation(shaderProgram, "viewMatrix");
-	GLuint colorLocation            = glGetUniformLocation(shaderProgram, "objectColor");
-    GLint viewPositionLocation      = glGetUniformLocation(shaderProgram, "viewPosition");
-    GLint applyTexturesLocation     = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
-    GLint applyShadowsLocation      = glGetUniformLocation(shaderProgram, "shouldApplyShadows");
-	
-	// Maybe update this for shadows
+	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
+	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
+    GLint viewPositionLocation = glGetUniformLocation(shaderProgram, "viewPosition");
+    GLint applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
+    GLint applyShadowsLocation = glGetUniformLocation(shaderProgram, "shouldApplyShadows");
+	//maybe update this for shadows
     glUniform3fv(viewPositionLocation, 1, &eye[0]);
 
 	//Scene Jawn
@@ -422,7 +430,10 @@ int main(int argc, char* argv[])
 
 	jonArm.setVAO(unitCubeAO);
 	jonArm.position = glm::vec3(0.0f,0.0f,0.0f);
-	//jonArm ref position:glm::vec3(-.5f, 0.0f, .2f);
+		//jonArm ref position:glm::vec3(-.5f, 0.0f, .2f);
+
+
+
 
 	//TEXTURE DEFINITION
 						//diff spec ambient shiny
@@ -434,7 +445,6 @@ int main(int argc, char* argv[])
 	Material plasticMaterial(.5f, .30f, .4f, .1f, plasticTextureID, shaderProgram); //needs to be glossy! This is our racket
 	Material woodMaterial(.5f, .60f, .5f, .002f, woodTextureID, shaderProgram); //this is you matt
 
-	Material tattooMaterial(0.5f, 0.2f, 0.5f, 0.002f, tattooTextureID, shaderProgram);
 	Material skinMaterial(.1f, .0f, .66f, .001f, plasticTextureID, shaderProgram); //this is skin
 	Material skyMaterial(.3f, .001f, .9f, .0001f, plasticTextureID, shaderProgram); //Flat blue sky
 
@@ -455,6 +465,7 @@ int main(int argc, char* argv[])
 	glfwSetKeyCallback(window, keyPressCallback);
 	glfwSetCursorPosCallback(window, mouseCursorPostionCallback);
 	//glfwSetWindowSizeCallback(window, windowSizeCallback);
+
 
 	glm::vec3 modelScale(0.25, 0.25, 0.25);
     EvanRacket evanRacket(glm::vec3(0.2f, 0.0f, 0.0f), modelScale,
@@ -496,10 +507,10 @@ int main(int argc, char* argv[])
 
 	// Get lighting-related uniform locations
     GLint lightViewProjMatrixLoc = glGetUniformLocation( shaderProgram, "lightViewProjMatrix");
-    GLint lightNearPlaneLoc      = glGetUniformLocation( shaderProgram, "lightNearPlane");
-    GLint lightFarPlaneLoc       = glGetUniformLocation( shaderProgram, "lightFarPlane");
-    GLint lightPositionLoc       = glGetUniformLocation( shaderProgram, "lightPosition");
-    GLint lightDirectionLoc      = glGetUniformLocation( shaderProgram, "lightDirection");
+    GLint lightNearPlaneLoc = glGetUniformLocation( shaderProgram, "lightNearPlane");
+    GLint lightFarPlaneLoc = glGetUniformLocation( shaderProgram, "lightFarPlane");
+    GLint lightPositionLoc = glGetUniformLocation( shaderProgram, "lightPosition");
+    GLint lightDirectionLoc = glGetUniformLocation( shaderProgram, "lightDirection");
 
 	// Set light view projection matrix
     glUniformMatrix4fv(lightViewProjMatrixLoc, 1, GL_FALSE, &lightSpaceMatrix[0][0]);
@@ -535,13 +546,12 @@ int main(int argc, char* argv[])
 	glUniform1i(kdepthMap, 2);
 
 	float lastFrameTime = glfwGetTime();
-	
 	// Set Matt VAO and shader program
-	mattModel.setShaderProgram(shaderProgram);
-	mattModel.setVAO(unitCubeAO, unitSphereAO);
-	mattModel.setSphereVertCount(vertexIndicessphere.size());
-	mattModel.setMaterials(woodMaterial, tattooMaterial, clothMaterial);
-	mattModel.setRenderAs(renderAs);
+	mattArm.setShaderProgram(shaderProgram);
+	mattArm.setVAO(unitCubeAO);
+	mattRacket.setShaderProgram(shaderProgram);
+	mattRacket.setVAO(unitCubeAO);
+	mattRacket.setTexture(woodTextureID);
 
 	// Set Sabrina VAO and shader program
 	sabrinaArm.setShaderProgram(shaderProgram);
@@ -555,13 +565,8 @@ int main(int argc, char* argv[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) *
-			          glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
-			          rotationMatrixW;
-
-		mattGroupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) *
-			              glm::rotate(glm::mat4(1.0f), glm::radians(mattRotationAngle), glm::vec3(0.0f, 1.0f, 0.0f)) *
-			              glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
-			              rotationMatrixW;
+			glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
+			rotationMatrixW;
 
 		float lightDepth = 1.0f; //we can do 30, but it works better lower because the scale?
 		bool noshowLightBox = false;
@@ -572,16 +577,18 @@ int main(int argc, char* argv[])
 			rotationMatrixW;
 			//evan Translation for smaller 
 		glm::vec3 evanTranslation = vec3(evanArm.getTranslateModel().x + evanArm.getTranslateRandom().x + evanArm.initialPosition.x, evanArm.getTranslateModel().y + evanArm.getTranslateRandom().y + evanArm.initialPosition.y, evanArm.getTranslateModel().z + evanArm.getTranslateRandom().z + evanArm.initialPosition.z);
+		vec3 MattTranslation = mattTranslationModel + mattTranslationRandom;
 		// Demo on how to use evan's model
-		mat4 evanGroupMatrix = translate(mat4(1.0f), vec3(evanTranslation.x + -0.2f * sinf((float)0.0f), evanTranslation.y + 0.0f, evanTranslation.z + 0.0f)) *
-			                   rotate(mat4(1.0f), radians(evanArm.getRotation()), vec3(1.0f, 0.0f, 0.0f));
+		mat4 evanGroupMatrix = translate(mat4(1.0f), vec3(evanTranslation.x + -0.2f * sinf((float)0.0f),
+								evanTranslation.y + 0.0f,
+								evanTranslation.z + 0.0f))
+								* rotate(mat4(1.0f), radians(evanArm.getRotation()), vec3(1.0f, 0.0f, 0.0f));
 		
 		mat4 evanBicepMatrix = rotate(mat4(1.0f), radians(evanArm.getERotation()), vec3(.0f, 0.0f, 1.0f));
 		evanArm.groupMatrix = groupMatrix*evanGroupMatrix;
 		evanArm.bicepMatrix = evanBicepMatrix; //bicep not called
 		evanArm.racket.groupMatrix = groupMatrix * evanGroupMatrix;
 		evanArm.racket.bicepMatrix = evanBicepMatrix;
-		
 		lastFrameTime = glfwGetTime();
 
 		//float checkest = evanArm.getERotation();
@@ -610,9 +617,12 @@ int main(int argc, char* argv[])
 
             evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
 			
-			mattModel.setGroupMatrix(mattGroupMatrix);
-			mattModel.setRenderAs(renderAs);
-			mattModel.drawModel();
+			mattRacket.setGroupMatrix(groupMatrix);
+			mattArm.setGroupMatrix(groupMatrix);
+			mattArm.setRenderAs(renderAs);
+			mattArm.drawArm(MattTranslation, mattRotationAngle);
+			mattRacket.setRenderAs(renderAs);
+			mattRacket.drawRacket(MattTranslation, mattRotationAngle);
       
 			sabrinaArm.setGroupMatrix(groupMatrix);
 			sabrinaArm.drawArm();
@@ -647,12 +657,18 @@ int main(int argc, char* argv[])
 
 			evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
 
-			mattModel.setGroupMatrix(mattGroupMatrix);
-			mattModel.setRenderAs(renderAs);
-			mattModel.drawModel();
+			mattRacket.setGroupMatrix(groupMatrix);
+			mattArm.setGroupMatrix(groupMatrix);
+			mattArm.setRenderAs(renderAs);
+			mattArm.drawArm(MattTranslation,mattRotationAngle);
+			mattRacket.setRenderAs(renderAs);
+			mattRacket.drawRacket(MattTranslation, mattRotationAngle);
+
 
 			sabrinaArm.setGroupMatrix(groupMatrix);
 			sabrinaArm.drawArm();
+
+
 
 			J.drawRacketJ(groupMatrix, jonahTranslationModel + jonahTranslationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
 
@@ -874,34 +890,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		number3 = number3 / (float)(RAND_MAX);
 	
 	switch (selectModel) {//prints twice per button press maybe this is okay?
-	case(4)://Jon's Model		
-		if (state_W == GLFW_PRESS)
-			jonArm.setTranslateModel(glm::vec3(jonArm.getTranslateModel().x, (jonArm.getTranslateModel().y + .005f), jonArm.getTranslateModel().z));
-		else if (state_S == GLFW_PRESS)
-			jonArm.setTranslateModel(glm::vec3(jonArm.getTranslateModel().x, (jonArm.getTranslateModel().y - .005f), jonArm.getTranslateModel().z));
-		else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-			jonArm.setTranslateModel(glm::vec3((jonArm.getTranslateModel().x - .005f), jonArm.getTranslateModel().y, jonArm.getTranslateModel().z));
-		else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-			jonArm.setTranslateModel(glm::vec3((jonArm.getTranslateModel().x + .005f), jonArm.getTranslateModel().y, jonArm.getTranslateModel().z));
-		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-			switch (selectJoint) {
-			case(0): jonArm.setRotation(jonArm.getRotation() + 5);  break;
-			case(1):if (jonArm.getERotation() + 5 > 90)jonArm.setERotation(90); else  jonArm.setERotation(jonArm.getERotation() + 5);  break;
-			case(2):if (jonArm.getWRotation() + 5 > 65)jonArm.setWRotation(65); else  jonArm.setWRotation(jonArm.getWRotation() + 5); break;
-			default: break;
-			}
-		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-			switch (selectJoint) {
-			case(0): jonArm.setRotation(jonArm.getRotation() - 5);  break;
-			case(1):if (jonArm.getERotation() - 5 < 0)jonArm.setERotation(0); else  jonArm.setERotation(jonArm.getERotation() - 5);  break;
-			case(2):if (jonArm.getWRotation() - 5 < -85)jonArm.setWRotation(-85); else  jonArm.setWRotation(jonArm.getWRotation() - 5); break;
-			default: break;
-			}
-		else if (state_SPACE == GLFW_PRESS)
-		{
 
-			jonArm.setTranslateRandom(glm::vec3(number1, number2, number3));
-		}
 
 	case(0):	//Evans model
 		if (state_W == GLFW_PRESS)
@@ -960,6 +949,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 			break;
 
 		}
+		break;
 
 	case(1)://jonah's
 		if (state_W == GLFW_PRESS) {
@@ -985,51 +975,73 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 			jonahTranslationRandom=glm::vec3(number1, number2, number3);
 			break;
 		}
-	
-	// Matt's model
-	case(2):
+		break;
+
+	case(2)://matt break;
 		if (state_W == GLFW_PRESS) {
-			glm::vec3 change = glm::vec3(0.0f, 0.005f, 0.0f);
-			mattModel.setTranslationModel(mattModel.getTranslationModel() + change);
+			mattTranslationModel.y += .005f; break;
 		}
 		else if (state_S == GLFW_PRESS) {
-			glm::vec3 change = glm::vec3(0.0f, 0.005f, 0.0f);
-			mattModel.setTranslationModel(mattModel.getTranslationModel() - change);
+			mattTranslationModel.y -= .005f; break;
 		}
 		else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT) {
-			glm::vec3 change = glm::vec3(0.005f, 0.0f, 0.0f);
-			mattModel.setTranslationModel(mattModel.getTranslationModel() + change);
+			mattTranslationModel.x += .005f; break;
 		}
 		else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT) {
-			glm::vec3 change = glm::vec3(0.005f, 0.0f, 0.0f);
-			mattModel.setTranslationModel(mattModel.getTranslationModel() - change);
+			mattTranslationModel.x -= .005f; break;
 		}
 		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT) {
-			//mattModel.setRotationAngle(mattModel.getRotationAngle() + 5.0f);
-			//break;
-			mattRotationAngle += 5.0f;
+			mattRotationAngle += 5.0f; break;
 		}
 		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT) {
-			//mattModel.setRotationAngle(mattModel.getRotationAngle() - 5.0f);
-			//break;
 			mattRotationAngle -= 5.0f;
+			break;
 		}
 		else if (state_SPACE == GLFW_PRESS) {
-			glm::vec3 change = glm::vec3(number1, number2, number3);
-			mattModel.setTranslationRandom(change);
+			mattTranslationRandom = glm::vec3(number1, number2, number3);
+			break;
 		}
 		break;
-		
 	case(3)://noot break;
+		break;
+	case(4): {//Jon's Model		
+		if (state_W == GLFW_PRESS)
+			jonArm.setTranslateModel(glm::vec3(jonArm.getTranslateModel().x, (jonArm.getTranslateModel().y + .005f), jonArm.getTranslateModel().z)); break;
+		else if (state_S == GLFW_PRESS)
+			jonArm.setTranslateModel(glm::vec3(jonArm.getTranslateModel().x, (jonArm.getTranslateModel().y - .005f), jonArm.getTranslateModel().z)); break;
+		else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
+			jonArm.setTranslateModel(glm::vec3((jonArm.getTranslateModel().x - .005f), jonArm.getTranslateModel().y, jonArm.getTranslateModel().z)); break;
+		else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
+			jonArm.setTranslateModel(glm::vec3((jonArm.getTranslateModel().x + .005f), jonArm.getTranslateModel().y, jonArm.getTranslateModel().z)); break;
+		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
+			switch (selectJoint) {
+			case(0): jonArm.setRotation(jonArm.getRotation() + 5);  break;
+			case(1):if (jonArm.getERotation() + 5 > 90)jonArm.setERotation(90); else  jonArm.setERotation(jonArm.getERotation() + 5);  break;
+			case(2):if (jonArm.getWRotation() + 5 > 65)jonArm.setWRotation(65); else  jonArm.setWRotation(jonArm.getWRotation() + 5); break;
+			default: break;
+			}
+		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
+			switch (selectJoint) {
+			case(0): jonArm.setRotation(jonArm.getRotation() - 5);  break;
+			case(1):if (jonArm.getERotation() - 5 < 0)jonArm.setERotation(0); else  jonArm.setERotation(jonArm.getERotation() - 5);  break;
+			case(2):if (jonArm.getWRotation() - 5 < -85)jonArm.setWRotation(-85); else  jonArm.setWRotation(jonArm.getWRotation() - 5); break;
+			default: break;
+			}
+		else if (state_SPACE == GLFW_PRESS)
+		{
 
+			jonArm.setTranslateRandom(glm::vec3(number1, number2, number3));
+			break;
 
+		}
+		break;
+	}
 	default:break;
 	}
 
 	// If ESC is pressed, window should closed
 	if (state_ESC == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-
 	else if (state_TAB == GLFW_PRESS && mods != GLFW_MOD_SHIFT) {
 		/*
 		select -1 is original model micah
@@ -1069,6 +1081,13 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		}
 		//printf("selectJoint is: %d\n", selectJoint);
 	}
+
+	// If SPACE is pressed, should reposition at random place on grid
+	else if (state_SPACE == GLFW_PRESS)
+	{
+		//arm.setTranslateRandom(glm::vec3(number1, number2, number3));
+	}
+
 
 
 	// If u or j is pressed, scale up or down accordingly
@@ -1118,7 +1137,8 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	else if (state_HOME == GLFW_PRESS) {		
 		jonahTranslationModel +=( - 1.0f * jonahTranslationModel);
 		jonahTranslationRandom += (-1.0f * jonahTranslationRandom);
-		mattModel.resetModel();
+		mattTranslationModel += (-1.0f * mattTranslationModel);
+		mattTranslationRandom += (-1.0f * mattTranslationRandom);
 		jonArm.resetArm();
 		evanArm.resetArm();
 		GroupMatrixScale = glm::vec3(1.0f);
