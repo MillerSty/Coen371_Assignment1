@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "Material.h"
 
 class Arm
 {
@@ -60,6 +61,8 @@ public:
 
 	glm::vec3 TranslateModel;
 	float armRotate,elbowRotate,wristRotate, fingerRotate;
+	Material skinMaterial;
+	Material clothMaterial;
 
 	int shaderProgram;
 	int renderAs;

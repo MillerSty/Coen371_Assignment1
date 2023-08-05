@@ -66,6 +66,7 @@ bool Racket::Draw() {
 
 	glm::mat4 handleParent = partParent*handleTranslate*handleScale* handleRotate;
 	RacketGroupMatrix = groupMatrix * handleParent;
+	this->partChild = RacketGroupMatrix;
 	glm::mat4 check= handleTranslate * handleRotate;
 	//this->partParent = handleTranslate* handleRotate;
 
@@ -207,8 +208,9 @@ bool Racket::Draw() {
 	glBindVertexArray(0);
 
 	ball.shaderProgram = shaderProgram;
-	ball.groupMatrix = partParent* glm::translate(glm::mat4(1.0f), glm::vec3(-0.03f, -.20f, .03f));;
+	ball.groupMatrix = this->partChild;
 	ball.renderAs = renderAs;
-	ball.DrawBall();
+	//boolean if shadows check
+	ball.DrawJBall();
 	return true;
 }

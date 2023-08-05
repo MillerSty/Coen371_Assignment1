@@ -62,7 +62,8 @@ bool Arm::DrawArm() {
 	glm::mat4 partRo;
 	glm::mat4 partMatrix;
 	//note this works
-
+	skinMaterial.bindTexture();
+	skinMaterial.loadToShader();
 	glBindVertexArray(cubeVao);
 	glm::mat4 bicepParent; //so for initiali parent , it has local.global translate plus local rotate 
 	glm::mat4 biTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(TranslateRandom.x + TranslateModel.x + position.x, TranslateModel.y + TranslateRandom.y +position.y, TranslateRandom.z + position.z));
@@ -98,6 +99,8 @@ bool Arm::DrawArm() {
 	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 
 	// hand
+	clothMaterial.bindTexture();
+	clothMaterial.loadToShader();
 	glm::mat4 handTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(constArmScaler.x *.0666f, .0f, .0f));
 	glm::mat4 handRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)wristRotate), glm::vec3(.0f, 1.0f, .0f)); //this rotates hand
 	glm::mat4 handParent = forarmParent * handTranslate * handRotate;
@@ -114,6 +117,8 @@ bool Arm::DrawArm() {
 	partParent = handParent;
 
 	////NOTE FINGERS WILL DIRECTLY INHERIT FROM HAND -> HAND IS THEIR PARENT
+	skinMaterial.bindTexture();
+	skinMaterial.loadToShader();
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.94f, .76f, .5f))); //al have the same colour
 	glm::mat4 fingerTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.02f, -.012f, -.0f));
 	glm::mat4 fingerRotater = glm::rotate(glm::mat4(1.0f), glm::radians(fingerRotate), glm::vec3(.0f, -1.0f, .0f));
