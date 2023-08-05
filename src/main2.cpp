@@ -271,6 +271,7 @@ glm::vec3 translateWSAD(0.0f, 0.0f, 0.0f);
 glm::vec3 Translate(.0f, .0f, .0f);
 glm::vec3 GroupMatrixScale(1.0f, 1.0f, 1.0f);
 glm::mat4 groupMatrix;
+glm::mat4 mattGroupMatrix;
 glm::mat4 rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
 // Create MattModel
@@ -280,7 +281,7 @@ glm::vec3 jonahTranslationRandom(.0f, .0f, .0f);
 glm::vec3 jonahTranslationModel(.0f, .0f, .0f);
 float jonahRotationAngle = 0.0f;
 
-//float mattRotationAngle = 0.0f;
+float mattRotationAngle = 0.0f;
 
 // Create Sabrina model parts
 SabrinaArm sabrinaArm;
@@ -555,6 +556,11 @@ int main(int argc, char* argv[])
 			          glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
 			          rotationMatrixW;
 
+		mattGroupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) *
+			              glm::rotate(glm::mat4(1.0f), glm::radians(mattRotationAngle), glm::vec3(0.0f, 1.0f, 0.0f)) *
+			              glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
+			              rotationMatrixW;
+
 		float lightDepth = 1.0f; //we can do 30, but it works better lower because the scale?
 		bool noshowLightBox = false;
 		float x = sin(i);
@@ -602,7 +608,7 @@ int main(int argc, char* argv[])
 
             evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
 			
-			mattModel.setGroupMatrix(groupMatrix);
+			mattModel.setGroupMatrix(mattGroupMatrix);
 			mattModel.setRenderAs(renderAs);
 			mattModel.drawModel();
       
@@ -639,7 +645,7 @@ int main(int argc, char* argv[])
 
 			evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
 
-			mattModel.setGroupMatrix(groupMatrix);
+			mattModel.setGroupMatrix(mattGroupMatrix);
 			mattModel.setRenderAs(renderAs);
 			mattModel.drawModel();
 
@@ -982,39 +988,33 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	case(2):
 		if (state_W == GLFW_PRESS) {
 			glm::vec3 change = glm::vec3(0.0f, 0.005f, 0.0f);
-
 			mattModel.setTranslationModel(mattModel.getTranslationModel() + change);
-			break;
 		}
 		else if (state_S == GLFW_PRESS) {
 			glm::vec3 change = glm::vec3(0.0f, 0.005f, 0.0f);
-			
 			mattModel.setTranslationModel(mattModel.getTranslationModel() - change);
-			break;
 		}
 		else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT) {
 			glm::vec3 change = glm::vec3(0.005f, 0.0f, 0.0f);
-
 			mattModel.setTranslationModel(mattModel.getTranslationModel() + change);
-			break;
 		}
 		else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT) {
 			glm::vec3 change = glm::vec3(0.005f, 0.0f, 0.0f);
-
 			mattModel.setTranslationModel(mattModel.getTranslationModel() - change);
-			break;
 		}
-		//else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT) {
-		//	mattRotationAngle += 5.0f; break;
-		//}
-		//else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT) {
-		//	mattRotationAngle -= 5.0f;
-		//	break;
-		//}
+		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT) {
+			//mattModel.setRotationAngle(mattModel.getRotationAngle() + 5.0f);
+			//break;
+			mattRotationAngle += 5.0f;
+		}
+		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT) {
+			//mattModel.setRotationAngle(mattModel.getRotationAngle() - 5.0f);
+			//break;
+			mattRotationAngle -= 5.0f;
+		}
 		else if (state_SPACE == GLFW_PRESS) {
 			glm::vec3 change = glm::vec3(number1, number2, number3);
 			mattModel.setTranslationRandom(change);
-			break;
 		}
 		
 	case(3)://noot break;
