@@ -39,6 +39,7 @@ public:
 	Material ballTexture;
 	Material grassTexture;
 	Material plasticTexture;
+	Material skyTexture;
 	//atrributes for court
 
 	//attributes for net
@@ -60,6 +61,7 @@ public:
 	
 	void InitGrid();
 	bool DrawBall();
+	bool DrawJBall();
 	bool DrawCourt();
 	bool DrawNet();
 	bool DrawSkyBox();
