@@ -19,12 +19,7 @@
 #include "Racket.h"
 #include "SceneObjects.h"
 #include "Material.h"
-#include "Evan-models/EvanArm.h"
-#include "Evan-models/EvanRacket.h"
-#include "matt-models/MattModel.h"
-#include "Sabrina-models/SabrinaArm.h"
-#include "JonahModels.h"
-
+using namespace glm;
 // Set the shader paths
 const char* vertex = "../src/shaders/unifiedVertex.glsl";
 const char* fragment = "../src/shaders/unifiedFragment.glsl";
@@ -272,17 +267,9 @@ glm::mat4 groupMatrix;
 glm::mat4 mattGroupMatrix;
 glm::mat4 rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
-// Create MattModel
-MattModel mattModel;
 
-glm::vec3 jonahTranslationRandom(.0f, .0f, .0f);
-glm::vec3 jonahTranslationModel(.0f, .0f, .0f);
-float jonahRotationAngle = 0.0f;
 
-float mattRotationAngle = 0.0f;
 
-// Create Sabrina model parts
-SabrinaArm sabrinaArm;
 
 int renderAs = GL_TRIANGLES;
 int shaderProgram;
@@ -293,8 +280,7 @@ float translateW = 0, translateY = 0, translateZ = 0;
 // Toggles for shadows and textures
 bool shouldApplyShadows = true;
 bool shouldApplyTextures = true;
-Arm jonArm;
-EvanArm evanArm;
+Arm playerArm;
 int selectModel = 0; //we can se to 0 but then user has to toggle to before any thing
 int selectJoint =0;
 
@@ -438,12 +424,13 @@ int main(int argc, char* argv[])
 	SceneObj.setMaterials(courtMaterial, clothMaterial, ropeMaterial, metalMaterial, grassMaterial, plasticMaterial);
 	SceneObj.skyTexture = skyMaterial;
 	
-	//Jons Racket and Arm ****	
-	jonArm.InitArm(glm::vec3(-.5f, 0.0f, .2f), unitCubeAO,skinMaterial,clothMaterial);
+	//Racket and Arm ****	
+	playerArm.InitArm(glm::vec3(-.5f, 0.0f, .2f), unitCubeAO,skinMaterial,clothMaterial);
 	Ball.grassTexture = grassMaterial;
 	Ball.shaderProgram = shaderProgram;
 	Ball.sphereVao = unitSphereAO;
 	Ball.sphereVertCount=vertexIndicessphere.size();
+
 	Racket racket(unitCubeAO, "racket");
 	racket.plasticMaterial = plasticMaterial;
 	racket.setBall(Ball);
@@ -455,18 +442,7 @@ int main(int argc, char* argv[])
 	glfwSetCursorPosCallback(window, mouseCursorPostionCallback);
 	//glfwSetWindowSizeCallback(window, windowSizeCallback);
 
-	glm::vec3 modelScale(0.25, 0.25, 0.25);
-    EvanRacket evanRacket(glm::vec3(0.2f, 0.0f, 0.0f), modelScale,
-                          unitCubeAO,unitCubeAO,unitCubeAO,
-                          unitCubeAO,unitCubeAO, unitCubeAO );
-	evanArm.setInitial(
-		glm::vec3(0.2f, 0.0f, 0.0f), 
-		modelScale,
-		unitCubeAO,
-        unitCubeAO, 
-		evanRacket );
 
-	JonahModels J = JonahModels(unitCubeAO, shaderProgram);
 
     // Lighting
     float lightAngleOuter = 10.0;
@@ -535,16 +511,7 @@ int main(int argc, char* argv[])
 
 	float lastFrameTime = glfwGetTime();
 	
-	// Set Matt VAO and shader program
-	mattModel.setShaderProgram(shaderProgram);
-	mattModel.setVAO(unitCubeAO, unitSphereAO);
-	mattModel.setSphereVertCount(vertexIndicessphere.size());
-	mattModel.setMaterials(woodMaterial, tattooMaterial, clothMaterial);
-	mattModel.setRenderAs(renderAs);
 
-	// Set Sabrina VAO and shader program
-	sabrinaArm.setShaderProgram(shaderProgram);
-	sabrinaArm.setVAO(unitCubeAO);
 
 	float i = -1;
 	float spin = 0;
@@ -557,10 +524,6 @@ int main(int argc, char* argv[])
 			          glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
 			          rotationMatrixW;
 
-		mattGroupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) *
-			              glm::rotate(glm::mat4(1.0f), glm::radians(mattRotationAngle), glm::vec3(0.0f, 1.0f, 0.0f)) *
-			              glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
-			              rotationMatrixW;
 
 		float lightDepth = 1.0f; //we can do 30, but it works better lower because the scale?
 		bool noshowLightBox = false;
@@ -569,20 +532,11 @@ int main(int argc, char* argv[])
 		i += .02;
 			glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
 			rotationMatrixW;
-			//evan Translation for smaller 
-		glm::vec3 evanTranslation = vec3(evanArm.getTranslateModel().x + evanArm.getTranslateRandom().x + evanArm.initialPosition.x, evanArm.getTranslateModel().y + evanArm.getTranslateRandom().y + evanArm.initialPosition.y, evanArm.getTranslateModel().z + evanArm.getTranslateRandom().z + evanArm.initialPosition.z);
-		// Demo on how to use evan's model
-		mat4 evanGroupMatrix = translate(mat4(1.0f), vec3(evanTranslation.x + -0.2f * sinf((float)0.0f), evanTranslation.y + 0.0f, evanTranslation.z + 0.0f)) *
-			                   rotate(mat4(1.0f), radians(evanArm.getRotation()), vec3(1.0f, 0.0f, 0.0f));
-		
-		mat4 evanBicepMatrix = rotate(mat4(1.0f), radians(evanArm.getERotation()), vec3(.0f, 0.0f, 1.0f));
-		evanArm.groupMatrix = groupMatrix*evanGroupMatrix;
-		evanArm.bicepMatrix = evanBicepMatrix; //bicep not called
-		evanArm.racket.groupMatrix = groupMatrix * evanGroupMatrix;
-		evanArm.racket.bicepMatrix = evanBicepMatrix;
-		
-		lastFrameTime = glfwGetTime();
 
+		
+
+		lastFrameTime = glfwGetTime();
+		printf("TIME: %f\n", lastFrameTime);
 		//float checkest = evanArm.getERotation();
 		//printf("evan rotation: %f\n", checkest);
 		// Must draw scene in 2 passes: once for shadows, and another normally
@@ -602,21 +556,11 @@ int main(int argc, char* argv[])
 			if (i == 1.0f) i = -1.0f;
 
 			// Draw geometry
-			jonArm.SetAttr(groupMatrix, renderAs, shaderProgram);
-			jonArm.DrawArm();
-			racket.SetAttr(groupMatrix, renderAs, shaderProgram, jonArm.partParent);
+			playerArm.SetAttr(groupMatrix, renderAs, shaderProgram);
+			playerArm.DrawArm();
+			racket.SetAttr(groupMatrix, renderAs, shaderProgram, playerArm.partParent);
 			racket.Draw();
 
-            evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
-			
-			mattModel.setGroupMatrix(mattGroupMatrix);
-			mattModel.setRenderAs(renderAs);
-			mattModel.drawModel();
-      
-			sabrinaArm.setGroupMatrix(groupMatrix);
-			sabrinaArm.drawArm();
-      
-			J.drawRacketJ(groupMatrix, jonahTranslationModel+ jonahTranslationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
 
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
@@ -639,21 +583,11 @@ int main(int argc, char* argv[])
 			glBindTexture(GL_TEXTURE_2D, depth_map_texture);
 
 			// Draw geometry
-			jonArm.SetAttr(groupMatrix, renderAs, shaderProgram);
-			jonArm.DrawArm();
-			racket.SetAttr(groupMatrix, renderAs, shaderProgram, jonArm.partParent);
+			playerArm.SetAttr(groupMatrix, renderAs, shaderProgram);
+			playerArm.DrawArm();
+			racket.SetAttr(groupMatrix, renderAs, shaderProgram, playerArm.partParent);
 			racket.Draw();
 
-			evanArm.draw(plasticTextureID, worldMatrixLocation, colorLocation, shaderProgram);
-
-			mattModel.setGroupMatrix(mattGroupMatrix);
-			mattModel.setRenderAs(renderAs);
-			mattModel.drawModel();
-
-			sabrinaArm.setGroupMatrix(groupMatrix);
-			sabrinaArm.drawArm();
-
-			J.drawRacketJ(groupMatrix, jonahTranslationModel + jonahTranslationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
 
 			//J.drawRacketJ(groupMatrix, translationVec + translationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
 
@@ -665,7 +599,7 @@ int main(int argc, char* argv[])
 
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noshowLightBox);
 		}
-		jonArm.flexFingers();
+		playerArm.flexFingers();
 		//micahArm.flexFingers(spin, reverse);
 		//trying to add finger manipulation
 		//float check = jonArm.getFRotation();
@@ -878,151 +812,44 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 
 
 	case(0):	//Evans model
-		if (state_W == GLFW_PRESS)
-		{
-			evanArm.setTranslateModel(glm::vec3(evanArm.getTranslateModel().x, (evanArm.getTranslateModel().y + .005f), evanArm.getTranslateModel().z));
-			break;
-		}
-		else if (state_S == GLFW_PRESS)
-		{
-			evanArm.setTranslateModel(glm::vec3(evanArm.getTranslateModel().x, (evanArm.getTranslateModel().y - .005f), evanArm.getTranslateModel().z));
-			break;
-		}
-		else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-		{
-			evanArm.setTranslateModel(glm::vec3((evanArm.getTranslateModel().x + .005f), evanArm.getTranslateModel().y, evanArm.getTranslateModel().z));
-			break;
-		}
-		else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-		{
-			evanArm.setTranslateModel(glm::vec3((evanArm.getTranslateModel().x - .005f), evanArm.getTranslateModel().y, evanArm.getTranslateModel().z));
-			break;
-		}
-		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-		{
-			switch (selectJoint) {
-			case(0): { evanArm.setRotation(evanArm.getRotation() + 5);  break; }
-			case(1):if (evanArm.getERotation() + 5 > 90) {
-				evanArm.setERotation(90); break; 
-			}
-				   else { evanArm.setERotation(evanArm.getERotation() + 5);  break; }
-			default: break;
-			}
-
-			// evanArm.setRotation(evanArm.getRotation() + 5); break;
-		}
-
-		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-		{
-			switch (selectJoint) {
-			case(0): { evanArm.setRotation(evanArm.getRotation() - 5);  break; }
-			case(1):if (evanArm.getERotation() - 5 < 0) {
-				evanArm.setERotation(0);
-				break; 
-			}
-				   else {
-				evanArm.setERotation(evanArm.getERotation() - 5); 
-				break; 
-			}
-			default: break;
-			}
-			// evanArm.setRotation(evanArm.getRotation() - 5); break;
-		}
-		else if (state_SPACE == GLFW_PRESS)
-		{
-			evanArm.setTranslateRandom(glm::vec3(number1, number2, number3));
-			break;
-
-		}
 		break;
 	case(1)://jonah's
-		if (state_W == GLFW_PRESS) {
-			jonahTranslationModel.y += .005f; break;
-		}
-		else if (state_S == GLFW_PRESS) {
-			jonahTranslationModel.y -= .005f; break;
-		}
-		else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT) {
-			jonahTranslationModel.x += .005f; break;
-		}
-		else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT) {
-			jonahTranslationModel.x -= .005f; break;
-		}
-		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT) {
-			jonahRotationAngle += 5.0f; break;
-		}
-		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT) {
-			jonahRotationAngle -= 5.0f;
-			break;
-		}
-		else if (state_SPACE == GLFW_PRESS){
-			jonahTranslationRandom=glm::vec3(number1, number2, number3);
-			break;
-		}
+		
 		break;
 	// Matt's model
 	case(2):
-		if (state_W == GLFW_PRESS) {
-			glm::vec3 change = glm::vec3(0.0f, 0.005f, 0.0f);
-			mattModel.setTranslationModel(mattModel.getTranslationModel() + change);
-		}
-		else if (state_S == GLFW_PRESS) {
-			glm::vec3 change = glm::vec3(0.0f, 0.005f, 0.0f);
-			mattModel.setTranslationModel(mattModel.getTranslationModel() - change);
-		}
-		else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT) {
-			glm::vec3 change = glm::vec3(0.005f, 0.0f, 0.0f);
-			mattModel.setTranslationModel(mattModel.getTranslationModel() + change);
-		}
-		else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT) {
-			glm::vec3 change = glm::vec3(0.005f, 0.0f, 0.0f);
-			mattModel.setTranslationModel(mattModel.getTranslationModel() - change);
-		}
-		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT) {
-			//mattModel.setRotationAngle(mattModel.getRotationAngle() + 5.0f);
-			//break;
-			mattRotationAngle += 5.0f;
-		}
-		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT) {
-			//mattModel.setRotationAngle(mattModel.getRotationAngle() - 5.0f);
-			//break;
-			mattRotationAngle -= 5.0f;
-		}
-		else if (state_SPACE == GLFW_PRESS) {
-			glm::vec3 change = glm::vec3(number1, number2, number3);
-			mattModel.setTranslationRandom(change);
-		}
+		
 		break;
 		
 	case(3)://noot break;
 		break;
 	case(4)://Jon's Model		
 		if (state_W == GLFW_PRESS)
-			jonArm.setTranslateModel(glm::vec3(jonArm.getTranslateModel().x, (jonArm.getTranslateModel().y + .005f), jonArm.getTranslateModel().z));
+			playerArm.setTranslateModel(glm::vec3(playerArm.getTranslateModel().x, (playerArm.getTranslateModel().y + .005f), playerArm.getTranslateModel().z));
 		else if (state_S == GLFW_PRESS)
-			jonArm.setTranslateModel(glm::vec3(jonArm.getTranslateModel().x, (jonArm.getTranslateModel().y - .005f), jonArm.getTranslateModel().z));
+			playerArm.setTranslateModel(glm::vec3(playerArm.getTranslateModel().x, (playerArm.getTranslateModel().y - .005f), playerArm.getTranslateModel().z));
 		else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-			jonArm.setTranslateModel(glm::vec3((jonArm.getTranslateModel().x - .005f), jonArm.getTranslateModel().y, jonArm.getTranslateModel().z));
+			playerArm.setTranslateModel(glm::vec3((playerArm.getTranslateModel().x - .005f), playerArm.getTranslateModel().y, playerArm.getTranslateModel().z));
 		else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-			jonArm.setTranslateModel(glm::vec3((jonArm.getTranslateModel().x + .005f), jonArm.getTranslateModel().y, jonArm.getTranslateModel().z));
+			playerArm.setTranslateModel(glm::vec3((playerArm.getTranslateModel().x + .005f), playerArm.getTranslateModel().y, playerArm.getTranslateModel().z));
 		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
 			switch (selectJoint) {
-			case(0): jonArm.setRotation(jonArm.getRotation() + 5);  break;
-			case(1):if (jonArm.getERotation() + 5 > 90)jonArm.setERotation(90); else  jonArm.setERotation(jonArm.getERotation() + 5);  break;
-			case(2):if (jonArm.getWRotation() + 5 > 65)jonArm.setWRotation(65); else  jonArm.setWRotation(jonArm.getWRotation() + 5); break;
+			case(0): playerArm.setRotation(playerArm.getRotation() + 5);  break;
+			case(1):if (playerArm.getERotation() + 5 > 90)playerArm.setERotation(90); else  playerArm.setERotation(playerArm.getERotation() + 5);  break;
+			case(2):if (playerArm.getWRotation() + 5 > 65)playerArm.setWRotation(65); else  playerArm.setWRotation(playerArm.getWRotation() + 5); break;
 			default: break;
 			}
 		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
 			switch (selectJoint) {
-			case(0): jonArm.setRotation(jonArm.getRotation() - 5);  break;
-			case(1):if (jonArm.getERotation() - 5 < 0)jonArm.setERotation(0); else  jonArm.setERotation(jonArm.getERotation() - 5);  break;
-			case(2):if (jonArm.getWRotation() - 5 < -85)jonArm.setWRotation(-85); else  jonArm.setWRotation(jonArm.getWRotation() - 5); break;
+			case(0): playerArm.setRotation(playerArm.getRotation() - 5);  break;
+			case(1):if (playerArm.getERotation() - 5 < 0)playerArm.setERotation(0); else  playerArm.setERotation(playerArm.getERotation() - 5);  break;
+			case(2):if (playerArm.getWRotation() - 5 < -85)playerArm.setWRotation(-85); else  playerArm.setWRotation(playerArm.getWRotation() - 5); break;
 			default: break;
 			}
 		else if (state_SPACE == GLFW_PRESS)
 		{
 
-			jonArm.setTranslateRandom(glm::vec3(number1, number2, number3));
+			playerArm.setTranslateRandom(glm::vec3(number1, number2, number3));
 		}
 		break;
 
@@ -1119,11 +946,11 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 
 	// If HOME is pressed, remove translations, rotations, and scalings
 	else if (state_HOME == GLFW_PRESS) {		
-		jonahTranslationModel +=( - 1.0f * jonahTranslationModel);
-		jonahTranslationRandom += (-1.0f * jonahTranslationRandom);
-		mattModel.resetModel();
-		jonArm.resetArm();
-		evanArm.resetArm();
+		//jonahTranslationModel +=( - 1.0f * jonahTranslationModel);
+		//jonahTranslationRandom += (-1.0f * jonahTranslationRandom);
+		//mattModel.resetModel();
+		playerArm.resetArm();
+		//evanArm.resetArm();
 		GroupMatrixScale = glm::vec3(1.0f);
 		rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 		glm::mat4 InitviewMatrix = glm::lookAt(eye, center, up);
