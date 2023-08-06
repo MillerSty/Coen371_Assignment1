@@ -23,6 +23,9 @@
 #include "Evan-models/EvanRacket.h"
 #include "matt-models/MattModel.h"
 #include "Sabrina-models/SabrinaArm.h"
+#include "Sabrina-models/SabrinaRacket.h"
+
+
 #include "JonahModels.h"
 
 // Set the shader paths
@@ -283,6 +286,7 @@ float mattRotationAngle = 0.0f;
 
 // Create Sabrina model parts
 SabrinaArm sabrinaArm;
+SabrinaRacket sabrinaRacket;
 
 int renderAs = GL_TRIANGLES;
 int shaderProgram;
@@ -423,7 +427,7 @@ int main(int argc, char* argv[])
 	GLuint woodTextureID = loadTexture("../src/Assets/wood1.jpg");
 	GLuint tattooTextureID = loadTexture("../src/Assets/tattoo.jpg");
 						//diff spec ambient shiny
-	Material courtMaterial(.2f, .20f, 1.0f, .001f, courtTextureID, shaderProgram); //court shouldnt reflect
+	Material courtMaterial(.2f, .002f, .50f, .001f, courtTextureID, shaderProgram); //court shouldnt reflect
 	Material ropeMaterial(.5f, .60f, .5f, .09f, ropeTextureID, shaderProgram); // ropes are just ropes
 	Material clothMaterial(.5f, .30f, .5f, .02f, clothTextureID, shaderProgram); //cloth should have a little reflection?
 	Material metalMaterial(.6f, .90f, .6f, .12f, metalTextureID, shaderProgram); //metal should shine
@@ -482,7 +486,7 @@ int main(int argc, char* argv[])
     glUniform3fv(lightColorLoc, 1, glm::value_ptr(vec3(1.0f, 1.0f, 1.0f)));
 
     // light parameters
-    glm::vec3 lightPosition(-.30f, .30f, .0f); // the location of the light in 3D space
+    glm::vec3 lightPosition(-0.0f, 30.0f, .0f); // the location of the light in 3D space
 	glm::vec3 lightFocus(0.0, -0.01, .0f);      // the point in 3D space the light "looks" at
 	glm::vec3 lightDirection = glm::normalize(lightFocus - lightPosition);
 
@@ -545,6 +549,9 @@ int main(int argc, char* argv[])
 	// Set Sabrina VAO and shader program
 	sabrinaArm.setShaderProgram(shaderProgram);
 	sabrinaArm.setVAO(unitCubeAO);
+	sabrinaRacket.setShaderProgram(shaderProgram);
+	sabrinaRacket.setVAO(unitCubeAO);
+
 
 	float i = -1;
 	float spin = 0;
@@ -615,6 +622,9 @@ int main(int argc, char* argv[])
       
 			sabrinaArm.setGroupMatrix(groupMatrix);
 			sabrinaArm.drawArm();
+			sabrinaRacket.setWorldMatrix(groupMatrix);
+			sabrinaRacket.drawRacket();
+
       
 			J.drawRacketJ(groupMatrix, jonahTranslationModel+ jonahTranslationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
 
@@ -652,6 +662,9 @@ int main(int argc, char* argv[])
 
 			sabrinaArm.setGroupMatrix(groupMatrix);
 			sabrinaArm.drawArm();
+			sabrinaRacket.setWorldMatrix(groupMatrix);
+			sabrinaRacket.drawRacket();
+
 
 			J.drawRacketJ(groupMatrix, jonahTranslationModel + jonahTranslationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
 
