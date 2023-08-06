@@ -679,27 +679,6 @@ int main(int argc, char* argv[])
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noshowLightBox);
 		}
 		jonArm.flexFingers();
-		//micahArm.flexFingers(spin, reverse);
-		//trying to add finger manipulation
-		//float check = jonArm.getFRotation();
-		//if ((jonArm.getFRotation() + spin) > 90.0f && reverse == false) { 
-		//	
-		//	jonArm.setFRotation(jonArm.getFRotation() - spin); 
-		//	reverse = true;
-		//}
-		//else if (jonArm.getFRotation() + spin < 0.0f && reverse == true) {
-		//	jonArm.setFRotation(jonArm.getFRotation() + spin); 
-		//	reverse = false; 
-		//}
-		//else if (reverse == true){
-		//	jonArm.setFRotation(jonArm.getFRotation() - spin);
-		//	spin -= .01f;
-		//	}
-		//else { 
-		//	jonArm.setFRotation(jonArm.getFRotation() + spin);
-		//	spin += .01f;
-		//}		
-		//printf("%f\n", spin);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
