@@ -5,6 +5,8 @@ SabrinaRacket::SabrinaRacket()
 	worldMatrix = glm::mat4(1.0f);
 	initialScale = glm::vec3(0.2f);
 	renderAs = GL_TRIANGLES;
+
+	this->groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.35f, 0.30f, -0.20f));
 	//mattRacket = racket;
 }
 
@@ -40,7 +42,7 @@ void SabrinaRacket::setRenderAs(int as) { renderAs = as; }
 
 int SabrinaRacket::getRenderAs() { return renderAs; }
 
-float scaleConversion = 3.281f;
+float scaleConversion = 4.281f;
 
 
 void SabrinaRacket::drawRacket()
@@ -55,15 +57,15 @@ void SabrinaRacket::drawRacket()
 	drawracketpoleleft3();
 	drawracketpoleleft4();
 	drawracketmidtop();
-	drawracketmidtop2();
-	drawracketgrid();
+	//drawracketmidtop2();
+	//drawracketgrid();
 }
 
 void SabrinaRacket::drawracketpole()
 {
 	glm::mat4 racketpole = worldMatrix * groupMatrix;
 	glm::mat4 racketpoleTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-	glm::mat4 racketpoleScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 8.0f, 0.5f) / scaleConversion);
+	glm::mat4 racketpoleScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 6.0f, 0.5f) / scaleConversion);
 	glm::mat4 racketpoleTransform = racketpoleTranslate * racketpoleScale;
 	racketpole *= racketpoleTransform;
 
@@ -80,7 +82,7 @@ void SabrinaRacket::drawracketpole()
 void SabrinaRacket::drawracketpoleright1()
 {
 	glm::mat4 racketpoleright1 = worldMatrix * groupMatrix;
-	glm::mat4 racketpoleright1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 7.63f, 0.0f) / scaleConversion);
+	glm::mat4 racketpoleright1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.2f, .4f, 0.0f) / scaleConversion);
 	glm::mat4 racketpoleright1Scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 5.0f, 0.5f) / scaleConversion);
 	glm::mat4 racketpoleright1Rotation = glm::rotate(glm::mat4(1.0f), glm::radians(-45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 racketpoleright1Transform = racketpoleright1Translate * racketpoleright1Rotation * racketpoleright1Scale;
@@ -99,7 +101,7 @@ void SabrinaRacket::drawracketpoleright1()
 void SabrinaRacket::drawracketpoleright3()
 {
 	glm::mat4 racketpoleright3 = worldMatrix * groupMatrix;
-	glm::mat4 racketpoleright3Translate = glm::translate(glm::mat4(1.0f), glm::vec3(3.45f, 15.87f, 0.0f) / scaleConversion);
+	glm::mat4 racketpoleright3Translate = glm::translate(glm::mat4(1.0f), glm::vec3(.3f, 1.0f, 0.0f) / scaleConversion);
 	glm::mat4 racketpoleright3Scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 2.0f, 0.5f) / scaleConversion);
 	glm::mat4 racketpoleright3Rotation = glm::rotate(glm::mat4(1.0f), glm::radians(35.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 racketpoleright3Transform = racketpoleright3Translate * racketpoleright3Rotation * racketpoleright3Scale;
@@ -119,7 +121,7 @@ void SabrinaRacket::drawracketpoleright3()
 void SabrinaRacket::drawracketpoleright2()
 {
 	glm::mat4 racketpoleright2 = worldMatrix * groupMatrix;
-	glm::mat4 racketpoleright2Translate = glm::translate(glm::mat4(1.0f), glm::vec3(3.45f, 10.97f, 0.0f) / scaleConversion);
+	glm::mat4 racketpoleright2Translate = glm::translate(glm::mat4(1.0f), glm::vec3(.33f, .73f, 0.0f) / scaleConversion);
 	glm::mat4 racketpoleright2Scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 5.0f, 0.5f) / scaleConversion);
 	glm::mat4 racketpoleright2Transform = racketpoleright2Translate * racketpoleright2Scale;
 	racketpoleright2 *= racketpoleright2Transform;
@@ -137,7 +139,7 @@ void SabrinaRacket::drawracketpoleright2()
 void SabrinaRacket::drawracketpoleright4()
 {
 	glm::mat4 racketpoleright4 = worldMatrix * groupMatrix;
-	glm::mat4 racketpoleright4Translate = glm::translate(glm::mat4(1.0f), glm::vec3(2.38f, 17.40f, 0.0f) / scaleConversion);
+	glm::mat4 racketpoleright4Translate = glm::translate(glm::mat4(1.0f), glm::vec3(.2f, 1.1f, 0.0f) / scaleConversion);
 	glm::mat4 racketpoleright4Scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 2.0f, 0.5f) / scaleConversion);
 	glm::mat4 racketpoleright4Rotation = glm::rotate(glm::mat4(1.0f), glm::radians(70.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 racketpoleright4Transform = racketpoleright4Translate * racketpoleright4Rotation * racketpoleright4Scale;
@@ -156,7 +158,7 @@ void SabrinaRacket::drawracketpoleright4()
 void SabrinaRacket::drawracketpoleleft1()
 {
 	glm::mat4 racketpoleleft1 = worldMatrix * groupMatrix;
-	glm::mat4 racketpoleleft1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 7.63f, 0.0f) / scaleConversion);
+	glm::mat4 racketpoleleft1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.20f, .5f, 0.0f) / scaleConversion);
 	glm::mat4 racketpoleleft1Scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 5.0f, 0.5f) / scaleConversion);
 	glm::mat4 racketpoleleft1Rotation = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 racketpoleleft1Transform = racketpoleleft1Translate * racketpoleleft1Rotation * racketpoleleft1Scale;
@@ -175,7 +177,7 @@ void SabrinaRacket::drawracketpoleleft1()
 void SabrinaRacket::drawracketpoleleft2()
 {
 	glm::mat4 racketpoleleft2 = worldMatrix * groupMatrix;
-	glm::mat4 racketpoleleft2Translate = glm::translate(glm::mat4(1.0f), glm::vec3(-3.45f, 10.97f, 0.0f) / scaleConversion);
+	glm::mat4 racketpoleleft2Translate = glm::translate(glm::mat4(1.0f), glm::vec3(-.33f, .8f, 0.0f) / scaleConversion);
 	glm::mat4 racketpoleleft2Scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 5.0f, 0.5f) / scaleConversion);
 	glm::mat4 racketpoleleft2Transform = racketpoleleft2Translate * racketpoleleft2Scale;
 	racketpoleleft2 *= racketpoleleft2Transform;
@@ -193,7 +195,7 @@ void SabrinaRacket::drawracketpoleleft2()
 void SabrinaRacket::drawracketpoleleft3()
 {
 	glm::mat4 racketpoleleft3 = worldMatrix * groupMatrix;
-	glm::mat4 racketpoleleft3Translate = glm::translate(glm::mat4(1.0f), glm::vec3(-3.45f, 15.87f, 0.0f) / scaleConversion);
+	glm::mat4 racketpoleleft3Translate = glm::translate(glm::mat4(1.0f), glm::vec3(-.3f, 1.1f, 0.0f) / scaleConversion);
 	glm::mat4 racketpoleleft3Scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 2.0f, 0.5f) / scaleConversion);
 	glm::mat4 racketpoleleft3Rotation = glm::rotate(glm::mat4(1.0f), glm::radians(-35.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 racketpoleleft3Transform = racketpoleleft3Translate * racketpoleleft3Rotation * racketpoleleft3Scale;
@@ -212,7 +214,7 @@ void SabrinaRacket::drawracketpoleleft3()
 void SabrinaRacket::drawracketpoleleft4()
 {
 	glm::mat4 racketpoleleft4 = worldMatrix * groupMatrix;
-	glm::mat4 racketpoleleft4Translate = glm::translate(glm::mat4(1.0f), glm::vec3(-2.38f, 17.40f, 0.0f) / scaleConversion);
+	glm::mat4 racketpoleleft4Translate = glm::translate(glm::mat4(1.0f), glm::vec3(-.2f, 1.20f, 0.0f) / scaleConversion);
 	glm::mat4 racketpoleleft4Scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 2.0f, 0.5f) / scaleConversion);
 	glm::mat4 racketpoleleft4Rotation = glm::rotate(glm::mat4(1.0f), glm::radians(-70.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 racketpoleleft4Transform = racketpoleleft4Translate * racketpoleleft4Rotation * racketpoleleft4Scale;
@@ -231,9 +233,9 @@ void SabrinaRacket::drawracketpoleleft4()
 void SabrinaRacket::drawracketmidtop()
 {
 	glm::mat4 racketmidtop = worldMatrix * groupMatrix;
-	glm::mat4 racketmidtopTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.75f, 18.0f, 0.0f) / scaleConversion);
-	glm::mat4 racketmidtopScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 1.5f, 0.5f) / scaleConversion);
-	glm::mat4 racketmidtopRotation = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	glm::mat4 racketmidtopTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.f, 1.20f, 0.0f) / scaleConversion);
+	glm::mat4 racketmidtopScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 3.5f, 0.5f) / scaleConversion);
+	glm::mat4 racketmidtopRotation = glm::rotate(glm::mat4(1.0f), glm::radians(-105.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 racketmidtopTransform = racketmidtopTranslate * racketmidtopRotation * racketmidtopScale;
 	racketmidtop *= racketmidtopTransform;
 
@@ -250,7 +252,7 @@ void SabrinaRacket::drawracketmidtop()
 void SabrinaRacket::drawracketmidtop2()
 {
 	glm::mat4 racketmidtop2 = worldMatrix * groupMatrix;
-	glm::mat4 racketmidtopTranslate2 = glm::translate(glm::mat4(1.0f), glm::vec3(-2.0f, 9.7f, 0.0f) / scaleConversion);
+	glm::mat4 racketmidtopTranslate2 = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .7f, 0.0f) / scaleConversion);
 	glm::mat4 racketmidtopScale2 = glm::scale(glm::mat4(1.0f), glm::vec3(0.8f, 4.0f, 0.5f) / scaleConversion);
 	glm::mat4 racketmidtopRotation2 = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 racketmidtopTransform2 = racketmidtopTranslate2 * racketmidtopRotation2 * racketmidtopScale2;
@@ -269,7 +271,7 @@ void SabrinaRacket::drawracketmidtop2()
 void SabrinaRacket::drawracketgrid()
 {
 	glm::mat4 racketGrid = worldMatrix * groupMatrix;
-	glm::mat4 racketGridTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 14.0f, 0.0f) / scaleConversion);
+	glm::mat4 racketGridTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, .50f, 0.0f) / scaleConversion);
 	glm::mat4 racketGridRotation = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	glm::mat4 racketGridTransform = racketGridTranslate * racketGridRotation;
 	racketGrid *= racketGridTransform;

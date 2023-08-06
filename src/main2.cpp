@@ -628,8 +628,8 @@ int main(int argc, char* argv[])
       
 			sabrinaArm.setGroupMatrix(groupMatrix);
 			sabrinaArm.drawArm();
-			sabrinaRacket.setGroupMatrix(groupMatrix);
-			sabrinaRacket.drawArm();
+			sabrinaRacket.setWorldMatrix(groupMatrix);
+			sabrinaRacket.drawRacket();
 
       
 			J.drawRacketJ(groupMatrix, jonahTranslationModel+ jonahTranslationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
@@ -672,7 +672,8 @@ int main(int argc, char* argv[])
 
 			sabrinaArm.setGroupMatrix(groupMatrix);
 			sabrinaArm.drawArm();
-
+			sabrinaRacket.setWorldMatrix(groupMatrix);
+			sabrinaRacket.drawRacket();
 
 
 			J.drawRacketJ(groupMatrix, jonahTranslationModel + jonahTranslationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
