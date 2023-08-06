@@ -17,7 +17,7 @@ private:
 	glm::vec3 initialScale;
 	GLuint shaderProgram;
 	int unitCubeVAO;
-	MattRacket mattRacket;
+	int renderAs;
 
 	void drawUpperArm(glm::vec3 TranslateModel,float rotation=0.0f);
 	void drawLowerArm(glm::vec3 TranslateModel,  float rotation = 0.0f);
@@ -41,6 +41,8 @@ public:
 	GLuint getShaderProgram();
 	void setVAO(int vao);
 	int getVAO();
+	void setRenderAs(int as);
+	int getRenderAs();
 
 
 	void drawArm(glm::vec3 TranslateModel, float rotation = 0.0f);

@@ -5,6 +5,7 @@ MattRacket::MattRacket()
 {
 	worldMatrix = glm::mat4(1.0f);
 	initialScale = glm::vec3(0.2f);
+	renderAs = GL_TRIANGLES;
 }
 
 void MattRacket::setRacketColor(glm::vec3 color) { racketColor = color; }
@@ -39,10 +40,14 @@ void MattRacket::setVAO(int vao) { unitCubeVAO = vao; }
 
 int MattRacket::getVAO() { return unitCubeVAO; }
 
+void MattRacket::setRenderAs(int as) { renderAs = as; }
+
+int MattRacket::getRenderAs() { return renderAs; }
+
 void MattRacket::drawRacket(glm::vec3 TranslateModel, float rotation)
 {
-	drawHandle(TranslateModel,rotation);
-	drawPaddle(TranslateModel,rotation);
+	drawHandle(TranslateModel, rotation);
+	drawPaddle(TranslateModel, rotation);
 }
 
 void MattRacket::drawHandle(glm::vec3 TranslateModel, float rotation)
@@ -62,7 +67,7 @@ void MattRacket::drawHandle(glm::vec3 TranslateModel, float rotation)
 	// Set to brown
 	glUniform3fv(glGetUniformLocation(shaderProgram, "objectColor"), 1, glm::value_ptr(glm::vec3(0.42f, 0.3f, 0.0f)));
 
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glDrawArrays(renderAs, 0, 36);
 
 	glBindVertexArray(0);
 }
@@ -84,7 +89,7 @@ void MattRacket::drawPaddle(glm::vec3 TranslateModel, float rotation)
 	// Set to brown
 	glUniform3fv(glGetUniformLocation(shaderProgram, "objectColor"), 1, glm::value_ptr(glm::vec3(0.42f, 0.3f, 0.0f)));
 
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glDrawArrays(renderAs, 0, 36);
 
 	glBindVertexArray(0);
 }
