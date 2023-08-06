@@ -427,7 +427,7 @@ int main(int argc, char* argv[])
 	GLuint woodTextureID = loadTexture("../src/Assets/wood1.jpg");
 	GLuint tattooTextureID = loadTexture("../src/Assets/tattoo.jpg");
 						//diff spec ambient shiny
-	Material courtMaterial(.2f, .20f, 1.0f, .001f, courtTextureID, shaderProgram); //court shouldnt reflect
+	Material courtMaterial(.2f, .002f, .50f, .001f, courtTextureID, shaderProgram); //court shouldnt reflect
 	Material ropeMaterial(.5f, .60f, .5f, .09f, ropeTextureID, shaderProgram); // ropes are just ropes
 	Material clothMaterial(.5f, .30f, .5f, .02f, clothTextureID, shaderProgram); //cloth should have a little reflection?
 	Material metalMaterial(.6f, .90f, .6f, .12f, metalTextureID, shaderProgram); //metal should shine
@@ -486,7 +486,7 @@ int main(int argc, char* argv[])
     glUniform3fv(lightColorLoc, 1, glm::value_ptr(vec3(1.0f, 1.0f, 1.0f)));
 
     // light parameters
-    glm::vec3 lightPosition(-.30f, .30f, .0f); // the location of the light in 3D space
+    glm::vec3 lightPosition(-0.0f, 30.0f, .0f); // the location of the light in 3D space
 	glm::vec3 lightFocus(0.0, -0.01, .0f);      // the point in 3D space the light "looks" at
 	glm::vec3 lightDirection = glm::normalize(lightFocus - lightPosition);
 
