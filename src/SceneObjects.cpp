@@ -71,7 +71,7 @@ void SceneObjects::DrawScene(bool drawSkyBox) {
 	//if (!check) printf("Draw DrawGrid failed");
 	//check = DrawCoord();
 	if (!check) printf("Draw DrawCoord failed");
-	//check = DrawBall();
+	check = DrawBall();
 	if (!check) printf("Draw DrawBall failed");
 	check = DrawCoord();
 	if (!check) printf("Draw DrawCoord failed");

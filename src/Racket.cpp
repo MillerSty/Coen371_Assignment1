@@ -207,10 +207,10 @@ bool Racket::Draw() {
 	plasticMaterial.resetShader();
 	glBindVertexArray(0);
 
-	ball.shaderProgram = shaderProgram;
-	ball.groupMatrix = this->partChild;
-	ball.renderAs = renderAs;
+//	ball.shaderProgram = shaderProgram;
+//	ball.groupMatrix = this->partChild;
+//	ball.renderAs = renderAs;
 	//boolean if shadows check
-	ball.DrawJBall();
+//	ball.DrawJBall();
 	return true;
 }
