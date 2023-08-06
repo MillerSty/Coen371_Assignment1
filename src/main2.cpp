@@ -24,6 +24,8 @@
 #include "matt-models/MattArm.h"
 #include "matt-models/MattRacket.h"
 #include "Sabrina-models/SabrinaArm.h"
+#include "Sabrina-models/SabrinaRacket.h"
+
 
 #include "JonahModels.h"
 
@@ -290,6 +292,7 @@ float mattRotationAngle = 0.0f;
 
 // Create Sabrina model parts
 SabrinaArm sabrinaArm;
+SabrinaRacket sabrinaRacket;
 
 int renderAs = GL_TRIANGLES;
 int shaderProgram;
@@ -552,6 +555,9 @@ int main(int argc, char* argv[])
 	// Set Sabrina VAO and shader program
 	sabrinaArm.setShaderProgram(shaderProgram);
 	sabrinaArm.setVAO(unitCubeAO);
+	sabrinaRacket.setShaderProgram(shaderProgram);
+	sabrinaRacket.setVAO(unitCubeAO);
+
 
 	float i = -1;
 	float spin = 0;
@@ -622,6 +628,9 @@ int main(int argc, char* argv[])
       
 			sabrinaArm.setGroupMatrix(groupMatrix);
 			sabrinaArm.drawArm();
+			sabrinaRacket.setGroupMatrix(groupMatrix);
+			sabrinaRacket.drawArm();
+
       
 			J.drawRacketJ(groupMatrix, jonahTranslationModel+ jonahTranslationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
 
