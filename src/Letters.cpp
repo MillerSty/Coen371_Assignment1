@@ -100,11 +100,11 @@ bool Letters::Scoreboard(int number,bool isClock,bool isBlue) {
 	Letters left(this->cubeVao, this->shaderProgram, BoardGroupMatrix, numPosition = glm::vec3(-.1f, -0.05f, 0.05f), this->plastic, this->renderAs);
 	
 	glBindVertexArray(0);
-
+	
 	//int check, check1, check2;
 	int lefty = number / 10;
 	int righty = number % 10;
-	int puase = 1000;
+	int puase = glfwGetTime();
 
 	right.DrawNumber(righty);
 	left.DrawNumber(lefty);

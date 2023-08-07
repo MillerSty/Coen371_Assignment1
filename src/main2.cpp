@@ -553,6 +553,7 @@ int main(int argc, char* argv[])
 		number = floor(lastFrameTime);
 
 		int check, check1, check2;
+		if (number > 98)glfwSetTime(0);
 		check = number / 10;
 		check1 = number % 10;
 		int puase = 1000;
