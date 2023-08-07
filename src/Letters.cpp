@@ -1,9 +1,23 @@
 #include "Letters.h"
 
+#define white glm::vec3(1,1,1)
+#define black glm::vec3(0,0,0)
+//ifdef clock white=red
+#define zero  {white,white,white,white,white,white,black}
+#define one  {white,white,black,black,black,black,black}
+#define two  {black,white,white,black,white,white,white}
+#define three  {white,white,black,black,white,white,white}
+#define four  {white,white,black,white,black,black,white}
+#define five  {white,black,black,white,white,white,white}
+
+#define six  {white,black,white,white,white,white,white}
+#define seven  {white,white,black,black,black,white,black}
+#define eight  {white,white,white,white,white,white,white}
 
 
-Letters::Letters(int cubeVao,
-	glm::mat4 worldMatrix) {
+
+
+Letters::Letters(int cubeVao,glm::mat4 worldMatrix) {
 	this->cubeVao = cubeVao;
 	this->groupMatrix = worldMatrix;
 	this->position = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -14,15 +28,151 @@ Letters::Letters(int cubeVao,
 //colour[1] = glm::vec3(0.0f, 1.0f, 0.0f);
 //colour[2] = glm::vec3(0.0f, 0.0f, 1.0f);
 }
-Letters::Letters(int cubeVao, std::string letterName) {
-	this->cubeVao = cubeVao;
-	this->groupMatrix;
-	this->position = glm::vec3(0.0f, 0.0f, 0.0f);
-	//this->racketAngle = 90;
-	//this->rotationW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-	//this->jawnAngle = 0;
-	this->letterName = letterName;
+bool Letters::DrawNumber(int number) {
+	//seven segment
+	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
+	GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
+	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
+	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
+
+	glm::mat4 worldMatrix;
+	glm::mat4 letterTranslate;
+	glm::mat4 letterRotate;
+	glm::mat4 letterScale;
+	glm::mat4 LetterGroupMatrix;
+	glm::mat4 partScale;
+	glm::mat4 partTranslate;
+	glm::mat4 partRo;
+	glm::mat4 partMatrix;
+	float scale = .5f;	
+	//glm::vec3 colours[7]= zero ;
+	std::vector<glm::vec3> colours;
+	//colours( zero);
+	switch (number) {
+	case(0):colours= zero; break;
+	case(1):colours = one;    break;
+	case(2):colours = two;	 break;
+	case(3):colours = three;	 break;
+	case(4):colours = four;	 break;
+	case(5):colours = five;	 break;
+	case(6):colours = six;	 break;
+	case(7):colours = seven;	 break;
+	case(8):colours = eight;	 break;
+	default: break;
+	
+	}
+	//glm::vec3 colours[7]= eight ;
+	
+
+	//what if we define 7 vectors/ 8 arrays and select with a switch statment?
+
+	glBindVertexArray(cubeVao);
+	letterTranslate = glm::translate(glm::mat4(1.0f), position);
+	letterRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)90), glm::vec3(.0f, .0f, 1.0f));
+	letterRotate *= glm::rotate(glm::mat4(1.0f), glm::radians((float)90), glm::vec3(1.0f, .0f, .0f));
+	letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.15f, .15f, .15f)* scale);
+
+	glm::mat4 letterParent =  letterTranslate * letterScale * letterRotate;
+	LetterGroupMatrix = this->groupMatrix * letterParent;
+
+	//seven segment jawneroonie
+	//0	-> c												
+	//right side bot								// x'=y    y'=z   z'=x
+	partScale = glm::scale(glm::mat4(1.0f), glm::vec3(3.50f, .250f, 1.0f));
+	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f));	// x'=y    y'=z   z'=x
+	partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, .0f, 1.0f));
+	partMatrix = partTranslate * partScale * partRo;
+	worldMatrix = LetterGroupMatrix * partMatrix;
+	glUniform3fv(colorLocation, 1, glm::value_ptr(colours[0]));
+	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
+	glDrawArrays(renderAs, 0, 36);
+	
+	//1 -> b
+	//right side top
+	partScale = glm::scale(glm::mat4(1.0f), glm::vec3(3.5f, .250f, 1.0f));
+	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.350f, .0f, .0f));	// x'=y    y'=z   z'=x
+	partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, .0f, 1.0f));
+	partMatrix = partTranslate * partScale * partRo;
+	worldMatrix = LetterGroupMatrix * partMatrix;
+	glUniform3fv(colorLocation, 1, glm::value_ptr(colours[1]));
+	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
+	glDrawArrays(renderAs, 0, 36);
+	
+	//2 -> e 
+	//left side bot								// x'=y    y'=z   z'=x
+	partScale = glm::scale(glm::mat4(1.0f), glm::vec3(3.50f, .250f, 1.0f));
+	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, -.30f));	// x'=y    y'=z   z'=x
+	partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(1.0f, .0f, .0f));
+	partMatrix = partTranslate * partScale * partRo;
+	worldMatrix = LetterGroupMatrix * partMatrix;
+	glUniform3fv(colorLocation, 1, glm::value_ptr(colours[2]));
+	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
+	glDrawArrays(renderAs, 0, 36);
+
+	//3 -> f
+	//left side top
+	partScale = glm::scale(glm::mat4(1.0f), glm::vec3(3.5f, .250f, 1.0f));
+	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.350f, .0f, -.30f));	// x'=y    y'=z   z'=x
+	partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, .0f, 1.0f));
+	partMatrix = partTranslate * partScale * partRo;
+	worldMatrix = LetterGroupMatrix * partMatrix;
+	glUniform3fv(colorLocation, 1, glm::value_ptr(colours[3]));
+	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
+	glDrawArrays(renderAs, 0, 36);
+
+
+	
+	//letter parent reusing translation
+	letterRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)90), glm::vec3(-1.0f, .0f, .0f));
+	letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.17f, .15f, .15f) * scale);
+	
+	letterParent = letterTranslate * letterScale * letterRotate;
+	LetterGroupMatrix = this->groupMatrix * letterParent;
+
+	//4 -> d
+	partScale = glm::scale(glm::mat4(1.0f), glm::vec3(3.5f, .250f, 1.0f));
+	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-.13f, -.0f, -.23f));	// x'=x    y'=z   z'=y
+	partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, .0f, 1.0f));
+	partMatrix = partTranslate * partScale * partRo;
+	worldMatrix = LetterGroupMatrix * partMatrix;
+	glUniform3fv(colorLocation, 1, glm::value_ptr(colours[4]));
+	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
+	glDrawArrays(renderAs, 0, 36);
+	
+	//5 -> a
+	partScale = glm::scale(glm::mat4(1.0f), glm::vec3(3.5f, .250f, 1.0f));
+	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-.13f, -.0f, .55f));	// x'=x    y'=z   z'=y
+	partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, .0f, 1.0f));
+	partMatrix = partTranslate * partScale * partRo;
+	worldMatrix = LetterGroupMatrix * partMatrix;
+	glUniform3fv(colorLocation, 1, glm::value_ptr(colours[5]));
+	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
+	glDrawArrays(renderAs, 0, 36);
+
+	//middle bar rescale use same translate and rotate
+	letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.075f, .15f, .15f) * scale);
+	letterParent = letterTranslate * letterScale * letterRotate;
+	LetterGroupMatrix = this->groupMatrix * letterParent;
+
+	//6 -> g 
+	partScale = glm::scale(glm::mat4(1.0f), glm::vec3(3.5f, .250f, 1.0f));
+	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-.3f, -.0f, .2f));	// x'=x    y'=z   z'=y
+	partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, .0f, 1.0f));
+	partMatrix = partTranslate * partScale * partRo;
+	worldMatrix = LetterGroupMatrix * partMatrix;
+	glUniform3fv(colorLocation, 1, glm::value_ptr(colours[6]));
+	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
+	glDrawArrays(renderAs, 0, 36);
+
+
+
+	glBindVertexArray(0);
+
+	return true;
+
 }
+
+
 // Note for all Draw functions they follow the same format, declare matrice locations and mat4 variables. 
 // then scale, rotate, translate x3 so we get triple ply effect on letters
 bool Letters::DrawJ() {

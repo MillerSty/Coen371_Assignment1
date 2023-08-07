@@ -25,6 +25,11 @@ void Arm::InitArm(glm::vec3 position, int VAO, Material skinMaterial, Material c
 	this->cubeVao = VAO;
 	this->skinMaterial = skinMaterial;
 	this->clothMaterial = clothMaterial;
+    if (position.x < 0){
+        this->armRotate = 90.0f;
+    } else {
+        this->armRotate = -90.0f;
+    }
 	spin = 0;
 	reverse = false;
 }
@@ -32,10 +37,11 @@ Arm::Arm() {}
 void Arm::resetArm() {
 	TranslateModel += -1.0f * TranslateModel;
 	TranslateRandom += -1.0f * TranslateRandom;
-	armRotate = 0.0f;
+	armRotate = 90.0f;
 	wristRotate = 0.0f;
 	elbowRotate = 0.0f;
 	fingerRotate = 0.0f;
+	armRotate = 90.0f;
 	//Scale= 1.0f
 }
 void Arm::SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram) {
@@ -69,9 +75,10 @@ bool Arm::DrawArm() {
 	//note this works
 	skinMaterial.bindTexture();
 	skinMaterial.loadToShader();
+
 	glBindVertexArray(cubeVao);
 	glm::mat4 bicepParent; //so for initiali parent , it has local.global translate plus local rotate 
-	glm::mat4 biTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(TranslateRandom.x + TranslateModel.x + position.x, TranslateModel.y + TranslateRandom.y +position.y, TranslateRandom.z + position.z));
+	glm::mat4 biTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(TranslateRandom.z + position.x, TranslateModel.y + TranslateRandom.y +position.y, TranslateRandom.x + TranslateModel.x + position.z));
 	glm::mat4 biRotate = glm::rotate(glm::mat4(1.0f), glm::radians(armRotate), glm::vec3(.0f, 1.0f, .0f));
 	bicepParent = biTranslate * biRotate;
 
@@ -85,7 +92,6 @@ bool Arm::DrawArm() {
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.94f, .76f, .5f)));
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
-	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 
 	// Forearm then for
 	glm::mat4 forTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(constArmScaler.x *.0948f, .0f, .0f));
