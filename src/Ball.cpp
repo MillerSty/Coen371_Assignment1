@@ -1,5 +1,11 @@
 #include "Ball.h"
 
+Ball::Ball()
+{
+	worldMatrix = glm::mat4(1.0f);
+	translationModel = glm::vec3(0.0f);
+}
+
 void Ball::setGroupMatrix(glm::mat4 groupMat) { groupMatrix = groupMat; }
 
 glm::mat4 Ball::getGroupMatrix() { return groupMatrix; }
@@ -55,15 +61,15 @@ void Ball::drawBall()
 	// Set transformations
 	glm::mat4 modelMat = worldMatrix * groupMatrix;
 
-	glm::mat4 modelScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f));
+	glm::mat4 modelScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.35f));
 	
 	// Translate only in the XY plane
-	glm::mat4 modelTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(translationModel.x, translationModel.y, 0.0f));
+	glm::mat4 modelTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(translationModel.x, translationModel.y + 0.15f, 0.0f));
 
 	modelMat *= modelTranslate * modelScale;
 
 	// Draw geometry
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "worldMatrix"), 1, GL_FALSE, &worldMatrix[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "worldMatrix"), 1, GL_FALSE, &modelMat[0][0]);
 	glDrawElements(renderAS, sphereVertCount, GL_UNSIGNED_INT, 0);
 
 	// Unbind sphere VAO

@@ -27,6 +27,7 @@
 
 
 #include "JonahModels.h"
+#include "Ball.h"
 
 // Set the shader paths
 const char* vertex = "../src/shaders/unifiedVertex.glsl";
@@ -302,6 +303,9 @@ EvanArm evanArm;
 int selectModel = 0; //we can se to 0 but then user has to toggle to before any thing
 int selectJoint =0;
 
+// Create ball
+Ball ball;
+
 int main(int argc, char* argv[])
 {
 	// Initialize GLFW and OpenGL version
@@ -552,6 +556,10 @@ int main(int argc, char* argv[])
 	sabrinaRacket.setShaderProgram(shaderProgram);
 	sabrinaRacket.setVAO(unitCubeAO);
 
+	ball.setShaderProgram(shaderProgram);
+	ball.setVAO(unitSphereAO);
+	ball.setSphereVertCount(vertexIndicessphere.size());
+	ball.setMaterial(grassMaterial);
 
 	float i = -1;
 	float spin = 0;
@@ -625,6 +633,9 @@ int main(int argc, char* argv[])
 			sabrinaRacket.setWorldMatrix(groupMatrix);
 			sabrinaRacket.drawRacket();
 
+			ball.setGroupMatrix(groupMatrix);
+			ball.setRenderAs(renderAs);
+			ball.drawBall();
       
 			J.drawRacketJ(groupMatrix, jonahTranslationModel+ jonahTranslationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
 
@@ -665,6 +676,9 @@ int main(int argc, char* argv[])
 			sabrinaRacket.setWorldMatrix(groupMatrix);
 			sabrinaRacket.drawRacket();
 
+			ball.setGroupMatrix(groupMatrix);
+			ball.setRenderAs(renderAs);
+			ball.drawBall();
 
 			J.drawRacketJ(groupMatrix, jonahTranslationModel + jonahTranslationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
 
