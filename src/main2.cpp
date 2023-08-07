@@ -20,6 +20,7 @@
 #include "SceneObjects.h"
 #include "Material.h"
 #include "Letters.h"
+#include "Ball.h"
 using namespace glm;
 // Set the shader paths
 const char* vertex = "../src/shaders/unifiedVertex.glsl";
@@ -289,6 +290,9 @@ Arm playerArm2;
 int selectModel = 0; //we can se to 0 but then user has to toggle to before any thing
 int selectJoint =0;
 
+// Create ball
+Ball ball;
+
 int main(int argc, char* argv[])
 {
 	// Initialize GLFW and OpenGL version
@@ -524,7 +528,10 @@ int main(int argc, char* argv[])
 	glUniform1i(kdepthMap, 2);
 
 	float lastFrameTime = glfwGetTime();
-
+	ball.setShaderProgram(shaderProgram);
+	ball.setVAO(unitSphereAO);
+	ball.setSphereVertCount(vertexIndicessphere.size());
+	ball.setMaterial(grassMaterial);
 
 	int number = 0;
 	float i = -1;
@@ -597,6 +604,9 @@ int main(int argc, char* argv[])
             playerArm2.DrawArm();
             racket2.SetAttr(groupMatrix, renderAs, shaderProgram, playerArm2.partParent);
             racket2.Draw();
+			ball.setGroupMatrix(groupMatrix);
+			ball.setRenderAs(renderAs);
+			ball.drawBall();
 
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
@@ -631,7 +641,9 @@ int main(int argc, char* argv[])
 
 
             //J.drawRacketJ(groupMatrix, translationVec + translationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
-
+			ball.setGroupMatrix(groupMatrix);
+			ball.setRenderAs(renderAs);
+			ball.drawBall();
 			bool check = numberDraw.DrawNumber(number);
 			check = numberDraw2.DrawNumber(number);
 			SceneObj.sphereVao = unitSphereAO;
