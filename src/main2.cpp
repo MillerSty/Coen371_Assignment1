@@ -1039,7 +1039,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
     // If comma is pressed, play a sound
     else if (state_COMMA == GLFW_PRESS)
     {
-        audioEngine->play2D("src/Assets/sounds/Ball1.wav");
+        audioEngine->play2D("../src/Assets/sounds/Ball1.wav");
     }
 }
 
