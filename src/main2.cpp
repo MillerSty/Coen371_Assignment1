@@ -271,7 +271,10 @@ glm::mat4 rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm
 
 
 Letters numberDraw;
-
+//numberDraw.position = glm::vec3(.2f, 0, 0);
+Letters numberDraw2;
+//numberDraw.position = vec3(0.0f, 0.0f, 0.0f);
+//numberDraw2.position = vec3(.4f, 0, 0);
 int renderAs = GL_TRIANGLES;
 int shaderProgram;
 double lastMousePosX, lastMousePosY, lastMousePosZ;
@@ -441,7 +444,9 @@ int main(int argc, char* argv[])
 	numberDraw.cubeVao = unitCubeAO;
 	numberDraw.shaderProgram = shaderProgram;
 	numberDraw.colour[0] = vec3(1.0f, 0.0f, 0.0f);
-	numberDraw.position = vec3(0, 0, 0);
+	//numberDraw.position = vec3(0, 0, 0);
+	numberDraw2.cubeVao = unitCubeAO;
+	numberDraw2.shaderProgram = shaderProgram;
 
 	// Set mouse and keyboard callbacks
 	glfwSetKeyCallback(window, keyPressCallback);
@@ -542,7 +547,8 @@ int main(int argc, char* argv[])
 		lastFrameTime = glfwGetTime();
 		number = floor(lastFrameTime);
 		if (number > 8) { number = 0; glfwSetTime(0); }
-
+		//https://stackoverflow.com/questions/13915479/c-get-every-number-separately
+		//this for seperating more
 
 		//printf("evan rotation: %f\n", checkest);
 		// Must draw scene in 2 passes: once for shadows, and another normally
@@ -566,10 +572,17 @@ int main(int argc, char* argv[])
 			//playerOne.DrawArm();
 			//racket.SetAttr(groupMatrix, renderAs, shaderProgram, playerOne.partParent);
 			//racket.Draw();
+			numberDraw.position = vec3(.2f, 0.2f, 0);
+			numberDraw2.position = vec3(.25f, 0.2f, 0);
 			numberDraw.groupMatrix = groupMatrix;
 			numberDraw.partParent = mat4(1.0f);
 			numberDraw.renderAs=renderAs;
+			numberDraw2.groupMatrix = groupMatrix;
+			numberDraw2.partParent = mat4(1.0f);
+			numberDraw2.renderAs = renderAs;
+			
 			bool check=numberDraw.DrawNumber(number);
+			check = numberDraw2.DrawNumber(number);
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
             SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
@@ -597,6 +610,7 @@ int main(int argc, char* argv[])
 			//racket.Draw();
 
 			bool check = numberDraw.DrawNumber(number);
+			check = numberDraw2.DrawNumber(number);
 			SceneObj.sphereVao = unitSphereAO;
 			SceneObj.sphereVertCount = vertexIndicessphere.size();
 			SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);

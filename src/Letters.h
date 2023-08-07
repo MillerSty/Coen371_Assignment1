@@ -16,16 +16,15 @@ class Letters
 public:
 	Letters() = default;
 	Letters(int cubeVao,glm::mat4 worldMatrix);
-	Letters(int cubeVao, std::string letterName);
 	int cubeVao;
 	glm::mat4 partParent;
 	glm::mat4 partMatrix;
 	glm::mat4 groupMatrix;
+
 	int shaderProgram;
 	int renderAs;
 	glm::vec3 position;
 	glm::vec3 colour[3];
-	std::string letterName;
 	//methods like 
 	bool DrawNumber(int number);
 	bool DrawJ();

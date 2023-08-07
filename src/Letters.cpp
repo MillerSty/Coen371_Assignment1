@@ -2,6 +2,7 @@
 
 #define white glm::vec3(1,1,1)
 #define black glm::vec3(0,0,0)
+//ifdef clock white=red
 #define zero  {white,white,white,white,white,white,black}
 #define one  {white,white,black,black,black,black,black}
 #define two  {black,white,white,black,white,white,white}
@@ -26,15 +27,6 @@ Letters::Letters(int cubeVao,glm::mat4 worldMatrix) {
 //colour[0] = glm::vec3(1.0f, 0.0f, 0.0f);
 //colour[1] = glm::vec3(0.0f, 1.0f, 0.0f);
 //colour[2] = glm::vec3(0.0f, 0.0f, 1.0f);
-}
-Letters::Letters(int cubeVao, std::string letterName) {
-	this->cubeVao = cubeVao;
-	this->groupMatrix;
-	this->position = glm::vec3(0.0f, 0.0f, 0.0f);
-	//this->racketAngle = 90;
-	//this->rotationW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-	//this->jawnAngle = 0;
-	this->letterName = letterName;
 }
 bool Letters::DrawNumber(int number) {
 	//seven segment
@@ -75,7 +67,7 @@ bool Letters::DrawNumber(int number) {
 	//what if we define 7 vectors/ 8 arrays and select with a switch statment?
 
 	glBindVertexArray(cubeVao);
-	letterTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.1f, .10f, .0f));
+	letterTranslate = glm::translate(glm::mat4(1.0f), position);
 	letterRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)90), glm::vec3(.0f, .0f, 1.0f));
 	letterRotate *= glm::rotate(glm::mat4(1.0f), glm::radians((float)90), glm::vec3(1.0f, .0f, .0f));
 	letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.15f, .15f, .15f)* scale);
