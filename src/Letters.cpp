@@ -15,7 +15,7 @@
 #define six  {white,black,white,white,white,white,white}
 #define seven  {white,white,black,black,black,white,black}
 #define eight  {white,white,white,white,white,white,white}
-
+#define nine  {white,white,black,white,black,white,white}
 
 
 
@@ -99,11 +99,15 @@ bool Letters::Scoreboard(int number,bool isClock,bool isBlue) {
 	Letters right(this->cubeVao, this->shaderProgram, BoardGroupMatrix, numPosition = glm::vec3(.2f, -0.05f, 0.05f), this->plastic,this->renderAs);
 	Letters left(this->cubeVao, this->shaderProgram, BoardGroupMatrix, numPosition = glm::vec3(-.1f, -0.05f, 0.05f), this->plastic, this->renderAs);
 	
-
-
 	glBindVertexArray(0);
-	right.DrawNumber(number);
-	left.DrawNumber(number);
+
+	//int check, check1, check2;
+	int lefty = number / 10;
+	int righty = number % 10;
+	int puase = 1000;
+
+	right.DrawNumber(righty);
+	left.DrawNumber(lefty);
 
 	return true;
 }
@@ -137,6 +141,7 @@ bool Letters::DrawNumber(int number) {
 	case(6):colours = six;	 break;
 	case(7):colours = seven;	 break;
 	case(8):colours = eight;	 break;
+	case(9):colours = nine;	 break;
 	default: break;
 	
 	}

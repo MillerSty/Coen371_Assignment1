@@ -563,7 +563,14 @@ int main(int argc, char* argv[])
 
 		lastFrameTime = glfwGetTime();
 		number = floor(lastFrameTime);
-		if (number > 8) { number = 0; glfwSetTime(0); }
+
+		int check, check1, check2;
+		check = number / 10;
+		check1 = number % 10;
+		int puase = 1000;
+
+
+		//if (number > 8) { number = 0; glfwSetTime(0); }
 		//https://stackoverflow.com/questions/13915479/c-get-every-number-separately
 		//this for seperating more
 
@@ -595,7 +602,7 @@ int main(int argc, char* argv[])
 			numberDraw2.renderAs = renderAs;
 
 			numberDraw.Scoreboard(number,false,true);
-			numberDraw2.Scoreboard(number,false,false);
+			//numberDraw2.Scoreboard(number,false,false);
 
 			playerArm1.SetAttr(groupMatrix, renderAs, shaderProgram);
 			playerArm1.DrawArm();
