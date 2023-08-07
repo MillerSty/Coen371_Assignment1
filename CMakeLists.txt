@@ -21,14 +21,6 @@ include(BuildGLFW)
 include(BuildGLM)
 include_directories("thirdparty/stb")
 include_directories("thirdparty/irrKlang/include")
-#add_library(IrrKlang SHARED IMPORTED)
-message("***************************")
-message("BIN DIRECTIONTS ${CMAKE_CURRENT_BINARY_DIR}")
-#set_property(TARGET IrrKlang PROPERTY IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/irrKlang/lib/irrKlang.dll)
-
-##add_library(irrklang "thirdparty/irrklang/lib/irrKlang.dll")
-
-
 
 # lab01
 set(EXEC Coen371_Project)
@@ -36,7 +28,6 @@ set(EXEC Coen371_Project)
 file(GLOB SRC src/*.cpp)
 file(GLOB EVAN_SRC src/Evan-models/*.cpp)
 file(GLOB SABRINA_SRC src/Sabrina-models/*.cpp)
-
 
 add_executable(${EXEC} ${SRC} ${EVAN_SRC} ${SABRINA_SRC})
 link_libraries(-L/thirdparty/irrKlang/lib/irrKlang.dll)
@@ -52,4 +43,5 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/irrKlang/lib/irrKlang.dll
      DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/out/build/x64-Debug)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/irrKlang/lib/irrKlang.dll
      DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Debug)
-
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/irrKlang/lib/irrKlang.dll
+        DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/dist)
