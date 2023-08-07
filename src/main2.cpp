@@ -1,6 +1,6 @@
-// Comp 371 - Assignment 2
+// Comp 371 - Project
+
 // System includes
-#pragma once
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
@@ -13,6 +13,8 @@
 #include <GLFW/glfw3.h> // GLFW provides a cross-platform interface for creating a graphical context,
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#include <irrKlang.h>
+#pragma comment(lib, "../thirdparty/irrklang/lib/irrKlang.lib")
 
 // Source code includes
 #include "Arm.h"
@@ -318,16 +320,27 @@ int selectJoint =0;
 // Create ball
 Ball ball;
 
+// Create irrklang engine
+irrklang::ISoundEngine* audioEngine;
+
 int main(int argc, char* argv[])
 {
 	// Initialize GLFW and OpenGL version
 	if (!glfwInit())
 		return -1;
 
+    // Initialize irrklang
+    audioEngine = irrklang::createIrrKlangDevice();
+
+    if (!audioEngine)
+    {
+        std::cout << "Failed to create irrklang engine" << std::endl;
+        return -1;
+    }
+
 	// Scale down the unit cube vertices
-	for (size_t i = 0; i < 36; i++) {
-		TexturedNormaledVertex thisOne = texturedCubeVertexArray[i];
-		texturedCubeVertexArray[i].position *= 0.1f;
+	for (auto& vertexArrayObject : texturedCubeVertexArray) {
+        vertexArrayObject.position *= 0.1f;
 	}
 
 	// Set some GLFW window hints
@@ -419,8 +432,8 @@ int main(int argc, char* argv[])
 	loadOBJ2(pathSphere.c_str(), vertexIndicessphere, verticessphere, normalssphere, UVssphere);
   
 	// Scale the vertex positions of the sphere
-	for (int i = 0; i < verticessphere.size(); i++) {
-		verticessphere[i] = verticessphere[i] * .05f;
+	for (auto & vert : verticessphere) {
+		vert *= 0.05f;
 	}
 	
 	// Create VAOs
@@ -709,8 +722,13 @@ int main(int argc, char* argv[])
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+
+    // Shut down irrklang
+    audioEngine->drop();
+
 	// Shutdown GLFW
 	glfwTerminate();
+
 	return 0;
 }
 
@@ -883,6 +901,9 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	int state_X = glfwGetKey(window, GLFW_KEY_X);
 	int state_1 = glfwGetKey(window, GLFW_KEY_1);
 	int state_2 = glfwGetKey(window, GLFW_KEY_2);
+    int state_COMMA = glfwGetKey(window, GLFW_KEY_COMMA);
+    int state_PERIOD = glfwGetKey(window, GLFW_KEY_PERIOD);
+
 	//global random
 	float number1 = (rand()) / (float)(RAND_MAX);
 	float number2 = (rand()) / (float)(RAND_MAX);
@@ -914,7 +935,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
             default: break;
         }
 
-    if ((state_J == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
+    else if ((state_J == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
         playerArm2.setTranslateModel(glm::vec3((playerArm2.getTranslateModel().x - .005f), playerArm2.getTranslateModel().y, playerArm2.getTranslateModel().z));
     else if ((state_L == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
         playerArm2.setTranslateModel(glm::vec3((playerArm2.getTranslateModel().x + .005f), playerArm2.getTranslateModel().y, playerArm2.getTranslateModel().z));
@@ -934,7 +955,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
         }
 
 	// If ESC is pressed, window should closed
-	if (state_ESC == GLFW_PRESS)
+	else if (state_ESC == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
 	else if (state_TAB == GLFW_PRESS && mods != GLFW_MOD_SHIFT) {
@@ -956,6 +977,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		default: break;
 		}
 	}
+
 	else if (state_TAB == GLFW_PRESS && mods == GLFW_MOD_SHIFT) {
 		/*
 		select -1 is bicep
@@ -974,7 +996,6 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		}
 		//printf("selectJoint is: %d\n", selectJoint);
 	}
-
 
 	// If the arrow keys are pressed, rotate accordingly
 	else if (state_LEFT == GLFW_PRESS)
@@ -1014,6 +1035,12 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	// If x is pressed, toggle textures
 	else if (state_X == GLFW_PRESS)
 		shouldApplyTextures = !shouldApplyTextures;
+
+    // If comma is pressed, play a sound
+    else if (state_COMMA == GLFW_PRESS)
+    {
+        audioEngine->play2D("src/Assets/sounds/Ball1.wav");
+    }
 }
 
 /**
