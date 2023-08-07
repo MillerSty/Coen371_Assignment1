@@ -450,8 +450,13 @@ int main(int argc, char* argv[])
 	//**** End jons jawn
 	numberDraw.cubeVao = unitCubeAO;
 	numberDraw.shaderProgram = shaderProgram;
-	numberDraw.colour[0] = vec3(1.0f, 0.0f, 0.0f);
-	//numberDraw.position = vec3(0, 0, 0);
+
+	numberDraw.plastic = skinMaterial;
+	numberDraw2.plastic = skinMaterial;
+
+	numberDraw.position = vec3(-.20f, .21f, -0.20f); //this is scoreboard option
+	numberDraw2.position = vec3(.20f, .21f, -0.20f);
+
 	numberDraw2.cubeVao = unitCubeAO;
 	numberDraw2.shaderProgram = shaderProgram;
 
@@ -580,21 +585,18 @@ int main(int argc, char* argv[])
 			if (i == 1.0f) i = -1.0f;
 
 			// Draw geometry
-			//playerOne.SetAttr(groupMatrix, renderAs, shaderProgram);
-			//playerOne.DrawArm();
-			//racket.SetAttr(groupMatrix, renderAs, shaderProgram, playerOne.partParent);
-			//racket.Draw();
-			numberDraw.position = vec3(.2f, 0.2f, 0);
-			numberDraw2.position = vec3(.25f, 0.2f, 0);
+
+
 			numberDraw.groupMatrix = groupMatrix;
 			numberDraw.partParent = mat4(1.0f);
 			numberDraw.renderAs=renderAs;
 			numberDraw2.groupMatrix = groupMatrix;
 			numberDraw2.partParent = mat4(1.0f);
 			numberDraw2.renderAs = renderAs;
-			
-			bool check=numberDraw.DrawNumber(number);
-			check = numberDraw2.DrawNumber(number);
+
+			numberDraw.Scoreboard(number,false,true);
+			numberDraw2.Scoreboard(number,false,false);
+
 			playerArm1.SetAttr(groupMatrix, renderAs, shaderProgram);
 			playerArm1.DrawArm();
 			racket1.SetAttr(groupMatrix, renderAs, shaderProgram, playerArm1.partParent);
@@ -644,8 +646,18 @@ int main(int argc, char* argv[])
 			ball.setGroupMatrix(groupMatrix);
 			ball.setRenderAs(renderAs);
 			ball.drawBall();
-			bool check = numberDraw.DrawNumber(number);
-			check = numberDraw2.DrawNumber(number);
+
+			numberDraw.groupMatrix = groupMatrix;
+			numberDraw.partParent = mat4(1.0f);
+			numberDraw.renderAs = renderAs;
+			numberDraw2.groupMatrix = groupMatrix;
+			numberDraw2.partParent = mat4(1.0f);
+			numberDraw2.renderAs = renderAs;
+			
+
+			numberDraw.Scoreboard(number, false, true);
+			numberDraw2.Scoreboard(number, false, false);
+			
 			SceneObj.sphereVao = unitSphereAO;
 			SceneObj.sphereVertCount = vertexIndicessphere.size();
 			SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
