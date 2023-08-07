@@ -284,7 +284,8 @@ float translateW = 0, translateY = 0, translateZ = 0;
 // Toggles for shadows and textures
 bool shouldApplyShadows = true;
 bool shouldApplyTextures = true;
-Arm playerOne;
+Arm playerArm1;
+Arm playerArm2;
 int selectModel = 0; //we can se to 0 but then user has to toggle to before any thing
 int selectJoint =0;
 
