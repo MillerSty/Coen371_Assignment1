@@ -258,7 +258,7 @@ int createVertexArrayElementObject2(std::vector<int> vertexIndices, std::vector<
 const int WIDTH = 1024, HEIGHT = 768;
 
 // Set/ declare some variables
-glm::vec3 eye(.7650f, .250f, .7650f);
+glm::vec3 eye(.0f, .350f*1.5, .7650f*1.5);
 glm::vec3 center(.00f, .0f, 0.0f);
 glm::vec3 up(0.0f, 1.0f, 0.0f);
 glm::vec3 translateWSAD(0.0f, 0.0f, 0.0f);
@@ -413,12 +413,12 @@ int main(int argc, char* argv[])
 	GLuint woodTextureID = loadTexture("../src/Assets/wood1.jpg");
 	GLuint tattooTextureID = loadTexture("../src/Assets/tattoo.jpg");
 						//diff spec ambient shiny
-	Material courtMaterial(.2f, .20f, 1.0f, .001f, courtTextureID, shaderProgram); //court shouldnt reflect
+	Material courtMaterial(.2f, .002f, .50f, .001f, courtTextureID, shaderProgram); //court shouldnt reflect
 	Material ropeMaterial(.5f, .60f, .5f, .09f, ropeTextureID, shaderProgram); // ropes are just ropes
 	Material clothMaterial(.5f, .30f, .5f, .02f, clothTextureID, shaderProgram); //cloth should have a little reflection?
 	Material metalMaterial(.6f, .90f, .6f, .12f, metalTextureID, shaderProgram); //metal should shine
 	Material grassMaterial(.60f, .001f, .6f, .0001f, grassTextureID, shaderProgram); //just bright, thats all it needs
-	Material plasticMaterial(.5f, .30f, .4f, .1f, plasticTextureID, shaderProgram); //needs to be glossy! This is our racket
+	Material plasticMaterial(.5f, .30f, .4f, .1f, plasticTextureID, shaderProgram); //needs to be glossy! This is our racket1
 	Material woodMaterial(.5f, .60f, .5f, .002f, woodTextureID, shaderProgram); //this is you matt
 	Material tattooMaterial(0.5f, 0.2f, 0.5f, 0.002f, tattooTextureID, shaderProgram);
 	Material skinMaterial(.1f, .0f, .66f, .001f, plasticTextureID, shaderProgram); //this is skin
@@ -431,15 +431,17 @@ int main(int argc, char* argv[])
 	SceneObj.skyTexture = skyMaterial;
 	
 	//Racket and Arm ****	
-	playerOne.InitArm(glm::vec3(-.5f, 0.0f, .2f), unitCubeAO,skinMaterial,clothMaterial);
+	playerArm1.InitArm(glm::vec3(-.5f, 0.0f, .2f), unitCubeAO, skinMaterial, clothMaterial);
+    playerArm2.InitArm(glm::vec3(.5f, 0.0f, -.2f), unitCubeAO, skinMaterial, clothMaterial);
 	Ball.grassTexture = grassMaterial;
 	Ball.shaderProgram = shaderProgram;
 	Ball.sphereVao = unitSphereAO;
 	Ball.sphereVertCount=vertexIndicessphere.size();
 
-	Racket racket(unitCubeAO, "racket");
-	racket.plasticMaterial = plasticMaterial;
-	racket.setBall(Ball);
+	Racket racket1(unitCubeAO, "racket1");
+    racket1.plasticMaterial = plasticMaterial;
+    Racket racket2(unitCubeAO, "racket2");
+    racket2.plasticMaterial = plasticMaterial;
 	//**** End jons jawn
 	numberDraw.cubeVao = unitCubeAO;
 	numberDraw.shaderProgram = shaderProgram;
@@ -469,7 +471,7 @@ int main(int argc, char* argv[])
     glUniform3fv(lightColorLoc, 1, glm::value_ptr(vec3(1.0f, 1.0f, 1.0f)));
 
     // light parameters
-    glm::vec3 lightPosition(-.30f, .30f, .0f); // the location of the light in 3D space
+    glm::vec3 lightPosition(-0.0f, 30.0f, .0f); // the location of the light in 3D space
 	glm::vec3 lightFocus(0.0, -0.01, .0f);      // the point in 3D space the light "looks" at
 	glm::vec3 lightDirection = glm::normalize(lightFocus - lightPosition);
 
@@ -521,7 +523,7 @@ int main(int argc, char* argv[])
 	glUniform1i(kdepthMap, 2);
 
 	float lastFrameTime = glfwGetTime();
-	
+
 
 	int number = 0;
 	float i = -1;
@@ -540,9 +542,11 @@ int main(int argc, char* argv[])
 		bool noshowLightBox = false;
 		float x = sin(i);
 		float z = cos(i);
-		i += .02;
-			
-					
+		i += .002;
+			glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
+			rotationMatrixW;
+
+		
 
 		lastFrameTime = glfwGetTime();
 		number = floor(lastFrameTime);
@@ -583,6 +587,16 @@ int main(int argc, char* argv[])
 			
 			bool check=numberDraw.DrawNumber(number);
 			check = numberDraw2.DrawNumber(number);
+			playerArm1.SetAttr(groupMatrix, renderAs, shaderProgram);
+			playerArm1.DrawArm();
+			racket1.SetAttr(groupMatrix, renderAs, shaderProgram, playerArm1.partParent);
+			racket1.Draw();
+
+            playerArm2.SetAttr(groupMatrix, renderAs, shaderProgram);
+            playerArm2.DrawArm();
+            racket2.SetAttr(groupMatrix, renderAs, shaderProgram, playerArm2.partParent);
+            racket2.Draw();
+
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
             SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
@@ -604,10 +618,18 @@ int main(int argc, char* argv[])
 			glBindTexture(GL_TEXTURE_2D, depth_map_texture);
 
 			// Draw geometry
-			//playerOne.SetAttr(groupMatrix, renderAs, shaderProgram);
-			//playerOne.DrawArm();
-			//racket.SetAttr(groupMatrix, renderAs, shaderProgram, playerOne.partParent);
-			//racket.Draw();
+			playerArm1.SetAttr(groupMatrix, renderAs, shaderProgram);
+			playerArm1.DrawArm();
+			racket1.SetAttr(groupMatrix, renderAs, shaderProgram, playerArm1.partParent);
+			racket1.Draw();
+
+            playerArm2.SetAttr(groupMatrix, renderAs, shaderProgram);
+            playerArm2.DrawArm();
+            racket2.SetAttr(groupMatrix, renderAs, shaderProgram, playerArm2.partParent);
+            racket2.Draw();
+
+
+            //J.drawRacketJ(groupMatrix, translationVec + translationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
 
 			bool check = numberDraw.DrawNumber(number);
 			check = numberDraw2.DrawNumber(number);
@@ -619,7 +641,10 @@ int main(int argc, char* argv[])
 
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noshowLightBox);
 		}
-		playerOne.flexFingers();
+
+		playerArm1.flexFingers();
+        playerArm2.flexFingers();
+
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
@@ -778,18 +803,20 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	int state_SPACE = glfwGetKey(window, GLFW_KEY_SPACE);
 	int state_TAB = glfwGetKey(window, GLFW_KEY_TAB);
 	int state_U = glfwGetKey(window, GLFW_KEY_U);
-	int state_J = glfwGetKey(window, GLFW_KEY_J);
 	int state_W = glfwGetKey(window, GLFW_KEY_W);
 	int state_A = glfwGetKey(window, GLFW_KEY_A);
 	int state_S = glfwGetKey(window, GLFW_KEY_S);
 	int state_D = glfwGetKey(window, GLFW_KEY_D);
+    int state_I = glfwGetKey(window, GLFW_KEY_I);
+    int state_J = glfwGetKey(window, GLFW_KEY_J);
+    int state_K = glfwGetKey(window, GLFW_KEY_K);
+    int state_L = glfwGetKey(window, GLFW_KEY_L);
 	int state_UP = glfwGetKey(window, GLFW_KEY_UP);
 	int state_DOWN = glfwGetKey(window, GLFW_KEY_DOWN);
 	int state_LEFT = glfwGetKey(window, GLFW_KEY_LEFT);
 	int state_RIGHT = glfwGetKey(window, GLFW_KEY_RIGHT);
 	int state_HOME = glfwGetKey(window, GLFW_KEY_HOME);
 	int state_P = glfwGetKey(window, GLFW_KEY_P);
-	int state_L = glfwGetKey(window, GLFW_KEY_L);
 	int state_T = glfwGetKey(window, GLFW_KEY_T);
 	int state_B = glfwGetKey(window, GLFW_KEY_B);
 	int state_X = glfwGetKey(window, GLFW_KEY_X);
@@ -806,54 +833,44 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		number2 = number2 / (float)(RAND_MAX);
 	if (number3 >= .75f)
 		number3 = number3 / (float)(RAND_MAX);
-	
-	switch (selectModel) {//prints twice per button press maybe this is okay?
 
+    if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
+        playerArm1.setTranslateModel(glm::vec3((playerArm1.getTranslateModel().x - .005f), playerArm1.getTranslateModel().y, playerArm1.getTranslateModel().z));
+    else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
+        playerArm1.setTranslateModel(glm::vec3((playerArm1.getTranslateModel().x + .005f), playerArm1.getTranslateModel().y, playerArm1.getTranslateModel().z));
+    else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
+        switch (selectJoint) {
+            case(0): playerArm1.setRotation(playerArm1.getRotation() + 5);  break;
+            case(1):if (playerArm1.getERotation() + 5 > 90)playerArm1.setERotation(90); else  playerArm1.setERotation(playerArm1.getERotation() + 5);  break;
+            case(2):if (playerArm1.getWRotation() + 5 > 65)playerArm1.setWRotation(65); else  playerArm1.setWRotation(playerArm1.getWRotation() + 5); break;
+            default: break;
+        }
+    else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
+        switch (selectJoint) {
+            case(0): playerArm1.setRotation(playerArm1.getRotation() - 5);  break;
+            case(1):if (playerArm1.getERotation() - 5 < 0)playerArm1.setERotation(0); else  playerArm1.setERotation(playerArm1.getERotation() - 5);  break;
+            case(2):if (playerArm1.getWRotation() - 5 < -85)playerArm1.setWRotation(-85); else  playerArm1.setWRotation(playerArm1.getWRotation() - 5); break;
+            default: break;
+        }
 
-	case(0):	//Evans model
-		break;
-	case(1)://jonah's
-		
-		break;
-	// Matt's model
-	case(2):
-		
-		break;
-		
-	case(3)://noot break;
-		break;
-	case(4)://Jon's Model		
-		if (state_W == GLFW_PRESS)
-			playerOne.setTranslateModel(glm::vec3(playerOne.getTranslateModel().x, (playerOne.getTranslateModel().y + .005f), playerOne.getTranslateModel().z));
-		else if (state_S == GLFW_PRESS)
-			playerOne.setTranslateModel(glm::vec3(playerOne.getTranslateModel().x, (playerOne.getTranslateModel().y - .005f), playerOne.getTranslateModel().z));
-		else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-			playerOne.setTranslateModel(glm::vec3((playerOne.getTranslateModel().x - .005f), playerOne.getTranslateModel().y, playerOne.getTranslateModel().z));
-		else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-			playerOne.setTranslateModel(glm::vec3((playerOne.getTranslateModel().x + .005f), playerOne.getTranslateModel().y, playerOne.getTranslateModel().z));
-		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-			switch (selectJoint) {
-			case(0): playerOne.setRotation(playerOne.getRotation() + 5);  break;
-			case(1):if (playerOne.getERotation() + 5 > 90)playerOne.setERotation(90); else  playerOne.setERotation(playerOne.getERotation() + 5);  break;
-			case(2):if (playerOne.getWRotation() + 5 > 65)playerOne.setWRotation(65); else  playerOne.setWRotation(playerOne.getWRotation() + 5); break;
-			default: break;
-			}
-		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-			switch (selectJoint) {
-			case(0): playerOne.setRotation(playerOne.getRotation() - 5);  break;
-			case(1):if (playerOne.getERotation() - 5 < 0)playerOne.setERotation(0); else  playerOne.setERotation(playerOne.getERotation() - 5);  break;
-			case(2):if (playerOne.getWRotation() - 5 < -85)playerOne.setWRotation(-85); else  playerOne.setWRotation(playerOne.getWRotation() - 5); break;
-			default: break;
-			}
-		else if (state_SPACE == GLFW_PRESS)
-		{
-
-			playerOne.setTranslateRandom(glm::vec3(number1, number2, number3));
-		}
-		break;
-
-	default:break;
-	}
+    if ((state_J == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
+        playerArm2.setTranslateModel(glm::vec3((playerArm2.getTranslateModel().x - .005f), playerArm2.getTranslateModel().y, playerArm2.getTranslateModel().z));
+    else if ((state_L == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
+        playerArm2.setTranslateModel(glm::vec3((playerArm2.getTranslateModel().x + .005f), playerArm2.getTranslateModel().y, playerArm2.getTranslateModel().z));
+    else if ((state_L == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
+        switch (selectJoint) {
+            case(0): playerArm2.setRotation(playerArm2.getRotation() + 5);  break;
+            case(1):if (playerArm2.getERotation() + 5 > 90)playerArm2.setERotation(90); else  playerArm2.setERotation(playerArm2.getERotation() + 5);  break;
+            case(2):if (playerArm2.getWRotation() + 5 > 65)playerArm2.setWRotation(65); else  playerArm2.setWRotation(playerArm2.getWRotation() + 5); break;
+            default: break;
+        }
+    else if ((state_J == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
+        switch (selectJoint) {
+            case(0): playerArm2.setRotation(playerArm2.getRotation() - 5);  break;
+            case(1):if (playerArm2.getERotation() - 5 < 0)playerArm2.setERotation(0); else  playerArm2.setERotation(playerArm2.getERotation() - 5);  break;
+            case(2):if (playerArm2.getWRotation() - 5 < -85)playerArm2.setWRotation(-85); else  playerArm2.setWRotation(playerArm2.getWRotation() - 5); break;
+            default: break;
+        }
 
 	// If ESC is pressed, window should closed
 	if (state_ESC == GLFW_PRESS)
@@ -872,11 +889,9 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		else selectModel += 1;
 		//printf("selectModel is: %d\n", selectModel);
 		switch (selectModel) {
-		case(0):printf("selectModel is: %d , selected Evan Greenstein id: 40173229\n", selectModel); break;
-		case(1):printf("selectModel is: %d , selected Jonah Ball id: 40178421\n", selectModel); break;
-		case(2):printf("selectModel is: %d , selected Matthew Segal id: 40031839	\n", selectModel); break;
-		case(3):printf("selectModel is: %d , selected Sabrina Kim id: 40066662\n", selectModel); break;
-		case(4):printf("selectModel is: %d , selected Jonathan Miller id: 40135070\n", selectModel); break;
+		case(0):printf("selectModel is: %d , selected Player 1 \n", selectModel); break;
+		case(1):printf("selectModel is: %d , selected Player 2 \n", selectModel); break;
+
 		default: break;
 		}
 	}
@@ -900,13 +915,6 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	}
 
 
-	// If u or j is pressed, scale up or down accordingly
-	else if (state_U == GLFW_PRESS)
-		GroupMatrixScale += .05f;
-
-	else if (state_J == GLFW_PRESS)
-		GroupMatrixScale -= .05f;
-
 	// If the arrow keys are pressed, rotate accordingly
 	else if (state_LEFT == GLFW_PRESS)
 		rotationMatrixW *= glm::rotate(glm::mat4(1.0f), glm::radians(2.55f), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -924,16 +932,16 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	else if (state_P == GLFW_PRESS)
 		renderAs = GL_POINTS;
 
-	else if (state_L == GLFW_PRESS)
-		renderAs = GL_LINES;
-
 	else if (state_T == GLFW_PRESS)
 		renderAs = GL_TRIANGLES;
 
 	// If HOME is pressed, remove translations, rotations, and scalings
 	else if (state_HOME == GLFW_PRESS) {		
-
-		playerOne.resetArm();
+		//jonahTranslationModel +=( - 1.0f * jonahTranslationModel);
+		//jonahTranslationRandom += (-1.0f * jonahTranslationRandom);
+		//mattModel.resetModel();
+		playerArm1.resetArm();
+		//evanArm.resetArm();
 		GroupMatrixScale = glm::vec3(1.0f);
 		rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 		glm::mat4 InitviewMatrix = glm::lookAt(eye, center, up);
