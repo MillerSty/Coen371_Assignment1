@@ -73,7 +73,7 @@ void SceneObjects::DrawScene(bool drawSkyBox) {
 	if (!check) printf("Draw DrawCoord failed");
 	//check = DrawBall();
 	if (!check) printf("Draw DrawBall failed");
-	check = DrawCoord();
+	//check = DrawCoord();
 	if (!check) printf("Draw DrawCoord failed");
 	
 }
@@ -155,7 +155,7 @@ bool SceneObjects::DrawCourt() {
 		}
 	}
 	glBindVertexArray(0);
-	bool check = DrawNet();
+	//bool check = DrawNet();
 	return true;
 }
 

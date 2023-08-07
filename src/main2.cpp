@@ -19,6 +19,7 @@
 #include "Racket.h"
 #include "SceneObjects.h"
 #include "Material.h"
+#include "Letters.h"
 using namespace glm;
 // Set the shader paths
 const char* vertex = "../src/shaders/unifiedVertex.glsl";
@@ -269,7 +270,7 @@ glm::mat4 rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm
 
 
 
-
+Letters numberDraw;
 
 int renderAs = GL_TRIANGLES;
 int shaderProgram;
@@ -280,7 +281,7 @@ float translateW = 0, translateY = 0, translateZ = 0;
 // Toggles for shadows and textures
 bool shouldApplyShadows = true;
 bool shouldApplyTextures = true;
-Arm playerArm;
+Arm playerOne;
 int selectModel = 0; //we can se to 0 but then user has to toggle to before any thing
 int selectJoint =0;
 
@@ -420,12 +421,14 @@ int main(int argc, char* argv[])
 	Material skinMaterial(.1f, .0f, .66f, .001f, plasticTextureID, shaderProgram); //this is skin
 	Material skyMaterial(.3f, .001f, .9f, .0001f, plasticTextureID, shaderProgram); //Flat blue sky
 
+	
+
 
 	SceneObj.setMaterials(courtMaterial, clothMaterial, ropeMaterial, metalMaterial, grassMaterial, plasticMaterial);
 	SceneObj.skyTexture = skyMaterial;
 	
 	//Racket and Arm ****	
-	playerArm.InitArm(glm::vec3(-.5f, 0.0f, .2f), unitCubeAO,skinMaterial,clothMaterial);
+	playerOne.InitArm(glm::vec3(-.5f, 0.0f, .2f), unitCubeAO,skinMaterial,clothMaterial);
 	Ball.grassTexture = grassMaterial;
 	Ball.shaderProgram = shaderProgram;
 	Ball.sphereVao = unitSphereAO;
@@ -435,7 +438,10 @@ int main(int argc, char* argv[])
 	racket.plasticMaterial = plasticMaterial;
 	racket.setBall(Ball);
 	//**** End jons jawn
-	
+	numberDraw.cubeVao = unitCubeAO;
+	numberDraw.shaderProgram = shaderProgram;
+	numberDraw.colour[0] = vec3(1.0f, 0.0f, 0.0f);
+	numberDraw.position = vec3(0, 0, 0);
 
 	// Set mouse and keyboard callbacks
 	glfwSetKeyCallback(window, keyPressCallback);
@@ -512,7 +518,7 @@ int main(int argc, char* argv[])
 	float lastFrameTime = glfwGetTime();
 	
 
-
+	int number = 0;
 	float i = -1;
 	float spin = 0;
 	bool reverse = false;
@@ -530,14 +536,14 @@ int main(int argc, char* argv[])
 		float x = sin(i);
 		float z = cos(i);
 		i += .02;
-			glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
-			rotationMatrixW;
-
-		
+			
+					
 
 		lastFrameTime = glfwGetTime();
-		printf("TIME: %f\n", lastFrameTime);
-		//float checkest = evanArm.getERotation();
+		number = floor(lastFrameTime);
+		if (number > 8) { number = 0; glfwSetTime(0); }
+
+
 		//printf("evan rotation: %f\n", checkest);
 		// Must draw scene in 2 passes: once for shadows, and another normally
 		// 1st pass
@@ -556,12 +562,14 @@ int main(int argc, char* argv[])
 			if (i == 1.0f) i = -1.0f;
 
 			// Draw geometry
-			playerArm.SetAttr(groupMatrix, renderAs, shaderProgram);
-			playerArm.DrawArm();
-			racket.SetAttr(groupMatrix, renderAs, shaderProgram, playerArm.partParent);
-			racket.Draw();
-
-
+			//playerOne.SetAttr(groupMatrix, renderAs, shaderProgram);
+			//playerOne.DrawArm();
+			//racket.SetAttr(groupMatrix, renderAs, shaderProgram, playerOne.partParent);
+			//racket.Draw();
+			numberDraw.groupMatrix = groupMatrix;
+			numberDraw.partParent = mat4(1.0f);
+			numberDraw.renderAs=renderAs;
+			bool check=numberDraw.DrawNumber(number);
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
             SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
@@ -583,14 +591,12 @@ int main(int argc, char* argv[])
 			glBindTexture(GL_TEXTURE_2D, depth_map_texture);
 
 			// Draw geometry
-			playerArm.SetAttr(groupMatrix, renderAs, shaderProgram);
-			playerArm.DrawArm();
-			racket.SetAttr(groupMatrix, renderAs, shaderProgram, playerArm.partParent);
-			racket.Draw();
+			//playerOne.SetAttr(groupMatrix, renderAs, shaderProgram);
+			//playerOne.DrawArm();
+			//racket.SetAttr(groupMatrix, renderAs, shaderProgram, playerOne.partParent);
+			//racket.Draw();
 
-
-			//J.drawRacketJ(groupMatrix, translationVec + translationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
-
+			bool check = numberDraw.DrawNumber(number);
 			SceneObj.sphereVao = unitSphereAO;
 			SceneObj.sphereVertCount = vertexIndicessphere.size();
 			SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
@@ -599,28 +605,7 @@ int main(int argc, char* argv[])
 
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noshowLightBox);
 		}
-		playerArm.flexFingers();
-		//micahArm.flexFingers(spin, reverse);
-		//trying to add finger manipulation
-		//float check = jonArm.getFRotation();
-		//if ((jonArm.getFRotation() + spin) > 90.0f && reverse == false) { 
-		//	
-		//	jonArm.setFRotation(jonArm.getFRotation() - spin); 
-		//	reverse = true;
-		//}
-		//else if (jonArm.getFRotation() + spin < 0.0f && reverse == true) {
-		//	jonArm.setFRotation(jonArm.getFRotation() + spin); 
-		//	reverse = false; 
-		//}
-		//else if (reverse == true){
-		//	jonArm.setFRotation(jonArm.getFRotation() - spin);
-		//	spin -= .01f;
-		//	}
-		//else { 
-		//	jonArm.setFRotation(jonArm.getFRotation() + spin);
-		//	spin += .01f;
-		//}		
-		//printf("%f\n", spin);
+		playerOne.flexFingers();
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
@@ -825,31 +810,31 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		break;
 	case(4)://Jon's Model		
 		if (state_W == GLFW_PRESS)
-			playerArm.setTranslateModel(glm::vec3(playerArm.getTranslateModel().x, (playerArm.getTranslateModel().y + .005f), playerArm.getTranslateModel().z));
+			playerOne.setTranslateModel(glm::vec3(playerOne.getTranslateModel().x, (playerOne.getTranslateModel().y + .005f), playerOne.getTranslateModel().z));
 		else if (state_S == GLFW_PRESS)
-			playerArm.setTranslateModel(glm::vec3(playerArm.getTranslateModel().x, (playerArm.getTranslateModel().y - .005f), playerArm.getTranslateModel().z));
+			playerOne.setTranslateModel(glm::vec3(playerOne.getTranslateModel().x, (playerOne.getTranslateModel().y - .005f), playerOne.getTranslateModel().z));
 		else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-			playerArm.setTranslateModel(glm::vec3((playerArm.getTranslateModel().x - .005f), playerArm.getTranslateModel().y, playerArm.getTranslateModel().z));
+			playerOne.setTranslateModel(glm::vec3((playerOne.getTranslateModel().x - .005f), playerOne.getTranslateModel().y, playerOne.getTranslateModel().z));
 		else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-			playerArm.setTranslateModel(glm::vec3((playerArm.getTranslateModel().x + .005f), playerArm.getTranslateModel().y, playerArm.getTranslateModel().z));
+			playerOne.setTranslateModel(glm::vec3((playerOne.getTranslateModel().x + .005f), playerOne.getTranslateModel().y, playerOne.getTranslateModel().z));
 		else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
 			switch (selectJoint) {
-			case(0): playerArm.setRotation(playerArm.getRotation() + 5);  break;
-			case(1):if (playerArm.getERotation() + 5 > 90)playerArm.setERotation(90); else  playerArm.setERotation(playerArm.getERotation() + 5);  break;
-			case(2):if (playerArm.getWRotation() + 5 > 65)playerArm.setWRotation(65); else  playerArm.setWRotation(playerArm.getWRotation() + 5); break;
+			case(0): playerOne.setRotation(playerOne.getRotation() + 5);  break;
+			case(1):if (playerOne.getERotation() + 5 > 90)playerOne.setERotation(90); else  playerOne.setERotation(playerOne.getERotation() + 5);  break;
+			case(2):if (playerOne.getWRotation() + 5 > 65)playerOne.setWRotation(65); else  playerOne.setWRotation(playerOne.getWRotation() + 5); break;
 			default: break;
 			}
 		else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
 			switch (selectJoint) {
-			case(0): playerArm.setRotation(playerArm.getRotation() - 5);  break;
-			case(1):if (playerArm.getERotation() - 5 < 0)playerArm.setERotation(0); else  playerArm.setERotation(playerArm.getERotation() - 5);  break;
-			case(2):if (playerArm.getWRotation() - 5 < -85)playerArm.setWRotation(-85); else  playerArm.setWRotation(playerArm.getWRotation() - 5); break;
+			case(0): playerOne.setRotation(playerOne.getRotation() - 5);  break;
+			case(1):if (playerOne.getERotation() - 5 < 0)playerOne.setERotation(0); else  playerOne.setERotation(playerOne.getERotation() - 5);  break;
+			case(2):if (playerOne.getWRotation() - 5 < -85)playerOne.setWRotation(-85); else  playerOne.setWRotation(playerOne.getWRotation() - 5); break;
 			default: break;
 			}
 		else if (state_SPACE == GLFW_PRESS)
 		{
 
-			playerArm.setTranslateRandom(glm::vec3(number1, number2, number3));
+			playerOne.setTranslateRandom(glm::vec3(number1, number2, number3));
 		}
 		break;
 
@@ -869,7 +854,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		3 is five Noot
 		*/
 		if (selectModel == 0) selectModel += 1;
-		else if (selectModel == 4) selectModel = 0;
+		else if (selectModel == 1) selectModel = 0;
 		else selectModel += 1;
 		//printf("selectModel is: %d\n", selectModel);
 		switch (selectModel) {
@@ -921,19 +906,6 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	else if (state_DOWN == GLFW_PRESS)
 		rotationMatrixW *= glm::rotate(glm::mat4(1.0f), glm::radians(2.55f), glm::vec3(.0f, -1.0f, 0.0f));
 
-	//else if (state_W == GLFW_PRESS)
-	//	translationVec.y += .005f;
-	//else if (state_S == GLFW_PRESS)
-	//	translationVec.y -= .005f;
-	//else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-	//	translationVec.x += .005f;
-	//else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-	//	translationVec.x -= .005f;
-	//else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)		
-	//	jonahRotationAngle += 5.0f;
-	//else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-	//	jonahRotationAngle -= 5.0f;
-
 	// If p, l, or t is pressed, changed render mode between points, lines, and triangles, respectively
 	else if (state_P == GLFW_PRESS)
 		renderAs = GL_POINTS;
@@ -946,11 +918,8 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 
 	// If HOME is pressed, remove translations, rotations, and scalings
 	else if (state_HOME == GLFW_PRESS) {		
-		//jonahTranslationModel +=( - 1.0f * jonahTranslationModel);
-		//jonahTranslationRandom += (-1.0f * jonahTranslationRandom);
-		//mattModel.resetModel();
-		playerArm.resetArm();
-		//evanArm.resetArm();
+
+		playerOne.resetArm();
 		GroupMatrixScale = glm::vec3(1.0f);
 		rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 		glm::mat4 InitviewMatrix = glm::lookAt(eye, center, up);

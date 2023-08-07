@@ -14,8 +14,8 @@
 class Letters
 {
 public:
-	Letters(int cubeVao,
-		glm::mat4 worldMatrix);
+	Letters() = default;
+	Letters(int cubeVao,glm::mat4 worldMatrix);
 	Letters(int cubeVao, std::string letterName);
 	int cubeVao;
 	glm::mat4 partParent;
@@ -27,6 +27,7 @@ public:
 	glm::vec3 colour[3];
 	std::string letterName;
 	//methods like 
+	bool DrawNumber(int number);
 	bool DrawJ();
 	bool DrawM();
 	bool DrawI();
