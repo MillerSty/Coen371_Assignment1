@@ -73,6 +73,31 @@ int createVertexArrayObject(const glm::vec3* vertexArray, int arraySize)
 	return vertexArrayObject;
 }
 
+int createVertexArrayObject3(std::vector<glm::vec3> arr)
+{
+	GLuint vertexArrayObject;
+	glGenVertexArrays(1, &vertexArrayObject);
+	glBindVertexArray(vertexArrayObject);
+
+	GLuint vertexBufferObject;
+	glGenBuffers(1, &vertexBufferObject);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
+	glBufferData(GL_ARRAY_BUFFER, arr.size(), &arr.front(), GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedNormaledVertex), (void*)sizeof(glm::vec3));
+	//glEnableVertexAttribArray(1);
+	//
+	//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedNormaledVertex), (void*)(2 * sizeof(glm::vec3)));
+	//glEnableVertexAttribArray(2);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	return vertexArrayObject;
+}
+
 /**
 A struct to contain the position, normal, and UV coordinates for a vertex
 */
@@ -375,7 +400,6 @@ int main(int argc, char* argv[])
 	//Scene Jawn
 	SceneObjects SceneObj("scene");
 	SceneObj.InitGrid();
-	SceneObjects Ball;
 	
 	glfwGetCursorPos(window, &lastMousePosX, &lastMousePosY);
 	lastMousePosZ = lastMousePosY;
@@ -433,10 +457,6 @@ int main(int argc, char* argv[])
 	//Racket and Arm ****	
 	playerArm1.InitArm(glm::vec3(-.5f, 0.0f, .2f), unitCubeAO, skinMaterial, clothMaterial);
     playerArm2.InitArm(glm::vec3(.5f, 0.0f, -.2f), unitCubeAO, skinMaterial, clothMaterial);
-	Ball.grassTexture = grassMaterial;
-	Ball.shaderProgram = shaderProgram;
-	Ball.sphereVao = unitSphereAO;
-	Ball.sphereVertCount=vertexIndicessphere.size();
 
 	Racket racket1(unitCubeAO, "racket1");
     racket1.plasticMaterial = plasticMaterial;
@@ -449,8 +469,8 @@ int main(int argc, char* argv[])
 	numberDraw.plastic = skinMaterial;
 	numberDraw2.plastic = skinMaterial;
 
-	numberDraw.position = vec3(-.20f, .21f, -0.20f); //this is scoreboard option
-	numberDraw2.position = vec3(.20f, .21f, -0.20f);
+	numberDraw.position = vec3(-.20f, .21f, -0.40f); //this is scoreboard option
+	numberDraw2.position = vec3(.20f, .21f, -0.40f);
 
 	numberDraw2.cubeVao = unitCubeAO;
 	numberDraw2.shaderProgram = shaderProgram;
@@ -530,11 +550,26 @@ int main(int argc, char* argv[])
 	ball.setVAO(unitSphereAO);
 	ball.setSphereVertCount(vertexIndicessphere.size());
 	ball.setMaterial(grassMaterial);
+	ball.setInitialPosition(vec3(0, .15f, 0));
 
 	int number = 0;
 	float i = -1;
 	float spin = 0;
 	bool reverse = false;
+	std::vector<vec3> arr;
+
+
+
+	arr.push_back(vec3(0,.15,0));
+	arr.push_back(vec3(0, .3, 0));
+	arr.push_back(vec3(0, 1.7, 0));
+	arr.push_back(vec3(0, 1.7, 1.0));
+	//arr.push_back(ball.getPosition());
+	//vec3 arr[] = { position1, position2 };
+	GLuint testVao = createVertexArrayObject3(arr);
+
+
+	float iTwo;
 	while (!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -549,21 +584,34 @@ int main(int argc, char* argv[])
 		float z = cos(i);
 		i += .002;
 
+		numberDraw.groupMatrix = groupMatrix; 
+		numberDraw2.groupMatrix = groupMatrix;
+		numberDraw2.renderAs = renderAs;
+		numberDraw.renderAs = renderAs;
 		lastFrameTime = glfwGetTime();
 		number = floor(lastFrameTime);
-
-		int check, check1, check2;
 		if (number > 98)glfwSetTime(0);
-		check = number / 10;
-		check1 = number % 10;
-		int puase = 1000;
 
-
-		//if (number > 8) { number = 0; glfwSetTime(0); }
+	
+		
+		/*so to control 1 arm .
+		setTranslate model to translate -> have to figure out specific vec positions
+		setRotation  for should rotation
+		setERotation for elbow rotation
+		setWRotation for wrist rotation
+		*/
+		vec3 position1 = ball.getPosition();
+		ball.setTranslationModel(vec3(i, .0150f, 0));
+		/*for ball path x belongs to set and z belongs to set
+		* [-.75,x,.75f]
+		* [-.36,z,.36f]
+		* -z is scoreboard side, +z if camera side
+		*/
+		
 		//https://stackoverflow.com/questions/13915479/c-get-every-number-separately
 		//this for seperating more
 
-		//printf("evan rotation: %f\n", checkest);
+
 		// Must draw scene in 2 passes: once for shadows, and another normally
 		// 1st pass
 		{
@@ -580,16 +628,7 @@ int main(int argc, char* argv[])
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, true);
 			if (i == 1.0f) i = -1.0f;
 
-			// Draw geometry
-
-
-			numberDraw.groupMatrix = groupMatrix;
-			numberDraw.partParent = mat4(1.0f);
-			numberDraw.renderAs=renderAs;
-			numberDraw2.groupMatrix = groupMatrix;
-			numberDraw2.partParent = mat4(1.0f);
-			numberDraw2.renderAs = renderAs;
-
+			
 			numberDraw.Scoreboard(number,false,true);
 			//numberDraw2.Scoreboard(number,false,false);
 
@@ -606,6 +645,14 @@ int main(int argc, char* argv[])
 			ball.setRenderAs(renderAs);
 			ball.drawBall();
 
+			vec3 position2 = ball.getPosition();
+			vec3 positionCheck = position2 - position1;
+			if (positionCheck.x > 0.0f) {
+				printf("Heading to Red\n");
+			}
+			else if (positionCheck.x < 0.0f) {
+				printf("headed to Blue\n");
+			}
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
             SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
@@ -626,7 +673,7 @@ int main(int argc, char* argv[])
 			glActiveTexture(GL_TEXTURE0 + 2);
 			glBindTexture(GL_TEXTURE_2D, depth_map_texture);
 
-			// Draw geometry
+
 			playerArm1.SetAttr(groupMatrix, renderAs, shaderProgram);
 			playerArm1.DrawArm();
 			racket1.SetAttr(groupMatrix, renderAs, shaderProgram, playerArm1.partParent);
@@ -641,13 +688,6 @@ int main(int argc, char* argv[])
 			ball.setRenderAs(renderAs);
 			ball.drawBall();
 
-			numberDraw.groupMatrix = groupMatrix;
-			numberDraw.partParent = mat4(1.0f);
-			numberDraw.renderAs = renderAs;
-			numberDraw2.groupMatrix = groupMatrix;
-			numberDraw2.partParent = mat4(1.0f);
-			numberDraw2.renderAs = renderAs;
-			
 
 			numberDraw.Scoreboard(number, false, true);
 			numberDraw2.Scoreboard(number, false, false);
@@ -660,8 +700,9 @@ int main(int argc, char* argv[])
 
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noshowLightBox);
 		}
-
+		//blue side is Player1
 		playerArm1.flexFingers();
+		//red is player2
         playerArm2.flexFingers();
 
 		glfwSwapBuffers(window);
