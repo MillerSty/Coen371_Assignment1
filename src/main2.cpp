@@ -21,7 +21,9 @@
 #include "Material.h"
 #include "Letters.h"
 #include "Ball.h"
+
 using namespace glm;
+
 // Set the shader paths
 const char* vertex = "../src/shaders/unifiedVertex.glsl";
 const char* fragment = "../src/shaders/unifiedFragment.glsl";
@@ -109,6 +111,7 @@ void updateLight(glm::vec3 newPosition,glm::vec3 newFocus,SceneObjects SceneObj,
 		SceneObj.DrawLight(newPosition, glm::vec3(0.0f, 1.0f, 0.0f), i);
 	}
 }
+
 // Textured Cube model
 TexturedNormaledVertex texturedCubeVertexArray[] = {
 	// LEFT
@@ -266,10 +269,7 @@ glm::vec3 translateWSAD(0.0f, 0.0f, 0.0f);
 glm::vec3 Translate(.0f, .0f, .0f);
 glm::vec3 GroupMatrixScale(1.0f, 1.0f, 1.0f);
 glm::mat4 groupMatrix;
-glm::mat4 mattGroupMatrix;
 glm::mat4 rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-
-
 
 Letters numberDraw;
 //numberDraw.position = glm::vec3(.2f, 0, 0);
@@ -359,8 +359,6 @@ int main(int argc, char* argv[])
 	// Compile and link shaders here
 	shaderProgram = compileAndLinkShaders(vertex, fragment);
 
-
-
 	// Initialize uniform locations
 	glUseProgram(shaderProgram);
 	GLuint worldMatrixLocation      = glGetUniformLocation(shaderProgram, "worldMatrix");
@@ -406,7 +404,6 @@ int main(int argc, char* argv[])
 	int unitSphereAO = createVertexArrayElementObject2(vertexIndicessphere, verticessphere, normalssphere, UVssphere);
 	int unitCubeAO = createVertexArrayObject2();
 
-
 	//TEXTURE DEFINITION
 	// 	// Load the textures
 	GLuint courtTextureID = loadTexture("../src/Assets/clay2.jpg");
@@ -430,8 +427,6 @@ int main(int argc, char* argv[])
 	Material skyMaterial(.3f, .001f, .9f, .0001f, plasticTextureID, shaderProgram); //Flat blue sky
 
 	
-
-
 	SceneObj.setMaterials(courtMaterial, clothMaterial, ropeMaterial, metalMaterial, grassMaterial, plasticMaterial);
 	SceneObj.skyTexture = skyMaterial;
 	
@@ -464,8 +459,6 @@ int main(int argc, char* argv[])
 	glfwSetKeyCallback(window, keyPressCallback);
 	glfwSetCursorPosCallback(window, mouseCursorPostionCallback);
 	//glfwSetWindowSizeCallback(window, windowSizeCallback);
-
-
 
     // Lighting
     float lightAngleOuter = 10.0;
@@ -550,16 +543,11 @@ int main(int argc, char* argv[])
 			          glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
 			          rotationMatrixW;
 
-
 		float lightDepth = 1.0f; //we can do 30, but it works better lower because the scale?
 		bool noshowLightBox = false;
 		float x = sin(i);
 		float z = cos(i);
 		i += .002;
-			glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
-			rotationMatrixW;
-
-		
 
 		lastFrameTime = glfwGetTime();
 		number = floor(lastFrameTime);
@@ -648,8 +636,6 @@ int main(int argc, char* argv[])
             racket2.SetAttr(groupMatrix, renderAs, shaderProgram, playerArm2.partParent);
             racket2.Draw();
 
-
-            //J.drawRacketJ(groupMatrix, translationVec + translationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
 			ball.setGroupMatrix(groupMatrix);
 			ball.setRenderAs(renderAs);
 			ball.drawBall();
@@ -969,11 +955,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 
 	// If HOME is pressed, remove translations, rotations, and scalings
 	else if (state_HOME == GLFW_PRESS) {		
-		//jonahTranslationModel +=( - 1.0f * jonahTranslationModel);
-		//jonahTranslationRandom += (-1.0f * jonahTranslationRandom);
-		//mattModel.resetModel();
 		playerArm1.resetArm();
-		//evanArm.resetArm();
 		GroupMatrixScale = glm::vec3(1.0f);
 		rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 		glm::mat4 InitviewMatrix = glm::lookAt(eye, center, up);

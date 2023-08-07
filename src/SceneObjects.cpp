@@ -155,7 +155,7 @@ bool SceneObjects::DrawCourt() {
 		}
 	}
 	glBindVertexArray(0);
-	//bool check = DrawNet();
+	bool check = DrawNet();
 	return true;
 }
 
