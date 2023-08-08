@@ -1,21 +1,17 @@
 #pragma once
 
-enum Action {
-    TRANSLATE, ROTATE
-};
-
 class KeyFrame {
 public:
-    float value;
-    Action action;
+    float translate;
+    float rotate;
     double time;
 
-    KeyFrame(float val, Action action1, double time);
+    KeyFrame(float translation, float rotation, double time);
 
 };
 
-KeyFrame::KeyFrame(float val, Action action1, double time) {
-    value = val;
-    action = action1;
+KeyFrame::KeyFrame(float translation, float rotation, double time) {
+    translate = translation;
+    rotate = rotation;
     this->time = time;
 }
