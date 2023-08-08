@@ -572,15 +572,7 @@ int main(int argc, char* argv[])
 	float i = -1;
 	float spin = 0;
 	bool reverse = false;
-	std::vector<vec3> arr;
 
-	arr.push_back(vec3(0,.15,0));
-	arr.push_back(vec3(0, .3, 0));
-	arr.push_back(vec3(0, 1.7, 0));
-	arr.push_back(vec3(0, 1.7, 1.0));
-	//arr.push_back(ball.getPosition());
-	//vec3 arr[] = { position1, position2 };
-	GLuint testVao = createVertexArrayObject3(arr);
 
 	float iTwo=0.02f;
 	bool headedToRed = false, headedToBlue = false;
