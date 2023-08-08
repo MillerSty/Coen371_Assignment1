@@ -584,17 +584,10 @@ int main(int argc, char* argv[])
 	float i = -1;
 	float spin = 0;
 	bool reverse = false;
-	std::vector<vec3> arr;
 
-	arr.push_back(vec3(0,.15,0));
-	arr.push_back(vec3(0, .3, 0));
-	arr.push_back(vec3(0, 1.7, 0));
-	arr.push_back(vec3(0, 1.7, 1.0));
-	//arr.push_back(ball.getPosition());
-	//vec3 arr[] = { position1, position2 };
-	GLuint testVao = createVertexArrayObject3(arr);
 
-	float iTwo;
+	float iTwo=0.02f;
+	bool headedToRed = false, headedToBlue = false;
 	while (!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -649,14 +642,18 @@ int main(int argc, char* argv[])
 		setERotation for elbow rotation
 		setWRotation for wrist rotation
 		*/
+		
 		vec3 position1 = ball.getPosition();
-		ball.setTranslationModel(vec3(i, .0150f, 0));
+		ball.setTranslationModel(vec3( iTwo, .00f, 0));
 		/*for ball path x belongs to set and z belongs to set
 		* [-.75,x,.75f]
 		* [-.36,z,.36f]
 		* -z is scoreboard side, +z if camera side
 		*/
-
+	
+		
+		float checky = playerArm1.position.x;
+	
 		//https://stackoverflow.com/questions/13915479/c-get-every-number-separately
 		//this for seperating more
 
@@ -692,15 +689,8 @@ int main(int argc, char* argv[])
 			ball.setRenderAs(renderAs);
 			ball.drawBall();
 
-			vec3 position2 = ball.getPosition();
-			vec3 positionCheck = position2 - position1;
-			//position check
-			//if (positionCheck.x > 0.0f) {
-			//	printf("Heading to Red\n");
-			//}
-			//else if (positionCheck.x < 0.0f) {
-			//	printf("headed to Blue\n");
-			//}
+		
+
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
             SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
@@ -732,9 +722,44 @@ int main(int argc, char* argv[])
             racket2.SetAttr(groupMatrix, renderAs, shaderProgram, playerArm2.partParent);
             racket2.Draw();
 
+
+
 			ball.setGroupMatrix(groupMatrix);
 			ball.setRenderAs(renderAs);
 			ball.drawBall();
+			if (number == 4) {
+				headedToRed = !headedToRed;
+				headedToBlue = !headedToBlue;
+			}
+			vec3 position2 = ball.getPosition();
+			vec3 positionCheck = position2 - position1;
+			if (position2.x > .750f || position2.x < -.750f) {
+
+				
+				printf("resting");
+				ball.resetModel();				
+				
+				if (headedToRed) {
+					ball.setInitialPosition(vec3(playerArm1.position.x, playerArm1.position.y, playerArm1.position.z));
+					iTwo = .02f;
+
+				}
+				else if (headedToBlue){
+					ball.setInitialPosition(vec3(playerArm2.position.x, playerArm2.position.y, playerArm2.position.z));
+					iTwo = -.02f;
+				}
+			}
+			//position check
+			if (positionCheck.x > 0.0f) {
+				headedToRed = true;
+				headedToBlue = false;
+				//printf("Heading to Red\n");
+			}
+			else if (positionCheck.x < 0.0f) {
+				headedToBlue = true;
+				headedToRed = false;
+				//printf("headed to Blue\n");
+			}
 
 			numberDraw.Scoreboard(number, false, true);
 			numberDraw2.Scoreboard(number, false, false);
