@@ -1,11 +1,12 @@
-// Comp 371 - Assignment 2
+// Comp 371 - Project
+
 // System includes
-#pragma once
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <ctime>
 
 // Dependency includes
 #define GLEW_STATIC 1   // This allows linking with Static Library on Windows, without DLL
@@ -13,6 +14,8 @@
 #include <GLFW/glfw3.h> // GLFW provides a cross-platform interface for creating a graphical context,
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#include <irrKlang.h>
+#pragma comment(lib, "../thirdparty/irrklang/lib/irrKlang.lib")  // Necessary to get irrKlang working
 
 // Source code includes
 #include "Arm.h"
@@ -20,8 +23,11 @@
 #include "SceneObjects.h"
 #include "Material.h"
 #include "KeyFrame.h"
+#include "Letters.h"
+#include "Ball.h"
 
 using namespace glm;
+
 // Set the shader paths
 const char* vertex = "../src/shaders/unifiedVertex.glsl";
 const char* fragment = "../src/shaders/unifiedFragment.glsl";
@@ -71,6 +77,31 @@ int createVertexArrayObject(const glm::vec3* vertexArray, int arraySize)
 	return vertexArrayObject;
 }
 
+int createVertexArrayObject3(std::vector<glm::vec3> arr)
+{
+	GLuint vertexArrayObject;
+	glGenVertexArrays(1, &vertexArrayObject);
+	glBindVertexArray(vertexArrayObject);
+
+	GLuint vertexBufferObject;
+	glGenBuffers(1, &vertexBufferObject);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
+	glBufferData(GL_ARRAY_BUFFER, arr.size(), &arr.front(), GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedNormaledVertex), (void*)sizeof(glm::vec3));
+	//glEnableVertexAttribArray(1);
+	//
+	//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedNormaledVertex), (void*)(2 * sizeof(glm::vec3)));
+	//glEnableVertexAttribArray(2);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	return vertexArrayObject;
+}
+
 /**
 A struct to contain the position, normal, and UV coordinates for a vertex
 */
@@ -109,6 +140,7 @@ void updateLight(glm::vec3 newPosition,glm::vec3 newFocus,SceneObjects SceneObj,
 		SceneObj.DrawLight(newPosition, glm::vec3(0.0f, 1.0f, 0.0f), i);
 	}
 }
+
 // Textured Cube model
 TexturedNormaledVertex texturedCubeVertexArray[] = {
 	// LEFT
@@ -266,14 +298,17 @@ glm::vec3 translateWSAD(0.0f, 0.0f, 0.0f);
 glm::vec3 Translate(.0f, .0f, .0f);
 glm::vec3 GroupMatrixScale(1.0f, 1.0f, 1.0f);
 glm::mat4 groupMatrix;
-glm::mat4 mattGroupMatrix;
 glm::mat4 rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
-
+Letters numberDraw;
+//numberDraw.position = glm::vec3(.2f, 0, 0);
+Letters numberDraw2;
+//numberDraw.position = vec3(0.0f, 0.0f, 0.0f);
+//numberDraw2.position = vec3(.4f, 0, 0);
 int renderAs = GL_TRIANGLES;
 int shaderProgram;
 double lastMousePosX, lastMousePosY, lastMousePosZ;
-float FOV = 70, AR = (float)(WIDTH / HEIGHT), near = .01, far = 50;
+float FOV = 70, AR = (float) WIDTH / (float) HEIGHT, near = .01, far = 50;
 float translateW = 0, translateY = 0, translateZ = 0;
 
 // Toggles for shadows and textures
@@ -282,18 +317,35 @@ bool shouldApplyTextures = true;
 Arm playerArm1;
 Arm playerArm2;
 int selectModel = 0; //we can se to 0 but then user has to toggle to before any thing
-int selectJoint =0;
+int selectJoint = 0;
+
+// Create ball
+Ball ball;
+
+// Create irrKlang engine
+irrklang::ISoundEngine* audioEngine;
 
 int main(int argc, char* argv[])
 {
+    // Seed a random number generator for later use. Taken from https://stackoverflow.com/a/5891824
+    srand(time(nullptr));
+
 	// Initialize GLFW and OpenGL version
 	if (!glfwInit())
 		return -1;
 
+    // Initialize irrKlang
+    audioEngine = irrklang::createIrrKlangDevice();
+
+    if (!audioEngine)
+    {
+        std::cout << "Failed to create irrKlang engine" << std::endl;
+        return -1;
+    }
+
 	// Scale down the unit cube vertices
-	for (size_t i = 0; i < 36; i++) {
-		TexturedNormaledVertex thisOne = texturedCubeVertexArray[i];
-		texturedCubeVertexArray[i].position *= 0.1f;
+	for (auto& vertexArrayObject : texturedCubeVertexArray) {
+        vertexArrayObject.position *= 0.1f;
 	}
 
 	// Set some GLFW window hints
@@ -305,8 +357,8 @@ int main(int argc, char* argv[])
 	glfwWindowHint(GLFW_DOUBLEBUFFER, GL_TRUE);
 
 	// Create Window and rendering context using GLFW, resolution is 800x600
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Comp371 - Assignment 2", NULL, NULL);
-	if (window == NULL)
+	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Comp371 - Assignment 2", nullptr, nullptr);
+	if (window == nullptr)
 	{
 		std::cerr << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
@@ -350,8 +402,6 @@ int main(int argc, char* argv[])
 	// Compile and link shaders here
 	shaderProgram = compileAndLinkShaders(vertex, fragment);
 
-
-
 	// Initialize uniform locations
 	glUseProgram(shaderProgram);
 	GLuint worldMatrixLocation      = glGetUniformLocation(shaderProgram, "worldMatrix");
@@ -368,7 +418,6 @@ int main(int argc, char* argv[])
 	//Scene Jawn
 	SceneObjects SceneObj("scene");
 	SceneObj.InitGrid();
-	SceneObjects Ball;
 	
 	glfwGetCursorPos(window, &lastMousePosX, &lastMousePosY);
 	lastMousePosZ = lastMousePosY;
@@ -388,15 +437,14 @@ int main(int argc, char* argv[])
 	loadOBJ2(pathSphere.c_str(), vertexIndicessphere, verticessphere, normalssphere, UVssphere);
   
 	// Scale the vertex positions of the sphere
-	for (int i = 0; i < verticessphere.size(); i++) {
-		verticessphere[i] = verticessphere[i] * .05f;
+	for (auto & vert : verticessphere) {
+		vert *= 0.05f;
 	}
 	
 	// Create VAOs
 	int gridAO = createVertexArrayObject(SceneObj.lineArray, sizeof(SceneObj.lineArray));
 	int unitSphereAO = createVertexArrayElementObject2(vertexIndicessphere, verticessphere, normalssphere, UVssphere);
 	int unitCubeAO = createVertexArrayObject2();
-
 
 	//TEXTURE DEFINITION
 	// 	// Load the textures
@@ -420,31 +468,34 @@ int main(int argc, char* argv[])
 	Material skinMaterial(.1f, .0f, .66f, .001f, plasticTextureID, shaderProgram); //this is skin
 	Material skyMaterial(.3f, .001f, .9f, .0001f, plasticTextureID, shaderProgram); //Flat blue sky
 
-
 	SceneObj.setMaterials(courtMaterial, clothMaterial, ropeMaterial, metalMaterial, grassMaterial, plasticMaterial);
 	SceneObj.skyTexture = skyMaterial;
 	
 	//Racket and Arm ****	
 	playerArm1.InitArm(glm::vec3(-.5f, 0.0f, .2f), unitCubeAO, skinMaterial, clothMaterial);
     playerArm2.InitArm(glm::vec3(.5f, 0.0f, -.2f), unitCubeAO, skinMaterial, clothMaterial);
-	Ball.grassTexture = grassMaterial;
-	Ball.shaderProgram = shaderProgram;
-	Ball.sphereVao = unitSphereAO;
-	Ball.sphereVertCount=vertexIndicessphere.size();
 
 	Racket racket1(unitCubeAO, "racket1");
     racket1.plasticMaterial = plasticMaterial;
     Racket racket2(unitCubeAO, "racket2");
     racket2.plasticMaterial = plasticMaterial;
 	//**** End jons jawn
-	
+	numberDraw.cubeVao = unitCubeAO;
+	numberDraw.shaderProgram = shaderProgram;
+
+	numberDraw.plastic = skinMaterial;
+	numberDraw2.plastic = skinMaterial;
+
+	numberDraw.position = vec3(-.20f, .21f, -0.40f); //this is scoreboard option
+	numberDraw2.position = vec3(.20f, .21f, -0.40f);
+
+	numberDraw2.cubeVao = unitCubeAO;
+	numberDraw2.shaderProgram = shaderProgram;
 
 	// Set mouse and keyboard callbacks
 	glfwSetKeyCallback(window, keyPressCallback);
 	glfwSetCursorPosCallback(window, mouseCursorPostionCallback);
 	//glfwSetWindowSizeCallback(window, windowSizeCallback);
-
-
 
     // Lighting
     float lightAngleOuter = 10.0;
@@ -514,10 +565,6 @@ int main(int argc, char* argv[])
 	double lastFrameTime = 0.0;
     double dt = 0;
 
-	float i = -1;
-	float spin = 0;
-	bool reverse = false;
-
     KeyFrame keyframesBlue[] = {
             KeyFrame(0.0, 0.0, 0.0), // Initial key frame
             KeyFrame(-0.4, 0.0, 4.0),
@@ -527,6 +574,27 @@ int main(int argc, char* argv[])
 
     };
     int keyframeNum = 1;
+	ball.setShaderProgram(shaderProgram);
+	ball.setVAO(unitSphereAO);
+	ball.setSphereVertCount(vertexIndicessphere.size());
+	ball.setMaterial(grassMaterial);
+	ball.setInitialPosition(vec3(0, .15f, 0));
+
+	int number = 0;
+	float i = -1;
+	float spin = 0;
+	bool reverse = false;
+	std::vector<vec3> arr;
+
+	arr.push_back(vec3(0,.15,0));
+	arr.push_back(vec3(0, .3, 0));
+	arr.push_back(vec3(0, 1.7, 0));
+	arr.push_back(vec3(0, 1.7, 1.0));
+	//arr.push_back(ball.getPosition());
+	//vec3 arr[] = { position1, position2 };
+	GLuint testVao = createVertexArrayObject3(arr);
+
+	float iTwo;
 	while (!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -534,7 +602,6 @@ int main(int argc, char* argv[])
 		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) *
 			          glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
 			          rotationMatrixW;
-
 
 		float lightDepth = 1.0f; //we can do 30, but it works better lower because the scale?
 		bool noshowLightBox = false;
@@ -567,6 +634,32 @@ int main(int argc, char* argv[])
 //		printf("TIME: %f\n", lastFrameTime);
 		//float checkest = evanArm.getERotation();
 		//printf("evan rotation: %f\n", checkest);
+
+		numberDraw.groupMatrix = groupMatrix;
+		numberDraw2.groupMatrix = groupMatrix;
+		numberDraw2.renderAs = renderAs;
+		numberDraw.renderAs = renderAs;
+		lastFrameTime = glfwGetTime();
+		number = floor(lastFrameTime);
+		if (number > 98)glfwSetTime(0);
+
+		/*so to control 1 arm .
+		setTranslate model to translate -> have to figure out specific vec positions
+		setRotation  for should rotation
+		setERotation for elbow rotation
+		setWRotation for wrist rotation
+		*/
+		vec3 position1 = ball.getPosition();
+		ball.setTranslationModel(vec3(i, .0150f, 0));
+		/*for ball path x belongs to set and z belongs to set
+		* [-.75,x,.75f]
+		* [-.36,z,.36f]
+		* -z is scoreboard side, +z if camera side
+		*/
+
+		//https://stackoverflow.com/questions/13915479/c-get-every-number-separately
+		//this for seperating more
+
 		// Must draw scene in 2 passes: once for shadows, and another normally
 		// 1st pass
 		{
@@ -583,7 +676,9 @@ int main(int argc, char* argv[])
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, true);
 			if (i == 1.0f) i = -1.0f;
 
-			// Draw geometry
+			numberDraw.Scoreboard(number,false,true);
+			//numberDraw2.Scoreboard(number,false,false);
+
 			playerArm1.SetAttr(groupMatrix, renderAs, shaderProgram);
 			playerArm1.DrawArm();
 			racket1.SetAttr(groupMatrix, renderAs, shaderProgram, playerArm1.partParent);
@@ -593,7 +688,19 @@ int main(int argc, char* argv[])
             playerArm2.DrawArm();
             racket2.SetAttr(groupMatrix, renderAs, shaderProgram, playerArm2.partParent);
             racket2.Draw();
+			ball.setGroupMatrix(groupMatrix);
+			ball.setRenderAs(renderAs);
+			ball.drawBall();
 
+			vec3 position2 = ball.getPosition();
+			vec3 positionCheck = position2 - position1;
+			//position check
+			//if (positionCheck.x > 0.0f) {
+			//	printf("Heading to Red\n");
+			//}
+			//else if (positionCheck.x < 0.0f) {
+			//	printf("headed to Blue\n");
+			//}
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
             SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
@@ -614,7 +721,7 @@ int main(int argc, char* argv[])
 			glActiveTexture(GL_TEXTURE0 + 2);
 			glBindTexture(GL_TEXTURE_2D, depth_map_texture);
 
-			// Draw geometry
+
 			playerArm1.SetAttr(groupMatrix, renderAs, shaderProgram);
 			playerArm1.DrawArm();
 			racket1.SetAttr(groupMatrix, renderAs, shaderProgram, playerArm1.partParent);
@@ -625,8 +732,12 @@ int main(int argc, char* argv[])
             racket2.SetAttr(groupMatrix, renderAs, shaderProgram, playerArm2.partParent);
             racket2.Draw();
 
+			ball.setGroupMatrix(groupMatrix);
+			ball.setRenderAs(renderAs);
+			ball.drawBall();
 
-            //J.drawRacketJ(groupMatrix, translationVec + translationRandom, colorLocation, worldMatrixLocation, jonahRotationAngle);
+			numberDraw.Scoreboard(number, false, true);
+			numberDraw2.Scoreboard(number, false, false);
 
 			SceneObj.sphereVao = unitSphereAO;
 			SceneObj.sphereVertCount = vertexIndicessphere.size();
@@ -636,15 +747,20 @@ int main(int argc, char* argv[])
 
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noshowLightBox);
 		}
-
+		//blue side is Player1
 		playerArm1.flexFingers();
+		//red is player2
         playerArm2.flexFingers();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+    // Shut down irrklang
+    audioEngine->drop();
+
 	// Shutdown GLFW
 	glfwTerminate();
+
 	return 0;
 }
 
@@ -673,7 +789,7 @@ int compileAndLinkShaders(const char* vertex, const char* fragment)
 	int vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	const std::string vss = getShaderSource(vertex);
 	const char* vertexShaderSource = vss.c_str();
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+	glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
 	glCompileShader(vertexShader);
 
 	// Check for shader compile errors
@@ -682,7 +798,7 @@ int compileAndLinkShaders(const char* vertex, const char* fragment)
 	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
 	if (!success)
 	{
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+		glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
 		std::cerr << "Error. Vertex shader compilation failed!\n" << infoLog << std::endl;
 	}
 
@@ -690,14 +806,14 @@ int compileAndLinkShaders(const char* vertex, const char* fragment)
 	int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	const std::string fss = getShaderSource(fragment);
 	const char* fragmentShaderSource = fss.c_str();
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+	glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
 	glCompileShader(fragmentShader);
 
 	// Check for shader compile errors
 	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
 	if (!success)
 	{
-		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+		glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
 		std::cerr << "Error. Fragment shader compilation failed!\n" << infoLog << std::endl;
 	}
 
@@ -710,7 +826,7 @@ int compileAndLinkShaders(const char* vertex, const char* fragment)
 	// Check for linking errors
 	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
 	if (!success) {
-		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+		glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
 		std::cerr << "Error. Shader program linking failed!\n" << infoLog << std::endl;
 	}
 
@@ -774,17 +890,17 @@ GLuint loadTexture(const char* filename)
 }
 
 //from lab 04
-void setProjectionMatrix(int shaderProgram, glm::mat4 projectionMatrix)
+void setProjectionMatrix(int shaderProg, glm::mat4 projectionMatrix)
 {
 	glUseProgram(shaderProgram);
-	GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
+	GLint projectionMatrixLocation = glGetUniformLocation(shaderProg, "projectionMatrix");
 	glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
 }
 
-void setViewMatrix(int shaderProgram, glm::mat4 viewMatrix)
+void setViewMatrix(int shaderProg, glm::mat4 viewMatrix)
 {
 	glUseProgram(shaderProgram);
-	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
+	GLint viewMatrixLocation = glGetUniformLocation(shaderProg, "viewMatrix");
 	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &viewMatrix[0][0]);
 }
 
@@ -817,6 +933,9 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	int state_X = glfwGetKey(window, GLFW_KEY_X);
 	int state_1 = glfwGetKey(window, GLFW_KEY_1);
 	int state_2 = glfwGetKey(window, GLFW_KEY_2);
+    int state_COMMA = glfwGetKey(window, GLFW_KEY_COMMA);
+    int state_PERIOD = glfwGetKey(window, GLFW_KEY_PERIOD);
+
 	//global random
 	float number1 = (rand()) / (float)(RAND_MAX);
 	float number2 = (rand()) / (float)(RAND_MAX);
@@ -848,7 +967,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
             default: break;
         }
 
-    if ((state_J == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
+    else if ((state_J == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
         playerArm2.setTranslateModel(glm::vec3((playerArm2.getTranslateModel().x - .005f), playerArm2.getTranslateModel().y, playerArm2.getTranslateModel().z));
     else if ((state_L == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
         playerArm2.setTranslateModel(glm::vec3((playerArm2.getTranslateModel().x + .005f), playerArm2.getTranslateModel().y, playerArm2.getTranslateModel().z));
@@ -867,8 +986,8 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
             default: break;
         }
 
-	// If ESC is pressed, window should closed
-	if (state_ESC == GLFW_PRESS)
+	// If ESC is pressed, window should close
+	else if (state_ESC == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
 	else if (state_TAB == GLFW_PRESS && mods != GLFW_MOD_SHIFT) {
@@ -890,6 +1009,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		default: break;
 		}
 	}
+
 	else if (state_TAB == GLFW_PRESS && mods == GLFW_MOD_SHIFT) {
 		/*
 		select -1 is bicep
@@ -909,7 +1029,6 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		//printf("selectJoint is: %d\n", selectJoint);
 	}
 
-
 	// If the arrow keys are pressed, rotate accordingly
 	else if (state_LEFT == GLFW_PRESS)
 		rotationMatrixW *= glm::rotate(glm::mat4(1.0f), glm::radians(2.55f), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -923,19 +1042,6 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	else if (state_DOWN == GLFW_PRESS)
 		rotationMatrixW *= glm::rotate(glm::mat4(1.0f), glm::radians(2.55f), glm::vec3(.0f, -1.0f, 0.0f));
 
-	//else if (state_W == GLFW_PRESS)
-	//	translationVec.y += .005f;
-	//else if (state_S == GLFW_PRESS)
-	//	translationVec.y -= .005f;
-	//else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-	//	translationVec.x += .005f;
-	//else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-	//	translationVec.x -= .005f;
-	//else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)		
-	//	jonahRotationAngle += 5.0f;
-	//else if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-	//	jonahRotationAngle -= 5.0f;
-
 	// If p, l, or t is pressed, changed render mode between points, lines, and triangles, respectively
 	else if (state_P == GLFW_PRESS)
 		renderAs = GL_POINTS;
@@ -945,11 +1051,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 
 	// If HOME is pressed, remove translations, rotations, and scalings
 	else if (state_HOME == GLFW_PRESS) {		
-		//jonahTranslationModel +=( - 1.0f * jonahTranslationModel);
-		//jonahTranslationRandom += (-1.0f * jonahTranslationRandom);
-		//mattModel.resetModel();
 		playerArm1.resetArm();
-		//evanArm.resetArm();
 		GroupMatrixScale = glm::vec3(1.0f);
 		rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 		glm::mat4 InitviewMatrix = glm::lookAt(eye, center, up);
@@ -965,6 +1067,54 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	// If x is pressed, toggle textures
 	else if (state_X == GLFW_PRESS)
 		shouldApplyTextures = !shouldApplyTextures;
+
+    // If comma is pressed, play a ball sound
+    else if (state_COMMA == GLFW_PRESS)
+    {
+        const char* BALL_SOUNDS[] = {
+                "../src/Assets/sounds/Ball1.wav",
+                "../src/Assets/sounds/Ball2.wav",
+                "../src/Assets/sounds/Ball3.wav"
+        };
+
+        // Get a random number between 1 and 3 for which ball sound to play.
+        // Makes it sound more organic to have random different sounds
+        int whichSound = (rand() % 3);  // Code from https://stackoverflow.com/a/5891824
+        audioEngine->play2D(BALL_SOUNDS[whichSound]);
+
+        /*
+        irrklang::ISound* sound = audioEngine->play2D(BALL_SOUNDS[whichSound], false, false, true, irrklang::ESM_AUTO_DETECT, true);
+        irrklang::ISoundEffectControl* fx = sound->getSoundEffectControl();
+        fx->enableWavesReverbSoundEffect(0.0f, 0.0f, 1000.0f, 0.001f);
+
+        // Since we're using sound effects, must manually drop the sounds to avoid memory leaks
+        sound->drop();
+         */
+    }
+
+    // If period is pressed, play a crowd sound
+    else if (state_PERIOD == GLFW_PRESS)
+    {
+        const char* CROWD_SOUNDS[] = {
+                "../src/Assets/sounds/CrowdMale1.wav",
+                "../src/Assets/sounds/CrowdMale2.wav",
+                "../src/Assets/sounds/CrowdFemale1.wav",
+                "../src/Assets/sounds/CrowdFemale2.wav",
+        };
+
+        // Get a random number between 1 and 3 for which ball sound to play.
+        // Makes it sound more organic to have random different sounds
+        int whichSound = (rand() % 4);  // Code from https://stackoverflow.com/a/5891824
+        audioEngine->play2D(CROWD_SOUNDS[whichSound]);
+
+        /*
+        irrklang::ISound* sound = audioEngine->play2D(CROWD_SOUNDS[whichSound], false, false, true, irrklang::ESM_AUTO_DETECT, true);
+        irrklang::ISoundEffectControl* fx = sound->getSoundEffectControl();
+        fx->enableWavesReverbSoundEffect(0.0f, 0.0f, 500.0f, 0.001f);
+
+        sound->drop();
+         */
+    }
 }
 
 /**

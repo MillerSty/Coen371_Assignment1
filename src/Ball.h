@@ -5,30 +5,29 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "../Material.h"
+#include "Material.h"
 
-class MattModel
+class Ball
 {
 private:
-	GLuint unitCubeVAO;
-	GLuint sphereVAO;
+	GLuint VAO;
 	GLuint shaderProgram;
 	glm::mat4 groupMatrix;
 	glm::mat4 worldMatrix;
-	glm::vec3 initialPosition;
-	glm::vec3 initialScale;
-	glm::vec3 translationRandom;
 	glm::vec3 translationModel;
-	float rotationAngle;
-	int renderAs = GL_TRIANGLES;
+	glm::vec3 initialPosition;
+	int renderAS;
 	int sphereVertCount;
-
-	Material racketTexture;
-	Material armTexture;
 	Material ballTexture;
+	float velocity;
+glm:: vec3 position;
 
 public:
-	MattModel();
+	Ball();
+	void setPosition(glm::vec3 position) { this->position = position; }
+	glm::vec3 getPosition() { return position; }
+	glm::vec3 getSomething() { return translationModel + position; }
+
 
 	void setGroupMatrix(glm::mat4 groupMat);
 	glm::mat4 getGroupMatrix();
@@ -38,25 +37,17 @@ public:
 	GLuint getShaderProgram();
 	void setInitialPosition(glm::vec3 postion);
 	glm::vec3 getInitialPosition();
-	void setInitialScale(glm::vec3 scale);
-	glm::vec3 getInitialScale();
-	void setVAO(GLuint cubeVao, GLuint sphereVao);
-	GLuint getCubeVAO();
-	GLuint getSphereVAO();
-	glm::vec3 getTranslationRandom();
-	void setTranslationRandom(glm::vec3 trans);
+	void setVAO(GLuint vao);
+	GLuint getVAO();
 	glm::vec3 getTranslationModel();
 	void setTranslationModel(glm::vec3 trans);
-	void setRotationAngle(float angle);
-	float getRotationAngle();
 	void setRenderAs(int as);
 	int getRenderAs();
 	void setSphereVertCount(int count);
 	int getSphereVertCount();
-
-	void setMaterials(Material racket, Material arm, Material ball);
-
+	void setMaterial(Material material);
+	
 	void resetModel();
-
-	void drawModel();
+	void drawBall();
 };
+
