@@ -1045,20 +1045,21 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
         audioEngine->play2D(BALL_SOUNDS[whichSound]);
     }
 
-//    // If period is pressed, play a crowd sound
-//    else if (state_COMMA == GLFW_PRESS)
-//    {
-//        const char* BALL_SOUNDS[] = {
-//                "../src/Assets/sounds/Ball1.wav",
-//                "../src/Assets/sounds/Ball2.wav",
-//                "../src/Assets/sounds/Ball3.wav"
-//        };
-//
-//        // Get a random number between 1 and 3 for which ball sound to play.
-//        // Makes it sound more organic to have random different sounds
-//        int whichSound = (rand() % 3);  // Code from https://stackoverflow.com/a/5891824
-//        audioEngine->play2D(BALL_SOUNDS[whichSound]);
-//    }
+    // If period is pressed, play a crowd sound
+    else if (state_PERIOD == GLFW_PRESS)
+    {
+        const char* CROWD_SOUNDS[] = {
+                "../src/Assets/sounds/CrowdMale1.wav",
+                "../src/Assets/sounds/CrowdMale2.wav",
+                "../src/Assets/sounds/CrowdFemale1.wav",
+                "../src/Assets/sounds/CrowdFemale2.wav",
+        };
+
+        // Get a random number between 1 and 3 for which ball sound to play.
+        // Makes it sound more organic to have random different sounds
+        int whichSound = (rand() % 4);  // Code from https://stackoverflow.com/a/5891824
+        audioEngine->play2D(CROWD_SOUNDS[whichSound]);
+    }
 }
 
 /**
