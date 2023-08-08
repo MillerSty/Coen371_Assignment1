@@ -20,9 +20,14 @@ private:
 	int sphereVertCount;
 	Material ballTexture;
 	float velocity;
+glm:: vec3 position;
 
 public:
 	Ball();
+	void setPosition(glm::vec3 position) { this->position = position; }
+	glm::vec3 getPosition() { return position; }
+	glm::vec3 getSomething() { return translationModel + position; }
+
 
 	void setGroupMatrix(glm::mat4 groupMat);
 	glm::mat4 getGroupMatrix();

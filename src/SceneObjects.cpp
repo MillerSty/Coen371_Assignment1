@@ -72,12 +72,12 @@ void SceneObjects::DrawScene(bool drawSkyBox) {
 	//check = DrawCoord();
 	if (!check) printf("Draw DrawCoord failed");
 	//check = DrawBall();
-	//if (!check) printf("Draw DrawBall failed");
+	if (!check) printf("Draw DrawBall failed");
 	//check = DrawCoord();
 	if (!check) printf("Draw DrawCoord failed");
 	
 }
-
+//drawball probably deprecated
 bool SceneObjects::DrawBall() {
 	grassTexture.bindTexture();
 	grassTexture.loadToShader();
@@ -377,7 +377,7 @@ bool SceneObjects::DrawLight(glm::vec3 position,glm::vec3 rotation,float i) {
 	return true;
 }
 
-
+//drawJball most likely deprecated
 bool SceneObjects::DrawJBall() {
 	grassTexture.bindTexture();
 	grassTexture.loadToShader();

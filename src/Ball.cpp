@@ -54,17 +54,20 @@ void Ball::drawBall()
 	glm::vec3 SPHERE_COLOR(0.0f, 1.0f, 0.0f);
 	glUniform3fv(glGetUniformLocation(shaderProgram, "objectColor"), 1, &SPHERE_COLOR[0]);
 
+
+
 	// Apply texture
 	ballTexture.bindTexture();
 	ballTexture.loadToShader();
 
 	// Set transformations
-	glm::mat4 modelMat = worldMatrix * groupMatrix;
+	glm::mat4 modelMat = groupMatrix;
 
 	glm::mat4 modelScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.35f));
 	
+	this->position = translationModel + initialPosition;
 	// Translate only in the XY plane
-	glm::mat4 modelTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(translationModel.x, translationModel.y + 0.15f, 0.0f));
+	glm::mat4 modelTranslate = glm::translate(glm::mat4(1.0f), position);
 
 	modelMat *= modelTranslate * modelScale;
 
