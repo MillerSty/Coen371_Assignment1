@@ -10,7 +10,7 @@
 class Camera
 {
 public:
-	Camera();
+	Camera()=default;
 	Camera(glm::vec3 startPosition, glm::vec3 startUp, GLfloat startYaw, GLfloat startPitch, GLfloat startMoveSpeed, GLfloat startTurnSpeed);
 
 	void keyControl(bool* keys, GLfloat deltaTime);

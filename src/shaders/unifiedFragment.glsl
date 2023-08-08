@@ -39,9 +39,9 @@ uniform float dDiff;
 //uniform vec3 lightPosition;
 //uniform vec3 lightDirection;
 
-const float shadingAmbientStrength = .50f;
-const float shadingDiffuseStrength = 0.3;
-const float shadingSpecularStrength = 0.3;
+const float shadingAmbientStrength = .760f;
+const float shadingDiffuseStrength = 0.4;
+const float shadingSpecularStrength = 0.5;
 
 //uniform float lightCutoffOuter;
 //uniform float lightCutoffInner;

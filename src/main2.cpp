@@ -21,7 +21,7 @@
 #include "Material.h"
 #include "Letters.h"
 #include "SpotLight.h"
-#include "Camera.h"
+//#include "Camera.h"
 using namespace glm;
 
 // Set the shader paths
@@ -405,7 +405,7 @@ bool shouldApplyMLight = true;
 
 Arm jonArm;
 Arm micahArm;
-Camera camera;
+//Camera camera;
 //bool reset view;
 int camereSelect = -1;
 int selectModel = 0; //we can se to 0 but then user has to toggle to before any thing
@@ -426,6 +426,7 @@ int main(int argc, char* argv[])
 	for (size_t i = 0; i < 36; i++) {
 		TexturedNormaledVertex thisOne = texturedCubeVertexArray[i];
 		texturedCubeVertexArray[i].position *= 0.1f;
+		texturedCubeVertexArray[i].uv *= 0.1f;
 	}
 
 	// Set some GLFW window hints
@@ -484,7 +485,7 @@ int main(int argc, char* argv[])
 	GLuint plasticTextureID  = loadTexture("../src/Assets/plastic.jpg");
 	GLuint woodTextureID       = loadTexture("../src/Assets/wood1.jpg");
 	GLuint tattooTextureID = loadTexture("../src/Assets/tattoo.png");
-	GLuint skyTextureID = loadTexture("../src/Assets/sky2.jpg");
+	GLuint skyTextureID = loadTexture("../src/Assets/sky.jpg");
 	GLuint cloudTextureID = loadTexture("../src/Assets/cloud.png");
 	
 	// Black background	
@@ -561,7 +562,7 @@ int main(int argc, char* argv[])
 	Material plasticMaterial(.5f, .30f, .5f, .002f, plasticTextureID, shaderProgram); //needs to be glossy! This is our racket
 	Material woodMaterial(.5f, .60f, .5f, .002f, woodTextureID, shaderProgram); //this is you matt
 	Material tattooMaterial(.5f, .60f, .5f, .002f, tattooTextureID, shaderProgram); //this is you matt
-	Material cloudMaterial(.5f, .60f, .5f, .002f, cloudTextureID, shaderProgram); //this is you matt
+	Material cloudMaterial(.5f, .60f, .5f, .002f, skyTextureID, shaderProgram); //this is you matt
 
 	Material skyMaterial(.2f, .20f, .5f, .002f, plasticTextureID, shaderProgram); //this is you matt
 	// Material plasticSkinMaterial...  we need a dull material for skin probaly a copy of the plastic texture with different diff/spec/amb
@@ -572,7 +573,7 @@ int main(int argc, char* argv[])
 	Ball.sphereVertCount=vertexIndicessphere.size();
 	SceneObj.setMaterials(courtMaterial, clothMaterial, ropeMaterial, metalMaterial, grassMaterial, plasticMaterial);
 	SceneObj.skyVao = unitCubeSkyAO;
-	SceneObj.skyTexture = skyMaterial;
+	SceneObj.skyTexture = cloudMaterial;
 	Racket racket(unitCubeAO, "racket");
 	racket.setBall(Ball);
 	racket.jawnAngle = 0;
@@ -596,7 +597,7 @@ int main(int argc, char* argv[])
 	vec3 lightColor(1.0f, 1.0f, 1.0f);
 
 	//directional
-	float dAmbInt = .1f;
+	float dAmbInt = .3f;
 	float dDiffInt = .4f;
 	vec3 dDir = vec3(0, 0, -1);
 	glUniform1f(glGetUniformLocation(shaderProgram, "dAmb"), dAmbInt);
@@ -726,7 +727,7 @@ int main(int argc, char* argv[])
 	jawn = glm::vec4(1.0f);
 
 
-	camera=Camera(RESETeye,up, -60.0f, 0.0f, 5.0f, 0.5f);
+	//camera=Camera(RESETeye,up, -60.0f, 0.0f, 5.0f, 0.5f);
 
 	float AMPz = (rand()) / (float)(RAND_MAX);
 	float AMPx = (rand()) / (float)(RAND_MAX);
@@ -851,7 +852,7 @@ int main(int argc, char* argv[])
 			SceneObj.SetVAO(unitCubeAO, gridAO);
 			SceneObj.DrawScene(true);  // Draw scene with the skybox
 			
-			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, lightRotation, noshowLightBox,follow);
+			updateLight(glm::vec3(clamp(x,-.8f,.8f), lightDepth, clamp(z,-.4f,.4f)), glm::vec3(0, 0, 0), SceneObj, shaderProgram, lightRotation, noshowLightBox,follow);
 
 			//flex arm function?
 		}
@@ -993,7 +994,7 @@ GLuint loadTexture(const char* filename)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); 
  
 	// Step3 Load Textures with dimension data
 	int width, height, nrChannels;
@@ -1420,14 +1421,14 @@ void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos)
 		lastMousePosZ = zPos;
 	}
 }
-
 bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm::vec3>& temp_vertices,
-	          std::vector<glm::vec3>& out_normals, std::vector<glm::vec2>& out_uvs)
+	std::vector<glm::vec3>& out_normals, std::vector<glm::vec2>& out_uvs)
 {
 
 	std::vector<int> uvIndices, normalIndices;
 	std::vector<glm::vec2> temp_uvs;
 	std::vector<glm::vec3> temp_normals;
+	std::vector<glm::vec3> my_normals;
 
 	FILE* file;
 	file = fopen(path, "r");
@@ -1436,7 +1437,8 @@ bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm
 		getchar();
 		return false;
 	}
-
+	int count = 0;
+	int indexCount = 0;
 	while (1) {
 
 		char lineHeader[128];
@@ -1452,6 +1454,32 @@ bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm
 			res = fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
 
 			temp_vertices.push_back(vertex);
+			count += 1;
+			indexCount += 1;
+			int IndC = indexCount - 3;
+			int IndB = indexCount - 2;
+			int IndA = indexCount - 1;
+			int pause = 1000;
+			if (count == 3 && indexCount == 3) {
+				//my_normals.push_back(temp_vertices[0]);
+				//my_normals.push_back(temp_vertices[1]);
+				//my_normals.push_back(temp_vertices[2]);
+				my_normals.push_back(normalize(cross(temp_vertices[1] - temp_vertices[0], temp_vertices[2] - temp_vertices[0])));
+				my_normals.push_back(normalize(cross(temp_vertices[1] - temp_vertices[0], temp_vertices[2] - temp_vertices[0])));
+				my_normals.push_back(normalize(cross(temp_vertices[1] - temp_vertices[0], temp_vertices[2] - temp_vertices[0])));
+				count = 0;
+			}
+			else if (count == 3) {
+				int IndC = indexCount - 3;
+				int IndB = indexCount - 2;
+				int IndA = indexCount - 1;
+				my_normals.push_back(normalize(cross(temp_vertices[indexCount - 2] - temp_vertices[indexCount - 3], temp_vertices[indexCount - 1] - temp_vertices[indexCount - 3])));
+				my_normals.push_back(normalize(cross(temp_vertices[indexCount - 2] - temp_vertices[indexCount - 3], temp_vertices[indexCount - 1] - temp_vertices[indexCount - 3])));
+				my_normals.push_back(normalize(cross(temp_vertices[indexCount - 2] - temp_vertices[indexCount - 3], temp_vertices[indexCount - 1] - temp_vertices[indexCount - 3])));
+				count = 0;
+			}
+
+
 		}
 		else if (strcmp(lineHeader, "vt") == 0) {
 			glm::vec2 uv;
@@ -1530,19 +1558,19 @@ bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm
 		out_normals.resize(temp_normals.size());
 	if (uvIndices.size() != 0)
 		out_uvs.resize(temp_uvs.size());
-	out_normals = temp_normals;
+	out_normals = my_normals;
 	out_uvs = temp_uvs;
-	//for (unsigned int i = 0; i < vertexIndices.size(); i++) {
-	//	int vi = vertexIndices[i];
-	//	if (normalIndices.size() != 0) {
-	//		int ni = normalIndices[i];
-	//		out_normals[vi] = temp_normals[ni];
-	//	}
-	//	if (uvIndices.size() != 0 && i < uvIndices.size()) {
-	//		int ui = uvIndices[i];
-	//		out_uvs[vi] = temp_uvs[ui];
-	//	}
-	//}
+	for (unsigned int i = 0; i < vertexIndices.size(); i++) {
+		int vi = vertexIndices[i];
+		if (normalIndices.size() != 0) {
+			int ni = normalIndices[i];
+			out_normals[vi] = temp_normals[ni];
+		}
+		if (uvIndices.size() != 0 && i < uvIndices.size()) {
+			int ui = uvIndices[i];
+			out_uvs[vi] = temp_uvs[ui];
+		}
+	}
 
 	return true;
 }

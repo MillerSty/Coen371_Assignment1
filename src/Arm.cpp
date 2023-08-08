@@ -116,6 +116,8 @@ bool Arm::DrawArm() {
 	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 	partParent = handParent;
 
+
+	//fingers need new texture
 	////NOTE FINGERS WILL DIRECTLY INHERIT FROM HAND -> HAND IS THEIR PARENT
 	glUniform4fv(colorLocation, 1, glm::value_ptr(glm::vec4(.94f, .76f, .5f,1.0f))); //al have the same colour
 	glm::mat4 fingerTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.02f, -.012f, -.0f));
