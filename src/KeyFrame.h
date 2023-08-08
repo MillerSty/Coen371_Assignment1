@@ -2,16 +2,20 @@
 
 class KeyFrame {
 public:
-    float translate;
+    float translatex;
+    float translatey;
+    float translatez;
     float rotate;
     double time;
 
-    KeyFrame(float translation, float rotation, double time);
+    KeyFrame(float translationx, float translationy, float translationz, float rotation, double time);
 
 };
 
-KeyFrame::KeyFrame(float translation, float rotation, double time) {
-    translate = translation;
+KeyFrame::KeyFrame(float translationx,float translationy,float translationz, float rotation, double time) {
+    translatex = translationx;
+    translatey = translationy;
+    translatez = translationz;
     rotate = rotation;
     this->time = time;
 }

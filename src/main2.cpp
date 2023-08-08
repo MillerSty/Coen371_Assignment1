@@ -566,14 +566,27 @@ int main(int argc, char* argv[])
     double dt = 0;
 
     KeyFrame keyframesBlue[] = {
-            KeyFrame(0.0, 0.0, 0.0), // Initial key frame
-            KeyFrame(-0.4, 0.0, 4.0),
-            KeyFrame(0.1f, 0.0, 5.0),
-            KeyFrame(0.3f, -60.0f, 8.0),
-            KeyFrame(-0.1, 90.0, 8.5),
+            KeyFrame(0.0,0.0,0.0, 0.0, 0.0), // Initial key frame
+			 KeyFrame(0.0,0.0,0.0, 0.0, 3.0),
+            KeyFrame(-0.4,0.0,0.0, 0.0, 4.0),
+            KeyFrame(0.1f,0.0,0.0, 0.0, 5.0),
+            KeyFrame(0.3f,0.0,0.0, -60.0f, 8.0),
+            KeyFrame(-0.1,0.0,0.0, 90.0, 8.5),
 
     };
+
+	KeyFrame keyframesBall[] = { //how much translation? 
+		KeyFrame(0.0,0.0,0.0, 0.0, .0),
+		KeyFrame(0.0,0.0,-0.0,0.0, 2.0),// Initial key frame
+		KeyFrame(0.8,0.0,-0.6,0.0, 4.0),
+		//KeyFrame(-0.4, 0.0, 4.0),
+		//KeyFrame(0.1f, 0.0, 5.0),
+		//KeyFrame(0.3f, -60.0f, 8.0),
+		//KeyFrame(-0.1, 90.0, 8.5),
+
+	};
     int keyframeNum = 1;
+	int keyframeNumBall = 1;
 	ball.setShaderProgram(shaderProgram);
 	ball.setVAO(unitSphereAO);
 	ball.setSphereVertCount(vertexIndicessphere.size());
@@ -585,9 +598,10 @@ int main(int argc, char* argv[])
 	float spin = 0;
 	bool reverse = false;
 
-
+	float ballCatcher = 0;
 	float iTwo=0.02f;
 	bool headedToRed = false, headedToBlue = false;
+	ball.setInitialPosition(playerArm1.position);
 	while (!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -607,7 +621,7 @@ int main(int argc, char* argv[])
         // ------------------
         // Keyframe animation
 		dt = glfwGetTime() - lastFrameTime;
-        double v = keyframesBlue[keyframeNum].translate / (keyframesBlue[keyframeNum].time - keyframesBlue[keyframeNum - 1].time);
+        double v = keyframesBlue[keyframeNum].translatex / (keyframesBlue[keyframeNum].time - keyframesBlue[keyframeNum - 1].time);
         double angularV = keyframesBlue[keyframeNum].rotate / (keyframesBlue[keyframeNum].time - keyframesBlue[keyframeNum - 1].time);
         double dx = v * dt;
         double dr = angularV * dt;
@@ -619,6 +633,27 @@ int main(int argc, char* argv[])
                 keyframeNum++;
             }
         }
+
+		double vx = keyframesBall[keyframeNumBall].translatex / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
+		double vy = keyframesBall[keyframeNumBall].translatey / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
+		double vz = keyframesBall[keyframeNumBall].translatez / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
+		angularV = keyframesBall[keyframeNumBall].rotate / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
+		dx = vx * dt;
+		double dy = vy * dt;
+		double dz = vz * dt;
+		dr = angularV * dt;
+		if (keyframeNumBall < sizeof(keyframesBall) / sizeof(KeyFrame)) {
+			if (lastFrameTime <= keyframesBall[keyframeNumBall].time) {
+				ball.setTranslationModel(glm::vec3( dx,dy ,dz ));				
+			}
+			else {
+				keyframeNumBall++;
+			}
+		}
+
+
+
+
 
 
 
@@ -644,15 +679,13 @@ int main(int argc, char* argv[])
 		*/
 		
 		vec3 position1 = ball.getPosition();
-		ball.setTranslationModel(vec3( iTwo, .00f, 0));
+		//ball.setTranslationModel(vec3( iTwo, .00f, 0));
 		/*for ball path x belongs to set and z belongs to set
 		* [-.75,x,.75f]
 		* [-.36,z,.36f]
 		* -z is scoreboard side, +z if camera side
 		*/
 	
-		
-		float checky = playerArm1.position.x;
 	
 		//https://stackoverflow.com/questions/13915479/c-get-every-number-separately
 		//this for seperating more
@@ -697,6 +730,7 @@ int main(int argc, char* argv[])
             SceneObj.SetVAO(unitCubeAO, gridAO);
             SceneObj.DrawScene(false);  // Draw scene without the skybox, so it can't be used to make shadows on the scene
 		}
+
 		{ // 2nd pass  
 			//reset 
 			glUniform1i(applyTexturesLocation, shouldApplyTextures);
@@ -727,39 +761,7 @@ int main(int argc, char* argv[])
 			ball.setGroupMatrix(groupMatrix);
 			ball.setRenderAs(renderAs);
 			ball.drawBall();
-			if (number == 4) {
-				headedToRed = !headedToRed;
-				headedToBlue = !headedToBlue;
-			}
-			vec3 position2 = ball.getPosition();
-			vec3 positionCheck = position2 - position1;
-			if (position2.x > .750f || position2.x < -.750f) {
 
-				
-				printf("resting");
-				ball.resetModel();				
-				
-				if (headedToRed) {
-					ball.setInitialPosition(vec3(playerArm1.position.x, playerArm1.position.y, playerArm1.position.z));
-					iTwo = .02f;
-
-				}
-				else if (headedToBlue){
-					ball.setInitialPosition(vec3(playerArm2.position.x, playerArm2.position.y, playerArm2.position.z));
-					iTwo = -.02f;
-				}
-			}
-			//position check
-			if (positionCheck.x > 0.0f) {
-				headedToRed = true;
-				headedToBlue = false;
-				//printf("Heading to Red\n");
-			}
-			else if (positionCheck.x < 0.0f) {
-				headedToBlue = true;
-				headedToRed = false;
-				//printf("headed to Blue\n");
-			}
 
 			numberDraw.Scoreboard(number, false, true);
 			numberDraw2.Scoreboard(number, false, false);
@@ -772,6 +774,47 @@ int main(int argc, char* argv[])
 
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noshowLightBox);
 		}
+
+
+		//vec3 position2 = ball.getPosition();
+		//if (!headedToRed) {
+		//	if (!(playerArm2.position.z == position2.z)) {
+		//		ballCatcher += .02f;
+		//		playerArm2.setTranslation(vec3(0), vec3(ballCatcher, 0, 0));
+		//	}
+		//	else {
+		//		ballCatcher = 0;
+		//	}
+		//
+		//}
+		//
+		//
+		//vec3 positionCheck = position2 - position1;
+		//if (position2.x > .750f || position2.x < -.750f) {
+		//	ball.resetModel();
+		//
+		//	if (headedToRed) {
+		//		ball.setInitialPosition(vec3(playerArm1.position.x, playerArm1.position.y, playerArm1.position.z));
+		//		iTwo = .02f;
+		//
+		//	}
+		//	else {
+		//		ball.setInitialPosition(vec3(playerArm2.position.x, playerArm2.position.y, playerArm2.position.z));
+		//		iTwo = -.02f;
+		//	}
+		//}
+		////position check
+		////Heading to Red
+		//if (positionCheck.x > 0.770f) {
+		//	headedToRed = true;
+		//
+		//}
+		//else if (positionCheck.x < -0.770f) {//headed to Blue				
+		//	headedToRed = false;
+		//}
+
+
+
 		//blue side is Player1
 		playerArm1.flexFingers();
 		//red is player2
