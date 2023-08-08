@@ -647,12 +647,13 @@ int main(int argc, char* argv[])
 
 			vec3 position2 = ball.getPosition();
 			vec3 positionCheck = position2 - position1;
-			if (positionCheck.x > 0.0f) {
-				printf("Heading to Red\n");
-			}
-			else if (positionCheck.x < 0.0f) {
-				printf("headed to Blue\n");
-			}
+			//position check
+			//if (positionCheck.x > 0.0f) {
+			//	printf("Heading to Red\n");
+			//}
+			//else if (positionCheck.x < 0.0f) {
+			//	printf("headed to Blue\n");
+			//}
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
             SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
