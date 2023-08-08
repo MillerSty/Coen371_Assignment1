@@ -28,7 +28,7 @@ GLuint Ball::getVAO() { return VAO; }
 
 glm::vec3 Ball::getTranslationModel() { return translationModel; }
 
-void Ball::setTranslationModel(glm::vec3 trans) { translationModel = trans; }
+void Ball::setTranslationModel(glm::vec3 trans) { translationModel += trans; }
 
 void Ball::setRenderAs(int as) { renderAS = as; }
 
