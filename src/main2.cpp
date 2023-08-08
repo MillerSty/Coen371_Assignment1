@@ -22,6 +22,7 @@
 #include "Racket.h"
 #include "SceneObjects.h"
 #include "Material.h"
+#include "KeyFrame.h"
 #include "Letters.h"
 #include "Ball.h"
 
@@ -561,7 +562,18 @@ int main(int argc, char* argv[])
 	GLuint kdepthMap = glGetUniformLocation(shaderProgram, "shadowMap");
 	glUniform1i(kdepthMap, 2);
 
-	float lastFrameTime = glfwGetTime();
+	double lastFrameTime = 0.0;
+    double dt = 0;
+
+    KeyFrame keyframesBlue[] = {
+            KeyFrame(0.0, 0.0, 0.0), // Initial key frame
+            KeyFrame(-0.4, 0.0, 4.0),
+            KeyFrame(0.1f, 0.0, 5.0),
+            KeyFrame(0.3f, -60.0f, 8.0),
+            KeyFrame(-0.1, 90.0, 8.5),
+
+    };
+    int keyframeNum = 1;
 	ball.setShaderProgram(shaderProgram);
 	ball.setVAO(unitSphereAO);
 	ball.setSphereVertCount(vertexIndicessphere.size());
@@ -596,6 +608,32 @@ int main(int argc, char* argv[])
 		float x = sin(i);
 		float z = cos(i);
 		i += .002;
+        glm::scale(glm::mat4(1.0f), GroupMatrixScale) * rotationMatrixW;
+
+
+        // ------------------
+        // Keyframe animation
+		dt = glfwGetTime() - lastFrameTime;
+        double v = keyframesBlue[keyframeNum].translate / (keyframesBlue[keyframeNum].time - keyframesBlue[keyframeNum - 1].time);
+        double angularV = keyframesBlue[keyframeNum].rotate / (keyframesBlue[keyframeNum].time - keyframesBlue[keyframeNum - 1].time);
+        double dx = v * dt;
+        double dr = angularV * dt;
+        if (keyframeNum < sizeof(keyframesBlue)/sizeof(KeyFrame)) {
+            if (lastFrameTime <= keyframesBlue[keyframeNum].time){
+                playerArm1.setTranslateModel(glm::vec3((playerArm1.getTranslateModel().x + dx), playerArm1.getTranslateModel().y, playerArm1.getTranslateModel().z));
+                playerArm1.setRotation(playerArm1.getRotation() - dr);
+            } else {
+                keyframeNum++;
+            }
+        }
+
+
+
+        lastFrameTime += dt;
+
+//		printf("TIME: %f\n", lastFrameTime);
+		//float checkest = evanArm.getERotation();
+		//printf("evan rotation: %f\n", checkest);
 
 		numberDraw.groupMatrix = groupMatrix;
 		numberDraw2.groupMatrix = groupMatrix;
