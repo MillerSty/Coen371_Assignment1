@@ -1043,6 +1043,15 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
         // Makes it sound more organic to have random different sounds
         int whichSound = (rand() % 3);  // Code from https://stackoverflow.com/a/5891824
         audioEngine->play2D(BALL_SOUNDS[whichSound]);
+
+        /*
+        irrklang::ISound* sound = audioEngine->play2D(BALL_SOUNDS[whichSound], false, false, true, irrklang::ESM_AUTO_DETECT, true);
+        irrklang::ISoundEffectControl* fx = sound->getSoundEffectControl();
+        fx->enableWavesReverbSoundEffect(0.0f, 0.0f, 1000.0f, 0.001f);
+
+        // Since we're using sound effects, must manually drop the sounds to avoid memory leaks
+        sound->drop();
+         */
     }
 
     // If period is pressed, play a crowd sound
@@ -1059,6 +1068,14 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
         // Makes it sound more organic to have random different sounds
         int whichSound = (rand() % 4);  // Code from https://stackoverflow.com/a/5891824
         audioEngine->play2D(CROWD_SOUNDS[whichSound]);
+
+        /*
+        irrklang::ISound* sound = audioEngine->play2D(CROWD_SOUNDS[whichSound], false, false, true, irrklang::ESM_AUTO_DETECT, true);
+        irrklang::ISoundEffectControl* fx = sound->getSoundEffectControl();
+        fx->enableWavesReverbSoundEffect(0.0f, 0.0f, 500.0f, 0.001f);
+
+        sound->drop();
+         */
     }
 }
 
