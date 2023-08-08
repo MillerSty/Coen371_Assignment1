@@ -19,6 +19,7 @@
 #include "Racket.h"
 #include "SceneObjects.h"
 #include "Material.h"
+#include "KeyFrame.h"
 
 using namespace glm;
 // Set the shader paths
@@ -510,12 +511,22 @@ int main(int argc, char* argv[])
 	GLuint kdepthMap = glGetUniformLocation(shaderProgram, "shadowMap");
 	glUniform1i(kdepthMap, 2);
 
-	float lastFrameTime = glfwGetTime();
-
+	double lastFrameTime = 0.0;
+    double dt = 0;
 
 	float i = -1;
 	float spin = 0;
 	bool reverse = false;
+
+    KeyFrame keyframesBlue[] = {
+            KeyFrame(0.0, Action::TRANSLATE, 0.0), // Initial key frame
+            KeyFrame(-0.4, Action::TRANSLATE, 4.0),
+            KeyFrame(0.4f, Action::TRANSLATE, 5.0),
+            KeyFrame(90.0f, Action::ROTATE, 8.0),
+            KeyFrame(-0.4, Action::TRANSLATE, 10.0),
+
+    };
+    int keyframeNum = 1;
 	while (!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -530,12 +541,30 @@ int main(int argc, char* argv[])
 		float x = sin(i);
 		float z = cos(i);
 		i += .002;
-			glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
-			rotationMatrixW;
+        glm::scale(glm::mat4(1.0f), GroupMatrixScale) * rotationMatrixW;
 
-		
 
-		lastFrameTime = glfwGetTime();
+		dt = glfwGetTime() - lastFrameTime;
+
+        double v = keyframesBlue[keyframeNum].value / (keyframesBlue[keyframeNum].time - keyframesBlue[keyframeNum - 1].time);
+        double delta = v * dt;
+        if (keyframesBlue[keyframeNum].action == Action::TRANSLATE) {
+            if (lastFrameTime <= keyframesBlue[keyframeNum].time){
+                playerArm1.setTranslateModel(glm::vec3((playerArm1.getTranslateModel().x + delta), playerArm1.getTranslateModel().y, playerArm1.getTranslateModel().z));
+            } else {
+                keyframeNum++;
+            }
+        }
+        else if (keyframesBlue[keyframeNum].action == Action::ROTATE) {
+            if (lastFrameTime <= keyframesBlue[keyframeNum].time){
+                playerArm1.setRotation(playerArm1.getRotation() + delta);
+            } else {
+                keyframeNum++;
+            }
+        }
+
+        lastFrameTime += dt;
+
 //		printf("TIME: %f\n", lastFrameTime);
 		//float checkest = evanArm.getERotation();
 		//printf("evan rotation: %f\n", checkest);
