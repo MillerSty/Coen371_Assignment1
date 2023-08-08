@@ -335,13 +335,13 @@ int main(int argc, char* argv[])
 		return -1;
 
     // Initialize irrKlang
-    audioEngine = irrklang::createIrrKlangDevice();
-
-    if (!audioEngine)
-    {
-        std::cout << "Failed to create irrKlang engine" << std::endl;
-        return -1;
-    }
+//    audioEngine = irrklang::createIrrKlangDevice();
+//
+//    if (!audioEngine)
+//    {
+//        std::cout << "Failed to create irrKlang engine" << std::endl;
+//        return -1;
+//    }
 
 	// Scale down the unit cube vertices
 	for (auto& vertexArrayObject : texturedCubeVertexArray) {
@@ -568,21 +568,15 @@ int main(int argc, char* argv[])
     KeyFrame keyframesBlue[] = {
             KeyFrame(0.0,0.0,0.0, 0.0, 0.0), // Initial key frame
 			 KeyFrame(0.0,0.0,0.0, 0.0, 3.0),
-            KeyFrame(-0.4,0.0,0.0, 0.0, 4.0),
-            KeyFrame(0.1f,0.0,0.0, 0.0, 5.0),
-            KeyFrame(0.3f,0.0,0.0, -60.0f, 8.0),
-            KeyFrame(-0.1,0.0,0.0, 90.0, 8.5),
+            KeyFrame(-0.2,0.0,0.0, 0.0, 6.0),
+
 
     };
 
 	KeyFrame keyframesBall[] = { //how much translation? 
-		KeyFrame(0.0,0.0,0.0, 0.0, .0),
-		KeyFrame(0.0,0.0,-0.0,0.0, 2.0),// Initial key frame
-		KeyFrame(0.8,0.0,-0.6,0.0, 4.0),
-		//KeyFrame(-0.4, 0.0, 4.0),
-		//KeyFrame(0.1f, 0.0, 5.0),
-		//KeyFrame(0.3f, -60.0f, 8.0),
-		//KeyFrame(-0.1, 90.0, 8.5),
+		KeyFrame(0.0,0.0,0.0, 0.0, .0),// Initial key frame
+		KeyFrame(0.0,0.0,0.0,0.0, 3.0),
+		KeyFrame(0.95,0.0,-0.1,0.0, 6.0),
 
 	};
     int keyframeNum = 1;
@@ -591,7 +585,7 @@ int main(int argc, char* argv[])
 	ball.setVAO(unitSphereAO);
 	ball.setSphereVertCount(vertexIndicessphere.size());
 	ball.setMaterial(grassMaterial);
-	ball.setInitialPosition(vec3(0, .15f, 0));
+    ball.setInitialPosition(playerArm1.position + vec3(0.0, 0.09, -0.15));
 
 	int number = 0;
 	float i = -1;
@@ -601,7 +595,6 @@ int main(int argc, char* argv[])
 	float ballCatcher = 0;
 	float iTwo=0.02f;
 	bool headedToRed = false, headedToBlue = false;
-	ball.setInitialPosition(playerArm1.position);
 	while (!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
