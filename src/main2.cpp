@@ -1,11 +1,12 @@
-// Comp 371 - Assignment 2
+// Comp 371 - Project
+
 // System includes
-#pragma once
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <ctime>
 
 // Dependency includes
 #define GLEW_STATIC 1   // This allows linking with Static Library on Windows, without DLL
@@ -13,6 +14,8 @@
 #include <GLFW/glfw3.h> // GLFW provides a cross-platform interface for creating a graphical context,
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#include <irrKlang.h>
+#pragma comment(lib, "../thirdparty/irrklang/lib/irrKlang.lib")  // Necessary to get irrKlang working
 
 // Source code includes
 #include "Arm.h"
@@ -304,7 +307,7 @@ Letters numberDraw2;
 int renderAs = GL_TRIANGLES;
 int shaderProgram;
 double lastMousePosX, lastMousePosY, lastMousePosZ;
-float FOV = 70, AR = (float)(WIDTH / HEIGHT), near = .01, far = 50;
+float FOV = 70, AR = (float) WIDTH / (float) HEIGHT, near = .01, far = 50;
 float translateW = 0, translateY = 0, translateZ = 0;
 
 // Toggles for shadows and textures
@@ -313,21 +316,35 @@ bool shouldApplyTextures = true;
 Arm playerArm1;
 Arm playerArm2;
 int selectModel = 0; //we can se to 0 but then user has to toggle to before any thing
-int selectJoint =0;
+int selectJoint = 0;
 
 // Create ball
 Ball ball;
 
+// Create irrKlang engine
+irrklang::ISoundEngine* audioEngine;
+
 int main(int argc, char* argv[])
 {
+    // Seed a random number generator for later use. Taken from https://stackoverflow.com/a/5891824
+    srand(time(nullptr));
+
 	// Initialize GLFW and OpenGL version
 	if (!glfwInit())
 		return -1;
 
+    // Initialize irrKlang
+    audioEngine = irrklang::createIrrKlangDevice();
+
+    if (!audioEngine)
+    {
+        std::cout << "Failed to create irrKlang engine" << std::endl;
+        return -1;
+    }
+
 	// Scale down the unit cube vertices
-	for (size_t i = 0; i < 36; i++) {
-		TexturedNormaledVertex thisOne = texturedCubeVertexArray[i];
-		texturedCubeVertexArray[i].position *= 0.1f;
+	for (auto& vertexArrayObject : texturedCubeVertexArray) {
+        vertexArrayObject.position *= 0.1f;
 	}
 
 	// Set some GLFW window hints
@@ -339,8 +356,8 @@ int main(int argc, char* argv[])
 	glfwWindowHint(GLFW_DOUBLEBUFFER, GL_TRUE);
 
 	// Create Window and rendering context using GLFW, resolution is 800x600
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Comp371 - Assignment 2", NULL, NULL);
-	if (window == NULL)
+	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Comp371 - Assignment 2", nullptr, nullptr);
+	if (window == nullptr)
 	{
 		std::cerr << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
@@ -419,8 +436,8 @@ int main(int argc, char* argv[])
 	loadOBJ2(pathSphere.c_str(), vertexIndicessphere, verticessphere, normalssphere, UVssphere);
   
 	// Scale the vertex positions of the sphere
-	for (int i = 0; i < verticessphere.size(); i++) {
-		verticessphere[i] = verticessphere[i] * .05f;
+	for (auto & vert : verticessphere) {
+		vert *= 0.05f;
 	}
 	
 	// Create VAOs
@@ -450,7 +467,6 @@ int main(int argc, char* argv[])
 	Material skinMaterial(.1f, .0f, .66f, .001f, plasticTextureID, shaderProgram); //this is skin
 	Material skyMaterial(.3f, .001f, .9f, .0001f, plasticTextureID, shaderProgram); //Flat blue sky
 
-	
 	SceneObj.setMaterials(courtMaterial, clothMaterial, ropeMaterial, metalMaterial, grassMaterial, plasticMaterial);
 	SceneObj.skyTexture = skyMaterial;
 	
@@ -558,8 +574,6 @@ int main(int argc, char* argv[])
 	bool reverse = false;
 	std::vector<vec3> arr;
 
-
-
 	arr.push_back(vec3(0,.15,0));
 	arr.push_back(vec3(0, .3, 0));
 	arr.push_back(vec3(0, 1.7, 0));
@@ -567,7 +581,6 @@ int main(int argc, char* argv[])
 	//arr.push_back(ball.getPosition());
 	//vec3 arr[] = { position1, position2 };
 	GLuint testVao = createVertexArrayObject3(arr);
-
 
 	float iTwo;
 	while (!glfwWindowShouldClose(window))
@@ -584,7 +597,7 @@ int main(int argc, char* argv[])
 		float z = cos(i);
 		i += .002;
 
-		numberDraw.groupMatrix = groupMatrix; 
+		numberDraw.groupMatrix = groupMatrix;
 		numberDraw2.groupMatrix = groupMatrix;
 		numberDraw2.renderAs = renderAs;
 		numberDraw.renderAs = renderAs;
@@ -592,8 +605,6 @@ int main(int argc, char* argv[])
 		number = floor(lastFrameTime);
 		if (number > 98)glfwSetTime(0);
 
-	
-		
 		/*so to control 1 arm .
 		setTranslate model to translate -> have to figure out specific vec positions
 		setRotation  for should rotation
@@ -607,10 +618,9 @@ int main(int argc, char* argv[])
 		* [-.36,z,.36f]
 		* -z is scoreboard side, +z if camera side
 		*/
-		
+
 		//https://stackoverflow.com/questions/13915479/c-get-every-number-separately
 		//this for seperating more
-
 
 		// Must draw scene in 2 passes: once for shadows, and another normally
 		// 1st pass
@@ -628,7 +638,6 @@ int main(int argc, char* argv[])
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, true);
 			if (i == 1.0f) i = -1.0f;
 
-			
 			numberDraw.Scoreboard(number,false,true);
 			//numberDraw2.Scoreboard(number,false,false);
 
@@ -689,10 +698,9 @@ int main(int argc, char* argv[])
 			ball.setRenderAs(renderAs);
 			ball.drawBall();
 
-
 			numberDraw.Scoreboard(number, false, true);
 			numberDraw2.Scoreboard(number, false, false);
-			
+
 			SceneObj.sphereVao = unitSphereAO;
 			SceneObj.sphereVertCount = vertexIndicessphere.size();
 			SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
@@ -709,8 +717,12 @@ int main(int argc, char* argv[])
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+    // Shut down irrklang
+    audioEngine->drop();
+
 	// Shutdown GLFW
 	glfwTerminate();
+
 	return 0;
 }
 
@@ -739,7 +751,7 @@ int compileAndLinkShaders(const char* vertex, const char* fragment)
 	int vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	const std::string vss = getShaderSource(vertex);
 	const char* vertexShaderSource = vss.c_str();
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+	glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
 	glCompileShader(vertexShader);
 
 	// Check for shader compile errors
@@ -748,7 +760,7 @@ int compileAndLinkShaders(const char* vertex, const char* fragment)
 	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
 	if (!success)
 	{
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+		glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
 		std::cerr << "Error. Vertex shader compilation failed!\n" << infoLog << std::endl;
 	}
 
@@ -756,14 +768,14 @@ int compileAndLinkShaders(const char* vertex, const char* fragment)
 	int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	const std::string fss = getShaderSource(fragment);
 	const char* fragmentShaderSource = fss.c_str();
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+	glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
 	glCompileShader(fragmentShader);
 
 	// Check for shader compile errors
 	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
 	if (!success)
 	{
-		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+		glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
 		std::cerr << "Error. Fragment shader compilation failed!\n" << infoLog << std::endl;
 	}
 
@@ -776,7 +788,7 @@ int compileAndLinkShaders(const char* vertex, const char* fragment)
 	// Check for linking errors
 	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
 	if (!success) {
-		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+		glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
 		std::cerr << "Error. Shader program linking failed!\n" << infoLog << std::endl;
 	}
 
@@ -840,17 +852,17 @@ GLuint loadTexture(const char* filename)
 }
 
 //from lab 04
-void setProjectionMatrix(int shaderProgram, glm::mat4 projectionMatrix)
+void setProjectionMatrix(int shaderProg, glm::mat4 projectionMatrix)
 {
 	glUseProgram(shaderProgram);
-	GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
+	GLint projectionMatrixLocation = glGetUniformLocation(shaderProg, "projectionMatrix");
 	glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
 }
 
-void setViewMatrix(int shaderProgram, glm::mat4 viewMatrix)
+void setViewMatrix(int shaderProg, glm::mat4 viewMatrix)
 {
 	glUseProgram(shaderProgram);
-	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
+	GLint viewMatrixLocation = glGetUniformLocation(shaderProg, "viewMatrix");
 	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &viewMatrix[0][0]);
 }
 
@@ -883,6 +895,9 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	int state_X = glfwGetKey(window, GLFW_KEY_X);
 	int state_1 = glfwGetKey(window, GLFW_KEY_1);
 	int state_2 = glfwGetKey(window, GLFW_KEY_2);
+    int state_COMMA = glfwGetKey(window, GLFW_KEY_COMMA);
+    int state_PERIOD = glfwGetKey(window, GLFW_KEY_PERIOD);
+
 	//global random
 	float number1 = (rand()) / (float)(RAND_MAX);
 	float number2 = (rand()) / (float)(RAND_MAX);
@@ -914,7 +929,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
             default: break;
         }
 
-    if ((state_J == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
+    else if ((state_J == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
         playerArm2.setTranslateModel(glm::vec3((playerArm2.getTranslateModel().x - .005f), playerArm2.getTranslateModel().y, playerArm2.getTranslateModel().z));
     else if ((state_L == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
         playerArm2.setTranslateModel(glm::vec3((playerArm2.getTranslateModel().x + .005f), playerArm2.getTranslateModel().y, playerArm2.getTranslateModel().z));
@@ -933,8 +948,8 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
             default: break;
         }
 
-	// If ESC is pressed, window should closed
-	if (state_ESC == GLFW_PRESS)
+	// If ESC is pressed, window should close
+	else if (state_ESC == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
 	else if (state_TAB == GLFW_PRESS && mods != GLFW_MOD_SHIFT) {
@@ -956,6 +971,7 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		default: break;
 		}
 	}
+
 	else if (state_TAB == GLFW_PRESS && mods == GLFW_MOD_SHIFT) {
 		/*
 		select -1 is bicep
@@ -974,7 +990,6 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 		}
 		//printf("selectJoint is: %d\n", selectJoint);
 	}
-
 
 	// If the arrow keys are pressed, rotate accordingly
 	else if (state_LEFT == GLFW_PRESS)
@@ -1014,6 +1029,54 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	// If x is pressed, toggle textures
 	else if (state_X == GLFW_PRESS)
 		shouldApplyTextures = !shouldApplyTextures;
+
+    // If comma is pressed, play a ball sound
+    else if (state_COMMA == GLFW_PRESS)
+    {
+        const char* BALL_SOUNDS[] = {
+                "../src/Assets/sounds/Ball1.wav",
+                "../src/Assets/sounds/Ball2.wav",
+                "../src/Assets/sounds/Ball3.wav"
+        };
+
+        // Get a random number between 1 and 3 for which ball sound to play.
+        // Makes it sound more organic to have random different sounds
+        int whichSound = (rand() % 3);  // Code from https://stackoverflow.com/a/5891824
+        audioEngine->play2D(BALL_SOUNDS[whichSound]);
+
+        /*
+        irrklang::ISound* sound = audioEngine->play2D(BALL_SOUNDS[whichSound], false, false, true, irrklang::ESM_AUTO_DETECT, true);
+        irrklang::ISoundEffectControl* fx = sound->getSoundEffectControl();
+        fx->enableWavesReverbSoundEffect(0.0f, 0.0f, 1000.0f, 0.001f);
+
+        // Since we're using sound effects, must manually drop the sounds to avoid memory leaks
+        sound->drop();
+         */
+    }
+
+    // If period is pressed, play a crowd sound
+    else if (state_PERIOD == GLFW_PRESS)
+    {
+        const char* CROWD_SOUNDS[] = {
+                "../src/Assets/sounds/CrowdMale1.wav",
+                "../src/Assets/sounds/CrowdMale2.wav",
+                "../src/Assets/sounds/CrowdFemale1.wav",
+                "../src/Assets/sounds/CrowdFemale2.wav",
+        };
+
+        // Get a random number between 1 and 3 for which ball sound to play.
+        // Makes it sound more organic to have random different sounds
+        int whichSound = (rand() % 4);  // Code from https://stackoverflow.com/a/5891824
+        audioEngine->play2D(CROWD_SOUNDS[whichSound]);
+
+        /*
+        irrklang::ISound* sound = audioEngine->play2D(CROWD_SOUNDS[whichSound], false, false, true, irrklang::ESM_AUTO_DETECT, true);
+        irrklang::ISoundEffectControl* fx = sound->getSoundEffectControl();
+        fx->enableWavesReverbSoundEffect(0.0f, 0.0f, 500.0f, 0.001f);
+
+        sound->drop();
+         */
+    }
 }
 
 /**

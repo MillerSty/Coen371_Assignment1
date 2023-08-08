@@ -20,18 +20,17 @@ include(BuildGLEW)
 include(BuildGLFW)
 include(BuildGLM)
 include_directories("thirdparty/stb")
+include_directories("thirdparty/irrKlang/include")
 
 # lab01
 set(EXEC Coen371_Project)
 
 file(GLOB SRC src/*.cpp)
 file(GLOB EVAN_SRC src/Evan-models/*.cpp)
-file(GLOB MATT_SRC src/matt-models/*.cpp)
 file(GLOB SABRINA_SRC src/Sabrina-models/*.cpp)
 
-
-add_executable(${EXEC} ${SRC} ${EVAN_SRC} ${MATT_SRC} ${SABRINA_SRC})
-
+add_executable(${EXEC} ${SRC} ${EVAN_SRC} ${SABRINA_SRC})
+link_libraries(-L/thirdparty/irrKlang/lib/irrKlang.dll)
 target_link_libraries(${EXEC} OpenGL::GL glew_s glfw glm)
 
 list(APPEND BIN ${EXEC})
@@ -40,3 +39,9 @@ list(APPEND BIN ${EXEC})
 # install files to install location
 install(TARGETS ${BIN} DESTINATION ${CMAKE_INSTALL_PREFIX})
 
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/irrKlang/lib/irrKlang.dll
+     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/out/build/x64-Debug)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/irrKlang/lib/irrKlang.dll
+     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Debug)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/irrKlang/lib/irrKlang.dll
+        DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/dist)
