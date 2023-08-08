@@ -31,7 +31,7 @@ file(GLOB SABRINA_SRC src/Sabrina-models/*.cpp)
 
 add_executable(${EXEC} ${SRC} ${EVAN_SRC} ${SABRINA_SRC})
 link_libraries(-L/thirdparty/irrKlang/lib/irrKlang.dll)
-target_link_libraries(${EXEC} OpenGL::GL glew_s glfw glm )
+target_link_libraries(${EXEC} OpenGL::GL glew_s glfw glm)
 
 list(APPEND BIN ${EXEC})
 # end lab01
