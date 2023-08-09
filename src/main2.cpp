@@ -335,13 +335,13 @@ int main(int argc, char* argv[])
 		return -1;
 
     // Initialize irrKlang
-//    audioEngine = irrklang::createIrrKlangDevice();
-//
-//    if (!audioEngine)
-//    {
-//        std::cout << "Failed to create irrKlang engine" << std::endl;
-//        return -1;
-//    }
+    audioEngine = irrklang::createIrrKlangDevice();
+
+    if (!audioEngine)
+    {
+        std::cout << "Failed to create irrKlang engine" << std::endl;
+        return -1;
+    }
 
 	// Scale down the unit cube vertices
 	for (auto& vertexArrayObject : texturedCubeVertexArray) {
@@ -614,41 +614,38 @@ int main(int argc, char* argv[])
         // ------------------
         // Keyframe animation
 		dt = glfwGetTime() - lastFrameTime;
-        double v = keyframesBlue[keyframeNum].translatex / (keyframesBlue[keyframeNum].time - keyframesBlue[keyframeNum - 1].time);
-        double angularV = keyframesBlue[keyframeNum].rotate / (keyframesBlue[keyframeNum].time - keyframesBlue[keyframeNum - 1].time);
-        double dx = v * dt;
-        double dr = angularV * dt;
+
+        double blueVelocity = keyframesBlue[keyframeNum].translatex / (keyframesBlue[keyframeNum].time - keyframesBlue[keyframeNum - 1].time);
+        double blueAngularVelocity = keyframesBlue[keyframeNum].rotate / (keyframesBlue[keyframeNum].time - keyframesBlue[keyframeNum - 1].time);
+        double blueDX = blueVelocity * dt;
+        double blueDR = blueAngularVelocity * dt;
+
         if (keyframeNum < sizeof(keyframesBlue)/sizeof(KeyFrame)) {
             if (lastFrameTime <= keyframesBlue[keyframeNum].time){
-                playerArm1.setTranslateModel(glm::vec3((playerArm1.getTranslateModel().x + dx), playerArm1.getTranslateModel().y, playerArm1.getTranslateModel().z));
-                playerArm1.setRotation(playerArm1.getRotation() - dr);
+                playerArm1.setTranslateModel(glm::vec3((playerArm1.getTranslateModel().x + blueDX), playerArm1.getTranslateModel().y, playerArm1.getTranslateModel().z));
+                playerArm1.setRotation(playerArm1.getRotation() - blueDR);
             } else {
                 keyframeNum++;
             }
         }
 
-		double vx = keyframesBall[keyframeNumBall].translatex / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
-		double vy = keyframesBall[keyframeNumBall].translatey / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
-		double vz = keyframesBall[keyframeNumBall].translatez / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
-		angularV = keyframesBall[keyframeNumBall].rotate / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
-		dx = vx * dt;
-		double dy = vy * dt;
-		double dz = vz * dt;
-		dr = angularV * dt;
-		if (keyframeNumBall < sizeof(keyframesBall) / sizeof(KeyFrame)) {
+		double ballVelocityX = keyframesBall[keyframeNumBall].translatex / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
+		double ballVelocityY = keyframesBall[keyframeNumBall].translatey / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
+		double ballVelocityZ = keyframesBall[keyframeNumBall].translatez / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
+		//double ballAngularVelocity = keyframesBall[keyframeNumBall].rotate / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
+		double ballDX = ballVelocityX * dt;
+		double ballDY = ballVelocityY * dt;
+		double ballDZ = ballVelocityZ * dt;
+		//double ballDR = ballAngularVelocity * dt;
+
+        if (keyframeNumBall < sizeof(keyframesBall) / sizeof(KeyFrame)) {
 			if (lastFrameTime <= keyframesBall[keyframeNumBall].time) {
-				ball.setTranslationModel(glm::vec3( dx,dy ,dz ));				
+				ball.setTranslationModel(glm::vec3(ballDX, ballDY,  ballDZ));
 			}
 			else {
 				keyframeNumBall++;
 			}
 		}
-
-
-
-
-
-
 
         lastFrameTime += dt;
 
