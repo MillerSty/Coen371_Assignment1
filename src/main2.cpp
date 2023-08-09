@@ -565,22 +565,31 @@ int main(int argc, char* argv[])
 	double lastFrameTime = 0.0;
     double dt = 0;
 
+	// Keyframe variables
     KeyFrame keyframesBlue[] = {
-            KeyFrame(0.0,0.0,0.0, 0.0, 0.0), // Initial key frame
-			 KeyFrame(0.0,0.0,0.0, 0.0, 3.0),
-            KeyFrame(-0.2,0.0,0.0, 0.0, 6.0),
-
-
+        KeyFrame(0.0,0.0,0.0, 0.0, 0.0), // Initial key frame
+		KeyFrame(0.0,0.0,0.0, 0.0, 3.0),
+        KeyFrame(-0.2,0.0,0.0, 0.0, 6.0),
+        KeyFrame(0.2,0.0,0.0, 0.0, 7.0),
     };
+
+	KeyFrame keyframesRed[] = {
+		KeyFrame(0.0, 0.0, 0.0, 0.0, 0.0),
+		KeyFrame(0.0, 0.0, 0.0, 0.0, 3.0),
+		KeyFrame(0.065, 0.0, 0.0, 0.0, 6.0),
+	};
 
 	KeyFrame keyframesBall[] = { //how much translation? 
 		KeyFrame(0.0,0.0,0.0, 0.0, .0),// Initial key frame
 		KeyFrame(0.0,0.0,0.0,0.0, 3.0),
 		KeyFrame(0.95,0.0,-0.1,0.0, 6.0),
+		KeyFrame(-2.0,0.0,-0.1,0.0, 9.0),
 
 	};
-    int keyframeNum = 1;
+    int keyframeNumBlue = 1;
+    int keyframeNumRed = 1;
 	int keyframeNumBall = 1;
+
 	ball.setShaderProgram(shaderProgram);
 	ball.setVAO(unitSphereAO);
 	ball.setSphereVertCount(vertexIndicessphere.size());
@@ -611,24 +620,43 @@ int main(int argc, char* argv[])
         glm::scale(glm::mat4(1.0f), GroupMatrixScale) * rotationMatrixW;
 
 
-        // ------------------
-        // Keyframe animation
+        // KEYFRAME ANIMATION
 		dt = glfwGetTime() - lastFrameTime;
 
-        double blueVelocity = keyframesBlue[keyframeNum].translatex / (keyframesBlue[keyframeNum].time - keyframesBlue[keyframeNum - 1].time);
-        double blueAngularVelocity = keyframesBlue[keyframeNum].rotate / (keyframesBlue[keyframeNum].time - keyframesBlue[keyframeNum - 1].time);
+		// Blue player keyframes
+        double blueVelocity = keyframesBlue[keyframeNumBlue].translatex / (keyframesBlue[keyframeNumBlue].time - keyframesBlue[keyframeNumBlue - 1].time);
+        double blueAngularVelocity = keyframesBlue[keyframeNumBlue].rotate / (keyframesBlue[keyframeNumBlue].time - keyframesBlue[keyframeNumBlue - 1].time);
         double blueDX = blueVelocity * dt;
         double blueDR = blueAngularVelocity * dt;
 
-        if (keyframeNum < sizeof(keyframesBlue)/sizeof(KeyFrame)) {
-            if (lastFrameTime <= keyframesBlue[keyframeNum].time){
+        if (keyframeNumBlue < sizeof(keyframesBlue)/sizeof(KeyFrame)) {
+            if (lastFrameTime <= keyframesBlue[keyframeNumBlue].time){
                 playerArm1.setTranslateModel(glm::vec3((playerArm1.getTranslateModel().x + blueDX), playerArm1.getTranslateModel().y, playerArm1.getTranslateModel().z));
                 playerArm1.setRotation(playerArm1.getRotation() - blueDR);
             } else {
-                keyframeNum++;
+				keyframeNumBlue++;
             }
         }
 
+		// Red player keyframes
+		double redVelocityX = keyframesRed[keyframeNumRed].translatex / (keyframesRed[keyframeNumRed].time - keyframesRed[keyframeNumRed - 1].time);
+		double redVelocityY = keyframesRed[keyframeNumRed].translatey / (keyframesRed[keyframeNumRed].time - keyframesRed[keyframeNumRed - 1].time);
+		double redVelocityZ = keyframesRed[keyframeNumRed].translatez / (keyframesRed[keyframeNumRed].time - keyframesRed[keyframeNumRed - 1].time);
+		double redDX = redVelocityX * dt;
+		double redDY = redVelocityY * dt;
+		double redDZ = redVelocityZ * dt;
+
+		if (keyframeNumRed < (sizeof(keyframesRed) / sizeof(KeyFrame)))
+		{
+			if (lastFrameTime <= keyframesRed[keyframeNumRed].time)
+			{
+				playerArm2.setTranslateModel(glm::vec3(playerArm2.getTranslateModel().x + redDX, playerArm2.getTranslateModel().y + redDY, playerArm2.getTranslateModel().z + redDZ));
+			}
+			else
+				keyframeNumRed++;
+		}
+
+		// Ball keyframes
 		double ballVelocityX = keyframesBall[keyframeNumBall].translatex / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
 		double ballVelocityY = keyframesBall[keyframeNumBall].translatey / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
 		double ballVelocityZ = keyframesBall[keyframeNumBall].translatez / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
@@ -649,14 +677,10 @@ int main(int argc, char* argv[])
 
         lastFrameTime += dt;
 
-//		printf("TIME: %f\n", lastFrameTime);
-		//float checkest = evanArm.getERotation();
-		//printf("evan rotation: %f\n", checkest);
-
 		numberDraw.groupMatrix = groupMatrix;
 		numberDraw2.groupMatrix = groupMatrix;
-		numberDraw2.renderAs = renderAs;
 		numberDraw.renderAs = renderAs;
+		numberDraw2.renderAs = renderAs;
 		lastFrameTime = glfwGetTime();
 		number = floor(lastFrameTime);
 		if (number > 98)glfwSetTime(0);
