@@ -211,6 +211,5 @@ bool Racket::Draw() {
 //	ball.groupMatrix = this->partChild;
 //	ball.renderAs = renderAs;
 	//boolean if shadows check
-//	ball.DrawJBall();
 	return true;
 }
