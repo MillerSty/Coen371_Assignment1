@@ -571,30 +571,30 @@ int main(int argc, char* argv[])
 
 	// Keyframe variables
     KeyFrame keyframesBlue[] = {
-        KeyFrame(0.0, 0.0, 0.0, 0.0, 0.0), // Initial key frame
-		KeyFrame(0.0, 0.0, 0.0, 0.0, 3.0),
-        KeyFrame(-0.2, 0.0, 0.0, 0.0, 6.0),
-        KeyFrame(0.2, 0.0, 0.0, 0.0, 7.0),
-        KeyFrame(0.0, 0.0, 0.0, 0.0, 9.8),
-        KeyFrame(-0.030, 0.0, 0.0, 0.0, 10.5),
+        KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 0.0), // Initial key frame
+		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 3.0),
+        KeyFrame(glm::vec3(-0.2, 0.0, 0.0), glm::vec3(0.0), 6.0),
+        KeyFrame(glm::vec3(0.2, 0.0, 0.0), glm::vec3(0.0), 7.0),
+        KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 9.8),
+        KeyFrame(glm::vec3(-0.03, 0.0, 0.0), glm::vec3(0.0), 10.5),
     };
 
 	KeyFrame keyframesRed[] = {
-		KeyFrame(0.0, 0.0, 0.0, 0.0, 0.0),
-		KeyFrame(0.0, 0.0, 0.0, 0.0, 3.0),
-		KeyFrame(0.065, 0.0, 0.0, 0.0, 6.0),
+		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 0.0),
+		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 3.0),
+		KeyFrame(glm::vec3(0.065, 0.0, 0.0), glm::vec3(0.0), 6.0),
 	};
 
 	KeyFrame keyframesBall[] = { //how much translation?
-		KeyFrame(0.0, 0.0, 0.0, 0.0, 0.0),// Initial key frame
-		KeyFrame(0.0, 0.0, 0.0, 0.0, 3.0),
-		KeyFrame(0.99, 0.0, -0.1, 0.0, 6.0),
-		KeyFrame(-2.0, 0.0, -0.1, 0.0, 9.0),
-		KeyFrame(2.25, 0.0, 0.21, 0.0, 9.1),
-		KeyFrame(0.0, 0.0, 0.0, 0.0, 10.0),
-		KeyFrame(-0.48, 0.0, 0.1, 0.0, 13.0),
-		KeyFrame(1.5, 0.0, -0.1, 0.0, 15.5),
-		KeyFrame(-1.5, 0.0, 0.05, 0.0, 15.6),
+		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 0.0),// Initial key frame
+		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 3.0),
+		KeyFrame(glm::vec3(0.99, 0.0, -0.1), glm::vec3(0.0), 6.0),
+		KeyFrame(glm::vec3(-2.0, 0.0, -0.1), glm::vec3(0.0), 9.0),
+		KeyFrame(glm::vec3(2.25, 0.0, 0.21), glm::vec3(0.0), 9.1),
+		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 10.0),
+		KeyFrame(glm::vec3(-0.48, 0.0, 0.1), glm::vec3(0.0), 13.0),
+		KeyFrame(glm::vec3(1.5, 0.0, -0.1), glm::vec3(0.0), 15.5),
+		KeyFrame(glm::vec3(-1.5, 0.0, 0.05), glm::vec3(0.0), 15.6),
 	};
     int keyframeNumBlue = 1;
     int keyframeNumRed = 1;
@@ -612,7 +612,6 @@ int main(int argc, char* argv[])
 	float spin = 0;
 	bool reverse = false;
 
-	float iTwo=0.02f;
 	bool headedToRed = false, headedToBlue = false;
 
     // MAIN LOOP
@@ -635,8 +634,8 @@ int main(int argc, char* argv[])
 		dt = glfwGetTime() - lastFrameTime;
 
 		// Blue player keyframes
-        double blueVelocity = keyframesBlue[keyframeNumBlue].translatex / (keyframesBlue[keyframeNumBlue].time - keyframesBlue[keyframeNumBlue - 1].time);
-        double blueAngularVelocity = keyframesBlue[keyframeNumBlue].rotate / (keyframesBlue[keyframeNumBlue].time - keyframesBlue[keyframeNumBlue - 1].time);
+        double blueVelocity = keyframesBlue[keyframeNumBlue].translation.x / (keyframesBlue[keyframeNumBlue].time - keyframesBlue[keyframeNumBlue - 1].time);
+        double blueAngularVelocity = keyframesBlue[keyframeNumBlue].rotation.y / (keyframesBlue[keyframeNumBlue].time - keyframesBlue[keyframeNumBlue - 1].time);
         double blueDX = blueVelocity * dt;
         double blueDR = blueAngularVelocity * dt;
 
@@ -650,9 +649,9 @@ int main(int argc, char* argv[])
         }
 
 		// Red player keyframes
-		double redVelocityX = keyframesRed[keyframeNumRed].translatex / (keyframesRed[keyframeNumRed].time - keyframesRed[keyframeNumRed - 1].time);
-		double redVelocityY = keyframesRed[keyframeNumRed].translatey / (keyframesRed[keyframeNumRed].time - keyframesRed[keyframeNumRed - 1].time);
-		double redVelocityZ = keyframesRed[keyframeNumRed].translatez / (keyframesRed[keyframeNumRed].time - keyframesRed[keyframeNumRed - 1].time);
+		double redVelocityX = keyframesRed[keyframeNumRed].translation.x / (keyframesRed[keyframeNumRed].time - keyframesRed[keyframeNumRed - 1].time);
+		double redVelocityY = keyframesRed[keyframeNumRed].translation.y / (keyframesRed[keyframeNumRed].time - keyframesRed[keyframeNumRed - 1].time);
+		double redVelocityZ = keyframesRed[keyframeNumRed].translation.z / (keyframesRed[keyframeNumRed].time - keyframesRed[keyframeNumRed - 1].time);
 		double redDX = redVelocityX * dt;
 		double redDY = redVelocityY * dt;
 		double redDZ = redVelocityZ * dt;
@@ -668,14 +667,12 @@ int main(int argc, char* argv[])
 		}
 
 		// Ball keyframes
-		double ballVelocityX = keyframesBall[keyframeNumBall].translatex / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
-		double ballVelocityY = keyframesBall[keyframeNumBall].translatey / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
-		double ballVelocityZ = keyframesBall[keyframeNumBall].translatez / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
-		//double ballAngularVelocity = keyframesBall[keyframeNumBall].rotate / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
+		double ballVelocityX = keyframesBall[keyframeNumBall].translation.x / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
+		double ballVelocityY = keyframesBall[keyframeNumBall].translation.y / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
+		double ballVelocityZ = keyframesBall[keyframeNumBall].translation.z / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
 		double ballDX = ballVelocityX * dt;
 		double ballDY = ballVelocityY * dt;
 		double ballDZ = ballVelocityZ * dt;
-		//double ballDR = ballAngularVelocity * dt;
 
         if (keyframeNumBall < sizeof(keyframesBall) / sizeof(KeyFrame)) {
 			if (lastFrameTime <= keyframesBall[keyframeNumBall].time) {
@@ -703,12 +700,6 @@ int main(int argc, char* argv[])
 		*/
 		
 		vec3 position1 = ball.getPosition();
-		//ball.setTranslationModel(vec3( iTwo, .00f, 0));
-		/*for ball path x belongs to set and z belongs to set
-		* [-.75,x,.75f]
-		* [-.36,z,.36f]
-		* -z is scoreboard side, +z if camera side
-		*/
 	
 		float checky = playerArm1.position.x;
 	
