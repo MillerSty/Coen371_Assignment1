@@ -476,8 +476,8 @@ int main(int argc, char* argv[])
 	SceneObj.skyTexture = skyMaterial;
 	
 	//Racket and Arm ****	
-	playerArm1.InitArm(glm::vec3(-.5f, 0.0f, .2f), unitCubeAO, skinMaterial, clothMaterial);
-    playerArm2.InitArm(glm::vec3(.5f, 0.0f, -.2f), unitCubeAO, skinMaterial, clothMaterial);
+	playerArm1.InitArm(glm::vec3(-.5f, 0.15f, .2f), unitCubeAO, skinMaterial, clothMaterial);
+    playerArm2.InitArm(glm::vec3(.5f, 0.15f, -.2f), unitCubeAO, skinMaterial, clothMaterial);
 
 	Racket racket1(unitCubeAO, "racket1");
     racket1.plasticMaterial = plasticMaterial;
