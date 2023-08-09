@@ -567,10 +567,12 @@ int main(int argc, char* argv[])
 
 	// Keyframe variables
     KeyFrame keyframesBlue[] = {
-        KeyFrame(0.0,0.0,0.0, 0.0, 0.0), // Initial key frame
-		KeyFrame(0.0,0.0,0.0, 0.0, 3.0),
-        KeyFrame(-0.2,0.0,0.0, 0.0, 6.0),
-        KeyFrame(0.2,0.0,0.0, 0.0, 7.0),
+        KeyFrame(0.0, 0.0, 0.0, 0.0, 0.0), // Initial key frame
+		KeyFrame(0.0, 0.0, 0.0, 0.0, 3.0),
+        KeyFrame(-0.2, 0.0, 0.0, 0.0, 6.0),
+        KeyFrame(0.2, 0.0, 0.0, 0.0, 7.0),
+        KeyFrame(0.0, 0.0, 0.0, 0.0, 9.8),
+        KeyFrame(-0.030, 0.0, 0.0, 0.0, 10.5),
     };
 
 	KeyFrame keyframesRed[] = {
@@ -580,11 +582,15 @@ int main(int argc, char* argv[])
 	};
 
 	KeyFrame keyframesBall[] = { //how much translation? 
-		KeyFrame(0.0,0.0,0.0, 0.0, .0),// Initial key frame
-		KeyFrame(0.0,0.0,0.0,0.0, 3.0),
-		KeyFrame(0.95,0.0,-0.1,0.0, 6.0),
-		KeyFrame(-2.0,0.0,-0.1,0.0, 9.0),
-
+		KeyFrame(0.0, 0.0, 0.0, 0.0, 0.0),// Initial key frame
+		KeyFrame(0.0, 0.0, 0.0, 0.0, 3.0),
+		KeyFrame(0.99, 0.0, -0.1, 0.0, 6.0),
+		KeyFrame(-2.0, 0.0, -0.1, 0.0, 9.0),
+		KeyFrame(2.25, 0.0, 0.21, 0.0, 9.1),
+		KeyFrame(0.0, 0.0, 0.0, 0.0, 10.0),
+		KeyFrame(-0.48, 0.0, 0.1, 0.0, 13.0),
+		KeyFrame(1.5, 0.0, -0.1, 0.0, 15.5),
+		KeyFrame(-1.5, 0.0, 0.05, 0.0, 15.6),
 	};
     int keyframeNumBlue = 1;
     int keyframeNumRed = 1;
@@ -668,11 +674,10 @@ int main(int argc, char* argv[])
 
         if (keyframeNumBall < sizeof(keyframesBall) / sizeof(KeyFrame)) {
 			if (lastFrameTime <= keyframesBall[keyframeNumBall].time) {
-				ball.setTranslationModel(glm::vec3(ballDX, ballDY,  ballDZ));
+				ball.setTranslationModel(glm::vec3(ballDX, ballDY, ballDZ));
 			}
-			else {
+			else
 				keyframeNumBall++;
-			}
 		}
 
         lastFrameTime += dt;
