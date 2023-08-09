@@ -40,10 +40,11 @@ int Ball::getSphereVertCount() { return sphereVertCount; }
 
 void Ball::setMaterial(Material material) { ballTexture = material; }
 
-void Ball::resetModel()
-{
-	translationModel -= translationModel;
-}
+void Ball::setSoundEngine(irrklang::ISoundEngine *engine) { audioEngine = engine; }
+
+irrklang::ISoundEngine *Ball::getSoundEngine() { return audioEngine; }
+
+void Ball::resetModel() { translationModel -= translationModel; }
 
 void Ball::drawBall()
 {
@@ -54,8 +55,6 @@ void Ball::drawBall()
 	glm::vec3 SPHERE_COLOR(0.0f, 1.0f, 0.0f);
 	glUniform3fv(glGetUniformLocation(shaderProgram, "objectColor"), 1, &SPHERE_COLOR[0]);
 
-
-
 	// Apply texture
 	ballTexture.bindTexture();
 	ballTexture.loadToShader();
@@ -65,16 +64,38 @@ void Ball::drawBall()
 
 	glm::mat4 modelScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.35f));
 	
-	this->position = translationModel + initialPosition;
-	// Translate only in the XY plane
+	position = translationModel + initialPosition;
+
+    // Translate only in the XY plane
 	glm::mat4 modelTranslate = glm::translate(glm::mat4(1.0f), position);
 
 	modelMat *= modelTranslate * modelScale;
 
 	// Draw geometry
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "worldMatrix"), 1, GL_FALSE, &modelMat[0][0]);
-	glDrawElements(renderAS, sphereVertCount, GL_UNSIGNED_INT, 0);
+	glDrawElements(renderAS, sphereVertCount, GL_UNSIGNED_INT, nullptr);
 
 	// Unbind sphere VAO
 	glBindVertexArray(0);
 }
+
+void Ball::playSound() {
+    // Get a random number between 1 and 3 for which ball sound to play.
+    // Makes it sound more organic to have random different sounds
+    // Code from https://stackoverflow.com/a/5891824
+    int whichSound = (rand() % 3);
+
+    audioEngine->play2D(BALL_SOUNDS[whichSound]);
+
+    // This is how we would apply sound effects like reverb, in case we wanted to
+    /*
+    irrklang::ISound* sound = audioEngine->play2D(BALL_SOUNDS[whichSound], false, false, true, irrklang::ESM_AUTO_DETECT, true);
+    irrklang::ISoundEffectControl* fx = sound->getSoundEffectControl();
+    fx->enableWavesReverbSoundEffect(0.0f, 0.0f, 1000.0f, 0.001f);
+
+    // Since we're using sound effects, must manually drop the sounds to avoid memory leaks
+    sound->drop();
+     */
+}
+
+

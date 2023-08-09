@@ -325,6 +325,9 @@ Ball ball;
 // Create irrKlang engine
 irrklang::ISoundEngine* audioEngine;
 
+// Create Scene object
+SceneObjects SceneObj("scene");
+
 int main(int argc, char* argv[])
 {
     // Seed a random number generator for later use. Taken from https://stackoverflow.com/a/5891824
@@ -415,10 +418,11 @@ int main(int argc, char* argv[])
 	// Maybe update this for shadows
     glUniform3fv(viewPositionLocation, 1, &eye[0]);
 
-	//Scene Jawn
-	SceneObjects SceneObj("scene");
 	SceneObj.InitGrid();
-	
+
+    // Set the sound engine for the Scene
+	SceneObj.audioEngine = audioEngine;
+
 	glfwGetCursorPos(window, &lastMousePosX, &lastMousePosY);
 	lastMousePosZ = lastMousePosY;
 
@@ -581,7 +585,7 @@ int main(int argc, char* argv[])
 		KeyFrame(0.065, 0.0, 0.0, 0.0, 6.0),
 	};
 
-	KeyFrame keyframesBall[] = { //how much translation? 
+	KeyFrame keyframesBall[] = { //how much translation?
 		KeyFrame(0.0, 0.0, 0.0, 0.0, 0.0),// Initial key frame
 		KeyFrame(0.0, 0.0, 0.0, 0.0, 3.0),
 		KeyFrame(0.99, 0.0, -0.1, 0.0, 6.0),
@@ -601,17 +605,20 @@ int main(int argc, char* argv[])
 	ball.setSphereVertCount(vertexIndicessphere.size());
 	ball.setMaterial(grassMaterial);
     ball.setInitialPosition(playerArm1.position + vec3(0.0, 0.09, -0.15));
+    ball.setSoundEngine(audioEngine);
 
 	int number = 0;
 	float i = -1;
 	float spin = 0;
 	bool reverse = false;
 
-	float ballCatcher = 0;
 	float iTwo=0.02f;
 	bool headedToRed = false, headedToBlue = false;
+
+    // MAIN LOOP
 	while (!glfwWindowShouldClose(window))
 	{
+        // Clear the depth buffer and color buffer each frame
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) *
@@ -623,8 +630,6 @@ int main(int argc, char* argv[])
 		float x = sin(i);
 		float z = cos(i);
 		i += .002;
-        glm::scale(glm::mat4(1.0f), GroupMatrixScale) * rotationMatrixW;
-
 
         // KEYFRAME ANIMATION
 		dt = glfwGetTime() - lastFrameTime;
@@ -705,6 +710,7 @@ int main(int argc, char* argv[])
 		* -z is scoreboard side, +z if camera side
 		*/
 	
+		float checky = playerArm1.position.x;
 	
 		//https://stackoverflow.com/questions/13915479/c-get-every-number-separately
 		//this for seperating more
@@ -741,8 +747,6 @@ int main(int argc, char* argv[])
 			ball.setRenderAs(renderAs);
 			ball.drawBall();
 
-		
-
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = vertexIndicessphere.size();
             SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
@@ -750,7 +754,7 @@ int main(int argc, char* argv[])
             SceneObj.DrawScene(false);  // Draw scene without the skybox, so it can't be used to make shadows on the scene
 		}
 
-		{ // 2nd pass  
+		{ // 2nd pass
 			//reset 
 			glUniform1i(applyTexturesLocation, shouldApplyTextures);
 			glUniform1i(applyShadowsLocation, false);
@@ -764,7 +768,6 @@ int main(int argc, char* argv[])
 			glActiveTexture(GL_TEXTURE0 + 2);
 			glBindTexture(GL_TEXTURE_2D, depth_map_texture);
 
-
 			playerArm1.SetAttr(groupMatrix, renderAs, shaderProgram);
 			playerArm1.DrawArm();
 			racket1.SetAttr(groupMatrix, renderAs, shaderProgram, playerArm1.partParent);
@@ -774,8 +777,6 @@ int main(int argc, char* argv[])
             playerArm2.DrawArm();
             racket2.SetAttr(groupMatrix, renderAs, shaderProgram, playerArm2.partParent);
             racket2.Draw();
-
-
 
 			ball.setGroupMatrix(groupMatrix);
 			ball.setRenderAs(renderAs);
@@ -793,47 +794,6 @@ int main(int argc, char* argv[])
 
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noshowLightBox);
 		}
-
-
-		//vec3 position2 = ball.getPosition();
-		//if (!headedToRed) {
-		//	if (!(playerArm2.position.z == position2.z)) {
-		//		ballCatcher += .02f;
-		//		playerArm2.setTranslation(vec3(0), vec3(ballCatcher, 0, 0));
-		//	}
-		//	else {
-		//		ballCatcher = 0;
-		//	}
-		//
-		//}
-		//
-		//
-		//vec3 positionCheck = position2 - position1;
-		//if (position2.x > .750f || position2.x < -.750f) {
-		//	ball.resetModel();
-		//
-		//	if (headedToRed) {
-		//		ball.setInitialPosition(vec3(playerArm1.position.x, playerArm1.position.y, playerArm1.position.z));
-		//		iTwo = .02f;
-		//
-		//	}
-		//	else {
-		//		ball.setInitialPosition(vec3(playerArm2.position.x, playerArm2.position.y, playerArm2.position.z));
-		//		iTwo = -.02f;
-		//	}
-		//}
-		////position check
-		////Heading to Red
-		//if (positionCheck.x > 0.770f) {
-		//	headedToRed = true;
-		//
-		//}
-		//else if (positionCheck.x < -0.770f) {//headed to Blue				
-		//	headedToRed = false;
-		//}
-
-
-
 		//blue side is Player1
 		playerArm1.flexFingers();
 		//red is player2
@@ -1157,50 +1117,15 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 
     // If comma is pressed, play a ball sound
     else if (state_COMMA == GLFW_PRESS)
-    {
-        const char* BALL_SOUNDS[] = {
-                "../src/Assets/sounds/Ball1.wav",
-                "../src/Assets/sounds/Ball2.wav",
-                "../src/Assets/sounds/Ball3.wav"
-        };
+        ball.playSound();
 
-        // Get a random number between 1 and 3 for which ball sound to play.
-        // Makes it sound more organic to have random different sounds
-        int whichSound = (rand() % 3);  // Code from https://stackoverflow.com/a/5891824
-        audioEngine->play2D(BALL_SOUNDS[whichSound]);
-
-        /*
-        irrklang::ISound* sound = audioEngine->play2D(BALL_SOUNDS[whichSound], false, false, true, irrklang::ESM_AUTO_DETECT, true);
-        irrklang::ISoundEffectControl* fx = sound->getSoundEffectControl();
-        fx->enableWavesReverbSoundEffect(0.0f, 0.0f, 1000.0f, 0.001f);
-
-        // Since we're using sound effects, must manually drop the sounds to avoid memory leaks
-        sound->drop();
-         */
-    }
-
-    // If period is pressed, play a crowd sound
+    // If period is pressed, play a crowd sound. Male normally, female with SHIFT
     else if (state_PERIOD == GLFW_PRESS)
     {
-        const char* CROWD_SOUNDS[] = {
-                "../src/Assets/sounds/CrowdMale1.wav",
-                "../src/Assets/sounds/CrowdMale2.wav",
-                "../src/Assets/sounds/CrowdFemale1.wav",
-                "../src/Assets/sounds/CrowdFemale2.wav",
-        };
-
-        // Get a random number between 1 and 3 for which ball sound to play.
-        // Makes it sound more organic to have random different sounds
-        int whichSound = (rand() % 4);  // Code from https://stackoverflow.com/a/5891824
-        audioEngine->play2D(CROWD_SOUNDS[whichSound]);
-
-        /*
-        irrklang::ISound* sound = audioEngine->play2D(CROWD_SOUNDS[whichSound], false, false, true, irrklang::ESM_AUTO_DETECT, true);
-        irrklang::ISoundEffectControl* fx = sound->getSoundEffectControl();
-        fx->enableWavesReverbSoundEffect(0.0f, 0.0f, 500.0f, 0.001f);
-
-        sound->drop();
-         */
+        if (mods != GLFW_MOD_SHIFT)
+            SceneObj.playCrowdSound(true);
+        else
+            SceneObj.playCrowdSound(false);
     }
 }
 
