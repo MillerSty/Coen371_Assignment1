@@ -566,6 +566,7 @@ int main(int argc, char* argv[])
 	GLuint kdepthMap = glGetUniformLocation(shaderProgram, "shadowMap");
 	glUniform1i(kdepthMap, 2);
 
+    glfwSetTime(0.0f);
 	double lastFrameTime = 0.0;
     double dt = 0;
 
@@ -574,32 +575,43 @@ int main(int argc, char* argv[])
         KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 0.0), // Initial key frame
 		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 3.0),
         KeyFrame(glm::vec3(-0.2, 0.0, 0.0), glm::vec3(0.0), 6.0),
-        KeyFrame(glm::vec3(0.2, 0.0, 0.0), glm::vec3(0.0), 7.0),
-        KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 9.8),
-        KeyFrame(glm::vec3(-0.03, 0.0, 0.0), glm::vec3(0.0), 10.5),
+        KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 9.0),
+        KeyFrame(glm::vec3(0.2, 0.0, 0.0), glm::vec3(0.0), 10.0),
+
     };
 
 	KeyFrame keyframesRed[] = {
 		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 0.0),
 		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 3.0),
-		KeyFrame(glm::vec3(0.065, 0.0, 0.0), glm::vec3(0.0), 6.0),
-	};
+		KeyFrame(glm::vec3(0.2, 0.0, 0.0), glm::vec3(0.0), 6.0),
+        KeyFrame(glm::vec3(-0.2, 0.0, 0.0), glm::vec3(0.0), 9.0),
+        KeyFrame(glm::vec3(0.2, 0.0, 0.0), glm::vec3(0.0), 10.0),
+        KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 13.0),
+        KeyFrame(glm::vec3(0.2, 0.0, 0.0), glm::vec3(0.0), 15.0),
+        KeyFrame(glm::vec3(-0.2, 0.0, 0.0), glm::vec3(0.0), 15.6),
+        KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 27.0), // Rally left
+        KeyFrame(glm::vec3(0.2, 0.0, 0.0), glm::vec3(0.0), 30.0), // SCORE
+
+
+
+
+    };
 
 	KeyFrame keyframesBall[] = { //how much translation?
-		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 0.0), // Initial key frame
-		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 3.0), // Initial movement right
-		KeyFrame(glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0), 6.0), // Ball hit, move back
-		KeyFrame(glm::vec3(-1.5, 0.0, 0.0), glm::vec3(0.0), 9.0), // SCORE
-		KeyFrame(glm::vec3(1.5, 0.0, 0.0), glm::vec3(0.0), 10.0), // Reset to center
-		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 11.0), // Move to left
-		KeyFrame(glm::vec3(-1.0, 0.0, 0.1), glm::vec3(0.0), 13.0), // Ball hit, move back
-		KeyFrame(glm::vec3(1.5, 0.0, -0.1), glm::vec3(0.0), 15.5), // SCORE
-		KeyFrame(glm::vec3(-1.5, 0.0, 0.05), glm::vec3(0.0), 16.5), // Reset to center
-		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 18.0), // Move to the right
-		KeyFrame(glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0), 21.0), // Move left
-		KeyFrame(glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0), 24.0), // Rally right
-		KeyFrame(glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0), 27.0), // Rally left
-		KeyFrame(glm::vec3(2.25, 0.0, 0.0), glm::vec3(0.0), 30.0), // SCORE
+            KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 0.0), // Initial key frame
+            KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 3.0), // Initial movement right
+            KeyFrame(glm::vec3(0.99, 0.0, -0.1), glm::vec3(0.0), 6.0), // Ball hit, move back
+            KeyFrame(glm::vec3(-2.0, 0.0, -0.1), glm::vec3(0.0), 9.0), // SCORE
+            KeyFrame(glm::vec3(2.25, 0.0, 0.21), glm::vec3(0.0), 9.1), // Reset to center
+            KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 10.0), // Move to left
+            KeyFrame(glm::vec3(-0.48, 0.0, 0.1), glm::vec3(0.0), 13.0), // Ball hit, move back
+            KeyFrame(glm::vec3(1.5, 0.0, -0.1), glm::vec3(0.0), 15.5), // SCORE
+            KeyFrame(glm::vec3(-1.5, 0.0, 0.05), glm::vec3(0.0), 15.6), // Reset to center
+            KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 18.0), // Move to the right
+            KeyFrame(glm::vec3(-0.5, 0.0, 0.0), glm::vec3(0.0), 21.0), // Move left
+            KeyFrame(glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0), 24.0), // Rally right
+            KeyFrame(glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0), 27.0), // Rally left
+            KeyFrame(glm::vec3(2.25, 0.0, 0.0), glm::vec3(0.0), 30.0), // SCORE
 	};
     int keyframeNumBlue = 1;
     int keyframeNumRed = 1;
@@ -609,18 +621,13 @@ int main(int argc, char* argv[])
 	ball.setVAO(unitSphereAO);
 	ball.setSphereVertCount(vertexIndicessphere.size());
 	ball.setMaterial(grassMaterial);
-    ball.setInitialPosition(playerArm1.position + vec3(0.0, 0.09, -0.15));
+    ball.setInitialPosition(playerArm1.position + vec3(0.025, 0.09, -0.1));
     ball.setSoundEngine(audioEngine);
 
 	int number = 0;
 	float i = -1;
 	float spin = 0;
 	bool reverse = false;
-
-	bool headedToRed = false, headedToBlue = false;
-
-
-	glfwSetTime(0.0f);
 
     // MAIN LOOP
 	while (!glfwWindowShouldClose(window))
@@ -671,8 +678,9 @@ int main(int argc, char* argv[])
 			{
 				playerArm2.setTranslateModel(glm::vec3(playerArm2.getTranslateModel().x + redDX, playerArm2.getTranslateModel().y + redDY, playerArm2.getTranslateModel().z + redDZ));
 			}
-			else
-				keyframeNumRed++;
+			else {
+                keyframeNumRed++;
+            }
 		}
 
 		// Ball keyframes
@@ -687,11 +695,39 @@ int main(int argc, char* argv[])
 			if (lastFrameTime <= keyframesBall[keyframeNumBall].time) {
 				ball.setTranslationModel(glm::vec3(ballDX, ballDY, ballDZ));
 			}
-			else
-				keyframeNumBall++;
+			else {
+                keyframeNumBall++;
+            }
 		}
 
         lastFrameTime += dt;
+
+        // For remainder of time when lastframetime > keyframe.time
+//        if (lastFrameTime > keyframesBlue[keyframeNumBlue].time) {
+//            double timeRemaining = keyframesBlue[keyframeNumBlue].time - lastFrameTime;
+//            blueDX = blueVelocity * timeRemaining;
+//            blueDR = blueAngularVelocity * timeRemaining;
+//            playerArm1.setTranslateModel(glm::vec3((playerArm1.getTranslateModel().x + blueDX), playerArm1.getTranslateModel().y, playerArm1.getTranslateModel().z));
+//            playerArm1.setRotation(playerArm1.getRotation() - blueDR);
+//            lastFrameTime = keyframesBlue[keyframeNumBlue].time;
+//        }
+//
+//        if (lastFrameTime > keyframesRed[keyframeNumRed].time) {
+//            double timeRemaining = keyframesRed[keyframeNumRed].time - lastFrameTime;
+//            redDX = redVelocityX * timeRemaining;
+//            playerArm2.setTranslateModel(glm::vec3(playerArm2.getTranslateModel().x + redDX, playerArm2.getTranslateModel().y + redDY, playerArm2.getTranslateModel().z + redDZ));
+//            lastFrameTime = keyframesRed[keyframeNumRed].time;
+//
+//        }
+//
+//        if (lastFrameTime > keyframesBall[keyframeNumBall].time) {
+//            double timeRemaining = keyframesBall[keyframeNumBall].time - lastFrameTime;
+//            ballDX = ballVelocityX * timeRemaining;
+//            ballDY = ballVelocityY * timeRemaining;
+//            ballDZ = ballVelocityZ * timeRemaining;
+//            ball.setTranslationModel(glm::vec3(ballDX, ballDY, ballDZ));
+//            lastFrameTime = keyframesBall[keyframeNumBall].time;
+//        }
 
 		numberDraw.groupMatrix = groupMatrix;
 		numberDraw2.groupMatrix = groupMatrix;
