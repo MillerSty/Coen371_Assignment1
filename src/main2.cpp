@@ -570,6 +570,7 @@ int main(int argc, char* argv[])
     double dt = 0;
 
 	// Keyframe variables
+//NOTE: !ONLY FOR PLAYERS! For players the axis' are messed up so its : z y x 
     KeyFrame keyframesBlue[] = {
         KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 0.0), // Initial key frame
 		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 3.0),
@@ -585,7 +586,7 @@ int main(int argc, char* argv[])
 		KeyFrame(glm::vec3(0.065, 0.0, 0.0), glm::vec3(0.0), 6.0),
 	};
 
-	KeyFrame keyframesBall[] = { //how much translation?
+	KeyFrame keyframesBall[] = { //how much translation?							
 		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 0.0), // Initial key frame
 		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 3.0), // Initial movement right
 		KeyFrame(glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0), 6.0), // Ball hit, move back
@@ -618,7 +619,7 @@ int main(int argc, char* argv[])
 	bool reverse = false;
 
 	bool headedToRed = false, headedToBlue = false;
-
+	int redScore = 0, blueScore = 0;
 
 	glfwSetTime(0.0f);
 
@@ -674,7 +675,13 @@ int main(int argc, char* argv[])
 			else
 				keyframeNumRed++;
 		}
-
+		printf("TIME: %d\n", keyframeNumBall);
+		if (keyframeNumBall == 4 && headedToRed == false) {
+			blueScore += 10;
+			headedToRed = true;
+		}
+		else if (keyframeNumBall != 4) headedToRed = false;
+		
 		// Ball keyframes
 		double ballVelocityX = keyframesBall[keyframeNumBall].translation.x / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
 		double ballVelocityY = keyframesBall[keyframeNumBall].translation.y / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
@@ -731,7 +738,7 @@ int main(int argc, char* argv[])
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, true);
 			if (i == 1.0f) i = -1.0f;
 
-			numberDraw.Scoreboard(number,false,true);
+			numberDraw.Scoreboard(blueScore,false,true);
 			//numberDraw2.Scoreboard(number,false,false);
 
 			playerArm1.SetAttr(groupMatrix, renderAs, shaderProgram);
@@ -783,8 +790,8 @@ int main(int argc, char* argv[])
 			ball.drawBall();
 
 
-			numberDraw.Scoreboard(number, false, true);
-			numberDraw2.Scoreboard(number, false, false);
+			numberDraw.Scoreboard(blueScore, false, true);
+			numberDraw2.Scoreboard(redScore, false, false);
 
 			SceneObj.sphereVao = unitSphereAO;
 			SceneObj.sphereVertCount = vertexIndicessphere.size();
