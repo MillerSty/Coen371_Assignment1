@@ -8,12 +8,14 @@
 #include <vector>
 #include <ctime>
 
+
+
 // Dependency includes
 #define GLEW_STATIC 1   // This allows linking with Static Library on Windows, without DLL
 #include <GL/glew.h>    // Include GLEW - OpenGL Extension Wrangler
 #include <GLFW/glfw3.h> // GLFW provides a cross-platform interface for creating a graphical context,
 #define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
+//#include <stb_image.h>
 #include <irrKlang.h>
 #pragma comment(lib, "../thirdparty/irrklang/lib/irrKlang.lib")  // Necessary to get irrKlang working
 
@@ -25,6 +27,7 @@
 #include "KeyFrame.h"
 #include "Letters.h"
 #include "Ball.h"
+#include "Models/Model.h"
 
 using namespace glm;
 
@@ -472,6 +475,11 @@ int main(int argc, char* argv[])
 	Material skinMaterial(.1f, .0f, .66f, .001f, plasticTextureID, shaderProgram); //this is skin
 	Material skyMaterial(.3f, .001f, .9f, .0001f, plasticTextureID, shaderProgram); //Flat blue sky
 
+	Model Bleachers;
+
+	Bleachers = Model();
+	Bleachers.LoadModel("Models/bleachers.obj");
+
 	SceneObj.setMaterials(courtMaterial, clothMaterial, ropeMaterial, metalMaterial, grassMaterial, plasticMaterial);
 	SceneObj.skyTexture = skyMaterial;
 	
@@ -696,6 +704,11 @@ int main(int argc, char* argv[])
             SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
             SceneObj.SetVAO(unitCubeAO, gridAO);
             SceneObj.DrawScene(false);  // Draw scene without the skybox, so it can't be used to make shadows on the scene
+
+
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &groupMatrix[0][0]);
+			Bleachers.RenderModel();
+
 		}
 		{ // 2nd pass  
 			//reset 
@@ -765,6 +778,11 @@ int main(int argc, char* argv[])
 			SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
 			SceneObj.SetVAO(unitCubeAO, gridAO);
 			SceneObj.DrawScene(true);  // Draw scene with the skybox
+
+
+
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &groupMatrix[0][0]);
+			Bleachers.RenderModel();
 
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noshowLightBox);
 		}
