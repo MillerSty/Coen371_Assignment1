@@ -577,24 +577,21 @@ int main(int argc, char* argv[])
         KeyFrame(glm::vec3(-0.2, 0.0, 0.0), glm::vec3(0.0), 6.0),
         KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 9.0),
         KeyFrame(glm::vec3(0.2, 0.0, 0.0), glm::vec3(0.0), 10.0),
-
+        KeyFrame(glm::vec3(0.06, 0.0, 0.0), glm::vec3(0.0), 13.0),
+        KeyFrame(glm::vec3(-0.07, 0.0, 0.0), glm::vec3(0.0), 21.0),
     };
 
 	KeyFrame keyframesRed[] = {
 		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 0.0),
 		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 3.0),
-		KeyFrame(glm::vec3(0.2, 0.0, 0.0), glm::vec3(0.0), 6.0),
+		KeyFrame(glm::vec3(0.13, 0.0, 0.0), glm::vec3(0.0), 6.0),
         KeyFrame(glm::vec3(-0.2, 0.0, 0.0), glm::vec3(0.0), 9.0),
         KeyFrame(glm::vec3(0.2, 0.0, 0.0), glm::vec3(0.0), 10.0),
         KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 13.0),
         KeyFrame(glm::vec3(0.2, 0.0, 0.0), glm::vec3(0.0), 15.0),
         KeyFrame(glm::vec3(-0.2, 0.0, 0.0), glm::vec3(0.0), 15.6),
-        KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 27.0), // Rally left
+        KeyFrame(glm::vec3(0.07, 0.0, 0.0), glm::vec3(0.0), 27.0), // Rally left
         KeyFrame(glm::vec3(0.2, 0.0, 0.0), glm::vec3(0.0), 30.0), // SCORE
-
-
-
-
     };
 
 	KeyFrame keyframesBall[] = { //how much translation?
