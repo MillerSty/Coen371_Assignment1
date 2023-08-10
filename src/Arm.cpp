@@ -78,7 +78,7 @@ bool Arm::DrawArm() {
 
 	glBindVertexArray(cubeVao);
 	glm::mat4 bicepParent; //so for initiali parent , it has local.global translate plus local rotate 
-	glm::mat4 biTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(TranslateRandom.z + position.x, TranslateModel.y + TranslateRandom.y +position.y, TranslateRandom.x + TranslateModel.x + position.z));
+	glm::mat4 biTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(TranslateRandom.x + TranslateModel.x + position.x, TranslateModel.y + TranslateRandom.y +position.y, TranslateRandom.z +  position.z));
 	glm::mat4 biRotate = glm::rotate(glm::mat4(1.0f), glm::radians(armRotate), glm::vec3(.0f, 1.0f, .0f));
 	bicepParent = biTranslate * biRotate;
 
