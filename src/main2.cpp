@@ -588,17 +588,17 @@ int main(int argc, char* argv[])
 	KeyFrame keyframesBall[] = { //how much translation?
 		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 0.0), // Initial key frame
 		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 3.0), // Initial movement right
-		KeyFrame(glm::vec3(0.99, 0.0, -0.1), glm::vec3(0.0), 6.0), // Ball hit, move back
-		KeyFrame(glm::vec3(-2.0, 0.0, -0.1), glm::vec3(0.0), 9.0), // SCORE
-		KeyFrame(glm::vec3(2.25, 0.0, 0.21), glm::vec3(0.0), 9.1), // Reset to center
-		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 10.0), // Move to left
-		KeyFrame(glm::vec3(-0.48, 0.0, 0.1), glm::vec3(0.0), 13.0), // Ball hit, move back
+		KeyFrame(glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0), 6.0), // Ball hit, move back
+		KeyFrame(glm::vec3(-1.5, 0.0, 0.0), glm::vec3(0.0), 9.0), // SCORE
+		KeyFrame(glm::vec3(1.5, 0.0, 0.0), glm::vec3(0.0), 10.0), // Reset to center
+		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 11.0), // Move to left
+		KeyFrame(glm::vec3(-1.0, 0.0, 0.1), glm::vec3(0.0), 13.0), // Ball hit, move back
 		KeyFrame(glm::vec3(1.5, 0.0, -0.1), glm::vec3(0.0), 15.5), // SCORE
-		KeyFrame(glm::vec3(-1.5, 0.0, 0.05), glm::vec3(0.0), 15.6), // Reset to center
+		KeyFrame(glm::vec3(-1.5, 0.0, 0.05), glm::vec3(0.0), 16.5), // Reset to center
 		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 18.0), // Move to the right
-		KeyFrame(glm::vec3(-0.5, 0.0, 0.0), glm::vec3(0.0), 21.0), // Move left
-		KeyFrame(glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0), 24.0), // Rally right
-		KeyFrame(glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0), 27.0), // Rally left
+		KeyFrame(glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0), 21.0), // Move left
+		KeyFrame(glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0), 24.0), // Rally right
+		KeyFrame(glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0), 27.0), // Rally left
 		KeyFrame(glm::vec3(2.25, 0.0, 0.0), glm::vec3(0.0), 30.0), // SCORE
 	};
     int keyframeNumBlue = 1;
@@ -619,9 +619,13 @@ int main(int argc, char* argv[])
 
 	bool headedToRed = false, headedToBlue = false;
 
+
+	glfwSetTime(0.0f);
+
     // MAIN LOOP
 	while (!glfwWindowShouldClose(window))
 	{
+		//std::cout << glfwGetTime() << std::endl;
         // Clear the depth buffer and color buffer each frame
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
