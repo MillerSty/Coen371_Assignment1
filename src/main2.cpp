@@ -478,7 +478,7 @@ int main(int argc, char* argv[])
 	Model Bleachers;
 
 	Bleachers = Model();
-	Bleachers.LoadModel("Models/bleachers.obj");
+	Bleachers.LoadModel("../src/Models/bleachers.obj");
 
 	SceneObj.setMaterials(courtMaterial, clothMaterial, ropeMaterial, metalMaterial, grassMaterial, plasticMaterial);
 	SceneObj.skyTexture = skyMaterial;
@@ -705,8 +705,18 @@ int main(int argc, char* argv[])
             SceneObj.SetVAO(unitCubeAO, gridAO);
             SceneObj.DrawScene(false);  // Draw scene without the skybox, so it can't be used to make shadows on the scene
 
+			glm::mat4 letterTranslate;
+			glm::mat4 letterRotate;
+			glm::mat4 letterScale;
+			glm::mat4 LetterGroupMatrix;
+			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(0,0,0));
+			letterRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)00), glm::vec3(.0f, .0f, 1.0f));
+			letterRotate *= glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(1.0f, .0f, .0f));
+			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f)*3.0f );
+			glm::mat4 letterParent = letterTranslate * letterScale * letterRotate;
+			LetterGroupMatrix = groupMatrix * letterParent;
 
-			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &groupMatrix[0][0]);
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &LetterGroupMatrix[0][0]);
 			Bleachers.RenderModel();
 
 		}
@@ -780,8 +790,19 @@ int main(int argc, char* argv[])
 			SceneObj.DrawScene(true);  // Draw scene with the skybox
 
 
+			glm::mat4 letterTranslate;
+			glm::mat4 letterRotate;
+			glm::mat4 letterScale;
+			glm::mat4 LetterGroupMatrix;
+			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(0, 0, 0));
+			letterRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, .0f, 1.0f));
+			letterRotate *= glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(1.0f, .0f, .0f));
+			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f)*3.0f);
+			glm::mat4 letterParent = letterTranslate * letterScale * letterRotate;
+			LetterGroupMatrix = groupMatrix * letterParent;
 
-			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &groupMatrix[0][0]);
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &LetterGroupMatrix[0][0]);
+			//glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &groupMatrix[0][0]);
 			Bleachers.RenderModel();
 
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noshowLightBox);
