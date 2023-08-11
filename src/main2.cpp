@@ -588,13 +588,9 @@ int main(int argc, char* argv[])
         KeyFrame(glm::vec3(0.2, 0.0, 0.0), glm::vec3(0.0), 10.0),
         KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 13.0),
         KeyFrame(glm::vec3(0.2, 0.0, 0.0), glm::vec3(0.0), 15.0),
-        KeyFrame(glm::vec3(-0.2, 0.0, 0.0), glm::vec3(0.0), 15.6),
+        KeyFrame(glm::vec3(-0.2, 0.0, 0.0), glm::vec3(0.0), 15.6), // Reset to center
         KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 27.0), // Rally left
         KeyFrame(glm::vec3(0.2, 0.0, 0.0), glm::vec3(0.0), 30.0), // SCORE
-
-
-
-
     };
 
 	KeyFrame keyframesBall[] = { //how much translation?
@@ -659,8 +655,6 @@ int main(int argc, char* argv[])
             if (lastFrameTime <= keyframesBlue[keyframeNumBlue].time){
                 playerArm1.setTranslateModel(glm::vec3((playerArm1.getTranslateModel().x + blueDX), playerArm1.getTranslateModel().y, playerArm1.getTranslateModel().z));
                 playerArm1.setRotation(playerArm1.getRotation() - blueDR);
-            } else {
-				keyframeNumBlue++;
             }
         }
 
@@ -678,9 +672,7 @@ int main(int argc, char* argv[])
 			{
 				playerArm2.setTranslateModel(glm::vec3(playerArm2.getTranslateModel().x + redDX, playerArm2.getTranslateModel().y + redDY, playerArm2.getTranslateModel().z + redDZ));
 			}
-			else {
-                keyframeNumRed++;
-            }
+
 		}
 
 		// Ball keyframes
@@ -695,47 +687,48 @@ int main(int argc, char* argv[])
 			if (lastFrameTime <= keyframesBall[keyframeNumBall].time) {
 				ball.setTranslationModel(glm::vec3(ballDX, ballDY, ballDZ));
 			}
-			else {
-                keyframeNumBall++;
-            }
+
 		}
 
         lastFrameTime += dt;
 
         // For remainder of time when lastframetime > keyframe.time
-//        if (lastFrameTime > keyframesBlue[keyframeNumBlue].time) {
-//            double timeRemaining = keyframesBlue[keyframeNumBlue].time - lastFrameTime;
-//            blueDX = blueVelocity * timeRemaining;
-//            blueDR = blueAngularVelocity * timeRemaining;
-//            playerArm1.setTranslateModel(glm::vec3((playerArm1.getTranslateModel().x + blueDX), playerArm1.getTranslateModel().y, playerArm1.getTranslateModel().z));
-//            playerArm1.setRotation(playerArm1.getRotation() - blueDR);
-//            lastFrameTime = keyframesBlue[keyframeNumBlue].time;
-//        }
-//
-//        if (lastFrameTime > keyframesRed[keyframeNumRed].time) {
-//            double timeRemaining = keyframesRed[keyframeNumRed].time - lastFrameTime;
-//            redDX = redVelocityX * timeRemaining;
-//            playerArm2.setTranslateModel(glm::vec3(playerArm2.getTranslateModel().x + redDX, playerArm2.getTranslateModel().y + redDY, playerArm2.getTranslateModel().z + redDZ));
-//            lastFrameTime = keyframesRed[keyframeNumRed].time;
-//
-//        }
-//
-//        if (lastFrameTime > keyframesBall[keyframeNumBall].time) {
-//            double timeRemaining = keyframesBall[keyframeNumBall].time - lastFrameTime;
-//            ballDX = ballVelocityX * timeRemaining;
-//            ballDY = ballVelocityY * timeRemaining;
-//            ballDZ = ballVelocityZ * timeRemaining;
-//            ball.setTranslationModel(glm::vec3(ballDX, ballDY, ballDZ));
-//            lastFrameTime = keyframesBall[keyframeNumBall].time;
-//        }
+        if (lastFrameTime > keyframesBlue[keyframeNumBlue].time) {
+            double timeRemaining = keyframesBlue[keyframeNumBlue].time - (lastFrameTime - dt);
+            blueDX = blueVelocity * timeRemaining;
+            blueDR = blueAngularVelocity * timeRemaining;
+            playerArm1.setTranslateModel(glm::vec3((playerArm1.getTranslateModel().x + blueDX), playerArm1.getTranslateModel().y, playerArm1.getTranslateModel().z));
+            playerArm1.setRotation(playerArm1.getRotation() - blueDR);
+            lastFrameTime = keyframesBlue[keyframeNumBlue].time;
+            glfwSetTime(keyframesBlue[keyframeNumBlue].time);
+            keyframeNumBlue++;
+        }
+
+        if (lastFrameTime > keyframesRed[keyframeNumRed].time) {
+            double timeRemaining = keyframesRed[keyframeNumRed].time - (lastFrameTime - dt);
+            redDX = redVelocityX * timeRemaining;
+            playerArm2.setTranslateModel(glm::vec3(playerArm2.getTranslateModel().x + redDX, playerArm2.getTranslateModel().y + redDY, playerArm2.getTranslateModel().z + redDZ));
+            lastFrameTime = keyframesRed[keyframeNumRed].time;
+            glfwSetTime(keyframesRed[keyframeNumRed].time);
+            keyframeNumRed++;
+        }
+
+        if (lastFrameTime > keyframesBall[keyframeNumBall].time) {
+            double timeRemaining = keyframesBall[keyframeNumBall].time - (lastFrameTime - dt);
+            ballDX = ballVelocityX * timeRemaining;
+            ballDY = ballVelocityY * timeRemaining;
+            ballDZ = ballVelocityZ * timeRemaining;
+            ball.setTranslationModel(glm::vec3(ballDX, ballDY, ballDZ));
+            lastFrameTime = keyframesBall[keyframeNumBall].time;
+            glfwSetTime(keyframesBall[keyframeNumBall].time);
+            keyframeNumBall++;
+        }
 
 		numberDraw.groupMatrix = groupMatrix;
 		numberDraw2.groupMatrix = groupMatrix;
 		numberDraw.renderAs = renderAs;
 		numberDraw2.renderAs = renderAs;
-		lastFrameTime = glfwGetTime();
-		number = floor(lastFrameTime);
-		if (number > 98)glfwSetTime(0);
+		if (lastFrameTime > 9800)glfwSetTime(0);
 
 		/*so to control 1 arm .
 		setTranslate model to translate -> have to figure out specific vec positions
