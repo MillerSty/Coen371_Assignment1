@@ -407,13 +407,13 @@ int main(int argc, char* argv[])
 
 	// Initialize uniform locations
 	glUseProgram(shaderProgram);
-	GLuint worldMatrixLocation      = glGetUniformLocation(shaderProgram, "worldMatrix");
-	GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
-	GLuint viewMatrixLocation       = glGetUniformLocation(shaderProgram, "viewMatrix");
-	GLuint colorLocation            = glGetUniformLocation(shaderProgram, "objectColor");
-    GLint viewPositionLocation      = glGetUniformLocation(shaderProgram, "viewPosition");
-    GLint applyTexturesLocation     = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
-    GLint applyShadowsLocation      = glGetUniformLocation(shaderProgram, "shouldApplyShadows");
+	GLint worldMatrixLocation      = glGetUniformLocation(shaderProgram, "worldMatrix");
+	GLint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
+	GLint viewMatrixLocation       = glGetUniformLocation(shaderProgram, "viewMatrix");
+	GLint colorLocation            = glGetUniformLocation(shaderProgram, "objectColor");
+    GLint viewPositionLocation     = glGetUniformLocation(shaderProgram, "viewPosition");
+    GLint applyTexturesLocation    = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
+    GLint applyShadowsLocation     = glGetUniformLocation(shaderProgram, "shouldApplyShadows");
 	
 	// Maybe update this for shadows
     glUniform3fv(viewPositionLocation, 1, &eye[0]);
@@ -595,21 +595,27 @@ int main(int argc, char* argv[])
 //        KeyFrame(glm::vec3(0.2, 0.0, 0.0), glm::vec3(0.0), 30.0), // SCORE
     };
 
+    const float BALL_Y_OFFSET = 0.25f;
+
 	KeyFrame keyframesBall[] = { //how much translation?
-            KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 0.0), // Initial key frame
-            KeyFrame(glm::vec3(0.5, 0.0, 0.0), glm::vec3(0.0), 3.0), // Initial movement right
-            KeyFrame(glm::vec3(-0.5, 0.0, 0.0), glm::vec3(0.0), 6.0), // Ball hit, move back
-            KeyFrame(glm::vec3(0.75, 0.0, 0.0), glm::vec3(0.0), 9.0), // SCORE
-            KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 10.0), // Reset to center
-            KeyFrame(glm::vec3(-0.50, 0.0, 0.0), glm::vec3(0.0), 13.0), // Move to left
-            KeyFrame(glm::vec3(0.48, 0.0, 0.1), glm::vec3(0.0), 13.0), // Ball hit, move back
-            KeyFrame(glm::vec3(.75, 0.0, -0.1), glm::vec3(0.0), 15.5), // SCORE
-            KeyFrame(glm::vec3(.0, 0.0, 0.0), glm::vec3(0.0), 15.6), // Reset to center
-            KeyFrame(glm::vec3(0.50, 0.0, 0.0), glm::vec3(0.0), 18.0), // Move to the right
-            KeyFrame(glm::vec3(-0.5, 0.0, 0.0), glm::vec3(0.0), 21.0), // Move left
-//            KeyFrame(glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0), 24.0), // Rally right
-//            KeyFrame(glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0), 27.0), // Rally left
-//            KeyFrame(glm::vec3(2.25, 0.0, 0.0), glm::vec3(0.0), 30.0), // SCORE
+            KeyFrame(glm::vec3(0.0, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 0.0), // Initial key frame
+            KeyFrame(glm::vec3(0.47, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 3.0), // Initial movement right
+            KeyFrame(glm::vec3(-0.47, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 6.0), // Ball hit, move back
+            KeyFrame(glm::vec3(0.75, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 9.0), // SCORE
+            KeyFrame(glm::vec3(0.75, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 10.0), // Stay off-screen for a moment
+            KeyFrame(glm::vec3(0.0, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 11.0), // Reset to center
+            KeyFrame(glm::vec3(0.0, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 13.0), // Stay in center for a moment
+            KeyFrame(glm::vec3(-0.47, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 16.0), // Move to left
+            KeyFrame(glm::vec3(0.47, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 19.0), // Ball hit, move back
+            KeyFrame(glm::vec3(-0.75, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 22.0), // SCORE
+            KeyFrame(glm::vec3(-0.75, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 23.0), // Stay off-screen a moment
+            KeyFrame(glm::vec3(0.0, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 24.0), // Reset to center
+            KeyFrame(glm::vec3(0.0, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 25.0), // Stay in center for a moment
+            KeyFrame(glm::vec3(0.47, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 28.0), // Move to the right
+            KeyFrame(glm::vec3(-0.47, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 31.0), // Ball hit, move back
+            KeyFrame(glm::vec3(0.47, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 34.0), // Move to the right
+            KeyFrame(glm::vec3(-0.47, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 37.0), // Ball hit, move back
+            KeyFrame(glm::vec3(0.75, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 40.0), // SCORE
 	};
 
     int keyframeNumBlue = 0;
@@ -620,7 +626,6 @@ int main(int argc, char* argv[])
 	ball.setVAO(unitSphereAO);
 	ball.setSphereVertCount(vertexIndicessphere.size());
 	ball.setMaterial(grassMaterial);
-    ball.setInitialPosition(playerArm1.position + vec3(0.5, 0.09, -0.1));
     ball.setSoundEngine(audioEngine);
 
 	int number = 0;
