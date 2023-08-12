@@ -46,6 +46,7 @@ void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos);
 bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm::vec3>& temp_vertices,
 	          std::vector<glm::vec3>& out_normals, std::vector<glm::vec2>& out_uvs);
 void handleSounds(double currentTime);
+void handleScoring(double currentTime, int& red, int& blue);
 
 /**
 Create a vertex array object for the grid
@@ -312,7 +313,10 @@ float translateW = 0, translateY = 0, translateZ = 0;
 // Toggles for shadows and textures
 bool shouldApplyShadows = true;
 bool shouldApplyTextures = true;
+
+// Globals for game state-related things
 bool soundPlayed = false;
+bool scoreIncremented = false;
 
 int selectModel = 0; //we can se to 0 but then user has to toggle to before any thing
 int selectJoint = 0;
@@ -660,10 +664,7 @@ int main(int argc, char* argv[])
 	float i = -1;
 	float spin = 0;
 	bool reverse = false;
-
-	bool scoreIncremented = false;
 	int redScore = 0, blueScore = 0;
-
 
 	bool playSound = true;
 	if (playSound) {
@@ -797,31 +798,10 @@ int main(int argc, char* argv[])
 		numberDraw.renderAs = renderAs;
 		numberDraw2.renderAs = renderAs;
 
-        // Change the score, if necessary
-        if (glfwGetTime() >= 9.0 && glfwGetTime() < 9.1 && !scoreIncremented)
-        {
-            blueScore = 15;
-            scoreIncremented = true;
-        }
-        if (glfwGetTime() >= 9.1 && glfwGetTime() < 9.2)
-            scoreIncremented = false;
+        // Handle changing the score, if necessary
+        handleScoring(currentWorldTime, redScore, blueScore);
 
-        if (glfwGetTime() >= 22.0 && glfwGetTime() < 22.1 && !scoreIncremented)
-        {
-            redScore = 15;
-            scoreIncremented = true;
-        }
-        if (glfwGetTime() >= 22.1 && glfwGetTime() < 22.2)
-            scoreIncremented = false;
-
-        if (glfwGetTime() >= 40.0 && glfwGetTime() < 40.1 && !scoreIncremented)
-        {
-            blueScore = 30;
-            scoreIncremented = true;
-        }
-        if (glfwGetTime() >= 40.1 && glfwGetTime() < 40.2)
-            scoreIncremented = false;
-
+        // Handle playing sounds, if necessary
         if (playSound)
             handleSounds(currentWorldTime);
 
@@ -1001,7 +981,10 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-/// Handle playing the sounds.
+/** Handle playing the sounds
+ * 
+ * @param currentTime: The current time according to glfwGetTime() 
+ */ 
 void handleSounds(double currentTime) {
 
     if (currentTime >= 3 && currentTime < 3.1 && !soundPlayed)
@@ -1093,6 +1076,36 @@ void handleSounds(double currentTime) {
         soundPlayed = false;
 }
 
+/** Handle incrementing the scoreboard
+ *
+ * @param currentTime: The current time according to glfwGetTime()
+ * @param scoreIncremented: Whether score scoe has
+ */
+void handleScoring(double currentTime, int& redScore, int& blueScore) {
+    if (currentTime >= 9.0 && currentTime < 9.1 && !scoreIncremented)
+    {
+        blueScore = 15;
+        scoreIncremented = true;
+    }
+    if (currentTime >= 9.1 && currentTime < 9.2)
+        scoreIncremented = false;
+
+    if (currentTime >= 22.0 && currentTime < 22.1 && !scoreIncremented)
+    {
+        redScore = 15;
+        scoreIncremented = true;
+    }
+    if (currentTime >= 22.1 && currentTime < 22.2)
+        scoreIncremented = false;
+
+    if (currentTime >= 40.0 && currentTime < 40.1 && !scoreIncremented)
+    {
+        blueScore = 30;
+        scoreIncremented = true;
+    }
+    if (currentTime >= 40.1 && currentTime < 40.2)
+        scoreIncremented = false;
+}
 
 /***
 Gets the given shaders source code from a file and returns it as a string.
@@ -1617,4 +1630,3 @@ bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm
 
 	return true;
 }
-
