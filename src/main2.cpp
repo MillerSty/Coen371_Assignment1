@@ -28,6 +28,7 @@
 #include "Letters.h"
 #include "Ball.h"
 #include "Models/Model.h"
+#include "CrowdObjects.h"
 
 using namespace glm;
 
@@ -321,7 +322,7 @@ Arm playerArm1;
 Arm playerArm2;
 int selectModel = 0; //we can se to 0 but then user has to toggle to before any thing
 int selectJoint = 0;
-
+CrowdObjects crowd;
 // Create ball
 Ball ball;
 
@@ -483,6 +484,14 @@ int main(int argc, char* argv[])
 	SceneObj.setMaterials(courtMaterial, clothMaterial, ropeMaterial, metalMaterial, grassMaterial, plasticMaterial);
 	SceneObj.skyTexture = skyMaterial;
 	
+	//Crowd
+	crowd.vaos[0] = unitCubeAO;
+	crowd.vaos[1] = unitSphereAO;
+	crowd.sphereIndexCount = vertexIndicessphere.size();
+	crowd.skinMaterial = skinMaterial;
+	crowd.clothMaterial = clothMaterial;
+	crowd.shaderProgram = shaderProgram;
+	crowd.renderAs = GL_TRIANGLES;
 	//Racket and Arm ****	
 	playerArm1.InitArm(glm::vec3(-.5f, 0.0f, .2f), unitCubeAO, skinMaterial, clothMaterial);
     playerArm2.InitArm(glm::vec3(.5f, 0.0f, -.2f), unitCubeAO, skinMaterial, clothMaterial);
@@ -498,11 +507,14 @@ int main(int argc, char* argv[])
 	numberDraw.plastic = skinMaterial;
 	numberDraw2.plastic = skinMaterial;
 
+	//can be defined outside of while?
 	numberDraw.position = vec3(-.20f, .21f, -0.40f); //this is scoreboard option
 	numberDraw2.position = vec3(.20f, .21f, -0.40f);
 
 	numberDraw2.cubeVao = unitCubeAO;
 	numberDraw2.shaderProgram = shaderProgram;
+
+
 
 	// Set mouse and keyboard callbacks
 	glfwSetKeyCallback(window, keyPressCallback);
@@ -610,7 +622,7 @@ int main(int argc, char* argv[])
 		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) *
 			          glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
 			          rotationMatrixW;
-
+		crowd.groupMatrix = groupMatrix;
 		float lightDepth = 1.0f; //we can do 30, but it works better lower because the scale?
 		bool noshowLightBox = false;
 		float x = sin(i);
@@ -709,7 +721,7 @@ int main(int argc, char* argv[])
 			glm::mat4 letterRotate;
 			glm::mat4 letterScale;
 			glm::mat4 LetterGroupMatrix;
-			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(0,0,0));
+			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(0.25,0,-0.5));
 			letterRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)00), glm::vec3(.0f, .0f, 1.0f));
 			letterRotate *= glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(1.0f, .0f, .0f));
 			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f)*3.0f );
@@ -789,24 +801,40 @@ int main(int argc, char* argv[])
 			SceneObj.SetVAO(unitCubeAO, gridAO);
 			SceneObj.DrawScene(true);  // Draw scene with the skybox
 
-
+			//rename all this
+			//****************
 			glm::mat4 letterTranslate;
 			glm::mat4 letterRotate;
 			glm::mat4 letterScale;
 			glm::mat4 LetterGroupMatrix;
-			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(0, 0, 0));
-			letterRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, .0f, 1.0f));
-			letterRotate *= glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(1.0f, .0f, .0f));
-			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f)*3.0f);
-			glm::mat4 letterParent = letterTranslate * letterScale * letterRotate;
+			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(0.35, -0.02, -0.75));
+			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f)*6.0f);
+			glm::mat4 letterParent = letterTranslate * letterScale;
 			LetterGroupMatrix = groupMatrix * letterParent;
-
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &LetterGroupMatrix[0][0]);
-			//glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &groupMatrix[0][0]);
-			Bleachers.RenderModel();
 
+			//these texture and colour dont affect bleacher.rendermodel
+			skinMaterial.loadToShader();
+			skinMaterial.bindTexture();
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.94f, .76f, .5f))); //al have the same colour
+
+			Bleachers.RenderModel();
+			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(-0.35, -0.02, -0.75));
+			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
+			letterParent = letterTranslate * letterScale;
+			LetterGroupMatrix = groupMatrix * letterParent;
+			skinMaterial.loadToShader();
+			skinMaterial.bindTexture();
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &LetterGroupMatrix[0][0]);
+			Bleachers.RenderModel();
+			//******************
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noshowLightBox);
 		}
+
+		//crowd.drawCrowd();
+		crowd.drawSingle(vec3(-.750,.25,0),vec3(0));
+		crowd.drawSingle(vec3(-0.65, .25, 0), vec3(0));
+		crowd.test(4);
 		//blue side is Player1
 		playerArm1.flexFingers();
 		//red is player2
