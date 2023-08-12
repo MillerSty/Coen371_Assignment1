@@ -18,6 +18,20 @@ void Model::RenderModel()
 		meshList[i]->RenderMesh();
 	}
 }
+void Model::RenderModelBleacher()
+{
+	for (size_t i = 0; i < meshList.size(); i++)
+	{
+		unsigned int materialIndex = meshToTex[i];
+	
+		//if (materialIndex < textureList.size() && textureList[materialIndex])
+		//{
+		//	textureList[materialIndex]->UseTexture();
+		//}
+	
+		meshList[i]->RenderMesh();
+	}
+}
 
 void Model::LoadModel(const std::string & fileName)
 {

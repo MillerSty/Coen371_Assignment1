@@ -14,6 +14,7 @@
 #define GLEW_STATIC 1   // This allows linking with Static Library on Windows, without DLL
 #include <GL/glew.h>    // Include GLEW - OpenGL Extension Wrangler
 #include <GLFW/glfw3.h> // GLFW provides a cross-platform interface for creating a graphical context,
+#include <glm/gtx/color_space.hpp>
 #define STB_IMAGE_IMPLEMENTATION
 //#include <stb_image.h>
 #include <irrKlang.h>
@@ -464,6 +465,7 @@ int main(int argc, char* argv[])
 	GLuint plasticTextureID = loadTexture("../src/Assets/plastic.jpg");
 	GLuint woodTextureID = loadTexture("../src/Assets/wood1.jpg");
 	GLuint tattooTextureID = loadTexture("../src/Assets/tattoo.jpg");
+	GLuint aluminumTextureID = loadTexture("../src/Models/Bleachers/metal.jpg");
 						//diff spec ambient shiny
 	Material courtMaterial(.2f, .002f, .50f, .001f, courtTextureID, shaderProgram); //court shouldnt reflect
 	Material ropeMaterial(.5f, .60f, .5f, .09f, ropeTextureID, shaderProgram); // ropes are just ropes
@@ -475,6 +477,10 @@ int main(int argc, char* argv[])
 	Material tattooMaterial(0.5f, 0.2f, 0.5f, 0.002f, tattooTextureID, shaderProgram);
 	Material skinMaterial(.1f, .0f, .66f, .001f, plasticTextureID, shaderProgram); //this is skin
 	Material skyMaterial(.3f, .001f, .9f, .0001f, plasticTextureID, shaderProgram); //Flat blue sky
+	Material bleacherMaterial(.6f, .90f, .6f, .12f, aluminumTextureID, shaderProgram); //Flat blue sky
+
+	//need new way to do bleachers
+
 
 	Model Bleachers;
 
@@ -836,19 +842,29 @@ int main(int argc, char* argv[])
             SceneObj.SetVAO(unitCubeAO, gridAO);
             SceneObj.DrawScene(false);  // Draw scene without the skybox, so it can't be used to make shadows on the scene
 
+			//rename all this
+			//****************
 			glm::mat4 letterTranslate;
 			glm::mat4 letterRotate;
 			glm::mat4 letterScale;
 			glm::mat4 LetterGroupMatrix;
-			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(0.25,0,-0.5));
-			letterRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)00), glm::vec3(.0f, .0f, 1.0f));
-			letterRotate *= glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(1.0f, .0f, .0f));
-			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f)*3.0f );
-			glm::mat4 letterParent = letterTranslate * letterScale * letterRotate;
+			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(0.35, .20, -0.75));
+			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
+			glm::mat4 letterParent = letterTranslate * letterScale;
 			LetterGroupMatrix = groupMatrix * letterParent;
-
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &LetterGroupMatrix[0][0]);
-			Bleachers.RenderModel();
+			metalMaterial.loadToShader();
+			metalMaterial.bindTexture();
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f, .6f, .66f))); //al have the same colour
+			Bleachers.RenderModelBleacher();
+
+			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(-0.35, .20, -0.75));
+			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
+			letterParent = letterTranslate * letterScale;
+			LetterGroupMatrix = groupMatrix * letterParent;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &LetterGroupMatrix[0][0]);
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f, .6f, .66f)));
+			Bleachers.RenderModelBleacher();
 
 		}
 
@@ -896,26 +912,42 @@ int main(int argc, char* argv[])
 			glm::mat4 letterRotate;
 			glm::mat4 letterScale;
 			glm::mat4 LetterGroupMatrix;
-			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(0.35, -0.02, -0.75));
+			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(0.35, .20, -0.75));
 			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f)*6.0f);
 			glm::mat4 letterParent = letterTranslate * letterScale;
 			LetterGroupMatrix = groupMatrix * letterParent;
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &LetterGroupMatrix[0][0]);
+			metalMaterial.loadToShader();
+			metalMaterial.bindTexture();
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f, .6f, .66f))); //al have the same colour
+			Bleachers.RenderModelBleacher();
 
-			//these texture and colour dont affect bleacher.rendermodel
-			skinMaterial.loadToShader();
-			skinMaterial.bindTexture();
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.94f, .76f, .5f))); //al have the same colour
-
-			Bleachers.RenderModel();
-			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(-0.35, -0.02, -0.75));
+			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(-0.35, .20, -0.75));
 			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
+			 letterParent = letterTranslate * letterScale;
+			LetterGroupMatrix = groupMatrix * letterParent;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &LetterGroupMatrix[0][0]);
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f,.6f,.66f)));
+			Bleachers.RenderModelBleacher();
+
+
+			//this is the court
+			glBindVertexArray(unitCubeAO);
+			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(0.0, -0.1, -0.0));
+			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(25.0f, 1.0f, 25.00015f) );
 			letterParent = letterTranslate * letterScale;
 			LetterGroupMatrix = groupMatrix * letterParent;
-			skinMaterial.loadToShader();
-			skinMaterial.bindTexture();
+
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &LetterGroupMatrix[0][0]);
-			Bleachers.RenderModel();
+			courtMaterial.loadToShader();
+			courtMaterial.bindTexture();
+			glUniform3fv(colorLocation, 1, glm::value_ptr(vec3((float)137/255, (float)72/255,(float)62/255))); //al have the same colour
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+			glBindVertexArray(0);
+
+
+
+
 			//******************
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noshowLightBox);
 		}

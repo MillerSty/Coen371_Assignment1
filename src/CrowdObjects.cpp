@@ -152,7 +152,7 @@ void CrowdObjects::drawSingle(glm::vec3 position,glm::vec3 armrotate) {
 	glm::mat4 partRotate;
 
 
-	glm::vec3 col = glm::vec3(glm::linearRand(0.0f, 1.0f),
+		glm::vec3 col = glm::vec3(glm::linearRand(0.0f, 1.0f),
 			glm::linearRand(0.0f, 1.0f),
 			glm::linearRand(0.0f, 1.0f));
 
