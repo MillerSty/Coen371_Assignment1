@@ -43,9 +43,9 @@ void setProjectionMatrix(int shaderProgram, glm::mat4 projectionMatrix);
 void setViewMatrix(int shaderProgram, glm::mat4 viewMatrix);
 void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos);
-//void windowSizeCallback(GLFWwindow* window, int width, int height);
 bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm::vec3>& temp_vertices,
 	          std::vector<glm::vec3>& out_normals, std::vector<glm::vec2>& out_uvs);
+void handleSounds(double currentTime);
 
 /**
 Create a vertex array object for the grid
@@ -53,7 +53,7 @@ Create a vertex array object for the grid
 @param arraySize: How many entries are in the vertex array
 @return The VAO
 */
-int createVertexArrayObject(const glm::vec3* vertexArray, int arraySize)
+GLuint createVertexArrayObject(const glm::vec3* vertexArray, int arraySize)
 {    // Create a vertex array
 	GLuint vertexArrayObject;
 	glGenVertexArrays(1, &vertexArrayObject);
@@ -79,7 +79,7 @@ int createVertexArrayObject(const glm::vec3* vertexArray, int arraySize)
 	return vertexArrayObject;
 }
 
-int createVertexArrayObject3(std::vector<glm::vec3> arr)
+GLuint createVertexArrayObject3(std::vector<glm::vec3> arr)
 {
 	GLuint vertexArrayObject;
 	glGenVertexArrays(1, &vertexArrayObject);
@@ -240,7 +240,7 @@ Create a index buffer object for the sphere
 @return The IBO
 */
 GLuint createVertexArrayElementObject2(std::vector<int> vertexIndices, std::vector<glm::vec3> vertices,
-	                                std::vector<glm::vec3> normals, std::vector<glm::vec2> UVs)
+	                                   std::vector<glm::vec3> normals, std::vector<glm::vec2> UVs)
 {
 	// Create a vertex array
 	GLuint vertexArrayObject;
@@ -296,31 +296,40 @@ const int WIDTH = 1024, HEIGHT = 768;
 glm::vec3 eye(.0f, .350f*1.5, .7650f*1.5);
 glm::vec3 center(.00f, .0f, 0.0f);
 glm::vec3 up(0.0f, 1.0f, 0.0f);
-glm::vec3 translateWSAD(0.0f, 0.0f, 0.0f);
-glm::vec3 Translate(.0f, .0f, .0f);
 glm::vec3 GroupMatrixScale(1.0f, 1.0f, 1.0f);
 glm::mat4 groupMatrix;
 glm::mat4 rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
-Letters numberDraw;
-Letters numberDraw2;
 int renderAs = GL_TRIANGLES;
 int shaderProgram;
 double lastMousePosX, lastMousePosY, lastMousePosZ;
-float FOV = 70, AR = (float) WIDTH / (float) HEIGHT, near = .01, far = 50;
+float FOV = 70;
+float AR = (float) WIDTH / (float) HEIGHT;
+float near = .01;
+float far = 50;
 float translateW = 0, translateY = 0, translateZ = 0;
 
 // Toggles for shadows and textures
 bool shouldApplyShadows = true;
 bool shouldApplyTextures = true;
-Arm playerArm1;
-Arm playerArm2;
+bool soundPlayed = false;
+
 int selectModel = 0; //we can se to 0 but then user has to toggle to before any thing
 int selectJoint = 0;
+
+// Create Letter objects for the scoreboard
+Letters numberDraw;
+Letters numberDraw2;
+
+// Create crowd
 CrowdObjects crowd;
+
 // Create ball
 Ball ball;
-bool soundPlayed = false;
+
+// Create arms
+Arm playerArm1;
+Arm playerArm2;
 
 // Create irrKlang engine
 irrklang::ISoundEngine* audioEngine;
@@ -446,7 +455,7 @@ int main(int argc, char* argv[])
 	}
 	
 	// Create VAOs
-	int gridAO = createVertexArrayObject(SceneObj.lineArray, sizeof(SceneObj.lineArray));
+	GLuint gridAO = createVertexArrayObject(SceneObj.lineArray, sizeof(SceneObj.lineArray));
 	GLuint unitSphereAO = createVertexArrayElementObject2(vertexIndicessphere, verticessphere, normalssphere, UVssphere);
 	GLuint unitCubeAO = createVertexArrayObject2();
 
@@ -519,7 +528,6 @@ int main(int argc, char* argv[])
 	// Set mouse and keyboard callbacks
 	glfwSetKeyCallback(window, keyPressCallback);
 	glfwSetCursorPosCallback(window, mouseCursorPostionCallback);
-	//glfwSetWindowSizeCallback(window, windowSizeCallback);
 
     // Lighting
     float lightAngleOuter = 10.0;
@@ -814,6 +822,8 @@ int main(int argc, char* argv[])
         if (glfwGetTime() >= 40.1 && glfwGetTime() < 40.2)
             scoreIncremented = false;
 
+        if (playSound)
+            handleSounds(currentWorldTime);
 
 //		number = floor(glfwGetTime());
 //		if (number > 98)glfwSetTime(0);
@@ -979,109 +989,7 @@ int main(int argc, char* argv[])
 		//red is player2
         playerArm2.flexFingers();
 
-		if (playSound) {
-			if (glfwGetTime() >= 3 && glfwGetTime() < 3.1 && !soundPlayed)
-			{
-				ball.playSound();
-				soundPlayed = true;
-			}
-			if (glfwGetTime() >= 3.2 && glfwGetTime() < 3.3)
-			{
-				soundPlayed = false;
-			}
-			if (glfwGetTime() >= 6 && glfwGetTime() < 6.1 && !soundPlayed)
-			{
-				ball.playSound();
-				soundPlayed = true;
-			}
-			if (glfwGetTime() >= 6.2 && glfwGetTime() < 6.3)
-			{
-				soundPlayed = false;
-			}
-			if (glfwGetTime() >= 9 && glfwGetTime() < 9.1 && !soundPlayed)
-			{
-				SceneObj.playCrowdSound(true);
-				soundPlayed = true;
-			}
-			if (glfwGetTime() >= 9.2 && glfwGetTime() < 9.3)
-			{
-				soundPlayed = false;
-			}
-			if (glfwGetTime() >= 16 && glfwGetTime() < 16.1 && !soundPlayed)
-			{
-				ball.playSound();
-				soundPlayed = true;
-			}
-			if (glfwGetTime() >= 16.2 && glfwGetTime() < 16.3)
-			{
-				soundPlayed = false;
-			}
-			if (glfwGetTime() >= 19 && glfwGetTime() < 19.1 && !soundPlayed)
-			{
-				ball.playSound();
-				soundPlayed = true;
-			}
-			if (glfwGetTime() >= 19.2 && glfwGetTime() < 19.3)
-			{
-				soundPlayed = false;
-			}
-			if (glfwGetTime() >= 22 && glfwGetTime() < 22.1 && !soundPlayed)
-			{
-				SceneObj.playCrowdSound(false);
-				soundPlayed = true;
-			}
-			if (glfwGetTime() >= 22.2 && glfwGetTime() < 22.3)
-			{
-				soundPlayed = false;
-			}
-			if (glfwGetTime() >= 28 && glfwGetTime() < 28.1 && !soundPlayed)
-			{
-				ball.playSound();
-				soundPlayed = true;
-			}
-			if (glfwGetTime() >= 28.2 && glfwGetTime() < 28.3)
-			{
-				soundPlayed = false;
-			}
-			if (glfwGetTime() >= 31 && glfwGetTime() < 31.1 && !soundPlayed)
-			{
-				ball.playSound();
-				soundPlayed = true;
-			}
-			if (glfwGetTime() >= 31.2 && glfwGetTime() < 31.3)
-			{
-				soundPlayed = false;
-			}
-			if (glfwGetTime() >= 34 && glfwGetTime() < 34.1 && !soundPlayed)
-			{
-				ball.playSound();
-				soundPlayed = true;
-			}
-			if (glfwGetTime() >= 34.2 && glfwGetTime() < 34.3)
-			{
-				soundPlayed = false;
-			}
-			if (glfwGetTime() >= 37 && glfwGetTime() < 37.1 && !soundPlayed)
-			{
-				ball.playSound();
-				soundPlayed = true;
-			}
-			if (glfwGetTime() >= 37.2 && glfwGetTime() < 37.3)
-			{
-				soundPlayed = false;
-			}
-			if (glfwGetTime() >= 40 && glfwGetTime() < 40.1 && !soundPlayed)
-			{
-				SceneObj.playCrowdSound(true);
-				soundPlayed = true;
-			}
-			if (glfwGetTime() >= 40.2 && glfwGetTime() < 40.3)
-			{
-				soundPlayed = false;
-			}
-		}
-
-		glfwSwapBuffers(window);
+        glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
     // Shut down irrklang
@@ -1091,6 +999,98 @@ int main(int argc, char* argv[])
 	glfwTerminate();
 
 	return 0;
+}
+
+/// Handle playing the sounds.
+void handleSounds(double currentTime) {
+
+    if (currentTime >= 3 && currentTime < 3.1 && !soundPlayed)
+    {
+        ball.playSound();
+        soundPlayed = true;
+    }
+    else if (currentTime >= 3.2 && currentTime < 3.3)
+        soundPlayed = false;
+
+    else if (currentTime >= 6 && currentTime < 6.1 && !soundPlayed)
+    {
+        ball.playSound();
+        soundPlayed = true;
+    }
+    else if (currentTime >= 6.2 && currentTime < 6.3)
+        soundPlayed = false;
+
+    else if (currentTime >= 9 && currentTime < 9.1 && !soundPlayed)
+    {
+        SceneObj.playCrowdSound(true);
+        soundPlayed = true;
+    }
+    else if (currentTime >= 9.2 && currentTime < 9.3)
+        soundPlayed = false;
+
+    else if (currentTime >= 16 && currentTime < 16.1 && !soundPlayed)
+    {
+        ball.playSound();
+        soundPlayed = true;
+    }
+    else if (currentTime >= 16.2 && currentTime < 16.3)
+        soundPlayed = false;
+
+    else if (currentTime >= 19 && currentTime < 19.1 && !soundPlayed)
+    {
+        ball.playSound();
+        soundPlayed = true;
+    }
+    else if (currentTime >= 19.2 && currentTime < 19.3)
+        soundPlayed = false;
+
+    else if (currentTime >= 22 && currentTime < 22.1 && !soundPlayed)
+    {
+        SceneObj.playCrowdSound(false);
+        soundPlayed = true;
+    }
+    else if (currentTime >= 22.2 && currentTime < 22.3)
+        soundPlayed = false;
+
+    else if (currentTime >= 28 && currentTime < 28.1 && !soundPlayed)
+    {
+        ball.playSound();
+        soundPlayed = true;
+    }
+    else if (currentTime >= 28.2 && currentTime < 28.3)
+        soundPlayed = false;
+
+    else if (currentTime >= 31 && currentTime < 31.1 && !soundPlayed)
+    {
+        ball.playSound();
+        soundPlayed = true;
+    }
+    else if (currentTime >= 31.2 && currentTime < 31.3)
+        soundPlayed = false;
+
+    else if (currentTime >= 34 && currentTime < 34.1 && !soundPlayed)
+    {
+        ball.playSound();
+        soundPlayed = true;
+    }
+    else if (currentTime >= 34.2 && currentTime < 34.3)
+        soundPlayed = false;
+
+    else if (currentTime >= 37 && currentTime < 37.1 && !soundPlayed)
+    {
+        ball.playSound();
+        soundPlayed = true;
+    }
+    else if (currentTime >= 37.2 && currentTime < 37.3)
+        soundPlayed = false;
+
+    else if (currentTime >= 40 && currentTime < 40.1 && !soundPlayed)
+    {
+        SceneObj.playCrowdSound(true);
+        soundPlayed = true;
+    }
+    else if (currentTime >= 40.2 && currentTime < 40.3)
+        soundPlayed = false;
 }
 
 
