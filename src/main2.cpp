@@ -932,14 +932,14 @@ int main(int argc, char* argv[])
 			
 
 
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f, .6f, .66f))); //al have the same colour
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f, .6f, .66f)));
 			Bleachers.RenderModelBleacher();
 
 			bleacherTranslate = glm::translate(glm::mat4(1.0f), vec3(-0.35, .080, -0.75));
 			
 			bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
-			 bleacherParent = bleacherTranslate * bleacherScale;
-			 bleacherGroupMatrix = groupMatrix * bleacherParent;
+			bleacherParent = bleacherTranslate * bleacherScale;
+			bleacherGroupMatrix = groupMatrix * bleacherParent;
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &bleacherGroupMatrix[0][0]);
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f,.6f,.66f)));
 			Bleachers.RenderModelBleacher();
@@ -949,13 +949,13 @@ int main(int argc, char* argv[])
 			glBindVertexArray(unitCubeAO);
 			bleacherTranslate = glm::translate(glm::mat4(1.0f), vec3(0.0, -0.07, -0.0));
 			bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(25.0f, 1.0f, 25.00015f) );
-			bleacherParent = letterTranslate * letterScale;
+			bleacherParent = bleacherTranslate * bleacherScale;
 			bleacherGroupMatrix = groupMatrix * bleacherParent;
 			
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &bleacherGroupMatrix[0][0]);
 			courtMaterial.loadToShader();
 			courtMaterial.bindTexture();
-			glUniform3fv(colorLocation, 1, glm::value_ptr(vec3((float)137/255, (float)72/255,(float)62/255))); //al have the same colour
+			glUniform3fv(colorLocation, 1, glm::value_ptr(vec3((float)137/255, (float)72/255,(float)62/255))); 
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 			glBindVertexArray(0);
 			//******************
