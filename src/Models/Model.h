@@ -9,16 +9,17 @@
 
 #include "Mesh.h"
 #include "Texture.h"
+#include "../Material.h"
 
 class Model
 {
 public:
 	Model();
-
+	Material metal;
 	void LoadModel(const std::string& fileName);
 	void RenderModel();
 	void ClearModel();
-
+	void RenderModelBleacher();
 	~Model();
 
 private:
