@@ -921,9 +921,10 @@ int main(int argc, char* argv[])
 		}
 
 		//crowd.drawCrowd();
-		crowd.drawSingle(vec3(-.750,.25,0),vec3(0));
-		crowd.drawSingle(vec3(-0.65, .25, 0), vec3(0));
 		crowd.test(4);
+		crowd.drawSingle(vec3(-.750,.25,0),vec3(0), 1, 5);
+		crowd.drawSingle(vec3(-0.65, .25, 0), vec3(0), 1, 4);
+		
 		//blue side is Player1
 		playerArm1.flexFingers();
 		//red is player2
