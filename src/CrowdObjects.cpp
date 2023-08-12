@@ -107,9 +107,21 @@ void CrowdObjects::drawCrowd() {
 
 }
 
+void CrowdObjects::initializeCrowdRows(int rows)
+{
+	if (!initialized)
+	{
+		col = new glm::vec3[15*rows];
+		std::cout << 15 * rows << std::endl;
+		initialized = true;
+	}
+}
+
 void CrowdObjects::test(int crowdRows) {
 	float scale = 1;
 	std::vector<glm::vec3> crowd;
+	rows = crowdRows;
+	initializeCrowdRows(rows);
 
 	std::vector<std::vector<glm::vec3>> crowdy;
 	for (int rows = 0; rows < crowdRows; rows++) {
@@ -127,13 +139,13 @@ void CrowdObjects::test(int crowdRows) {
 		//crowdy.push_back(crowd);
 	}
 	for (int i = 0; i < crowd.size(); i++) {
-		drawSingle(crowd[i],glm::vec3(0));
+		drawSingle(crowd[i],glm::vec3(0), crowd.size(), i);
 	}
 
 
 }
 
-void CrowdObjects::drawSingle(glm::vec3 position,glm::vec3 armrotate) {
+void CrowdObjects::drawSingle(glm::vec3 position,glm::vec3 armrotate, int crowdSize, int crowdPosition) {
 	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
 	GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
 	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
@@ -151,10 +163,16 @@ void CrowdObjects::drawSingle(glm::vec3 position,glm::vec3 armrotate) {
 	glm::mat4 partScale;
 	glm::mat4 partRotate;
 
-
-		glm::vec3 col = glm::vec3(glm::linearRand(0.0f, 1.0f),
+	if (crowdCount <= crowdSize) {
+		std::cout << crowdPosition << std::endl;
+		col[crowdPosition] = glm::vec3(glm::linearRand(0.0f, 1.0f),
 			glm::linearRand(0.0f, 1.0f),
 			glm::linearRand(0.0f, 1.0f));
+		crowdCount++;
+	}
+	/*glm::vec3 col = glm::vec3(glm::linearRand(0.0f, 1.0f),
+			glm::linearRand(0.0f, 1.0f),
+			glm::linearRand(0.0f, 1.0f));*/
 
 		glm::mat4 crowdParent;
 		glm::mat4 crowdTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(position));
@@ -166,7 +184,7 @@ void CrowdObjects::drawSingle(glm::vec3 position,glm::vec3 armrotate) {
 		worldMatrix = groupMatrix * crowdParent;
 
 		glBindVertexArray(sphereVao);
-		glUniform3fv(colorLocation, 1, glm::value_ptr(col));
+		glUniform3fv(colorLocation, 1, glm::value_ptr(col[crowdPosition]));
 		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 		//glDrawArrays(renderAs, 0, 36);
 		glDrawElements(renderAs, sphereIndexCount, GL_UNSIGNED_INT, nullptr);

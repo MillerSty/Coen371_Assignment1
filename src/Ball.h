@@ -30,6 +30,7 @@ private:
             "../src/Assets/sounds/Ball2.wav",
             "../src/Assets/sounds/Ball3.wav"
     };
+	const char* BIG_CROWD_SOUND = "../src/Assets/sounds/BigCrowd.wav";
 
 public:
     // CONSTRUCTOR
@@ -69,5 +70,6 @@ public:
 
     // Plays a random ball sound from the set of possible ball sounds BALL_SOUNDS
     void playSound();
+	void playBigCrowdSound();
 };
 
