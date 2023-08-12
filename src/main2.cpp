@@ -8,15 +8,12 @@
 #include <vector>
 #include <ctime>
 
-
-
 // Dependency includes
 #define GLEW_STATIC 1   // This allows linking with Static Library on Windows, without DLL
 #include <GL/glew.h>    // Include GLEW - OpenGL Extension Wrangler
 #include <GLFW/glfw3.h> // GLFW provides a cross-platform interface for creating a graphical context,
 #include <glm/gtx/color_space.hpp>
 #define STB_IMAGE_IMPLEMENTATION
-//#include <stb_image.h>
 #include <irrKlang.h>
 #pragma comment(lib, "../thirdparty/irrklang/lib/irrKlang.lib")  // Necessary to get irrKlang working
 
@@ -207,7 +204,7 @@ TexturedNormaledVertex texturedCubeVertexArray[] = {
 Create a vertex array object with positions, normals, and UVs
 @return The VAO
 */
-int createVertexArrayObject2()
+GLuint createVertexArrayObject2()
 {
 	GLuint vertexArrayObject;
 	glGenVertexArrays(1, &vertexArrayObject);
@@ -242,7 +239,7 @@ Create a index buffer object for the sphere
 @UVs: The UVs of the sphere
 @return The IBO
 */
-int createVertexArrayElementObject2(std::vector<int> vertexIndices, std::vector<glm::vec3> vertices, 
+GLuint createVertexArrayElementObject2(std::vector<int> vertexIndices, std::vector<glm::vec3> vertices,
 	                                std::vector<glm::vec3> normals, std::vector<glm::vec2> UVs)
 {
 	// Create a vertex array
@@ -306,10 +303,7 @@ glm::mat4 groupMatrix;
 glm::mat4 rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
 Letters numberDraw;
-//numberDraw.position = glm::vec3(.2f, 0, 0);
 Letters numberDraw2;
-//numberDraw.position = vec3(0.0f, 0.0f, 0.0f);
-//numberDraw2.position = vec3(.4f, 0, 0);
 int renderAs = GL_TRIANGLES;
 int shaderProgram;
 double lastMousePosX, lastMousePosY, lastMousePosZ;
@@ -453,26 +447,27 @@ int main(int argc, char* argv[])
 	
 	// Create VAOs
 	int gridAO = createVertexArrayObject(SceneObj.lineArray, sizeof(SceneObj.lineArray));
-	int unitSphereAO = createVertexArrayElementObject2(vertexIndicessphere, verticessphere, normalssphere, UVssphere);
-	int unitCubeAO = createVertexArrayObject2();
+	GLuint unitSphereAO = createVertexArrayElementObject2(vertexIndicessphere, verticessphere, normalssphere, UVssphere);
+	GLuint unitCubeAO = createVertexArrayObject2();
 
-	//TEXTURE DEFINITION
-	// 	// Load the textures
-	GLuint courtTextureID = loadTexture("../src/Assets/clay2.jpg");
-	GLuint ropeTextureID = loadTexture("../src/Assets/rope.jpg");
-	GLuint clothTextureID = loadTexture("../src/Assets/cloth.jpg");
-	GLuint metalTextureID = loadTexture("../src/Assets/metal.jpg");
-	GLuint grassTextureID = loadTexture("../src/Assets/grass4.jpg");
-	GLuint plasticTextureID = loadTexture("../src/Assets/plastic.jpg");
-	GLuint woodTextureID = loadTexture("../src/Assets/wood1.jpg");
-	GLuint tattooTextureID = loadTexture("../src/Assets/tattoo.jpg");
+    // TEXTURES
+	// Load textures
+	GLuint courtTextureID    = loadTexture("../src/Assets/clay2.jpg");
+	GLuint ropeTextureID     = loadTexture("../src/Assets/rope.jpg");
+	GLuint clothTextureID    = loadTexture("../src/Assets/cloth.jpg");
+	GLuint metalTextureID    = loadTexture("../src/Assets/metal.jpg");
+	GLuint grassTextureID    = loadTexture("../src/Assets/grass4.jpg");
+	GLuint plasticTextureID  = loadTexture("../src/Assets/plastic.jpg");
+	GLuint woodTextureID     = loadTexture("../src/Assets/wood1.jpg");
+	GLuint tattooTextureID   = loadTexture("../src/Assets/tattoo.jpg");
 	GLuint aluminumTextureID = loadTexture("../src/Models/Bleachers/metal.jpg");
-						//diff spec ambient shiny
-	Material courtMaterial(.2f, .002f, .50f, .001f, courtTextureID, shaderProgram); //court shouldnt reflect
+
+	// Define materials based on textures
+	Material courtMaterial(.2f, .002f, .50f, .001f, courtTextureID, shaderProgram); //court shouldn't reflect
 	Material ropeMaterial(.5f, .60f, .5f, .09f, ropeTextureID, shaderProgram); // ropes are just ropes
 	Material clothMaterial(.5f, .30f, .5f, .02f, clothTextureID, shaderProgram); //cloth should have a little reflection?
 	Material metalMaterial(.6f, .90f, .6f, .12f, metalTextureID, shaderProgram); //metal should shine
-	Material grassMaterial(.60f, .001f, .6f, .0001f, grassTextureID, shaderProgram); //just bright, thats all it needs
+	Material grassMaterial(.60f, .001f, .6f, .0001f, grassTextureID, shaderProgram); //just bright, that's all it needs
 	Material plasticMaterial(.5f, .30f, .4f, .1f, plasticTextureID, shaderProgram); //needs to be glossy! This is our racket1
 	Material woodMaterial(.5f, .60f, .5f, .002f, woodTextureID, shaderProgram); //this is you matt
 	Material tattooMaterial(0.5f, 0.2f, 0.5f, 0.002f, tattooTextureID, shaderProgram);
@@ -483,7 +478,7 @@ int main(int argc, char* argv[])
 	//need new way to do bleachers
 
 	//Model.cpp, Texture.cpp, Mesh.cpp taken from LearnOpenGL Udemy course
-	//NOTE: Only used within Model's not for houw we use textures in general
+	//NOTE: Only used within Model's not for how we use textures in general
 	Model Bleachers;
 	Bleachers = Model();
 	Bleachers.LoadModel("../src/Models/bleachers.obj");
@@ -520,8 +515,6 @@ int main(int argc, char* argv[])
 
 	numberDraw2.cubeVao = unitCubeAO;
 	numberDraw2.shaderProgram = shaderProgram;
-
-
 
 	// Set mouse and keyboard callbacks
 	glfwSetKeyCallback(window, keyPressCallback);
@@ -894,7 +887,6 @@ int main(int argc, char* argv[])
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &LetterGroupMatrix[0][0]);
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f, .6f, .66f)));
 			Bleachers.RenderModelBleacher();
-
 		}
 
 		{ // 2nd pass
@@ -949,8 +941,6 @@ int main(int argc, char* argv[])
 			metalMaterial.bindTexture();
 			metalMaterial.loadToShader();
 			
-
-
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f, .6f, .66f)));
 			Bleachers.RenderModelBleacher();
 
@@ -962,7 +952,6 @@ int main(int argc, char* argv[])
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &bleacherGroupMatrix[0][0]);
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f,.6f,.66f)));
 			Bleachers.RenderModelBleacher();
-
 
 			//this is the court
 			glBindVertexArray(unitCubeAO);
@@ -978,7 +967,6 @@ int main(int argc, char* argv[])
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 			glBindVertexArray(0);
 			//******************
-
 
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noshowLightBox);
 		}
@@ -1528,15 +1516,13 @@ bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm
 			}
 			else if (count==3 ){
 				int IndC = indexCount - 3;
-					int IndB = indexCount - 2;
-					int IndA = indexCount - 1;
+                int IndB = indexCount - 2;
+                int IndA = indexCount - 1;
 				my_normals.push_back(normalize(cross(temp_vertices[indexCount-2] - temp_vertices[indexCount-3], temp_vertices[indexCount-1] - temp_vertices[indexCount - 3])));
 				my_normals.push_back(normalize(cross(temp_vertices[indexCount - 2] - temp_vertices[indexCount - 3], temp_vertices[indexCount-1] - temp_vertices[indexCount - 3])));
 				my_normals.push_back(normalize(cross(temp_vertices[indexCount - 2] - temp_vertices[indexCount - 3], temp_vertices[indexCount-1] - temp_vertices[indexCount - 3])));
 				count = 0;
 			}
-			
-
 		}
 		else if (strcmp(lineHeader, "vt") == 0) {
 			glm::vec2 uv;

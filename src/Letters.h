@@ -19,7 +19,7 @@ public:
 	Letters(int cubeVao,glm::mat4 worldMatrix);
 	Letters(int cubeVao,int shaderProgram, glm::mat4 worldMatrix,glm::vec3 numPosition,Material plastic,int renderAs);
 
-	int cubeVao;
+	GLuint cubeVao;
 	glm::mat4 partParent;
 	glm::mat4 partMatrix;
 	glm::mat4 groupMatrix;
