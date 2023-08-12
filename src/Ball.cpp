@@ -98,4 +98,9 @@ void Ball::playSound() {
      */
 }
 
+void Ball::playBigCrowdSound()
+{
+	audioEngine->play2D(BIG_CROWD_SOUND, true);
+}
+
 

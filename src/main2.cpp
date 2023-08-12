@@ -8,12 +8,14 @@
 #include <vector>
 #include <ctime>
 
+
+
 // Dependency includes
 #define GLEW_STATIC 1   // This allows linking with Static Library on Windows, without DLL
 #include <GL/glew.h>    // Include GLEW - OpenGL Extension Wrangler
 #include <GLFW/glfw3.h> // GLFW provides a cross-platform interface for creating a graphical context,
 #define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
+//#include <stb_image.h>
 #include <irrKlang.h>
 #pragma comment(lib, "../thirdparty/irrklang/lib/irrKlang.lib")  // Necessary to get irrKlang working
 
@@ -25,6 +27,8 @@
 #include "KeyFrame.h"
 #include "Letters.h"
 #include "Ball.h"
+#include "Models/Model.h"
+#include "CrowdObjects.h"
 
 using namespace glm;
 
@@ -318,9 +322,10 @@ Arm playerArm1;
 Arm playerArm2;
 int selectModel = 0; //we can se to 0 but then user has to toggle to before any thing
 int selectJoint = 0;
-
+CrowdObjects crowd;
 // Create ball
 Ball ball;
+bool soundPlayed = false;
 
 // Create irrKlang engine
 irrklang::ISoundEngine* audioEngine;
@@ -472,9 +477,22 @@ int main(int argc, char* argv[])
 	Material skinMaterial(.1f, .0f, .66f, .001f, plasticTextureID, shaderProgram); //this is skin
 	Material skyMaterial(.3f, .001f, .9f, .0001f, plasticTextureID, shaderProgram); //Flat blue sky
 
+	Model Bleachers;
+
+	Bleachers = Model();
+	Bleachers.LoadModel("../src/Models/bleachers.obj");
+
 	SceneObj.setMaterials(courtMaterial, clothMaterial, ropeMaterial, metalMaterial, grassMaterial, plasticMaterial);
 	SceneObj.skyTexture = skyMaterial;
 	
+	//Crowd
+	crowd.vaos[0] = unitCubeAO;
+	crowd.vaos[1] = unitSphereAO;
+	crowd.sphereIndexCount = vertexIndicessphere.size();
+	crowd.skinMaterial = skinMaterial;
+	crowd.clothMaterial = clothMaterial;
+	crowd.shaderProgram = shaderProgram;
+	crowd.renderAs = GL_TRIANGLES;
 	//Racket and Arm ****	
 	playerArm1.InitArm(glm::vec3(-.5f, 0.15f, .2f), unitCubeAO, skinMaterial, clothMaterial);
     playerArm2.InitArm(glm::vec3(.5f, 0.15f, -.2f), unitCubeAO, skinMaterial, clothMaterial);
@@ -490,11 +508,14 @@ int main(int argc, char* argv[])
 	numberDraw.plastic = skinMaterial;
 	numberDraw2.plastic = skinMaterial;
 
+	//can be defined outside of while?
 	numberDraw.position = vec3(-.20f, .21f, -0.40f); //this is scoreboard option
 	numberDraw2.position = vec3(.20f, .21f, -0.40f);
 
 	numberDraw2.cubeVao = unitCubeAO;
 	numberDraw2.shaderProgram = shaderProgram;
+
+
 
 	// Set mouse and keyboard callbacks
 	glfwSetKeyCallback(window, keyPressCallback);
@@ -636,6 +657,11 @@ int main(int argc, char* argv[])
 	bool scoreIncremented = false;
 	int redScore = 0, blueScore = 0;
 
+	irrklang::ISoundEngine* bigCrowdSound = irrklang::createIrrKlangDevice();
+	irrklang::ISound* sound = bigCrowdSound->play2D("../src/Assets/sounds/BigCrowd.wav", true, false, true);
+
+	bigCrowdSound->setSoundVolume(0.15f);
+
 	glfwSetTime(0.0f);
 
     // MAIN LOOP
@@ -648,7 +674,7 @@ int main(int argc, char* argv[])
 		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) *
 			          glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
 			          rotationMatrixW;
-
+		crowd.groupMatrix = groupMatrix;
 		float lightDepth = 1.0f; //we can do 30, but it works better lower because the scale?
 		bool noshowLightBox = false;
 		float x = sin(i);
@@ -815,6 +841,21 @@ int main(int argc, char* argv[])
             SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
             SceneObj.SetVAO(unitCubeAO, gridAO);
             SceneObj.DrawScene(false);  // Draw scene without the skybox, so it can't be used to make shadows on the scene
+
+			glm::mat4 letterTranslate;
+			glm::mat4 letterRotate;
+			glm::mat4 letterScale;
+			glm::mat4 LetterGroupMatrix;
+			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(0.25,0,-0.5));
+			letterRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)00), glm::vec3(.0f, .0f, 1.0f));
+			letterRotate *= glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(1.0f, .0f, .0f));
+			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f)*3.0f );
+			glm::mat4 letterParent = letterTranslate * letterScale * letterRotate;
+			LetterGroupMatrix = groupMatrix * letterParent;
+
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &LetterGroupMatrix[0][0]);
+			Bleachers.RenderModel();
+
 		}
 
 		{ // 2nd pass
@@ -855,12 +896,144 @@ int main(int argc, char* argv[])
 			SceneObj.SetVAO(unitCubeAO, gridAO);
 			SceneObj.DrawScene(true);  // Draw scene with the skybox
 
+			//rename all this
+			//****************
+			glm::mat4 letterTranslate;
+			glm::mat4 letterRotate;
+			glm::mat4 letterScale;
+			glm::mat4 LetterGroupMatrix;
+			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(0.35, -0.02, -0.75));
+			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f)*6.0f);
+			glm::mat4 letterParent = letterTranslate * letterScale;
+			LetterGroupMatrix = groupMatrix * letterParent;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &LetterGroupMatrix[0][0]);
+
+			//these texture and colour dont affect bleacher.rendermodel
+			skinMaterial.loadToShader();
+			skinMaterial.bindTexture();
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.94f, .76f, .5f))); //al have the same colour
+
+			Bleachers.RenderModel();
+			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(-0.35, -0.02, -0.75));
+			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
+			letterParent = letterTranslate * letterScale;
+			LetterGroupMatrix = groupMatrix * letterParent;
+			skinMaterial.loadToShader();
+			skinMaterial.bindTexture();
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &LetterGroupMatrix[0][0]);
+			Bleachers.RenderModel();
+			//******************
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noshowLightBox);
 		}
+
+		//crowd.drawCrowd();
+		crowd.drawSingle(vec3(-.750,.25,0),vec3(0));
+		crowd.drawSingle(vec3(-0.65, .25, 0), vec3(0));
+		crowd.test(4);
 		//blue side is Player1
 		playerArm1.flexFingers();
 		//red is player2
         playerArm2.flexFingers();
+
+		if (glfwGetTime() >= 3 && glfwGetTime() < 3.1 && !soundPlayed)
+		{
+			ball.playSound();
+			soundPlayed = true;
+		}
+		if (glfwGetTime() >= 3.2 && glfwGetTime() < 3.3)
+		{
+			soundPlayed = false;
+		}
+		if (glfwGetTime() >= 6 && glfwGetTime() < 6.1 && !soundPlayed)
+		{
+			ball.playSound();
+			soundPlayed = true;
+		}
+		if (glfwGetTime() >= 6.2 && glfwGetTime() < 6.3)
+		{
+			soundPlayed = false;
+		}
+		if (glfwGetTime() >= 9 && glfwGetTime() < 9.1 && !soundPlayed)
+		{
+			SceneObj.playCrowdSound(true);
+			soundPlayed = true;
+		}
+		if (glfwGetTime() >= 9.2 && glfwGetTime() < 9.3)
+		{
+			soundPlayed = false;
+		}
+		if (glfwGetTime() >= 16 && glfwGetTime() < 16.1 && !soundPlayed)
+		{
+			ball.playSound();
+			soundPlayed = true;
+		}
+		if (glfwGetTime() >= 16.2 && glfwGetTime() < 16.3)
+		{
+			soundPlayed = false;
+		}
+		if (glfwGetTime() >= 19 && glfwGetTime() < 19.1 && !soundPlayed)
+		{
+			ball.playSound();
+			soundPlayed = true;
+		}
+		if (glfwGetTime() >= 19.2 && glfwGetTime() < 19.3)
+		{
+			soundPlayed = false;
+		}
+		if (glfwGetTime() >= 22 && glfwGetTime() < 22.1 && !soundPlayed)
+		{
+			SceneObj.playCrowdSound(false);
+			soundPlayed = true;
+		}
+		if (glfwGetTime() >= 22.2 && glfwGetTime() < 22.3)
+		{
+			soundPlayed = false;
+		}
+		if (glfwGetTime() >= 28 && glfwGetTime() < 28.1 && !soundPlayed)
+		{
+			ball.playSound();
+			soundPlayed = true;
+		}
+		if (glfwGetTime() >= 28.2 && glfwGetTime() < 28.3)
+		{
+			soundPlayed = false;
+		}
+		if (glfwGetTime() >= 31 && glfwGetTime() < 31.1 && !soundPlayed)
+		{
+			ball.playSound();
+			soundPlayed = true;
+		}
+		if (glfwGetTime() >= 31.2 && glfwGetTime() < 31.3)
+		{
+			soundPlayed = false;
+		}
+		if (glfwGetTime() >= 34 && glfwGetTime() < 34.1 && !soundPlayed)
+		{
+			ball.playSound();
+			soundPlayed = true;
+		}
+		if (glfwGetTime() >= 34.2 && glfwGetTime() < 34.3)
+		{
+			soundPlayed = false;
+		}
+		if (glfwGetTime() >= 37 && glfwGetTime() < 37.1 && !soundPlayed)
+		{
+			ball.playSound();
+			soundPlayed = true;
+		}
+		if (glfwGetTime() >= 37.2 && glfwGetTime() < 37.3)
+		{
+			soundPlayed = false;
+		}
+		if (glfwGetTime() >= 40 && glfwGetTime() < 40.1 && !soundPlayed)
+		{
+			SceneObj.playCrowdSound(true);
+			soundPlayed = true;
+		}
+		if (glfwGetTime() >= 40.2 && glfwGetTime() < 40.3)
+		{
+			soundPlayed = false;
+		}
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
