@@ -795,15 +795,35 @@ int main(int argc, char* argv[])
 		numberDraw2.groupMatrix = groupMatrix;
 		numberDraw.renderAs = renderAs;
 		numberDraw2.renderAs = renderAs;
-		number = floor(glfwGetTime());
-		if (number > 98)glfwSetTime(0);
 
-		/*so to control 1 arm .
-		setTranslate model to translate -> have to figure out specific vec positions
-		setRotation  for should rotation
-		setERotation for elbow rotation
-		setWRotation for wrist rotation
-		*/
+        // Change the score, if necessary
+        if (glfwGetTime() >= 9.0 && glfwGetTime() < 9.1 && !scoreIncremented)
+        {
+            blueScore = 15;
+            scoreIncremented = true;
+        }
+        if (glfwGetTime() >= 9.1 && glfwGetTime() < 9.2)
+            scoreIncremented = false;
+
+        if (glfwGetTime() >= 22.0 && glfwGetTime() < 22.1 && !scoreIncremented)
+        {
+            redScore = 15;
+            scoreIncremented = true;
+        }
+        if (glfwGetTime() >= 22.1 && glfwGetTime() < 22.2)
+            scoreIncremented = false;
+
+        if (glfwGetTime() >= 40.0 && glfwGetTime() < 40.1 && !scoreIncremented)
+        {
+            blueScore = 30;
+            scoreIncremented = true;
+        }
+        if (glfwGetTime() >= 40.1 && glfwGetTime() < 40.2)
+            scoreIncremented = false;
+
+
+//		number = floor(glfwGetTime());
+//		if (number > 98)glfwSetTime(0);
 		
 		vec3 position1 = ball.getPosition();
 	
@@ -828,8 +848,8 @@ int main(int argc, char* argv[])
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, true);
 			if (i == 1.0f) i = -1.0f;
 
-			numberDraw.Scoreboard(number,false,true);
-			numberDraw2.Scoreboard(number,false,false);
+			numberDraw.Scoreboard(blueScore,false,true);
+			numberDraw2.Scoreboard(redScore,false,false);
 
 			playerArm1.SetAttr(groupMatrix, renderAs, shaderProgram);
 			playerArm1.DrawArm();
@@ -905,9 +925,8 @@ int main(int argc, char* argv[])
 			ball.setRenderAs(renderAs);
 			ball.drawBall();
 
-
-			numberDraw.Scoreboard(number, false, true);
-			numberDraw2.Scoreboard(number, false, false);
+			numberDraw.Scoreboard(blueScore, false, true);
+			numberDraw2.Scoreboard(redScore, false, false);
 
 			SceneObj.sphereVao = unitSphereAO;
 			SceneObj.sphereVertCount = vertexIndicessphere.size();
@@ -1458,11 +1477,6 @@ void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos)
 		lastMousePosZ = zPos;
 	}
 }
-
-//void windowSizeCallback(GLFWwindow* window, int width, int height)
-//{
-//	glfwSetWindowSize(window, width, height);
-//}
 
 bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm::vec3>& temp_vertices,
 	          std::vector<glm::vec3>& out_normals, std::vector<glm::vec2>& out_uvs)
