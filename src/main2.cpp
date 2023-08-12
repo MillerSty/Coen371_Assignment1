@@ -582,8 +582,15 @@ int main(int argc, char* argv[])
     };
 
 	KeyFrame keyframesRed[] = {
-		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 0.0),
-		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 3.0),
+		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 0.0), // Initial key frame
+		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 2.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(0.0), 3.0), // Hit ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(0.0), 8.0), // Start moving away from ball
+		KeyFrame(glm::vec3(0.0, 0.0, -0.005), glm::vec3(0.0), 9.0), // Be away from ball
+		KeyFrame(glm::vec3(0.0, 0.0, -0.005), glm::vec3(0.0), 11.0), // Start moving back
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(0.0), 12.0), // Be in position
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(0.0), 39.0), // Start moving away from ball
+		KeyFrame(glm::vec3(0.0, 0.0, -0.005), glm::vec3(0.0), 40.0), // Be away from ball
     };
 
     const float BALL_Y_OFFSET = 0.25f;
@@ -635,6 +642,7 @@ int main(int argc, char* argv[])
         // Clear the depth buffer and color buffer each frame
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        // Set initial group matrix
 		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) *
 			          glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
 			          rotationMatrixW;
@@ -650,6 +658,8 @@ int main(int argc, char* argv[])
         double currentWorldTime = glfwGetTime();
 
         // Blue player keyframes
+        // Since we need the current and next keyframes, make sure we stop advancing through the array when we
+        // only have 2 keyframes left
         if (keyframeNumBlue <= (sizeof(keyframesBlue) / sizeof(KeyFrame)) - 2)
         {
             // Handle time calculations
@@ -685,7 +695,7 @@ int main(int argc, char* argv[])
         if (keyframeNumRed <= (sizeof(keyframesRed) / sizeof(KeyFrame)) - 2)
         {
             // Handle time calculations
-            double currentFrameTime = keyframesRed[keyframeNumBall].time;
+            double currentFrameTime = keyframesRed[keyframeNumRed].time;
             double nextFrameTime = keyframesRed[keyframeNumRed + 1].time;
             double frameDuration = nextFrameTime - currentFrameTime ;
             double timeProportion = (currentWorldTime - currentFrameTime) / frameDuration;
@@ -714,8 +724,6 @@ int main(int argc, char* argv[])
         }
 
         // Ball keyframes
-        // Since we need the current and next keyframes, make sure we stop advancing through the array when we
-        // only have 2 keyframes left
         if (keyframeNumBall <= (sizeof(keyframesBall) / sizeof(KeyFrame)) - 2)
         {
             // Handle time calculations
@@ -747,101 +755,10 @@ int main(int argc, char* argv[])
                 keyframeNumBall++;
         }
 
-
-//		// Blue player keyframes
-//        double blueVelocity = keyframesBlue[keyframeNumBlue].translation.x / (keyframesBlue[keyframeNumBlue].time - keyframesBlue[keyframeNumBlue - 1].time);
-//        double blueAngularVelocity = keyframesBlue[keyframeNumBlue].rotation.y / (keyframesBlue[keyframeNumBlue].time - keyframesBlue[keyframeNumBlue - 1].time);
-//        double blueDX = blueVelocity * dt;
-//        double blueDR = blueAngularVelocity * dt;
-//
-//        if (keyframeNumBlue < sizeof(keyframesBlue)/sizeof(KeyFrame)) {
-//            if (lastFrameTime <= keyframesBlue[keyframeNumBlue].time){
-//                playerArm1.setTranslateModel(glm::vec3((playerArm1.getTranslateModel().x + blueDX), playerArm1.getTranslateModel().y, playerArm1.getTranslateModel().z));
-//                playerArm1.setRotation(playerArm1.getRotation() - blueDR);
-//            } else {
-//				keyframeNumBlue++;
-//            }
-//        }
-//
-//		// Red player keyframes
-//		double redVelocityX = keyframesRed[keyframeNumRed].translation.x / (keyframesRed[keyframeNumRed].time - keyframesRed[keyframeNumRed - 1].time);
-//		double redVelocityY = keyframesRed[keyframeNumRed].translation.y / (keyframesRed[keyframeNumRed].time - keyframesRed[keyframeNumRed - 1].time);
-//		double redVelocityZ = keyframesRed[keyframeNumRed].translation.z / (keyframesRed[keyframeNumRed].time - keyframesRed[keyframeNumRed - 1].time);
-//		double redDX = redVelocityX * dt;
-//		double redDY = redVelocityY * dt;
-//		double redDZ = redVelocityZ * dt;
-//
-//		if (keyframeNumRed < (sizeof(keyframesRed) / sizeof(KeyFrame)))
-//		{
-//			if (lastFrameTime <= keyframesRed[keyframeNumRed].time)
-//			{
-//				playerArm2.setTranslateModel(glm::vec3(playerArm2.getTranslateModel().x + redDX, playerArm2.getTranslateModel().y + redDY, playerArm2.getTranslateModel().z + redDZ));
-//			}
-//			else
-//				keyframeNumRed++;
-//		}
-//
-//        if (keyframeNumBall == 4 && scoreIncremented == false) {
-//			blueScore += 10;
-//            scoreIncremented = true;
-//		}
-//		else if (keyframeNumBall != 4) scoreIncremented = false;
-//
-//		// Ball keyframes
-//
-//        if (keyframeNumBall < sizeof(keyframesBall) / sizeof(KeyFrame)) {
-//
-//            if (lastFrameTime <= keyframesBall[keyframeNumBall].time) {
-//
-//            }
-//            else {
-//                keyframeNumBall++;
-//            }
-//        }
-//
-//		double ballVelocityX = keyframesBall[keyframeNumBall].translation.x / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
-//		double ballVelocityY = keyframesBall[keyframeNumBall].translation.y / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
-//		double ballVelocityZ = keyframesBall[keyframeNumBall].translation.z / (keyframesBall[keyframeNumBall].time - keyframesBall[keyframeNumBall - 1].time);
-//		double ballDX = ballVelocityX * dt;
-//		double ballDY = ballVelocityY * dt;
-//		double ballDZ = ballVelocityZ * dt;
-//
-//        ball.setTranslationModel(glm::vec3(ballDX, ballDY, ballDZ));
-
-        //lastWorldTime += dt;
-
-        // For remainder of time when lastframetime > keyframe.time
-//        if (lastFrameTime > keyframesBlue[keyframeNumBlue].time) {
-//            double timeRemaining = keyframesBlue[keyframeNumBlue].time - lastFrameTime;
-//            blueDX = blueVelocity * timeRemaining;
-//            blueDR = blueAngularVelocity * timeRemaining;
-//            playerArm1.setTranslateModel(glm::vec3((playerArm1.getTranslateModel().x + blueDX), playerArm1.getTranslateModel().y, playerArm1.getTranslateModel().z));
-//            playerArm1.setRotation(playerArm1.getRotation() - blueDR);
-//            lastFrameTime = keyframesBlue[keyframeNumBlue].time;
-//        }
-//
-//        if (lastFrameTime > keyframesRed[keyframeNumRed].time) {
-//            double timeRemaining = keyframesRed[keyframeNumRed].time - lastFrameTime;
-//            redDX = redVelocityX * timeRemaining;
-//            playerArm2.setTranslateModel(glm::vec3(playerArm2.getTranslateModel().x + redDX, playerArm2.getTranslateModel().y + redDY, playerArm2.getTranslateModel().z + redDZ));
-//            lastFrameTime = keyframesRed[keyframeNumRed].time;
-//
-//        }
-//
-//        if (lastFrameTime > keyframesBall[keyframeNumBall].time) {
-//            double timeRemaining = keyframesBall[keyframeNumBall].time - lastFrameTime;
-//            ballDX = ballVelocityX * timeRemaining;
-//            ballDY = ballVelocityY * timeRemaining;
-//            ballDZ = ballVelocityZ * timeRemaining;
-//            ball.setTranslationModel(glm::vec3(ballDX, ballDY, ballDZ));
-//            lastFrameTime = keyframesBall[keyframeNumBall].time;
-//        }
-
 		numberDraw.groupMatrix = groupMatrix;
 		numberDraw2.groupMatrix = groupMatrix;
 		numberDraw.renderAs = renderAs;
 		numberDraw2.renderAs = renderAs;
-//		lastFrameTime = glfwGetTime();
 		number = floor(glfwGetTime());
 		if (number > 98)glfwSetTime(0);
 
