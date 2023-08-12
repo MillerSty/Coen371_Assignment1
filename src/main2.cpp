@@ -570,7 +570,7 @@ int main(int argc, char* argv[])
 	//double lastWorldTime = 0.0;
     double dt = 0;
 
-	// Keyframe variables
+	// Keyframes for Blue player
     KeyFrame keyframesBlue[] = {
         KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 0.0), // Initial key frame
         KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 5.0), // Start moving for ball
@@ -581,6 +581,7 @@ int main(int argc, char* argv[])
 		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(0.0), 24.0), // Be in position
     };
 
+    // Keyframes for Red player
 	KeyFrame keyframesRed[] = {
 		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 0.0), // Initial key frame
 		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 2.0), // Start moving for ball
@@ -593,8 +594,9 @@ int main(int argc, char* argv[])
 		KeyFrame(glm::vec3(0.0, 0.0, -0.005), glm::vec3(0.0), 40.0), // Be away from ball
     };
 
-    const float BALL_Y_OFFSET = 0.25f;
+    const float BALL_Y_OFFSET = 0.25f;  // Make sure ball is constant height to keep things simple
 
+    // Keyframes for Ball
 	KeyFrame keyframesBall[] = {
         KeyFrame(glm::vec3(0.0, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 0.0), // Initial key frame
         KeyFrame(glm::vec3(0.47, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 3.0), // Initial movement right
