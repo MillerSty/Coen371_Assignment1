@@ -664,7 +664,7 @@ int main(int argc, char* argv[])
 	int redScore = 0, blueScore = 0;
 
 
-	bool playSound = false;
+	bool playSound = true;
 	if (playSound) {
 		irrklang::ISoundEngine* bigCrowdSound = irrklang::createIrrKlangDevice();
 		irrklang::ISound* sound = bigCrowdSound->play2D("../src/Assets/sounds/BigCrowd.wav", true, false, true);
@@ -966,8 +966,6 @@ int main(int argc, char* argv[])
 
 		//crowd.drawCrowd();
 		crowd.test(4);
-		crowd.drawSingle(vec3(-.750,.25,0),vec3(0), 1, 5);
-		crowd.drawSingle(vec3(-0.65, .25, 0), vec3(0), 1, 4);
 		
 		//blue side is Player1
 		playerArm1.flexFingers();
