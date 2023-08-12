@@ -152,6 +152,10 @@ void CrowdObjects::drawSingle(glm::vec3 position,glm::vec3 armrotate) {
 	glm::mat4 partRotate;
 
 
+	glm::vec3 col = glm::vec3(glm::linearRand(0.0f, 1.0f),
+			glm::linearRand(0.0f, 1.0f),
+			glm::linearRand(0.0f, 1.0f));
+
 		glm::mat4 crowdParent;
 		glm::mat4 crowdTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(position));
 		glm::mat4 crowdScale = glm::scale(glm::mat4(1.0f), glm::vec3(.50f, 1.0f, .50f));
@@ -162,7 +166,7 @@ void CrowdObjects::drawSingle(glm::vec3 position,glm::vec3 armrotate) {
 		worldMatrix = groupMatrix * crowdParent;
 
 		glBindVertexArray(sphereVao);
-		glUniform3fv(colorLocation, 1, glm::value_ptr(colour));
+		glUniform3fv(colorLocation, 1, glm::value_ptr(col));
 		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 		//glDrawArrays(renderAs, 0, 36);
 		glDrawElements(renderAs, sphereIndexCount, GL_UNSIGNED_INT, nullptr);
