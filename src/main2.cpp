@@ -325,6 +325,7 @@ int selectJoint = 0;
 CrowdObjects crowd;
 // Create ball
 Ball ball;
+bool soundPlayed = false;
 
 // Create irrKlang engine
 irrklang::ISoundEngine* audioEngine;
@@ -656,6 +657,11 @@ int main(int argc, char* argv[])
 	bool scoreIncremented = false;
 	int redScore = 0, blueScore = 0;
 
+	irrklang::ISoundEngine* bigCrowdSound = irrklang::createIrrKlangDevice();
+	irrklang::ISound* sound = bigCrowdSound->play2D("../src/Assets/sounds/BigCrowd.wav", true, false, true);
+
+	bigCrowdSound->setSoundVolume(0.15f);
+
 	glfwSetTime(0.0f);
 
     // MAIN LOOP
@@ -929,6 +935,106 @@ int main(int argc, char* argv[])
 		playerArm1.flexFingers();
 		//red is player2
         playerArm2.flexFingers();
+
+		if (glfwGetTime() >= 3 && glfwGetTime() < 3.1 && !soundPlayed)
+		{
+			ball.playSound();
+			soundPlayed = true;
+		}
+		if (glfwGetTime() >= 3.2 && glfwGetTime() < 3.3)
+		{
+			soundPlayed = false;
+		}
+		if (glfwGetTime() >= 6 && glfwGetTime() < 6.1 && !soundPlayed)
+		{
+			ball.playSound();
+			soundPlayed = true;
+		}
+		if (glfwGetTime() >= 6.2 && glfwGetTime() < 6.3)
+		{
+			soundPlayed = false;
+		}
+		if (glfwGetTime() >= 9 && glfwGetTime() < 9.1 && !soundPlayed)
+		{
+			SceneObj.playCrowdSound(true);
+			soundPlayed = true;
+		}
+		if (glfwGetTime() >= 9.2 && glfwGetTime() < 9.3)
+		{
+			soundPlayed = false;
+		}
+		if (glfwGetTime() >= 16 && glfwGetTime() < 16.1 && !soundPlayed)
+		{
+			ball.playSound();
+			soundPlayed = true;
+		}
+		if (glfwGetTime() >= 16.2 && glfwGetTime() < 16.3)
+		{
+			soundPlayed = false;
+		}
+		if (glfwGetTime() >= 19 && glfwGetTime() < 19.1 && !soundPlayed)
+		{
+			ball.playSound();
+			soundPlayed = true;
+		}
+		if (glfwGetTime() >= 19.2 && glfwGetTime() < 19.3)
+		{
+			soundPlayed = false;
+		}
+		if (glfwGetTime() >= 22 && glfwGetTime() < 22.1 && !soundPlayed)
+		{
+			SceneObj.playCrowdSound(false);
+			soundPlayed = true;
+		}
+		if (glfwGetTime() >= 22.2 && glfwGetTime() < 22.3)
+		{
+			soundPlayed = false;
+		}
+		if (glfwGetTime() >= 28 && glfwGetTime() < 28.1 && !soundPlayed)
+		{
+			ball.playSound();
+			soundPlayed = true;
+		}
+		if (glfwGetTime() >= 28.2 && glfwGetTime() < 28.3)
+		{
+			soundPlayed = false;
+		}
+		if (glfwGetTime() >= 31 && glfwGetTime() < 31.1 && !soundPlayed)
+		{
+			ball.playSound();
+			soundPlayed = true;
+		}
+		if (glfwGetTime() >= 31.2 && glfwGetTime() < 31.3)
+		{
+			soundPlayed = false;
+		}
+		if (glfwGetTime() >= 34 && glfwGetTime() < 34.1 && !soundPlayed)
+		{
+			ball.playSound();
+			soundPlayed = true;
+		}
+		if (glfwGetTime() >= 34.2 && glfwGetTime() < 34.3)
+		{
+			soundPlayed = false;
+		}
+		if (glfwGetTime() >= 37 && glfwGetTime() < 37.1 && !soundPlayed)
+		{
+			ball.playSound();
+			soundPlayed = true;
+		}
+		if (glfwGetTime() >= 37.2 && glfwGetTime() < 37.3)
+		{
+			soundPlayed = false;
+		}
+		if (glfwGetTime() >= 40 && glfwGetTime() < 40.1 && !soundPlayed)
+		{
+			SceneObj.playCrowdSound(true);
+			soundPlayed = true;
+		}
+		if (glfwGetTime() >= 40.2 && glfwGetTime() < 40.3)
+		{
+			soundPlayed = false;
+		}
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
