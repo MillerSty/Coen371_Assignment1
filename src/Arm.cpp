@@ -60,12 +60,9 @@ void Arm::setTranslation(glm::vec3 TranslateRandom, glm::vec3 TranslateModel) {
 }
 
 bool Arm::DrawArm() {
-	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
-	GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
-	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
-	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
-	GLuint applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
-	
+	GLint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
+	GLint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
+
 	glm::mat4 worldMatrix;
 
 	glm::mat4 partScale;
@@ -77,12 +74,15 @@ bool Arm::DrawArm() {
 	skinMaterial.loadToShader();
 
 	glBindVertexArray(cubeVao);
-	glm::mat4 bicepParent; //so for initiali parent , it has local.global translate plus local rotate 
-	glm::mat4 biTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(TranslateRandom.x + TranslateModel.x + position.x, TranslateModel.y + TranslateRandom.y +position.y, TranslateRandom.z +  position.z));
+	glm::mat4 bicepParent; //so for initial parent , it has local.global translate plus local rotate
+	glm::mat4 biTranslate = glm::translate(glm::mat4(1.0f),
+                                           glm::vec3(TranslateRandom.x + TranslateModel.x + position.x,
+                                                     TranslateModel.y + TranslateRandom.y + position.y,
+                                                     TranslateRandom.z + TranslateModel.z + position.z));
 	glm::mat4 biRotate = glm::rotate(glm::mat4(1.0f), glm::radians(armRotate), glm::vec3(.0f, 1.0f, .0f));
 	bicepParent = biTranslate * biRotate;
 
-	glm::vec3  constArmScaler = glm::vec3(.575f, .25f, .150f); //trying to set up so the whole model is done programatically
+	glm::vec3  constArmScaler = glm::vec3(.575f, .25f, .150f); //trying to set up so the whole model is done programmatically
 
 	partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, .0f, 1.0f));
 	partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.575f, .25f, .150f));
@@ -104,10 +104,8 @@ bool Arm::DrawArm() {
 	partMatrix = partScale * partRo;
 	worldMatrix = groupMatrix * forarmParent * partMatrix;
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.94f, .76f, .5f)));
-	//glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.98f, .56f, .5f)));
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
-	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 
 	// hand
 	clothMaterial.bindTexture();
@@ -124,7 +122,6 @@ bool Arm::DrawArm() {
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.0f, .36f, .3f)));
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
-	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 	partParent = handParent;
 
 	////NOTE FINGERS WILL DIRECTLY INHERIT FROM HAND -> HAND IS THEIR PARENT
@@ -222,10 +219,8 @@ bool Arm::DrawArm() {
 	//partMatrix = partScale;
 	//worldMatrix = groupMatrix * fingerParent * partMatrix;
 
-
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
-	//glDrawElements(renderAs, 36, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 	
 	return true;
