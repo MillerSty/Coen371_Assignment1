@@ -479,7 +479,7 @@ int main(int argc, char* argv[])
 	Model Bleachers;
 
 	Bleachers = Model();
-	Bleachers.LoadModel("../src/Models/bleachers.obj");
+	Bleachers.LoadModel("../src/Models/Bleachers/bleachers.obj");
 
 	SceneObj.setMaterials(courtMaterial, clothMaterial, ropeMaterial, metalMaterial, grassMaterial, plasticMaterial);
 	SceneObj.skyTexture = skyMaterial;
