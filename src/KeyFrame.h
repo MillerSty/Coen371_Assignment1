@@ -1,17 +1,19 @@
 #pragma once
 
+#include <glm/gtc/matrix_transform.hpp>
+
 class KeyFrame {
 public:
-    float translate;
-    float rotate;
+    glm::vec3 translation;
+    glm::vec3 rotation;
     double time;
 
-    KeyFrame(float translation, float rotation, double time);
+    KeyFrame(glm::vec3 trans, glm::vec3 rot, double time);
 
 };
 
-KeyFrame::KeyFrame(float translation, float rotation, double time) {
-    translate = translation;
-    rotate = rotation;
-    this->time = time;
+KeyFrame::KeyFrame(glm::vec3 trans, glm::vec3 rot, double t) {
+    translation = trans;
+    rotation = rot;
+    time = t;
 }
