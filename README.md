@@ -74,14 +74,14 @@
 
 ```shell
 cd <source_folder>
-cmake -S . -B <build_folder>
-cmake --build <build_folder> --target install
+cmake -S . -B cmake
+cmake --build cmake --target install
 ```
 
 To generate an XCode project from the command line use:
 
 ```shell
 cd <source_folder>
-cmake -S . -B <build_folder> -G Xcode
-cmake --build <build_folder> --target install
+cmake -S . -B cmake -G Xcode
+cmake --build cmake --target install
 ```

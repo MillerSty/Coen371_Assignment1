@@ -28,7 +28,7 @@ GLuint Ball::getVAO() { return VAO; }
 
 glm::vec3 Ball::getTranslationModel() { return translationModel; }
 
-void Ball::setTranslationModel(glm::vec3 trans) { translationModel += trans; }
+void Ball::setTranslationModel(glm::vec3 trans) { translationModel = trans; }
 
 void Ball::setRenderAs(int as) { renderAS = as; }
 
@@ -64,10 +64,10 @@ void Ball::drawBall()
 
 	glm::mat4 modelScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.35f));
 	
-	position = translationModel + initialPosition;
+//	position = translationModel + initialPosition;
 
     // Translate only in the XY plane
-	glm::mat4 modelTranslate = glm::translate(glm::mat4(1.0f), position);
+	glm::mat4 modelTranslate = glm::translate(glm::mat4(1.0f), translationModel + initialPosition);
 
 	modelMat *= modelTranslate * modelScale;
 
