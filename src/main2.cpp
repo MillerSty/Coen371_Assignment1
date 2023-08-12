@@ -482,11 +482,11 @@ int main(int argc, char* argv[])
 
 	//need new way to do bleachers
 
-
+	//Model.cpp, Texture.cpp, Mesh.cpp taken from LearnOpenGL Udemy course
+	//NOTE: Only used within Model's not for houw we use textures in general
 	Model Bleachers;
-
 	Bleachers = Model();
-	Bleachers.LoadModel("../src/Models/Bleachers/bleachers.obj");
+	Bleachers.LoadModel("../src/Models/bleachers.obj");
 
 	SceneObj.setMaterials(courtMaterial, clothMaterial, ropeMaterial, metalMaterial, grassMaterial, plasticMaterial);
 	SceneObj.skyTexture = skyMaterial;
@@ -663,13 +663,15 @@ int main(int argc, char* argv[])
 	bool scoreIncremented = false;
 	int redScore = 0, blueScore = 0;
 
-	irrklang::ISoundEngine* bigCrowdSound = irrklang::createIrrKlangDevice();
-	irrklang::ISound* sound = bigCrowdSound->play2D("../src/Assets/sounds/BigCrowd.wav", true, false, true);
 
-	bigCrowdSound->setSoundVolume(0.15f);
+	bool playSound = false;
+	if (playSound) {
+		irrklang::ISoundEngine* bigCrowdSound = irrklang::createIrrKlangDevice();
+		irrklang::ISound* sound = bigCrowdSound->play2D("../src/Assets/sounds/BigCrowd.wav", true, false, true);
 
+		bigCrowdSound->setSoundVolume(0.025f);
+	}
 	glfwSetTime(0.0f);
-
     // MAIN LOOP
 	while (!glfwWindowShouldClose(window))
 	{
@@ -854,7 +856,8 @@ int main(int argc, char* argv[])
 			glm::mat4 letterRotate;
 			glm::mat4 letterScale;
 			glm::mat4 LetterGroupMatrix;
-			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(0.35, .20, -0.75));
+
+			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(0.35, .08, -0.75));
 			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
 			glm::mat4 letterParent = letterTranslate * letterScale;
 			LetterGroupMatrix = groupMatrix * letterParent;
@@ -864,7 +867,7 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f, .6f, .66f))); //al have the same colour
 			Bleachers.RenderModelBleacher();
 
-			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(-0.35, .20, -0.75));
+			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(-0.35, .08, -0.75));
 			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
 			letterParent = letterTranslate * letterScale;
 			LetterGroupMatrix = groupMatrix * letterParent;
@@ -914,47 +917,50 @@ int main(int argc, char* argv[])
 
 			//rename all this
 			//****************
-			glm::mat4 letterTranslate;
-			glm::mat4 letterRotate;
-			glm::mat4 letterScale;
-			glm::mat4 LetterGroupMatrix;
-			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(0.35, .20, -0.75));
-			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f)*6.0f);
-			glm::mat4 letterParent = letterTranslate * letterScale;
-			LetterGroupMatrix = groupMatrix * letterParent;
-			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &LetterGroupMatrix[0][0]);
-			metalMaterial.loadToShader();
+			glm::mat4 bleacherTranslate;
+			glm::mat4 bleacherRotate;
+			glm::mat4 bleacherScale;
+			glm::mat4 bleacherGroupMatrix;
+			bleacherTranslate = glm::translate(glm::mat4(1.0f), vec3(0.35, .080, -0.75));
+
+			bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f)*6.0f);
+			glm::mat4 bleacherParent = bleacherTranslate * bleacherScale;
+			bleacherGroupMatrix = groupMatrix * bleacherParent;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &bleacherGroupMatrix[0][0]);
 			metalMaterial.bindTexture();
+			metalMaterial.loadToShader();
+			
+
+
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f, .6f, .66f))); //al have the same colour
 			Bleachers.RenderModelBleacher();
 
-			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(-0.35, .20, -0.75));
-			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
-			 letterParent = letterTranslate * letterScale;
-			LetterGroupMatrix = groupMatrix * letterParent;
-			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &LetterGroupMatrix[0][0]);
+			bleacherTranslate = glm::translate(glm::mat4(1.0f), vec3(-0.35, .080, -0.75));
+			
+			bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
+			 bleacherParent = bleacherTranslate * bleacherScale;
+			 bleacherGroupMatrix = groupMatrix * bleacherParent;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &bleacherGroupMatrix[0][0]);
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f,.6f,.66f)));
 			Bleachers.RenderModelBleacher();
 
 
 			//this is the court
 			glBindVertexArray(unitCubeAO);
-			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(0.0, -0.1, -0.0));
-			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(25.0f, 1.0f, 25.00015f) );
-			letterParent = letterTranslate * letterScale;
-			LetterGroupMatrix = groupMatrix * letterParent;
-
-			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &LetterGroupMatrix[0][0]);
+			bleacherTranslate = glm::translate(glm::mat4(1.0f), vec3(0.0, -0.07, -0.0));
+			bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(25.0f, 1.0f, 25.00015f) );
+			bleacherParent = letterTranslate * letterScale;
+			bleacherGroupMatrix = groupMatrix * bleacherParent;
+			
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &bleacherGroupMatrix[0][0]);
 			courtMaterial.loadToShader();
 			courtMaterial.bindTexture();
 			glUniform3fv(colorLocation, 1, glm::value_ptr(vec3((float)137/255, (float)72/255,(float)62/255))); //al have the same colour
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 			glBindVertexArray(0);
-
-
-
-
 			//******************
+
+
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noshowLightBox);
 		}
 
@@ -968,104 +974,106 @@ int main(int argc, char* argv[])
 		//red is player2
         playerArm2.flexFingers();
 
-		if (glfwGetTime() >= 3 && glfwGetTime() < 3.1 && !soundPlayed)
-		{
-			ball.playSound();
-			soundPlayed = true;
-		}
-		if (glfwGetTime() >= 3.2 && glfwGetTime() < 3.3)
-		{
-			soundPlayed = false;
-		}
-		if (glfwGetTime() >= 6 && glfwGetTime() < 6.1 && !soundPlayed)
-		{
-			ball.playSound();
-			soundPlayed = true;
-		}
-		if (glfwGetTime() >= 6.2 && glfwGetTime() < 6.3)
-		{
-			soundPlayed = false;
-		}
-		if (glfwGetTime() >= 9 && glfwGetTime() < 9.1 && !soundPlayed)
-		{
-			SceneObj.playCrowdSound(true);
-			soundPlayed = true;
-		}
-		if (glfwGetTime() >= 9.2 && glfwGetTime() < 9.3)
-		{
-			soundPlayed = false;
-		}
-		if (glfwGetTime() >= 16 && glfwGetTime() < 16.1 && !soundPlayed)
-		{
-			ball.playSound();
-			soundPlayed = true;
-		}
-		if (glfwGetTime() >= 16.2 && glfwGetTime() < 16.3)
-		{
-			soundPlayed = false;
-		}
-		if (glfwGetTime() >= 19 && glfwGetTime() < 19.1 && !soundPlayed)
-		{
-			ball.playSound();
-			soundPlayed = true;
-		}
-		if (glfwGetTime() >= 19.2 && glfwGetTime() < 19.3)
-		{
-			soundPlayed = false;
-		}
-		if (glfwGetTime() >= 22 && glfwGetTime() < 22.1 && !soundPlayed)
-		{
-			SceneObj.playCrowdSound(false);
-			soundPlayed = true;
-		}
-		if (glfwGetTime() >= 22.2 && glfwGetTime() < 22.3)
-		{
-			soundPlayed = false;
-		}
-		if (glfwGetTime() >= 28 && glfwGetTime() < 28.1 && !soundPlayed)
-		{
-			ball.playSound();
-			soundPlayed = true;
-		}
-		if (glfwGetTime() >= 28.2 && glfwGetTime() < 28.3)
-		{
-			soundPlayed = false;
-		}
-		if (glfwGetTime() >= 31 && glfwGetTime() < 31.1 && !soundPlayed)
-		{
-			ball.playSound();
-			soundPlayed = true;
-		}
-		if (glfwGetTime() >= 31.2 && glfwGetTime() < 31.3)
-		{
-			soundPlayed = false;
-		}
-		if (glfwGetTime() >= 34 && glfwGetTime() < 34.1 && !soundPlayed)
-		{
-			ball.playSound();
-			soundPlayed = true;
-		}
-		if (glfwGetTime() >= 34.2 && glfwGetTime() < 34.3)
-		{
-			soundPlayed = false;
-		}
-		if (glfwGetTime() >= 37 && glfwGetTime() < 37.1 && !soundPlayed)
-		{
-			ball.playSound();
-			soundPlayed = true;
-		}
-		if (glfwGetTime() >= 37.2 && glfwGetTime() < 37.3)
-		{
-			soundPlayed = false;
-		}
-		if (glfwGetTime() >= 40 && glfwGetTime() < 40.1 && !soundPlayed)
-		{
-			SceneObj.playCrowdSound(true);
-			soundPlayed = true;
-		}
-		if (glfwGetTime() >= 40.2 && glfwGetTime() < 40.3)
-		{
-			soundPlayed = false;
+		if (playSound) {
+			if (glfwGetTime() >= 3 && glfwGetTime() < 3.1 && !soundPlayed)
+			{
+				ball.playSound();
+				soundPlayed = true;
+			}
+			if (glfwGetTime() >= 3.2 && glfwGetTime() < 3.3)
+			{
+				soundPlayed = false;
+			}
+			if (glfwGetTime() >= 6 && glfwGetTime() < 6.1 && !soundPlayed)
+			{
+				ball.playSound();
+				soundPlayed = true;
+			}
+			if (glfwGetTime() >= 6.2 && glfwGetTime() < 6.3)
+			{
+				soundPlayed = false;
+			}
+			if (glfwGetTime() >= 9 && glfwGetTime() < 9.1 && !soundPlayed)
+			{
+				SceneObj.playCrowdSound(true);
+				soundPlayed = true;
+			}
+			if (glfwGetTime() >= 9.2 && glfwGetTime() < 9.3)
+			{
+				soundPlayed = false;
+			}
+			if (glfwGetTime() >= 16 && glfwGetTime() < 16.1 && !soundPlayed)
+			{
+				ball.playSound();
+				soundPlayed = true;
+			}
+			if (glfwGetTime() >= 16.2 && glfwGetTime() < 16.3)
+			{
+				soundPlayed = false;
+			}
+			if (glfwGetTime() >= 19 && glfwGetTime() < 19.1 && !soundPlayed)
+			{
+				ball.playSound();
+				soundPlayed = true;
+			}
+			if (glfwGetTime() >= 19.2 && glfwGetTime() < 19.3)
+			{
+				soundPlayed = false;
+			}
+			if (glfwGetTime() >= 22 && glfwGetTime() < 22.1 && !soundPlayed)
+			{
+				SceneObj.playCrowdSound(false);
+				soundPlayed = true;
+			}
+			if (glfwGetTime() >= 22.2 && glfwGetTime() < 22.3)
+			{
+				soundPlayed = false;
+			}
+			if (glfwGetTime() >= 28 && glfwGetTime() < 28.1 && !soundPlayed)
+			{
+				ball.playSound();
+				soundPlayed = true;
+			}
+			if (glfwGetTime() >= 28.2 && glfwGetTime() < 28.3)
+			{
+				soundPlayed = false;
+			}
+			if (glfwGetTime() >= 31 && glfwGetTime() < 31.1 && !soundPlayed)
+			{
+				ball.playSound();
+				soundPlayed = true;
+			}
+			if (glfwGetTime() >= 31.2 && glfwGetTime() < 31.3)
+			{
+				soundPlayed = false;
+			}
+			if (glfwGetTime() >= 34 && glfwGetTime() < 34.1 && !soundPlayed)
+			{
+				ball.playSound();
+				soundPlayed = true;
+			}
+			if (glfwGetTime() >= 34.2 && glfwGetTime() < 34.3)
+			{
+				soundPlayed = false;
+			}
+			if (glfwGetTime() >= 37 && glfwGetTime() < 37.1 && !soundPlayed)
+			{
+				ball.playSound();
+				soundPlayed = true;
+			}
+			if (glfwGetTime() >= 37.2 && glfwGetTime() < 37.3)
+			{
+				soundPlayed = false;
+			}
+			if (glfwGetTime() >= 40 && glfwGetTime() < 40.1 && !soundPlayed)
+			{
+				SceneObj.playCrowdSound(true);
+				soundPlayed = true;
+			}
+			if (glfwGetTime() >= 40.2 && glfwGetTime() < 40.3)
+			{
+				soundPlayed = false;
+			}
 		}
 
 		glfwSwapBuffers(window);
