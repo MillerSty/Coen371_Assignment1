@@ -39,10 +39,10 @@ void CrowdObjects::test(int crowdRows) {
 	
 	for (int i = 0; i < crowd.size(); i++) {
 		if (i % 2 == 0) {
-			drawSingle(crowd[i], crowdRotation, crowd.size(), i);
+			drawSingle(crowd[i], glm::vec3(( crowdRotation.x),crowdRotation.y, crowdRotation.z / 20.0f), crowd.size(), i);
 		}
 		else {
-			drawSingle(crowd[i], glm::vec3((.004f- crowdRotation.x), -1.0f*crowdRotation.y, crowdRotation.z), crowd.size(), i);
+			drawSingle(crowd[i], glm::vec3((.004f- crowdRotation.x), -1.0f*crowdRotation.y, -1.0f*crowdRotation.z/20.0f), crowd.size(), i);
 		}
 	}
 
@@ -81,7 +81,7 @@ void CrowdObjects::drawSingle(glm::vec3 position,glm::vec3 armrotate, int crowdS
 		glm::mat4 crowdParent;
 		glm::mat4 crowdTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(position.x,position.y+ armrotate.x,position.z));
 		glm::mat4 crowdScale = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-		glm::mat4 crowdRotate = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(.0f, 1.0f, .0f));
+		glm::mat4 crowdRotate = glm::rotate(glm::mat4(1.0f), glm::radians(armrotate.z), glm::vec3(.0f, 1.0f, .0f));
 
 		//Note: No part matrices but we may want them eventually
 		glm::mat4 partTrans= glm::translate(glm::mat4(1.0f), glm::vec3(0));
@@ -90,7 +90,9 @@ void CrowdObjects::drawSingle(glm::vec3 position,glm::vec3 armrotate, int crowdS
 		glm::mat4 partRo = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(.0f, 1.0f, .0f));
 		glm::mat4 partMa= partSca*partRo;
 
-
+		//armrotate.x is translation on y 
+		//armrotate.y is rotation of arm
+		//armrotate.z is body movement
 		crowdParent = crowdTranslate* crowdRotate;
 
 		worldMatrix = groupMatrix * crowdParent* partMa;
@@ -176,6 +178,25 @@ glm::vec3 CrowdObjects::animateCrowd() {
 		crowdRotation.x += jumpFlex;
 		jumpFlex += .00001f;
 	}
+
+	if ((crowdRotation.z + turnFlex) > 110.0f && reverse3 == false) {
+		crowdRotation.z -= turnFlex;
+		reverse3 = true;
+	
+	}
+	else if ((crowdRotation.z - turnFlex) < 75.0f && reverse3 == true) {
+		crowdRotation.z += turnFlex;
+		reverse3 = false;
+
+	}
+	else if (reverse3 == true) {
+		crowdRotation.z -= turnFlex;
+		turnFlex -= .01f;
+	}
+	else {
+		crowdRotation.z += turnFlex;
+		turnFlex += .01f;
+	}
 	return glm::vec3(1);
 }
 
@@ -208,14 +229,20 @@ void CrowdObjects::walker() {
 		double nextCoordZ = path[keyFrameTrackerWalker + 1].translation.z;
 		currentCoordZ += (nextCoordZ - currentCoordZ) * timeProportion;
 
-
-
+		//armrotate.x is translation on y 
+	//armrotate.y is rotation of arm
+	//armrotate.z is body movement
+		//glm::linearRand(-75,-110)
+		glm::vec3 singleVec(crowdRotation.x, crowdRotation.y, -1.0f*crowdRotation.z);
 		// Set the model translation in world space
-		drawSingle(glm::vec3(currentCoordX, currentCoordY, currentCoordZ), crowdRotation, 1, 1);
+		drawSingle(glm::vec3(currentCoordX, currentCoordY, currentCoordZ), singleVec, 1, 1);
 
-		drawSingle(glm::vec3(currentCoordX+.1f, currentCoordY, currentCoordZ), crowdRotation, 1, 1);
 
-		drawSingle(glm::vec3(currentCoordX+.2f, currentCoordY, currentCoordZ), crowdRotation, 1, 1);
+		singleVec=glm::vec3 (crowdRotation.x, crowdRotation.y, 180.0f-(-1*   crowdRotation.z));
+		drawSingle(glm::vec3(currentCoordX+.1f, currentCoordY, currentCoordZ), singleVec, 1, 1);
+
+		 singleVec=glm::vec3(crowdRotation.x, crowdRotation.y, -1.0f * crowdRotation.z);
+		drawSingle(glm::vec3(currentCoordX+.2f, currentCoordY, currentCoordZ), singleVec, 1, 1);
 
 		// If the realtime clock is beyond the next keyframes time parameter, move to the next keyframe
 		if (currentWorldTime >= nextFrameTime)

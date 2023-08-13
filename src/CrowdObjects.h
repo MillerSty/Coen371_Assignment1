@@ -19,7 +19,7 @@ public:
 	glm::vec3 crowdRotation; //idea is .x is for body movement .y is for arms ..... z for up down movement?? -> see later
 	bool reverse;
 	bool reverse2;
-
+	bool reverse3;
 
 	int shaderProgram;
 	int renderAs;
@@ -38,6 +38,8 @@ public:
 private:
 	float fingerFlex;
 	float jumpFlex;
+	float turnFlex;
+
 	int rows;
 	int crowdCount = 0;
 	bool initialized = false;
