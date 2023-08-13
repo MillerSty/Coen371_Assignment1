@@ -9,7 +9,7 @@ class CrowdObjects
 public:
 	CrowdObjects() = default;
 
-	int vaos[2];
+	GLuint vaos[2];
 	int sphereIndexCount;
 	glm::mat4 groupMatrix;
 	Material skinMaterial;
@@ -22,7 +22,6 @@ public:
 	void initializeCrowdRows(int rows);
 	void test(int rows);
 	void drawSingle(glm::vec3 position,glm::vec3 armrotate, int crowdSize, int crowdPosition);
-	void loadObj();
 
 private:
 	int rows;

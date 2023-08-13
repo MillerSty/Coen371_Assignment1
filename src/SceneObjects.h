@@ -35,10 +35,10 @@ public:
     std::string objectName;
 
     // VAO parameters
-	int gridVao;
-	int cubeVao;	
+	GLuint gridVao;
+	GLuint cubeVao;
 	//int reverseCubeVao;
-	int sphereVao;
+	GLuint sphereVao;
 	int sphereVertCount;
 
     // Sound engine parameter
@@ -75,7 +75,7 @@ public:
 
     // Methods
 	//void SetVAO(int cube, int reversecube, int grid);
-	void SetVAO(int cube, int grid);
+	void SetVAO(GLuint cube, GLuint grid);
 	void setMaterials(Material courtTexture, Material clothTexture,
 		              Material ropeTexture, Material metalTexture,
 		              Material grassTexture, Material plasticTexture);

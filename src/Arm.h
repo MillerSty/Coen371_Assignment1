@@ -52,11 +52,11 @@ public:
 	void setTranslateModel(glm::vec3 TranslateModel) { this->TranslateModel = TranslateModel; }
 	void resetArm();
 	bool flexFingers();
-	void InitArm(glm::vec3 position, int VAO, Material skinMaterial, Material clothMaterial);
+	void InitArm(glm::vec3 position, GLuint VAO, Material skinMaterial, Material clothMaterial);
 
 	bool reverse;
 	float spin;
-	int cubeVao;
+	GLuint cubeVao;
 	glm::mat4 partParent;
 	glm::mat4 partMatrix;
 	glm::mat4 groupMatrix;
