@@ -524,26 +524,47 @@ int main(int argc, char* argv[])
     // DEFINE KEYFRAMES FOR ANIMATION
 	// Keyframes for Blue player
     KeyFrame keyframesBlue[] = {
-        KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 0.0), // Initial key frame
-        KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 5.0), // Start moving for ball
-		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(0.0), 6.0), // Hit ball
-		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(0.0), 20.0), // Start moving away from ball
-		KeyFrame(glm::vec3(0.0, 0.0, 0.005), glm::vec3(0.0), 21.2), // Be away from ball
-		KeyFrame(glm::vec3(0.0, 0.0, 0.005), glm::vec3(0.0), 23.0), // Start moving back
-		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(0.0), 24.0), // Be in position
+        KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(90.0), 0.0), // Initial key frame
+		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(90.0), 3.0), // Start moving for ball
+        KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(120.0), 5.5), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.035), glm::vec3(90.0), 6.0), // Hit ball
+		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(90.0), 13.0), // Start moving back
+		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(120.0), 15.0), // Start moving away from ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.035), glm::vec3(90.0), 16.0), // Start moving back
+		KeyFrame(glm::vec3(0.0, 0.0, 0.035), glm::vec3(90.0), 19.0), // Start moving back
+		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(120.0), 21.0), // Start moving away from ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.005), glm::vec3(70.0), 21.5), // Be away from ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.005), glm::vec3(90.0), 23.0), // Start moving back
+		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(90.0), 24.0), // Be in position
+		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(90.0), 28.0), // Start moving back
+		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(120.0), 30.3), // Start moving away from ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.035), glm::vec3(90.0), 31.0), // Start moving back
+		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(90.0), 34.0), // Start moving back
+		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(120.0), 36.3), // Start moving away from ball
+		KeyFrame(glm::vec3(0.0, 0.0, -0.255), glm::vec3(90.0), 37.0), // Start moving back
     };
 
     // Keyframes for Red player
 	KeyFrame keyframesRed[] = {
-		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 0.0), // Initial key frame
-		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 2.0), // Start moving for ball
-		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(0.0), 3.0), // Hit ball
-		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(0.0), 8.0), // Start moving away from ball
-		KeyFrame(glm::vec3(0.0, 0.0, -0.005), glm::vec3(0.0), 9.0), // Be away from ball
-		KeyFrame(glm::vec3(0.0, 0.0, -0.005), glm::vec3(0.0), 11.0), // Start moving back
-		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(0.0), 12.0), // Be in position
-		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(0.0), 39.0), // Start moving away from ball
-		KeyFrame(glm::vec3(0.0, 0.0, -0.005), glm::vec3(0.0), 40.0), // Be away from ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(-90.0), 0.0), // Initial key frame
+		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(-60.0), 2.5), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, -0.035), glm::vec3(-90.0), 3.0), // Hit ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0), 8.0), // Start moving away from ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.18), glm::vec3(-110.0), 8.5), // Be away from ball
+		KeyFrame(glm::vec3(0.0, 0.0, -0.005), glm::vec3(-90.0), 11.0), // Start moving back
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-90.0), 12.0), // Be in position
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-90.0), 14.0),
+		KeyFrame(glm::vec3(0.0, 0.0, 0.07), glm::vec3(-90.0), 16.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0), 18.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, -0.035), glm::vec3(-90.0), 19.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-90.0), 25.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0), 27.3), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, -0.035), glm::vec3(-90.0), 28.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-90.0), 31.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0), 33.3), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.255), glm::vec3(-90.0), 34.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0), 39.0), // Start moving away from ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.18), glm::vec3(-110.0), 39.5), // Be away from ball
     };
 
     const float BALL_Y_OFFSET = 0.25f;  // Make sure ball is constant height to keep things simple
@@ -551,23 +572,34 @@ int main(int argc, char* argv[])
     // Keyframes for Ball
 	KeyFrame keyframesBall[] = {
         KeyFrame(glm::vec3(0.0, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 0.0), // Initial key frame
-        KeyFrame(glm::vec3(0.47, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 3.0), // Initial movement right
-        KeyFrame(glm::vec3(-0.47, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 6.0), // Ball hit, move back
-        KeyFrame(glm::vec3(0.75, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 9.0), // SCORE
+		KeyFrame(glm::vec3(0.235, BALL_Y_OFFSET-0.23, -0.075), glm::vec3(0.0), 1.5), // Initial key frame
+        KeyFrame(glm::vec3(0.47, BALL_Y_OFFSET, -0.15), glm::vec3(0.0), 3.0), // Initial movement right
+		KeyFrame(glm::vec3(-0.235, BALL_Y_OFFSET -0.23, 0.05), glm::vec3(0.0), 5.0), // Ball hit, move back
+		KeyFrame(glm::vec3(-0.47, BALL_Y_OFFSET, 0.15), glm::vec3(0.0), 6.0), // Initial key frame
+		KeyFrame(glm::vec3(0.375, BALL_Y_OFFSET -0.23, 0.25), glm::vec3(0.0), 8.0), // Ball hit, move back
+        KeyFrame(glm::vec3(0.75, BALL_Y_OFFSET, 0.3), glm::vec3(0.0), 9.0), // SCORE
         KeyFrame(glm::vec3(0.75, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 10.0), // Stay off-screen for a moment
         KeyFrame(glm::vec3(0.0, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 11.0), // Reset to center
         KeyFrame(glm::vec3(0.0, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 13.0), // Stay in center for a moment
-        KeyFrame(glm::vec3(-0.47, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 16.0), // Move to left
-        KeyFrame(glm::vec3(0.47, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 19.0), // Ball hit, move back
+		KeyFrame(glm::vec3(-0.235, BALL_Y_OFFSET-0.23, 0.075), glm::vec3(0.0), 14.5), // Move to left
+        KeyFrame(glm::vec3(-0.47, BALL_Y_OFFSET, 0.15), glm::vec3(0.0), 16.0), // Move to left
+		KeyFrame(glm::vec3(0.235, BALL_Y_OFFSET-0.23, -0.05), glm::vec3(0.0), 18.0), // Ball hit, move back
+        KeyFrame(glm::vec3(0.47, BALL_Y_OFFSET, -0.15), glm::vec3(0.0), 19.0), // Ball hit, move back
+		KeyFrame(glm::vec3(-0.375, BALL_Y_OFFSET-0.23, 0.0), glm::vec3(0.0), 21.0), // Ball hit, move back
         KeyFrame(glm::vec3(-0.75, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 22.0), // SCORE
         KeyFrame(glm::vec3(-0.75, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 23.0), // Stay off-screen a moment
         KeyFrame(glm::vec3(0.0, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 24.0), // Reset to center
         KeyFrame(glm::vec3(0.0, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 25.0), // Stay in center for a moment
-        KeyFrame(glm::vec3(0.47, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 28.0), // Move to the right
-        KeyFrame(glm::vec3(-0.47, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 31.0), // Ball hit, move back
-        KeyFrame(glm::vec3(0.47, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 34.0), // Move to the right
-        KeyFrame(glm::vec3(-0.47, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 37.0), // Ball hit, move back
-        KeyFrame(glm::vec3(0.75, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 40.0), // SCORE
+		KeyFrame(glm::vec3(0.235, BALL_Y_OFFSET-0.23, -0.075), glm::vec3(0.0), 26.5), // Move to the left
+        KeyFrame(glm::vec3(0.47, BALL_Y_OFFSET, -0.15), glm::vec3(0.0), 28.0), // Move to the right
+		KeyFrame(glm::vec3(-0.235, BALL_Y_OFFSET-0.23, 0.05), glm::vec3(0.0), 30.0), // Ball hit, move back
+        KeyFrame(glm::vec3(-0.47, BALL_Y_OFFSET, 0.15), glm::vec3(0.0), 31.0), // Ball hit, move back
+		KeyFrame(glm::vec3(0.235, BALL_Y_OFFSET-0.23, 0.15), glm::vec3(0.0), 33.0), // Ball hit, move back
+        KeyFrame(glm::vec3(0.47, BALL_Y_OFFSET, 0.15), glm::vec3(0.0), 34.0), // Move to the right
+		KeyFrame(glm::vec3(-0.235, BALL_Y_OFFSET-0.23, -0.05), glm::vec3(0.0), 36.0), // Ball hit, move back
+        KeyFrame(glm::vec3(-0.47, BALL_Y_OFFSET, -0.15), glm::vec3(0.0), 37.0), // Ball hit, move back
+		KeyFrame(glm::vec3(0.375, BALL_Y_OFFSET-0.23, -0.25), glm::vec3(0.0), 39.0), // Ball hit, move back
+        KeyFrame(glm::vec3(0.75, BALL_Y_OFFSET, -0.3), glm::vec3(0.0), 40.0), // SCORE
 	};
 
     int keyframeNumBlue = 0;
@@ -645,6 +677,13 @@ int main(int argc, char* argv[])
             // Set the model translation in world space
             playerArm1.setTranslateModel(glm::vec3(currentCoordX, currentCoordY, currentCoordZ));
 
+			float currentRotationAngle = keyframesBlue[keyframeNumBlue].rotation.x; // Assuming rotation is a float
+			float nextRotationAngle = keyframesBlue[keyframeNumBlue + 1].rotation.x;
+			float interpolatedRotationAngle = currentRotationAngle + (nextRotationAngle - currentRotationAngle) * timeProportion;
+
+			playerArm1.setRotation(interpolatedRotationAngle);
+
+
             // If the realtime clock is beyond the next keyframes time parameter, move to the next keyframe
             if (currentWorldTime >= nextFrameTime)
                 keyframeNumBlue++;
@@ -676,6 +715,12 @@ int main(int argc, char* argv[])
 
             // Set the model translation in world space
             playerArm2.setTranslateModel(glm::vec3(currentCoordX, currentCoordY, currentCoordZ));
+
+			float currentRotationAngle = keyframesRed[keyframeNumRed].rotation.x; // Assuming rotation is a float
+			float nextRotationAngle = keyframesRed[keyframeNumRed + 1].rotation.x;
+			float interpolatedRotationAngle = currentRotationAngle + (nextRotationAngle - currentRotationAngle) * timeProportion;
+
+			playerArm2.setRotation(interpolatedRotationAngle);
 
             // If the realtime clock is beyond the next keyframes time parameter, move to the next keyframe
             if (currentWorldTime >= nextFrameTime)
@@ -971,6 +1016,14 @@ void setUpLighting() {
  * @param currentTime: The current time according to glfwGetTime() 
  */ 
 void handleSounds(double currentTime) {
+	
+	if (currentTime >= 1.5 && currentTime < 1.6 && !soundPlayed)
+	{
+		ball.playBounceSound();
+		soundPlayed = true;
+	}
+	else if (currentTime >= 1.7 && currentTime < 1.8)
+		soundPlayed = false;
 
     if (currentTime >= 3 && currentTime < 3.1 && !soundPlayed)
     {
@@ -980,6 +1033,14 @@ void handleSounds(double currentTime) {
     else if (currentTime >= 3.2 && currentTime < 3.3)
         soundPlayed = false;
 
+	else if (currentTime >= 5 && currentTime < 5.1 && !soundPlayed)
+	{
+		ball.playBounceSound();
+		soundPlayed = true;
+	}
+	else if (currentTime >= 5.2 && currentTime < 5.3)
+		soundPlayed = false;
+
     else if (currentTime >= 6 && currentTime < 6.1 && !soundPlayed)
     {
         ball.playSound();
@@ -987,6 +1048,15 @@ void handleSounds(double currentTime) {
     }
     else if (currentTime >= 6.2 && currentTime < 6.3)
         soundPlayed = false;
+
+
+	else if (currentTime >= 8 && currentTime < 8.1 && !soundPlayed)
+	{
+		ball.playBounceSound();
+		soundPlayed = true;
+	}
+	else if (currentTime >= 8.2 && currentTime < 8.3)
+		soundPlayed = false;
 
     else if (currentTime >= 9 && currentTime < 9.1 && !soundPlayed)
     {
@@ -996,6 +1066,14 @@ void handleSounds(double currentTime) {
     else if (currentTime >= 9.2 && currentTime < 9.3)
         soundPlayed = false;
 
+	else if (currentTime >= 14.5 && currentTime < 14.6 && !soundPlayed)
+	{
+		ball.playBounceSound();
+		soundPlayed = true;
+	}
+	else if (currentTime >= 14.7 && currentTime < 14.8)
+		soundPlayed = false;
+
     else if (currentTime >= 16 && currentTime < 16.1 && !soundPlayed)
     {
         ball.playSound();
@@ -1003,6 +1081,14 @@ void handleSounds(double currentTime) {
     }
     else if (currentTime >= 16.2 && currentTime < 16.3)
         soundPlayed = false;
+
+	else if (currentTime >= 18 && currentTime < 18.1 && !soundPlayed)
+	{
+		ball.playBounceSound();
+		soundPlayed = true;
+	}
+	else if (currentTime >= 18.2 && currentTime < 18.3)
+		soundPlayed = false;
 
     else if (currentTime >= 19 && currentTime < 19.1 && !soundPlayed)
     {
@@ -1012,6 +1098,14 @@ void handleSounds(double currentTime) {
     else if (currentTime >= 19.2 && currentTime < 19.3)
         soundPlayed = false;
 
+	else if (currentTime >= 21 && currentTime < 21.1 && !soundPlayed)
+	{
+		ball.playBounceSound();
+		soundPlayed = true;
+	}
+	else if (currentTime >= 21.2 && currentTime < 21.3)
+		soundPlayed = false;
+
     else if (currentTime >= 22 && currentTime < 22.1 && !soundPlayed)
     {
         SceneObj.playCrowdSound(false);
@@ -1019,6 +1113,14 @@ void handleSounds(double currentTime) {
     }
     else if (currentTime >= 22.2 && currentTime < 22.3)
         soundPlayed = false;
+
+	else if (currentTime >= 26.5 && currentTime < 26.6 && !soundPlayed)
+	{
+		ball.playBounceSound();
+		soundPlayed = true;
+	}
+	else if (currentTime >= 26.7 && currentTime < 26.8)
+		soundPlayed = false;
 
     else if (currentTime >= 28 && currentTime < 28.1 && !soundPlayed)
     {
@@ -1028,6 +1130,14 @@ void handleSounds(double currentTime) {
     else if (currentTime >= 28.2 && currentTime < 28.3)
         soundPlayed = false;
 
+	else if (currentTime >= 30 && currentTime < 30.1 && !soundPlayed)
+	{
+		ball.playBounceSound();
+		soundPlayed = true;
+	}
+	else if (currentTime >= 30.2 && currentTime < 30.3)
+		soundPlayed = false;
+
     else if (currentTime >= 31 && currentTime < 31.1 && !soundPlayed)
     {
         ball.playSound();
@@ -1035,6 +1145,14 @@ void handleSounds(double currentTime) {
     }
     else if (currentTime >= 31.2 && currentTime < 31.3)
         soundPlayed = false;
+
+	else if (currentTime >= 33 && currentTime < 33.1 && !soundPlayed)
+	{
+		ball.playBounceSound();
+		soundPlayed = true;
+	}
+	else if (currentTime >= 33.2 && currentTime < 33.3)
+		soundPlayed = false;
 
     else if (currentTime >= 34 && currentTime < 34.1 && !soundPlayed)
     {
@@ -1044,6 +1162,14 @@ void handleSounds(double currentTime) {
     else if (currentTime >= 34.2 && currentTime < 34.3)
         soundPlayed = false;
 
+	else if (currentTime >= 36 && currentTime < 36.1 && !soundPlayed)
+	{
+		ball.playBounceSound();
+			soundPlayed = true;
+	}
+	else if (currentTime >= 36.2 && currentTime < 36.3)
+		soundPlayed = false;
+
     else if (currentTime >= 37 && currentTime < 37.1 && !soundPlayed)
     {
         ball.playSound();
@@ -1051,6 +1177,15 @@ void handleSounds(double currentTime) {
     }
     else if (currentTime >= 37.2 && currentTime < 37.3)
         soundPlayed = false;
+
+
+	else if (currentTime >= 39 && currentTime < 39.1 && !soundPlayed)
+	{
+		ball.playBounceSound();
+		soundPlayed = true;
+	}
+	else if (currentTime >= 39.2 && currentTime < 39.3)
+		soundPlayed = false;
 
     else if (currentTime >= 40 && currentTime < 40.1 && !soundPlayed)
     {

@@ -24,12 +24,18 @@ private:
 	Material ballTexture;
 	float velocity;
     glm:: vec3 position;
-    irrklang::ISoundEngine* audioEngine;
+	irrklang::ISoundEngine* audioEngine;
     const char* BALL_SOUNDS[3] = {
             "../src/Assets/sounds/Ball1.wav",
             "../src/Assets/sounds/Ball2.wav",
             "../src/Assets/sounds/Ball3.wav"
     };
+	const char* BOUNCE_SOUND[4] = {
+		"../src/Assets/sounds/TennisBounceA.wav",
+		"../src/Assets/sounds/TennisBounceB.wav",
+		"../src/Assets/sounds/TennisBounceC.wav",
+		"../src/Assets/sounds/TennisBounceD.wav"
+	};
 	const char* BIG_CROWD_SOUND = "../src/Assets/sounds/BigCrowd.wav";
 
 public:
@@ -70,6 +76,9 @@ public:
 
     // Plays a random ball sound from the set of possible ball sounds BALL_SOUNDS
     void playSound();
+	void playBounceSound();
+
 	void playBigCrowdSound();
+
 };
 
