@@ -55,7 +55,7 @@ public:
 	void InitArm(glm::vec3 position, int VAO, Material skinMaterial, Material clothMaterial);
 
 	bool reverse;
-	float spin;
+	float fingerFlex;
 	int cubeVao;
 	glm::mat4 partParent;
 	glm::mat4 partMatrix;
