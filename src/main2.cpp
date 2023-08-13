@@ -6,6 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <ctime>
 
 // Dependency includes
 #define GLEW_STATIC 1   // This allows linking with Static Library on Windows, without DLL
@@ -314,6 +315,9 @@ SceneObjects SceneObj("scene");
 
 int main(int argc, char* argv[])
 {
+	// Seed a random number generator for later use. Taken from https://stackoverflow.com/a/5891824
+	srand(time(nullptr));
+
 	// Initialize GLFW and OpenGL version
 	if (!glfwInit())
 		return -1;
