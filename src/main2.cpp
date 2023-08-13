@@ -733,6 +733,8 @@ int main(int argc, char* argv[])
 	
 		//https://stackoverflow.com/questions/13915479/c-get-every-number-separately
 		//this for separating more
+		//	number = floor(glfwGetTime());
+//		if (number > 98)glfwSetTime(0);
 
 		// Must draw scene in 2 passes: once for shadows, and another normally
 		// 1st pass
@@ -772,14 +774,14 @@ int main(int argc, char* argv[])
             SceneObj.SetVAO(unitCubeAO, gridAO);
             SceneObj.DrawScene(false);  // Draw scene without the skybox, so it can't be used to make shadows on the scene
 
-			//rename all this
+			//This is all for bleacher			
 			//****************
 			glm::mat4 letterTranslate;
 			glm::mat4 letterRotate;
 			glm::mat4 letterScale;
 			glm::mat4 LetterGroupMatrix;
 
-			letterTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, .08, -0.75));
+			letterTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, .080, -0.75));
 			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
 			glm::mat4 letterParent = letterTranslate * letterScale;
 			LetterGroupMatrix = groupMatrix * letterParent;
@@ -789,13 +791,14 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f, .6f, .66f))); //al have the same colour
 			Bleachers.RenderModelBleacher();
 
-			letterTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.35, .08, -0.75));
+			letterTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, .080, -0.75));
 			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
 			letterParent = letterTranslate * letterScale;
 			LetterGroupMatrix = groupMatrix * letterParent;
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &LetterGroupMatrix[0][0]);
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f, .6f, .66f)));
 			Bleachers.RenderModelBleacher();
+			//****************
 		}
 
 		{ // 2nd pass
@@ -835,7 +838,7 @@ int main(int argc, char* argv[])
 			SceneObj.SetVAO(unitCubeAO, gridAO);
 			SceneObj.DrawScene(true);  // Draw scene with the skybox
 
-			//rename all this
+			//This is all for bleacher
 			//****************
 			glm::mat4 bleacherTranslate;
 			glm::mat4 bleacherRotate;
@@ -862,10 +865,11 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f,.6f,.66f)));
 			Bleachers.RenderModelBleacher();
 
-			//this is the court
+
+			//this is the red clay court
 			glBindVertexArray(unitCubeAO);
 			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, -0.07, -0.0));
-			bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(25.0f, 1.0f, 25.00015f) );
+			bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(50.0f, 1.0f, 50.00015f) );
 			bleacherParent = bleacherTranslate * bleacherScale;
 			bleacherGroupMatrix = groupMatrix * bleacherParent;
 			
@@ -881,8 +885,10 @@ int main(int argc, char* argv[])
 		}
 
 		//crowd.drawCrowd();
+		crowd.animateCrowd(); //just to triger animation
 		crowd.test(4);
-		
+		//crowd.drawSingle(vec3(0, .2, 0.3), vec3(0), 1, 1);
+		crowd.walker();
 		//blue side is Player1
 		playerArm1.flexFingers();
 		//red is player2

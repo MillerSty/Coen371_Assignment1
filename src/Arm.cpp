@@ -30,7 +30,7 @@ void Arm::InitArm(glm::vec3 position, GLuint VAO, Material skinMaterial, Materia
     } else {
         this->armRotate = -90.0f;
     }
-	spin = 0;
+	fingerFlex = 0;
 	reverse = false;
 }
 Arm::Arm() {}
@@ -48,7 +48,7 @@ void Arm::SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram) {
 	this->groupMatrix = groupMatrix;
 	this->renderAs = renderAs;
 	this->shaderProgram = shaderProgram;
-	float spin = 0;
+	float fingerFlex = 0;
 	bool reverse = false;
 }
 
@@ -228,22 +228,22 @@ bool Arm::DrawArm() {
 
 bool Arm::flexFingers() {
 	
-	if ((this->getFRotation() + spin) > 90.0f && reverse == false) {
+	if ((this->getFRotation() + fingerFlex) > 90.0f && reverse == false) {
 
-		this->setFRotation(this->getFRotation() - spin);
+		this->setFRotation(this->getFRotation() - fingerFlex);
 		reverse = true;
 	}
-	else if (this->getFRotation() + spin < 0.0f && reverse == true) {
-		this->setFRotation(this->getFRotation() + spin);
+	else if (this->getFRotation() + fingerFlex < 0.0f && reverse == true) {
+		this->setFRotation(this->getFRotation() + fingerFlex);
 		reverse = false;
 	}
 	else if (reverse == true) {
-		this->setFRotation(this->getFRotation() - spin);
-		spin -= .01f;
+		this->setFRotation(this->getFRotation() - fingerFlex);
+		fingerFlex -= .01f;
 	}
 	else {
-		this->setFRotation(this->getFRotation() + spin);
-		spin += .01f;
+		this->setFRotation(this->getFRotation() + fingerFlex);
+		fingerFlex += .01f;
 	}
 
 	return reverse;
