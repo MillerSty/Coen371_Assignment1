@@ -5,13 +5,12 @@
 #include <glm/gtc/random.hpp>
 #include "../src/Material.h"
 #include "KeyFrame.h"
-//#include "KeyFrame.h"
 class CrowdObjects
 {
 public:
 	CrowdObjects() = default;
 
-	int vaos[2];
+	GLuint vaos[2];
 	int sphereIndexCount;
 	glm::mat4 groupMatrix;
 	Material skinMaterial;

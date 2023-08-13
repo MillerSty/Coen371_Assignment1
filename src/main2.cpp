@@ -791,7 +791,7 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f, .6f, .66f))); //al have the same colour
 			Bleachers.RenderModelBleacher();
 
-			letterTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.35, .080, -0.75));
+			letterTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, .080, -0.75));
 			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
 			letterParent = letterTranslate * letterScale;
 			LetterGroupMatrix = groupMatrix * letterParent;
