@@ -17,7 +17,7 @@ void SceneObjects::SetAttr(glm::mat4 groupMat, int as, int shaderProg) {
 	shaderProgram = shaderProg;
 }
 
-void SceneObjects::SetVAO(int cube, int grid) {
+void SceneObjects::SetVAO(GLuint cube, GLuint grid) {
 	cubeVao = cube;
 	gridVao = grid;
 }
