@@ -98,6 +98,13 @@ void Ball::playSound() {
      */
 }
 
+void Ball::playBounceSound()
+{
+	int whichSound = (rand() % 4);
+
+	audioEngine->play2D(BOUNCE_SOUND[whichSound]);
+}
+
 void Ball::playBigCrowdSound()
 {
 	audioEngine->play2D(BIG_CROWD_SOUND, true);

@@ -571,7 +571,7 @@ int main(int argc, char* argv[])
     // Keyframes for Ball
 	KeyFrame keyframesBall[] = {
         KeyFrame(glm::vec3(0.0, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 0.0), // Initial key frame
-		KeyFrame(glm::vec3(0.235, BALL_Y_OFFSET-0.23, 0.075), glm::vec3(0.0), 1.5), // Initial key frame
+		KeyFrame(glm::vec3(0.235, BALL_Y_OFFSET-0.23, -0.075), glm::vec3(0.0), 1.5), // Initial key frame
         KeyFrame(glm::vec3(0.47, BALL_Y_OFFSET, -0.15), glm::vec3(0.0), 3.0), // Initial movement right
 		KeyFrame(glm::vec3(-0.235, BALL_Y_OFFSET -0.23, 0.1), glm::vec3(0.0), 5.0), // Ball hit, move back
 		KeyFrame(glm::vec3(-0.47, BALL_Y_OFFSET, 0.15), glm::vec3(0.0), 6.0), // Initial key frame
@@ -1009,6 +1009,14 @@ void setUpLighting() {
  * @param currentTime: The current time according to glfwGetTime() 
  */ 
 void handleSounds(double currentTime) {
+	
+	if (currentTime >= 1.5 && currentTime < 1.6 && !soundPlayed)
+	{
+		ball.playBounceSound();
+		soundPlayed = true;
+	}
+	else if (currentTime >= 1.7 && currentTime < 1.8)
+		soundPlayed = false;
 
     if (currentTime >= 3 && currentTime < 3.1 && !soundPlayed)
     {
@@ -1018,6 +1026,14 @@ void handleSounds(double currentTime) {
     else if (currentTime >= 3.2 && currentTime < 3.3)
         soundPlayed = false;
 
+	else if (currentTime >= 5 && currentTime < 5.1 && !soundPlayed)
+	{
+		ball.playBounceSound();
+		soundPlayed = true;
+	}
+	else if (currentTime >= 5.2 && currentTime < 5.3)
+		soundPlayed = false;
+
     else if (currentTime >= 6 && currentTime < 6.1 && !soundPlayed)
     {
         ball.playSound();
@@ -1025,6 +1041,15 @@ void handleSounds(double currentTime) {
     }
     else if (currentTime >= 6.2 && currentTime < 6.3)
         soundPlayed = false;
+
+
+	else if (currentTime >= 8 && currentTime < 8.1 && !soundPlayed)
+	{
+		ball.playBounceSound();
+		soundPlayed = true;
+	}
+	else if (currentTime >= 8.2 && currentTime < 8.3)
+		soundPlayed = false;
 
     else if (currentTime >= 9 && currentTime < 9.1 && !soundPlayed)
     {
@@ -1034,6 +1059,14 @@ void handleSounds(double currentTime) {
     else if (currentTime >= 9.2 && currentTime < 9.3)
         soundPlayed = false;
 
+	else if (currentTime >= 14.5 && currentTime < 14.6 && !soundPlayed)
+	{
+		ball.playBounceSound();
+		soundPlayed = true;
+	}
+	else if (currentTime >= 14.7 && currentTime < 14.8)
+		soundPlayed = false;
+
     else if (currentTime >= 16 && currentTime < 16.1 && !soundPlayed)
     {
         ball.playSound();
@@ -1041,6 +1074,14 @@ void handleSounds(double currentTime) {
     }
     else if (currentTime >= 16.2 && currentTime < 16.3)
         soundPlayed = false;
+
+	else if (currentTime >= 18 && currentTime < 18.1 && !soundPlayed)
+	{
+		ball.playBounceSound();
+		soundPlayed = true;
+	}
+	else if (currentTime >= 18.2 && currentTime < 18.3)
+		soundPlayed = false;
 
     else if (currentTime >= 19 && currentTime < 19.1 && !soundPlayed)
     {
@@ -1050,6 +1091,14 @@ void handleSounds(double currentTime) {
     else if (currentTime >= 19.2 && currentTime < 19.3)
         soundPlayed = false;
 
+	else if (currentTime >= 21 && currentTime < 21.1 && !soundPlayed)
+	{
+		ball.playBounceSound();
+		soundPlayed = true;
+	}
+	else if (currentTime >= 21.2 && currentTime < 21.3)
+		soundPlayed = false;
+
     else if (currentTime >= 22 && currentTime < 22.1 && !soundPlayed)
     {
         SceneObj.playCrowdSound(false);
@@ -1057,6 +1106,14 @@ void handleSounds(double currentTime) {
     }
     else if (currentTime >= 22.2 && currentTime < 22.3)
         soundPlayed = false;
+
+	else if (currentTime >= 26.5 && currentTime < 26.6 && !soundPlayed)
+	{
+		ball.playBounceSound();
+		soundPlayed = true;
+	}
+	else if (currentTime >= 26.7 && currentTime < 26.8)
+		soundPlayed = false;
 
     else if (currentTime >= 28 && currentTime < 28.1 && !soundPlayed)
     {
@@ -1066,6 +1123,14 @@ void handleSounds(double currentTime) {
     else if (currentTime >= 28.2 && currentTime < 28.3)
         soundPlayed = false;
 
+	else if (currentTime >= 30 && currentTime < 30.1 && !soundPlayed)
+	{
+		ball.playBounceSound();
+		soundPlayed = true;
+	}
+	else if (currentTime >= 30.2 && currentTime < 30.3)
+		soundPlayed = false;
+
     else if (currentTime >= 31 && currentTime < 31.1 && !soundPlayed)
     {
         ball.playSound();
@@ -1073,6 +1138,14 @@ void handleSounds(double currentTime) {
     }
     else if (currentTime >= 31.2 && currentTime < 31.3)
         soundPlayed = false;
+
+	else if (currentTime >= 33 && currentTime < 33.1 && !soundPlayed)
+	{
+		ball.playBounceSound();
+		soundPlayed = true;
+	}
+	else if (currentTime >= 33.2 && currentTime < 33.3)
+		soundPlayed = false;
 
     else if (currentTime >= 34 && currentTime < 34.1 && !soundPlayed)
     {
@@ -1082,6 +1155,14 @@ void handleSounds(double currentTime) {
     else if (currentTime >= 34.2 && currentTime < 34.3)
         soundPlayed = false;
 
+	else if (currentTime >= 36 && currentTime < 36.1 && !soundPlayed)
+	{
+		ball.playBounceSound();
+			soundPlayed = true;
+	}
+	else if (currentTime >= 36.2 && currentTime < 36.3)
+		soundPlayed = false;
+
     else if (currentTime >= 37 && currentTime < 37.1 && !soundPlayed)
     {
         ball.playSound();
@@ -1089,6 +1170,15 @@ void handleSounds(double currentTime) {
     }
     else if (currentTime >= 37.2 && currentTime < 37.3)
         soundPlayed = false;
+
+
+	else if (currentTime >= 39 && currentTime < 39.1 && !soundPlayed)
+	{
+		ball.playBounceSound();
+		soundPlayed = true;
+	}
+	else if (currentTime >= 39.2 && currentTime < 39.3)
+		soundPlayed = false;
 
     else if (currentTime >= 40 && currentTime < 40.1 && !soundPlayed)
     {
