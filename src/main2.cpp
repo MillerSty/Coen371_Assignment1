@@ -27,8 +27,6 @@
 #include "Models/Model.h"
 #include "CrowdObjects.h"
 
-using namespace glm;
-
 // Set the shader paths
 const char* vertex = "../src/shaders/unifiedVertex.glsl";
 const char* fragment = "../src/shaders/unifiedFragment.glsl";
@@ -497,8 +495,8 @@ int main(int argc, char* argv[])
 	numberDraw2.plastic = skinMaterial;
 
 	//can be defined outside of while?
-	numberDraw.position = vec3(-.20f, .21f, -0.40f); //this is scoreboard option
-	numberDraw2.position = vec3(.20f, .21f, -0.40f);
+	numberDraw.position = glm::vec3(-.20f, .21f, -0.40f); //this is scoreboard option
+	numberDraw2.position = glm::vec3(.20f, .21f, -0.40f);
 
 	numberDraw2.cubeVao = unitCubeAO;
 	numberDraw2.shaderProgram = shaderProgram;
@@ -726,8 +724,8 @@ int main(int argc, char* argv[])
 
 //		number = floor(glfwGetTime());
 //		if (number > 98)glfwSetTime(0);
-		
-		vec3 position1 = ball.getPosition();
+
+        glm::vec3 position1 = ball.getPosition();
 	
 		//https://stackoverflow.com/questions/13915479/c-get-every-number-separately
 		//this for separating more
@@ -777,7 +775,7 @@ int main(int argc, char* argv[])
 			glm::mat4 letterScale;
 			glm::mat4 LetterGroupMatrix;
 
-			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(0.35, .08, -0.75));
+			letterTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, .08, -0.75));
 			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
 			glm::mat4 letterParent = letterTranslate * letterScale;
 			LetterGroupMatrix = groupMatrix * letterParent;
@@ -787,7 +785,7 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f, .6f, .66f))); //al have the same colour
 			Bleachers.RenderModelBleacher();
 
-			letterTranslate = glm::translate(glm::mat4(1.0f), vec3(-0.35, .08, -0.75));
+			letterTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.35, .08, -0.75));
 			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
 			letterParent = letterTranslate * letterScale;
 			LetterGroupMatrix = groupMatrix * letterParent;
@@ -828,7 +826,7 @@ int main(int argc, char* argv[])
 			numberDraw2.Scoreboard(redScore, false, false);
 
 			SceneObj.sphereVao = unitSphereAO;
-			SceneObj.sphereVertCount = vertexIndicesSphere.size();
+			SceneObj.sphereVertCount = (int) vertexIndicesSphere.size();
 			SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
 			SceneObj.SetVAO(unitCubeAO, gridAO);
 			SceneObj.DrawScene(true);  // Draw scene with the skybox
@@ -839,7 +837,7 @@ int main(int argc, char* argv[])
 			glm::mat4 bleacherRotate;
 			glm::mat4 bleacherScale;
 			glm::mat4 bleacherGroupMatrix;
-			bleacherTranslate = glm::translate(glm::mat4(1.0f), vec3(0.35, .080, -0.75));
+			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, .080, -0.75));
 
 			bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f)*6.0f);
 			glm::mat4 bleacherParent = bleacherTranslate * bleacherScale;
@@ -851,7 +849,7 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f, .6f, .66f)));
 			Bleachers.RenderModelBleacher();
 
-			bleacherTranslate = glm::translate(glm::mat4(1.0f), vec3(-0.35, .080, -0.75));
+			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.35, .080, -0.75));
 			
 			bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
 			bleacherParent = bleacherTranslate * bleacherScale;
@@ -862,7 +860,7 @@ int main(int argc, char* argv[])
 
 			//this is the court
 			glBindVertexArray(unitCubeAO);
-			bleacherTranslate = glm::translate(glm::mat4(1.0f), vec3(0.0, -0.07, -0.0));
+			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, -0.07, -0.0));
 			bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(25.0f, 1.0f, 25.00015f) );
 			bleacherParent = bleacherTranslate * bleacherScale;
 			bleacherGroupMatrix = groupMatrix * bleacherParent;
@@ -870,7 +868,7 @@ int main(int argc, char* argv[])
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &bleacherGroupMatrix[0][0]);
 			courtMaterial.loadToShader();
 			courtMaterial.bindTexture();
-			glUniform3fv(colorLocation, 1, glm::value_ptr(vec3((float)137/255, (float)72/255,(float)62/255))); 
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3((float)137/255, (float)72/255,(float)62/255)));
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 			glBindVertexArray(0);
 			//******************
@@ -934,7 +932,7 @@ void setUpLighting() {
     glm::vec3 lightFocus(0.0, -0.01, .0f);      // The point in 3D space the light "looks" at
     glm::vec3 lightDirection = glm::normalize(lightFocus - lightPosition);
     glm::mat4 lightProjectionMatrix = glm::ortho(-1.5f, 1.50f, -1.50f, 1.50f, lightNearPlane, lightFarPlane);
-    glm::mat4 lightViewMatrix = glm::lookAt(lightPosition, lightFocus, vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 lightViewMatrix = glm::lookAt(lightPosition, lightFocus, glm::vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 lightSpaceMatrix = lightProjectionMatrix * lightViewMatrix;
 
     // Get lighting-related uniform locations
