@@ -56,7 +56,7 @@ public:
 
 	bool reverse;
 	float fingerFlex;
-	int cubeVao;
+	GLuint cubeVao;
 	glm::mat4 partParent;
 	glm::mat4 partMatrix;
 	glm::mat4 groupMatrix;
