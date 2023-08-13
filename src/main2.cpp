@@ -42,7 +42,7 @@ void GLAPIENTRY messageCallback(GLenum source, GLenum type, GLuint id, GLenum se
 void setProjectionMatrix(int shaderProgram, glm::mat4 projectionMatrix);
 void setViewMatrix(int shaderProgram, glm::mat4 viewMatrix);
 void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos);
+void mouseCursorPositionCallback(GLFWwindow* window, double xPos, double yPos);
 bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm::vec3>& temp_vertices,
 	          std::vector<glm::vec3>& out_normals, std::vector<glm::vec2>& out_uvs);
 void handleSounds(double currentTime);
@@ -80,37 +80,12 @@ GLuint createVertexArrayObject(const glm::vec3* vertexArray, int arraySize)
 	return vertexArrayObject;
 }
 
-GLuint createVertexArrayObject3(std::vector<glm::vec3> arr)
-{
-	GLuint vertexArrayObject;
-	glGenVertexArrays(1, &vertexArrayObject);
-	glBindVertexArray(vertexArrayObject);
-
-	GLuint vertexBufferObject;
-	glGenBuffers(1, &vertexBufferObject);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-	glBufferData(GL_ARRAY_BUFFER, arr.size(), &arr.front(), GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedNormaledVertex), (void*)sizeof(glm::vec3));
-	//glEnableVertexAttribArray(1);
-	//
-	//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedNormaledVertex), (void*)(2 * sizeof(glm::vec3)));
-	//glEnableVertexAttribArray(2);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	return vertexArrayObject;
-}
-
 /**
 A struct to contain the position, normal, and UV coordinates for a vertex
 */
-struct TexturedNormaledVertex
+struct TexturedNormalledVertex
 {
-	TexturedNormaledVertex(glm::vec3 _position, glm::vec3 _normals, glm::vec2 _uv) : position(_position), normals(_normals), uv(_uv) {}
+	TexturedNormalledVertex(glm::vec3 _position, glm::vec3 _normals, glm::vec2 _uv) : position(_position), normals(_normals), uv(_uv) {}
 
 	glm::vec3 position;
 	glm::vec3 normals;
@@ -145,60 +120,60 @@ void updateLight(glm::vec3 newPosition,glm::vec3 newFocus,SceneObjects SceneObj,
 }
 
 // Textured Cube model
-TexturedNormaledVertex texturedCubeVertexArray[] = {
+TexturedNormalledVertex texturedCubeVertexArray[] = {
 	// LEFT
-	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(-1, 0, 0), glm::vec2(0.0f, 0.0f)),
-	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f, 0.5f), glm::vec3(-1, 0, 0), glm::vec2(0.0f, 1.0f)),
-	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(-1, 0, 0), glm::vec2(1.0f, 1.0f)),
+	TexturedNormalledVertex(glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(-1, 0, 0), glm::vec2(0.0f, 0.0f)),
+    TexturedNormalledVertex(glm::vec3(-0.5f, -0.5f, 0.5f), glm::vec3(-1, 0, 0), glm::vec2(0.0f, 1.0f)),
+    TexturedNormalledVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(-1, 0, 0), glm::vec2(1.0f, 1.0f)),
 
-	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(-1, 0, 0), glm::vec2(0.0f, 0.0f)),
-	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(-1, 0, 0), glm::vec2(1.0f, 1.0f)),
-	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f,-0.5f), glm::vec3(-1, 0, 0), glm::vec2(1.0f, 0.0f)),
+    TexturedNormalledVertex(glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(-1, 0, 0), glm::vec2(0.0f, 0.0f)),
+    TexturedNormalledVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(-1, 0, 0), glm::vec2(1.0f, 1.0f)),
+    TexturedNormalledVertex(glm::vec3(-0.5f, 0.5f, -0.5f), glm::vec3(-1, 0, 0), glm::vec2(1.0f, 0.0f)),
 
 	// FAR
-	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f,-0.5f), glm::vec3(0, 0, -1), glm::vec2(1.0f, 1.0f)),
-	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(0, 0, -1), glm::vec2(0.0f, 0.0f)),
-	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f,-0.5f), glm::vec3(0, 0, -1), glm::vec2(0.0f, 1.0f)),
+	TexturedNormalledVertex(glm::vec3(0.5f, 0.5f, -0.5f), glm::vec3(0, 0, -1), glm::vec2(1.0f, 1.0f)),
+    TexturedNormalledVertex(glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0, 0, -1), glm::vec2(0.0f, 0.0f)),
+    TexturedNormalledVertex(glm::vec3(-0.5f, 0.5f, -0.5f), glm::vec3(0, 0, -1), glm::vec2(0.0f, 1.0f)),
 
-	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f,-0.5f), glm::vec3(0, 0, -1), glm::vec2(1.0f, 1.0f)),
-	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f,-0.5f), glm::vec3(0, 0, -1), glm::vec2(1.0f, 0.0f)),
-	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(0, 0, -1), glm::vec2(0.0f, 0.0f)),
+    TexturedNormalledVertex(glm::vec3(0.5f, 0.5f, -0.5f), glm::vec3(0, 0, -1), glm::vec2(1.0f, 1.0f)),
+    TexturedNormalledVertex(glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(0, 0, -1), glm::vec2(1.0f, 0.0f)),
+    TexturedNormalledVertex(glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0, 0, -1), glm::vec2(0.0f, 0.0f)),
 
 	// BOTTOM
-	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(0, -1, 0), glm::vec2(1.0f, 1.0f)),
-	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(0, -1, 0), glm::vec2(0.0f, 0.0f)),
-	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f,-0.5f), glm::vec3(0, -1, 0), glm::vec2(1.0f, 0.0f)),
+	TexturedNormalledVertex(glm::vec3(0.5f, -0.5f, 0.5f), glm::vec3(0, -1, 0), glm::vec2(1.0f, 1.0f)),
+    TexturedNormalledVertex(glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0, -1, 0), glm::vec2(0.0f, 0.0f)),
+    TexturedNormalledVertex(glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(0, -1, 0), glm::vec2(1.0f, 0.0f)),
 
-	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(0, -1, 0), glm::vec2(1.0f, 1.0f)),
-	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f, 0.5f), glm::vec3(0, -1, 0), glm::vec2(0.0f, 1.0f)),
-	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f,-0.5f), glm::vec3(0, -1, 0), glm::vec2(0.0f, 0.0f)),
+    TexturedNormalledVertex(glm::vec3(0.5f, -0.5f, 0.5f), glm::vec3(0, -1, 0), glm::vec2(1.0f, 1.0f)),
+    TexturedNormalledVertex(glm::vec3(-0.5f, -0.5f, 0.5f), glm::vec3(0, -1, 0), glm::vec2(0.0f, 1.0f)),
+    TexturedNormalledVertex(glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0, -1, 0), glm::vec2(0.0f, 0.0f)),
 
 	// NEAR
-	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(0.0f, 1.0f)),
-	TexturedNormaledVertex(glm::vec3(-0.5f,-0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(0.0f, 0.0f)),
-	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(1.0f, 0.0f)),
+	TexturedNormalledVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(0.0f, 1.0f)),
+    TexturedNormalledVertex(glm::vec3(-0.5f, -0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(0.0f, 0.0f)),
+    TexturedNormalledVertex(glm::vec3(0.5f, -0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(1.0f, 0.0f)),
 
-	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(1.0f, 1.0f)),
-	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(0.0f, 1.0f)),
-	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(1.0f, 0.0f)),
+    TexturedNormalledVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(1.0f, 1.0f)),
+    TexturedNormalledVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(0.0f, 1.0f)),
+    TexturedNormalledVertex(glm::vec3(0.5f, -0.5f, 0.5f), glm::vec3(0, 0, 1), glm::vec2(1.0f, 0.0f)),
 
 	// RIGHT
-	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1, 0, 0), glm::vec2(1.0f, 1.0f)),
-	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f,-0.5f), glm::vec3(1, 0, 0), glm::vec2(0.0f, 0.0f)),
-	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f,-0.5f), glm::vec3(1, 0, 0), glm::vec2(1.0f, 0.0f)),
+	TexturedNormalledVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1, 0, 0), glm::vec2(1.0f, 1.0f)),
+    TexturedNormalledVertex(glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(1, 0, 0), glm::vec2(0.0f, 0.0f)),
+    TexturedNormalledVertex(glm::vec3(0.5f, 0.5f, -0.5f), glm::vec3(1, 0, 0), glm::vec2(1.0f, 0.0f)),
 
-	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f,-0.5f), glm::vec3(1, 0, 0), glm::vec2(0.0f, 0.0f)),
-	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1, 0, 0), glm::vec2(1.0f, 1.0f)),
-	TexturedNormaledVertex(glm::vec3(0.5f,-0.5f, 0.5f), glm::vec3(1, 0, 0), glm::vec2(0.0f, 1.0f)),
+    TexturedNormalledVertex(glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(1, 0, 0), glm::vec2(0.0f, 0.0f)),
+    TexturedNormalledVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1, 0, 0), glm::vec2(1.0f, 1.0f)),
+    TexturedNormalledVertex(glm::vec3(0.5f, -0.5f, 0.5f), glm::vec3(1, 0, 0), glm::vec2(0.0f, 1.0f)),
 
 	// TOP
-	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0, 1, 0), glm::vec2(1.0f, 1.0f)),
-	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f,-0.5f), glm::vec3(0, 1, 0), glm::vec2(1.0f, 0.0f)),
-	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f,-0.5f), glm::vec3(0, 1, 0), glm::vec2(0.0f, 0.0f)),
+	TexturedNormalledVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0, 1, 0), glm::vec2(1.0f, 1.0f)),
+    TexturedNormalledVertex(glm::vec3(0.5f, 0.5f, -0.5f), glm::vec3(0, 1, 0), glm::vec2(1.0f, 0.0f)),
+    TexturedNormalledVertex(glm::vec3(-0.5f, 0.5f, -0.5f), glm::vec3(0, 1, 0), glm::vec2(0.0f, 0.0f)),
 
-	TexturedNormaledVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0, 1, 0), glm::vec2(1.0f, 1.0f)),
-	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f,-0.5f), glm::vec3(0, 1, 0), glm::vec2(0.0f, 0.0f)),
-	TexturedNormaledVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(0, 1, 0), glm::vec2(0.0f, 1.0f))
+    TexturedNormalledVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0, 1, 0), glm::vec2(1.0f, 1.0f)),
+    TexturedNormalledVertex(glm::vec3(-0.5f, 0.5f, -0.5f), glm::vec3(0, 1, 0), glm::vec2(0.0f, 0.0f)),
+    TexturedNormalledVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(0, 1, 0), glm::vec2(0.0f, 1.0f))
 };
 
 /**
@@ -216,13 +191,13 @@ GLuint createVertexArrayObject2()
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(texturedCubeVertexArray), texturedCubeVertexArray, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedNormaledVertex), (void*) 0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedNormalledVertex), (void*) 0);
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedNormaledVertex), (void*) sizeof(glm::vec3));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedNormalledVertex), (void*) sizeof(glm::vec3));
 	glEnableVertexAttribArray(1);
 
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedNormaledVertex), (void*) (2 * sizeof(glm::vec3)));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedNormalledVertex), (void*) (2 * sizeof(glm::vec3)));
 	glEnableVertexAttribArray(2);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -318,9 +293,6 @@ bool shouldApplyTextures = true;
 bool soundPlayed = false;
 bool scoreIncremented = false;
 
-int selectModel = 0; //we can se to 0 but then user has to toggle to before any thing
-int selectJoint = 0;
-
 // Create Letter objects for the scoreboard
 Letters numberDraw;
 Letters numberDraw2;
@@ -403,7 +375,7 @@ int main(int argc, char* argv[])
 	// Print OpenGL version
 	std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
-#if defined(__APPLE__) // NOTE Rez: Youll need to path the textures
+#if defined(__APPLE__)
 #else
 	// Enable debug output
 	glEnable(GL_DEBUG_OUTPUT);
@@ -442,25 +414,25 @@ int main(int argc, char* argv[])
 	// Initialize projection and view matrices
 	glm::mat4 projectionMatrix = glm::perspective(FOV, AR, near, far);
 
-	glm::mat4 InitviewMatrix = glm::lookAt(eye, center, up);
+	glm::mat4 InitViewMatrix = glm::lookAt(eye, center, up);
 
 	setProjectionMatrix(shaderProgram, projectionMatrix);
-	setViewMatrix(shaderProgram, InitviewMatrix);
+	setViewMatrix(shaderProgram, InitViewMatrix);
 
-    std::vector<int> vertexIndicessphere;
-	std::vector<glm::vec3> verticessphere, normalssphere;
-	std::vector<glm::vec2> UVscube, UVssphere;
+    std::vector<int> vertexIndicesSphere;
+	std::vector<glm::vec3> verticesSphere, normalsSphere;
+	std::vector<glm::vec2> UVsSphere;
 	std::string pathSphere = "../src/Assets/mesh/unitSphere.obj";
-	loadOBJ2(pathSphere.c_str(), vertexIndicessphere, verticessphere, normalssphere, UVssphere);
+	loadOBJ2(pathSphere.c_str(), vertexIndicesSphere, verticesSphere, normalsSphere, UVsSphere);
   
 	// Scale the vertex positions of the sphere
-	for (auto & vert : verticessphere) {
+	for (auto & vert : verticesSphere) {
 		vert *= 0.05f;
 	}
 	
 	// Create VAOs
 	GLuint gridAO = createVertexArrayObject(SceneObj.lineArray, sizeof(SceneObj.lineArray));
-	GLuint unitSphereAO = createVertexArrayElementObject2(vertexIndicessphere, verticessphere, normalssphere, UVssphere);
+	GLuint unitSphereAO = createVertexArrayElementObject2(vertexIndicesSphere, verticesSphere, normalsSphere, UVsSphere);
 	GLuint unitCubeAO = createVertexArrayObject2();
 
     // TEXTURES
@@ -502,7 +474,7 @@ int main(int argc, char* argv[])
 	//Crowd
 	crowd.vaos[0] = unitCubeAO;
 	crowd.vaos[1] = unitSphereAO;
-	crowd.sphereIndexCount = vertexIndicessphere.size();
+	crowd.sphereIndexCount = vertexIndicesSphere.size();
 	crowd.skinMaterial = skinMaterial;
 	crowd.clothMaterial = clothMaterial;
 	crowd.shaderProgram = shaderProgram;
@@ -531,7 +503,7 @@ int main(int argc, char* argv[])
 
 	// Set mouse and keyboard callbacks
 	glfwSetKeyCallback(window, keyPressCallback);
-	glfwSetCursorPosCallback(window, mouseCursorPostionCallback);
+    glfwSetCursorPosCallback(window, mouseCursorPositionCallback);
 
     // Lighting
     float lightAngleOuter = 10.0;
@@ -595,11 +567,10 @@ int main(int argc, char* argv[])
 	glReadBuffer(GL_NONE);
 	glDrawBuffer(GL_NONE);
 	glBindTexture(GL_TEXTURE_2D, 0);
-	GLint kdepthMap = glGetUniformLocation(shaderProgram, "shadowMap");
-	glUniform1i(kdepthMap, 2);
+	GLint kDepthMap = glGetUniformLocation(shaderProgram, "shadowMap");
+	glUniform1i(kDepthMap, 2);
 
     glfwSetTime(0.0f);
-	//double lastWorldTime = 0.0;
     double dt = 0;
 
 	// Keyframes for Blue player
@@ -656,7 +627,7 @@ int main(int argc, char* argv[])
 
 	ball.setShaderProgram(shaderProgram);
 	ball.setVAO(unitSphereAO);
-	ball.setSphereVertCount(vertexIndicessphere.size());
+	ball.setSphereVertCount(vertexIndicesSphere.size());
 	ball.setMaterial(grassMaterial);
     ball.setSoundEngine(audioEngine);
 
@@ -665,15 +636,18 @@ int main(int argc, char* argv[])
 	float spin = 0;
 	bool reverse = false;
 	int redScore = 0, blueScore = 0;
-
 	bool playSound = true;
+
 	if (playSound) {
 		irrklang::ISoundEngine* bigCrowdSound = irrklang::createIrrKlangDevice();
 		irrklang::ISound* sound = bigCrowdSound->play2D("../src/Assets/sounds/BigCrowd.wav", true, false, true);
 
 		bigCrowdSound->setSoundVolume(0.025f);
 	}
+
+    // Set the current time to be 0. Animation relies on specific times
 	glfwSetTime(0.0f);
+
     // MAIN LOOP
 	while (!glfwWindowShouldClose(window))
 	{
@@ -686,7 +660,7 @@ int main(int argc, char* argv[])
 			          rotationMatrixW;
 		crowd.groupMatrix = groupMatrix;
 		float lightDepth = 1.0f; //we can do 30, but it works better lower because the scale?
-		bool noshowLightBox = false;
+		bool noShowLightBox = false;
 		float x = sin(i);
 		float z = cos(i);
 		i += .002;
@@ -810,10 +784,8 @@ int main(int argc, char* argv[])
 		
 		vec3 position1 = ball.getPosition();
 	
-		float checky = playerArm1.position.x;
-	
 		//https://stackoverflow.com/questions/13915479/c-get-every-number-separately
-		//this for seperating more
+		//this for separating more
 
 		// Must draw scene in 2 passes: once for shadows, and another normally
 		// 1st pass
@@ -848,7 +820,7 @@ int main(int argc, char* argv[])
 			ball.drawBall();
 
             SceneObj.sphereVao = unitSphereAO;
-            SceneObj.sphereVertCount = vertexIndicessphere.size();
+            SceneObj.sphereVertCount = vertexIndicesSphere.size();
             SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
             SceneObj.SetVAO(unitCubeAO, gridAO);
             SceneObj.DrawScene(false);  // Draw scene without the skybox, so it can't be used to make shadows on the scene
@@ -911,7 +883,7 @@ int main(int argc, char* argv[])
 			numberDraw2.Scoreboard(redScore, false, false);
 
 			SceneObj.sphereVao = unitSphereAO;
-			SceneObj.sphereVertCount = vertexIndicessphere.size();
+			SceneObj.sphereVertCount = vertexIndicesSphere.size();
 			SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
 			SceneObj.SetVAO(unitCubeAO, gridAO);
 			SceneObj.DrawScene(true);  // Draw scene with the skybox
@@ -958,7 +930,7 @@ int main(int argc, char* argv[])
 			glBindVertexArray(0);
 			//******************
 
-			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noshowLightBox);
+			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noShowLightBox);
 		}
 
 		//crowd.drawCrowd();
@@ -972,7 +944,7 @@ int main(int argc, char* argv[])
         glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
-    // Shut down irrklang
+    // Shut down irrKlang
     audioEngine->drop();
 
 	// Shutdown GLFW
@@ -1079,7 +1051,8 @@ void handleSounds(double currentTime) {
 /** Handle incrementing the scoreboard
  *
  * @param currentTime: The current time according to glfwGetTime()
- * @param scoreIncremented: Whether score scoe has
+ * @param redScore: A reference to the red player's score
+ * @param blueScore: A reference to the blue player's score
  */
 void handleScoring(double currentTime, int& redScore, int& blueScore) {
     if (currentTime >= 9.0 && currentTime < 9.1 && !scoreIncremented)
@@ -1087,23 +1060,23 @@ void handleScoring(double currentTime, int& redScore, int& blueScore) {
         blueScore = 15;
         scoreIncremented = true;
     }
-    if (currentTime >= 9.1 && currentTime < 9.2)
+    else if (currentTime >= 9.1 && currentTime < 9.2)
         scoreIncremented = false;
 
-    if (currentTime >= 22.0 && currentTime < 22.1 && !scoreIncremented)
+    else if (currentTime >= 22.0 && currentTime < 22.1 && !scoreIncremented)
     {
         redScore = 15;
         scoreIncremented = true;
     }
-    if (currentTime >= 22.1 && currentTime < 22.2)
+    else if (currentTime >= 22.1 && currentTime < 22.2)
         scoreIncremented = false;
 
-    if (currentTime >= 40.0 && currentTime < 40.1 && !scoreIncremented)
+    else if (currentTime >= 40.0 && currentTime < 40.1 && !scoreIncremented)
     {
         blueScore = 30;
         scoreIncremented = true;
     }
-    if (currentTime >= 40.1 && currentTime < 40.2)
+    else if (currentTime >= 40.1 && currentTime < 40.2)
         scoreIncremented = false;
 }
 
@@ -1252,124 +1225,21 @@ GLFW callback function for handling keyboard inputs
 void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	// Get states of each relevant key
-	int state_ESC = glfwGetKey(window, GLFW_KEY_ESCAPE);
-	int state_SPACE = glfwGetKey(window, GLFW_KEY_SPACE);
-	int state_TAB = glfwGetKey(window, GLFW_KEY_TAB);
-	int state_U = glfwGetKey(window, GLFW_KEY_U);
-	int state_W = glfwGetKey(window, GLFW_KEY_W);
-	int state_A = glfwGetKey(window, GLFW_KEY_A);
-	int state_S = glfwGetKey(window, GLFW_KEY_S);
-	int state_D = glfwGetKey(window, GLFW_KEY_D);
-    int state_I = glfwGetKey(window, GLFW_KEY_I);
-    int state_J = glfwGetKey(window, GLFW_KEY_J);
-    int state_K = glfwGetKey(window, GLFW_KEY_K);
-    int state_L = glfwGetKey(window, GLFW_KEY_L);
-	int state_UP = glfwGetKey(window, GLFW_KEY_UP);
-	int state_DOWN = glfwGetKey(window, GLFW_KEY_DOWN);
-	int state_LEFT = glfwGetKey(window, GLFW_KEY_LEFT);
+	int state_ESC   = glfwGetKey(window, GLFW_KEY_ESCAPE);
+	int state_UP    = glfwGetKey(window, GLFW_KEY_UP);
+	int state_DOWN  = glfwGetKey(window, GLFW_KEY_DOWN);
+	int state_LEFT  = glfwGetKey(window, GLFW_KEY_LEFT);
 	int state_RIGHT = glfwGetKey(window, GLFW_KEY_RIGHT);
-	int state_HOME = glfwGetKey(window, GLFW_KEY_HOME);
-	int state_P = glfwGetKey(window, GLFW_KEY_P);
-	int state_T = glfwGetKey(window, GLFW_KEY_T);
-	int state_B = glfwGetKey(window, GLFW_KEY_B);
-	int state_X = glfwGetKey(window, GLFW_KEY_X);
-	int state_1 = glfwGetKey(window, GLFW_KEY_1);
-	int state_2 = glfwGetKey(window, GLFW_KEY_2);
-    int state_COMMA = glfwGetKey(window, GLFW_KEY_COMMA);
-    int state_PERIOD = glfwGetKey(window, GLFW_KEY_PERIOD);
-
-	//global random
-	float number1 = (rand()) / (float)(RAND_MAX);
-	float number2 = (rand()) / (float)(RAND_MAX);
-	float number3 = (rand()) / (float)(RAND_MAX);
-	// Constrain to visible grid locations
-	if (number1 >= .75f)
-		number1 = number1 / (float)(RAND_MAX);
-	if (number2 >= .25f)
-		number2 = number2 / (float)(RAND_MAX);
-	if (number3 >= .75f)
-		number3 = number3 / (float)(RAND_MAX);
-
-    if ((state_D == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-        playerArm1.setTranslateModel(glm::vec3((playerArm1.getTranslateModel().x - .005f), playerArm1.getTranslateModel().y, playerArm1.getTranslateModel().z));
-    else if ((state_A == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-        playerArm1.setTranslateModel(glm::vec3((playerArm1.getTranslateModel().x + .005f), playerArm1.getTranslateModel().y, playerArm1.getTranslateModel().z));
-    else if ((state_A == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-        switch (selectJoint) {
-            case(0): playerArm1.setRotation(playerArm1.getRotation() + 5);  break;
-            case(1):if (playerArm1.getERotation() + 5 > 90)playerArm1.setERotation(90); else  playerArm1.setERotation(playerArm1.getERotation() + 5);  break;
-            case(2):if (playerArm1.getWRotation() + 5 > 65)playerArm1.setWRotation(65); else  playerArm1.setWRotation(playerArm1.getWRotation() + 5); break;
-            default: break;
-        }
-    else if ((state_D == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-        switch (selectJoint) {
-            case(0): playerArm1.setRotation(playerArm1.getRotation() - 5);  break;
-            case(1):if (playerArm1.getERotation() - 5 < 0)playerArm1.setERotation(0); else  playerArm1.setERotation(playerArm1.getERotation() - 5);  break;
-            case(2):if (playerArm1.getWRotation() - 5 < -85)playerArm1.setWRotation(-85); else  playerArm1.setWRotation(playerArm1.getWRotation() - 5); break;
-            default: break;
-        }
-
-    else if ((state_J == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-        playerArm2.setTranslateModel(glm::vec3((playerArm2.getTranslateModel().x - .005f), playerArm2.getTranslateModel().y, playerArm2.getTranslateModel().z));
-    else if ((state_L == GLFW_PRESS) && mods != GLFW_MOD_SHIFT)
-        playerArm2.setTranslateModel(glm::vec3((playerArm2.getTranslateModel().x + .005f), playerArm2.getTranslateModel().y, playerArm2.getTranslateModel().z));
-    else if ((state_L == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-        switch (selectJoint) {
-            case(0): playerArm2.setRotation(playerArm2.getRotation() + 5);  break;
-            case(1):if (playerArm2.getERotation() + 5 > 90)playerArm2.setERotation(90); else  playerArm2.setERotation(playerArm2.getERotation() + 5);  break;
-            case(2):if (playerArm2.getWRotation() + 5 > 65)playerArm2.setWRotation(65); else  playerArm2.setWRotation(playerArm2.getWRotation() + 5); break;
-            default: break;
-        }
-    else if ((state_J == GLFW_PRESS) && mods == GLFW_MOD_SHIFT)
-        switch (selectJoint) {
-            case(0): playerArm2.setRotation(playerArm2.getRotation() - 5);  break;
-            case(1):if (playerArm2.getERotation() - 5 < 0)playerArm2.setERotation(0); else  playerArm2.setERotation(playerArm2.getERotation() - 5);  break;
-            case(2):if (playerArm2.getWRotation() - 5 < -85)playerArm2.setWRotation(-85); else  playerArm2.setWRotation(playerArm2.getWRotation() - 5); break;
-            default: break;
-        }
+	int state_HOME  = glfwGetKey(window, GLFW_KEY_HOME);
+	int state_P     = glfwGetKey(window, GLFW_KEY_P);
+    int state_L     = glfwGetKey(window, GLFW_KEY_L);
+	int state_T     = glfwGetKey(window, GLFW_KEY_T);
+	int state_B     = glfwGetKey(window, GLFW_KEY_B);
+	int state_X     = glfwGetKey(window, GLFW_KEY_X);
 
 	// If ESC is pressed, window should close
-	else if (state_ESC == GLFW_PRESS)
+	if (state_ESC == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-
-	else if (state_TAB == GLFW_PRESS && mods != GLFW_MOD_SHIFT) {
-		/*
-		select -1 is original model micah
-		0 is second model matthew
-		1 is third model evan
-		2 is fouth jonah
-		3 is five Noot
-		*/
-		if (selectModel == 0) selectModel += 1;
-		else if (selectModel == 1) selectModel = 0;
-		else selectModel += 1;
-		//printf("selectModel is: %d\n", selectModel);
-		switch (selectModel) {
-		case(0):printf("selectModel is: %d , selected Player 1 \n", selectModel); break;
-		case(1):printf("selectModel is: %d , selected Player 2 \n", selectModel); break;
-
-		default: break;
-		}
-	}
-
-	else if (state_TAB == GLFW_PRESS && mods == GLFW_MOD_SHIFT) {
-		/*
-		select -1 is bicep
-		0 is elbow
-		1 is wrist y
-		2 is wrist x?
-		*/
-		if (selectJoint == 0) selectJoint += 1; 
-		else if (selectJoint == 2) selectJoint = 0;
-		else selectJoint += 1;
-		switch (selectJoint) {
-		case(0):printf("selectJoint is: %d , selected shoulder\n", selectJoint); break;
-		case(1):printf("selectJoint is: %d , selected elbow\n", selectJoint); break;
-		case(2):printf("selectJoint is: %d , selected wrist\n", selectJoint); break;
-		default: break;
-		}
-		//printf("selectJoint is: %d\n", selectJoint);
-	}
 
 	// If the arrow keys are pressed, rotate accordingly
 	else if (state_LEFT == GLFW_PRESS)
@@ -1388,18 +1258,20 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	else if (state_P == GLFW_PRESS)
 		renderAs = GL_POINTS;
 
+    else if (state_L == GLFW_PRESS)
+        renderAs = GL_LINES;
+
 	else if (state_T == GLFW_PRESS)
 		renderAs = GL_TRIANGLES;
 
 	// If HOME is pressed, remove translations, rotations, and scalings
 	else if (state_HOME == GLFW_PRESS) {		
-		playerArm1.resetArm();
 		GroupMatrixScale = glm::vec3(1.0f);
 		rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-		glm::mat4 InitviewMatrix = glm::lookAt(eye, center, up);
+		glm::mat4 initViewMatrix = glm::lookAt(eye, center, up);
 		glm::mat4 projectionMatrix = glm::perspective(FOV, AR, near, far);
 		setProjectionMatrix(shaderProgram, projectionMatrix);
-		setViewMatrix(shaderProgram, InitviewMatrix);
+		setViewMatrix(shaderProgram, initViewMatrix);
 	}
 
 	// If b is pressed, toggle shadows
@@ -1409,25 +1281,12 @@ void keyPressCallback(GLFWwindow* window, int key, int scancode, int action, int
 	// If x is pressed, toggle textures
 	else if (state_X == GLFW_PRESS)
 		shouldApplyTextures = !shouldApplyTextures;
-
-    // If comma is pressed, play a ball sound
-    else if (state_COMMA == GLFW_PRESS)
-        ball.playSound();
-
-    // If period is pressed, play a crowd sound. Male normally, female with SHIFT
-    else if (state_PERIOD == GLFW_PRESS)
-    {
-        if (mods != GLFW_MOD_SHIFT)
-            SceneObj.playCrowdSound(true);
-        else
-            SceneObj.playCrowdSound(false);
-    }
 }
 
 /**
 GLFW callback function for handling mouse button and position
 */
-void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos)
+void mouseCursorPositionCallback(GLFWwindow* window, double xPos, double yPos)
 {
 	// Get state of each mouse button
 	int state_LEFT = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
@@ -1443,8 +1302,8 @@ void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos)
 		else if (dy > 0)
 			translateY -= .005;
 
-		glm::mat4 InitviewMatrix = glm::lookAt(eye, glm::vec3(translateW, translateY, 0.0f), up);
-		setViewMatrix(shaderProgram, InitviewMatrix);
+		glm::mat4 initViewMatrix = glm::lookAt(eye, glm::vec3(translateW, translateY, 0.0f), up);
+		setViewMatrix(shaderProgram, initViewMatrix);
 
 		lastMousePosY = yPos;
 	}
@@ -1458,8 +1317,8 @@ void mouseCursorPostionCallback(GLFWwindow* window, double xPos, double yPos)
 		else if (dx > 0)
 			translateW += .005;
 
-		glm::mat4 InitviewMatrix = glm::lookAt(eye, glm::vec3(translateW + center.x, translateY + center.y, 0.0f), up);
-		setViewMatrix(shaderProgram, InitviewMatrix);
+		glm::mat4 initViewMatrix = glm::lookAt(eye, glm::vec3(translateW + center.x, translateY + center.y, 0.0f), up);
+		setViewMatrix(shaderProgram, initViewMatrix);
 		lastMousePosX = xPos;
 	}
 
