@@ -781,7 +781,7 @@ int main(int argc, char* argv[])
 			glm::mat4 letterScale;
 			glm::mat4 LetterGroupMatrix;
 
-			letterTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, .08, -0.75));
+			letterTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, .080, -0.75));
 			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
 			glm::mat4 letterParent = letterTranslate * letterScale;
 			LetterGroupMatrix = groupMatrix * letterParent;
@@ -791,7 +791,7 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f, .6f, .66f))); //al have the same colour
 			Bleachers.RenderModelBleacher();
 
-			letterTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.35, .08, -0.75));
+			letterTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.35, .080, -0.75));
 			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
 			letterParent = letterTranslate * letterScale;
 			LetterGroupMatrix = groupMatrix * letterParent;
@@ -868,7 +868,7 @@ int main(int argc, char* argv[])
 
 			//this is the red clay court
 			glBindVertexArray(unitCubeAO);
-			bleacherTranslate = glm::translate(glm::mat4(1.0f), vec3(0.0, -0.07, -0.0));
+			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, -0.07, -0.0));
 			bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(50.0f, 1.0f, 50.00015f) );
 			bleacherParent = bleacherTranslate * bleacherScale;
 			bleacherGroupMatrix = groupMatrix * bleacherParent;
