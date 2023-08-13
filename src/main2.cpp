@@ -602,7 +602,7 @@ int main(int argc, char* argv[])
         KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(90.0), 0.0), // Initial key frame
 		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(90.0), 3.0), // Start moving for ball
         KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(120.0), 5.5), // Start moving for ball
-		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(90.0), 6.0), // Hit ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.035), glm::vec3(90.0), 6.0), // Hit ball
 		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(90.0), 13.0), // Start moving back
 		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(120.0), 15.5), // Start moving away from ball
 		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(90.0), 16.0), // Start moving back
@@ -623,7 +623,7 @@ int main(int argc, char* argv[])
 	KeyFrame keyframesRed[] = {
 		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(-90.0), 0.0), // Initial key frame
 		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(-60.0), 2.5), // Start moving for ball
-		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-90.0), 3.0), // Hit ball
+		KeyFrame(glm::vec3(0.0, 0.0, -0.035), glm::vec3(-90.0), 3.0), // Hit ball
 		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0), 8.0), // Start moving away from ball
 		KeyFrame(glm::vec3(0.0, 0.0, 0.18), glm::vec3(-110.0), 8.5), // Be away from ball
 		KeyFrame(glm::vec3(0.0, 0.0, -0.005), glm::vec3(-90.0), 11.0), // Start moving back
@@ -646,12 +646,12 @@ int main(int argc, char* argv[])
     // Keyframes for Ball
 	KeyFrame keyframesBall[] = {
         KeyFrame(glm::vec3(0.0, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 0.0), // Initial key frame
-		KeyFrame(glm::vec3(0.235, BALL_Y_OFFSET-0.23, 0.0), glm::vec3(0.0), 1.5), // Initial key frame
-        KeyFrame(glm::vec3(0.47, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 3.0), // Initial movement right
-		KeyFrame(glm::vec3(-0.235, BALL_Y_OFFSET -0.23, 0.0), glm::vec3(0.0), 5.0), // Ball hit, move back
-		KeyFrame(glm::vec3(-0.47, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 6.0), // Initial key frame
-		KeyFrame(glm::vec3(0.375, BALL_Y_OFFSET -0.23, 0.0), glm::vec3(0.0), 8.0), // Ball hit, move back
-        KeyFrame(glm::vec3(0.75, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 9.0), // SCORE
+		KeyFrame(glm::vec3(0.235, BALL_Y_OFFSET-0.23, 0.075), glm::vec3(0.0), 1.5), // Initial key frame
+        KeyFrame(glm::vec3(0.47, BALL_Y_OFFSET, -0.15), glm::vec3(0.0), 3.0), // Initial movement right
+		KeyFrame(glm::vec3(-0.235, BALL_Y_OFFSET -0.23, 0.1), glm::vec3(0.0), 5.0), // Ball hit, move back
+		KeyFrame(glm::vec3(-0.47, BALL_Y_OFFSET, 0.15), glm::vec3(0.0), 6.0), // Initial key frame
+		KeyFrame(glm::vec3(0.375, BALL_Y_OFFSET -0.23, -0.05), glm::vec3(0.0), 8.0), // Ball hit, move back
+        KeyFrame(glm::vec3(0.75, BALL_Y_OFFSET, -0.15), glm::vec3(0.0), 9.0), // SCORE
         KeyFrame(glm::vec3(0.75, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 10.0), // Stay off-screen for a moment
         KeyFrame(glm::vec3(0.0, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 11.0), // Reset to center
         KeyFrame(glm::vec3(0.0, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 13.0), // Stay in center for a moment
