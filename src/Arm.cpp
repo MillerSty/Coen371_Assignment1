@@ -20,7 +20,7 @@ Arm::Arm(int cubeVao, std::string letterName) {
 	this->TranslateRandom = glm::vec3(0.0f, 0.0f, 0.0f);
 	this->letterName = letterName;
 }
-void Arm::InitArm(glm::vec3 position, int VAO, Material skinMaterial, Material clothMaterial) {
+void Arm::InitArm(glm::vec3 position, GLuint VAO, Material skinMaterial, Material clothMaterial) {
 	this->position = position;
 	this->cubeVao = VAO;
 	this->skinMaterial = skinMaterial;
