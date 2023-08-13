@@ -1,37 +1,30 @@
 #version 330 core
 
+// Inputs
 in vec2 vertexUV;
-out vec3 FragColor;
-
-uniform vec3 objectColor;
-uniform sampler2D textureSampler;
-
-uniform bool shouldApplyTexture;
-uniform bool shouldApplyShadows;
-
-const float PI = 3.1415926535897932384626433832795;
-
-uniform vec3 lightColor;
-uniform vec3 lightPosition;
-uniform vec3 lightDirection;
-
-const float shadingAmbientStrength = .60f;
-const float shadingDiffuseStrength = 0.5;
-const float shadingSpecularStrength = 0.5;
-
-uniform float lightCutoffOuter;
-uniform float lightCutoffInner;
-
-uniform vec3 viewPosition;
-
 in vec4 gl_FragCoord;
-
-uniform sampler2D shadowMap;
-
 in vec3 fragmentPosition;
 in vec4 fragmentPositionLightSpace;
 in vec3 fragmentNormal;
 
+// Outputs
+out vec3 FragColor;
+
+// Constants
+const float PI = 3.1415926535897932384626433832795;
+
+// Uniforms
+uniform vec3 objectColor;
+uniform sampler2D textureSampler;
+uniform bool shouldApplyTexture;
+uniform bool shouldApplyShadows;
+uniform vec3 lightColor;
+uniform vec3 lightPosition;
+uniform vec3 lightDirection;
+uniform float lightCutoffOuter;
+uniform float lightCutoffInner;
+uniform vec3 viewPosition;
+uniform sampler2D shadowMap;
 uniform float materialSpec;
 
 //i think there is something wrong with out Lighting

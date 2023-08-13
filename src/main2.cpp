@@ -6,7 +6,6 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <ctime>
 
 // Dependency includes
 #define GLEW_STATIC 1   // This allows linking with Static Library on Windows, without DLL
@@ -47,6 +46,8 @@ bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm
 	          std::vector<glm::vec3>& out_normals, std::vector<glm::vec2>& out_uvs);
 void handleSounds(double currentTime);
 void handleScoring(double currentTime, int& red, int& blue);
+void setUpLighting();
+void setUpShadowMap(const unsigned int &DEPTH_MAP_TEXTURE_SIZE, GLuint &depth_map_texture, GLuint &depth_map_fbo);
 
 /**
 Create a vertex array object for the grid
@@ -315,9 +316,6 @@ SceneObjects SceneObj("scene");
 
 int main(int argc, char* argv[])
 {
-    // Seed a random number generator for later use. Taken from https://stackoverflow.com/a/5891824
-    srand(time(nullptr));
-
 	// Initialize GLFW and OpenGL version
 	if (!glfwInit())
 		return -1;
@@ -381,6 +379,10 @@ int main(int argc, char* argv[])
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(messageCallback, 0);
 #endif
+
+    // Set mouse and keyboard callbacks
+    glfwSetKeyCallback(window, keyPressCallback);
+    glfwSetCursorPosCallback(window, mouseCursorPositionCallback);
 	
 	// Black background	
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -474,7 +476,7 @@ int main(int argc, char* argv[])
 	//Crowd
 	crowd.vaos[0] = unitCubeAO;
 	crowd.vaos[1] = unitSphereAO;
-	crowd.sphereIndexCount = vertexIndicesSphere.size();
+	crowd.sphereIndexCount = (int) vertexIndicesSphere.size();
 	crowd.skinMaterial = skinMaterial;
 	crowd.clothMaterial = clothMaterial;
 	crowd.shaderProgram = shaderProgram;
@@ -501,78 +503,23 @@ int main(int argc, char* argv[])
 	numberDraw2.cubeVao = unitCubeAO;
 	numberDraw2.shaderProgram = shaderProgram;
 
-	// Set mouse and keyboard callbacks
-	glfwSetKeyCallback(window, keyPressCallback);
-    glfwSetCursorPosCallback(window, mouseCursorPositionCallback);
+    // Set ball parameters
+    ball.setShaderProgram(shaderProgram);
+    ball.setVAO(unitSphereAO);
+    ball.setSphereVertCount((int) vertexIndicesSphere.size());
+    ball.setMaterial(grassMaterial);
+    ball.setSoundEngine(audioEngine);
 
-    // Lighting
-    float lightAngleOuter = 10.0;
-    float lightAngleInner = 0.01;
-    // Set light cutoff angles on scene shader
-    GLint lightCutoffInnerLoc = glGetUniformLocation( shaderProgram, "lightCutoffInner");
-    GLint lightCutoffOuterLoc = glGetUniformLocation( shaderProgram, "lightCutoffOuter");
-    glUniform1f(lightCutoffInnerLoc, cos(glm::radians(lightAngleInner)));
-    glUniform1f(lightCutoffOuterLoc, cos(glm::radians(lightAngleOuter)));
+    // SET UP LIGHTING
+    setUpLighting();
 
-    GLint lightColorLoc = glGetUniformLocation( shaderProgram, "lightColor");
-
-    glUniform3fv(lightColorLoc, 1, glm::value_ptr(vec3(1.0f, 1.0f, 1.0f)));
-
-    // light parameters
-    glm::vec3 lightPosition(-0.0f, 30.0f, .0f); // the location of the light in 3D space
-	glm::vec3 lightFocus(0.0, -0.01, .0f);      // the point in 3D space the light "looks" at
-	glm::vec3 lightDirection = glm::normalize(lightFocus - lightPosition);
-
-    float lightNearPlane = 0.01f;
-    float lightFarPlane = 180.0f;
-
-	glm::mat4 lightProjectionMatrix = glm::ortho(-1.5f, 1.50f, -1.50f, 1.50f, lightNearPlane, lightFarPlane);
-	glm::mat4 lightViewMatrix = glm::lookAt(lightPosition, lightFocus, glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 lightSpaceMatrix = lightProjectionMatrix * lightViewMatrix;
-
-	// Get lighting-related uniform locations
-    GLint lightViewProjMatrixLoc = glGetUniformLocation( shaderProgram, "lightViewProjMatrix");
-    GLint lightNearPlaneLoc      = glGetUniformLocation( shaderProgram, "lightNearPlane");
-    GLint lightFarPlaneLoc       = glGetUniformLocation( shaderProgram, "lightFarPlane");
-    GLint lightPositionLoc       = glGetUniformLocation( shaderProgram, "lightPosition");
-    GLint lightDirectionLoc      = glGetUniformLocation( shaderProgram, "lightDirection");
-
-	// Set light view projection matrix
-    glUniformMatrix4fv(lightViewProjMatrixLoc, 1, GL_FALSE, &lightSpaceMatrix[0][0]);
-
-    // Set light far and near planes on scene shader
-    glUniform1f(lightNearPlaneLoc, lightNearPlane);
-    glUniform1f(lightFarPlaneLoc, lightFarPlane);
-
-    // Set light position on scene shader
-    glUniform3fv(lightPositionLoc, 1, &lightPosition[0]);
-
-    // Set light direction on scene shader
-    glUniform3fv(lightDirectionLoc, 1, &lightDirection[0]);
-
-    // Dimensions of the shadow texture, which should cover the viewport window size and shouldn't be over-sized and waste resources
+    // SET UP SHADOWS
     const unsigned int DEPTH_MAP_TEXTURE_SIZE = 1024;
-	GLuint depth_map_texture;
-	glGenTextures(1, &depth_map_texture);
-	glBindTexture(GL_TEXTURE_2D, depth_map_texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, DEPTH_MAP_TEXTURE_SIZE, DEPTH_MAP_TEXTURE_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	GLuint depth_map_fbo;
-	glGenFramebuffers(1, &depth_map_fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_map_texture, 0);
-	glReadBuffer(GL_NONE);
-	glDrawBuffer(GL_NONE);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	GLint kDepthMap = glGetUniformLocation(shaderProgram, "shadowMap");
-	glUniform1i(kDepthMap, 2);
+    GLuint depth_map_texture;
+    GLuint depth_map_fbo;
+    setUpShadowMap(DEPTH_MAP_TEXTURE_SIZE, depth_map_texture, depth_map_fbo);
 
-    glfwSetTime(0.0f);
-    double dt = 0;
-
+    // DEFINE KEYFRAMES FOR ANIMATION
 	// Keyframes for Blue player
     KeyFrame keyframesBlue[] = {
         KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0), 0.0), // Initial key frame
@@ -625,24 +572,20 @@ int main(int argc, char* argv[])
     int keyframeNumRed = 0;
 	int keyframeNumBall = 0;
 
-	ball.setShaderProgram(shaderProgram);
-	ball.setVAO(unitSphereAO);
-	ball.setSphereVertCount(vertexIndicesSphere.size());
-	ball.setMaterial(grassMaterial);
-    ball.setSoundEngine(audioEngine);
-
 	int number = 0;
 	float i = -1;
-	float spin = 0;
-	bool reverse = false;
+
+    // Initialize player scores
 	int redScore = 0, blueScore = 0;
-	bool playSound = true;
+
+    // Decide whether to play sounds or not. Mostly fo debug
+    bool playSound = true;
 
 	if (playSound) {
 		irrklang::ISoundEngine* bigCrowdSound = irrklang::createIrrKlangDevice();
 		irrklang::ISound* sound = bigCrowdSound->play2D("../src/Assets/sounds/BigCrowd.wav", true, false, true);
 
-		bigCrowdSound->setSoundVolume(0.025f);
+		bigCrowdSound->setSoundVolume(0.15f);
 	}
 
     // Set the current time to be 0. Animation relies on specific times
@@ -658,8 +601,10 @@ int main(int argc, char* argv[])
 		groupMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, .0f)) *
 			          glm::scale(glm::mat4(1.0f), GroupMatrixScale) *
 			          rotationMatrixW;
+
 		crowd.groupMatrix = groupMatrix;
-		float lightDepth = 1.0f; //we can do 30, but it works better lower because the scale?
+
+		float lightDepth = 1.0f;
 		bool noShowLightBox = false;
 		float x = sin(i);
 		float z = cos(i);
@@ -820,7 +765,7 @@ int main(int argc, char* argv[])
 			ball.drawBall();
 
             SceneObj.sphereVao = unitSphereAO;
-            SceneObj.sphereVertCount = vertexIndicesSphere.size();
+            SceneObj.sphereVertCount = (int) vertexIndicesSphere.size();
             SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
             SceneObj.SetVAO(unitCubeAO, gridAO);
             SceneObj.DrawScene(false);  // Draw scene without the skybox, so it can't be used to make shadows on the scene
@@ -951,6 +896,66 @@ int main(int argc, char* argv[])
 	glfwTerminate();
 
 	return 0;
+}
+
+/** Set up the shadow map
+ *
+ * @param DEPTH_MAP_TEXTURE_SIZE: The size of the depth map texture. Should be a power of 2 and cover viewport size, but not more
+ * @param depth_map_texture: The depth map texture
+ * @param depth_map_fbo: The depth map frame buffer object
+ */
+void setUpShadowMap(const unsigned int& DEPTH_MAP_TEXTURE_SIZE, GLuint &depth_map_texture, GLuint &depth_map_fbo) {
+    glGenTextures(1, &depth_map_texture);
+    glBindTexture(GL_TEXTURE_2D, depth_map_texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, (GLsizei) DEPTH_MAP_TEXTURE_SIZE,
+                 (GLsizei) DEPTH_MAP_TEXTURE_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glGenFramebuffers(1, &depth_map_fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_map_texture, 0);
+    glReadBuffer(GL_NONE);
+    glDrawBuffer(GL_NONE);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    GLint kDepthMap = glGetUniformLocation(shaderProgram, "shadowMap");
+    glUniform1i(kDepthMap, 2);
+}
+
+/// Set up the lighting by sending necessary values to the shader program
+void setUpLighting() {
+    // Set some lighting variables
+    float lightAngleOuter = 10.0;
+    float lightAngleInner = 0.01;
+    float lightNearPlane = 0.01f;
+    float lightFarPlane = 180.0f;
+    glm::vec3 lightPosition(-0.0f, 30.0f, .0f); // The location of the light in 3D space
+    glm::vec3 lightFocus(0.0, -0.01, .0f);      // The point in 3D space the light "looks" at
+    glm::vec3 lightDirection = glm::normalize(lightFocus - lightPosition);
+    glm::mat4 lightProjectionMatrix = glm::ortho(-1.5f, 1.50f, -1.50f, 1.50f, lightNearPlane, lightFarPlane);
+    glm::mat4 lightViewMatrix = glm::lookAt(lightPosition, lightFocus, vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 lightSpaceMatrix = lightProjectionMatrix * lightViewMatrix;
+
+    // Get lighting-related uniform locations
+    GLint lightViewProjMatrixLoc = glGetUniformLocation( shaderProgram, "lightViewProjMatrix");
+    GLint lightNearPlaneLoc      = glGetUniformLocation( shaderProgram, "lightNearPlane");
+    GLint lightFarPlaneLoc       = glGetUniformLocation( shaderProgram, "lightFarPlane");
+    GLint lightPositionLoc       = glGetUniformLocation( shaderProgram, "lightPosition");
+    GLint lightDirectionLoc      = glGetUniformLocation( shaderProgram, "lightDirection");
+    GLint lightCutoffInnerLoc    = glGetUniformLocation( shaderProgram, "lightCutoffInner");
+    GLint lightCutoffOuterLoc    = glGetUniformLocation( shaderProgram, "lightCutoffOuter");
+    GLint lightColorLoc          = glGetUniformLocation( shaderProgram, "lightColor");
+
+    // Send values to shader program
+    glUniform1f(lightCutoffInnerLoc, cos(glm::radians(lightAngleInner)));
+    glUniform1f(lightCutoffOuterLoc, cos(glm::radians(lightAngleOuter)));
+    glUniform3fv(lightColorLoc, 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));
+    glUniformMatrix4fv(lightViewProjMatrixLoc, 1, GL_FALSE, &lightSpaceMatrix[0][0]);
+    glUniform1f(lightNearPlaneLoc, lightNearPlane);
+    glUniform1f(lightFarPlaneLoc, lightFarPlane);
+    glUniform3fv(lightPositionLoc, 1, &lightPosition[0]);
+    glUniform3fv(lightDirectionLoc, 1, &lightDirection[0]);
 }
 
 /** Handle playing the sounds
