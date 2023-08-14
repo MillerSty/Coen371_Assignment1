@@ -25,7 +25,6 @@ public:
 	int renderAs;
 	glm::vec3 position;
 
-	void drawCrowd();
 	void initializeCrowdRows(int rows);
 	void test(int rows);
 	void drawSingle(glm::vec3 position,glm::vec3 armrotate, int crowdSize, int crowdPosition);

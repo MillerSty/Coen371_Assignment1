@@ -45,17 +45,11 @@ void CrowdObjects::test(int crowdRows) {
 			drawSingle(crowd[i], glm::vec3((.004f- crowdRotation.x), -1.0f*crowdRotation.y, -1.0f*crowdRotation.z/20.0f), crowd.size(), i);
 		}
 	}
-
-
 }
 
 void CrowdObjects::drawSingle(glm::vec3 position,glm::vec3 armrotate, int crowdSize, int crowdPosition) {
 	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
-	GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
-	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
 	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
-	GLuint applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
-
 
 	skinMaterial.loadToShader();
 	skinMaterial.bindTexture();
@@ -74,71 +68,63 @@ void CrowdObjects::drawSingle(glm::vec3 position,glm::vec3 armrotate, int crowdS
 			glm::linearRand(0.0f, 1.0f));
 		crowdCount++;
 	}
-	/*glm::vec3 col = glm::vec3(glm::linearRand(0.0f, 1.0f),
-			glm::linearRand(0.0f, 1.0f),
-			glm::linearRand(0.0f, 1.0f));*/
 
-		glm::mat4 crowdParent;
-		glm::mat4 crowdTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(position.x,position.y+ armrotate.x,position.z));
-		glm::mat4 crowdScale = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-		glm::mat4 crowdRotate = glm::rotate(glm::mat4(1.0f), glm::radians(armrotate.z), glm::vec3(.0f, 1.0f, .0f));
+    glm::mat4 crowdParent;
+    glm::mat4 crowdTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(position.x,position.y+ armrotate.x,position.z));
+    glm::mat4 crowdScale = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+    glm::mat4 crowdRotate = glm::rotate(glm::mat4(1.0f), glm::radians(armrotate.z), glm::vec3(.0f, 1.0f, .0f));
 
-		//Note: No part matrices but we may want them eventually
-		glm::mat4 partTrans= glm::translate(glm::mat4(1.0f), glm::vec3(0));
-		glm::mat4 partSca = glm::scale(glm::mat4(1.0f), glm::vec3(.50f, 1.0f, .50f));
-		//partRo is for bodyMovement
-		glm::mat4 partRo = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(.0f, 1.0f, .0f));
-		glm::mat4 partMa= partSca*partRo;
+    //Note: No part matrices but we may want them eventually
+    glm::mat4 partTrans= glm::translate(glm::mat4(1.0f), glm::vec3(0));
+    glm::mat4 partSca = glm::scale(glm::mat4(1.0f), glm::vec3(.50f, 1.0f, .50f));
+    //partRo is for bodyMovement
+    glm::mat4 partRo = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(.0f, 1.0f, .0f));
+    glm::mat4 partMa= partSca*partRo;
 
-		//armrotate.x is translation on y 
-		//armrotate.y is rotation of arm
-		//armrotate.z is body movement
-		crowdParent = crowdTranslate* crowdRotate;
+    //armrotate.x is translation on y
+    //armrotate.y is rotation of arm
+    //armrotate.z is body movement
+    crowdParent = crowdTranslate* crowdRotate;
 
-		worldMatrix = groupMatrix * crowdParent* partMa;
+    worldMatrix = groupMatrix * crowdParent* partMa;
 
-		glBindVertexArray(sphereVao);
-		glUniform3fv(colorLocation, 1, glm::value_ptr(col[crowdPosition]));
-		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-		//glDrawArrays(renderAs, 0, 36);
-		glDrawElements(renderAs, sphereIndexCount, GL_UNSIGNED_INT, nullptr);
-		glBindVertexArray(0);
+    glBindVertexArray(sphereVao);
+    glUniform3fv(colorLocation, 1, glm::value_ptr(col[crowdPosition]));
+    glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
+    //glDrawArrays(renderAs, 0, 36);
+    glDrawElements(renderAs, sphereIndexCount, GL_UNSIGNED_INT, nullptr);
+    glBindVertexArray(0);
 
-		//arms
-		//left (facing +z ) arm	
-		glBindVertexArray(cubeVao);
-		
-		partTrans = glm::translate(glm::mat4(1.0f), glm::vec3(-0.03f, .015f, 0.01f));
-		partRo = glm::rotate(glm::mat4(1.0f), glm::radians(armrotate.y), glm::vec3(1.0f, .0f, .0f));//arm rotate here
-		partMa = crowdParent * partTrans* partRo ;
+    //arms
+    //left (facing +z ) arm
+    glBindVertexArray(cubeVao);
 
-		partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.125f, .550f, .125f));
-		partRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(1.0f, .0f, .0f)); 
-		partParent =  partScale* partRotate;
-		worldMatrix = groupMatrix * partMa * partParent;
+    partTrans = glm::translate(glm::mat4(1.0f), glm::vec3(-0.03f, .015f, 0.01f));
+    partRo = glm::rotate(glm::mat4(1.0f), glm::radians(armrotate.y), glm::vec3(1.0f, .0f, .0f));//arm rotate here
+    partMa = crowdParent * partTrans* partRo ;
 
-		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-		glDrawArrays(renderAs, 0, 36);
-		//right (facing +z ) arm
+    partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.125f, .550f, .125f));
+    partRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(1.0f, .0f, .0f));
+    partParent =  partScale* partRotate;
+    worldMatrix = groupMatrix * partMa * partParent;
 
-		partTrans = glm::translate(glm::mat4(1.0f), glm::vec3(0.03f, .015f, 0.01f));
-		partRo = glm::rotate(glm::mat4(1.0f), glm::radians(armrotate.y), glm::vec3(1.0f, .0f, .0f));//arm rotate here
-		partMa = crowdParent * partTrans * partRo;
+    glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
+    glDrawArrays(renderAs, 0, 36);
+    //right (facing +z ) arm
 
-		partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.125f, .550f, .125f));
-		partRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(1.0f, .0f, .0f));
-		partParent = partScale * partRotate;
-		worldMatrix = groupMatrix * partMa * partParent;
+    partTrans = glm::translate(glm::mat4(1.0f), glm::vec3(0.03f, .015f, 0.01f));
+    partRo = glm::rotate(glm::mat4(1.0f), glm::radians(armrotate.y), glm::vec3(1.0f, .0f, .0f));//arm rotate here
+    partMa = crowdParent * partTrans * partRo;
 
-		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-		glDrawArrays(renderAs, 0, 36);
-		glBindVertexArray(0);
-	
+    partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.125f, .550f, .125f));
+    partRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(1.0f, .0f, .0f));
+    partParent = partScale * partRotate;
+    worldMatrix = groupMatrix * partMa * partParent;
 
-
+    glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
+    glDrawArrays(renderAs, 0, 36);
+    glBindVertexArray(0);
 }
-
-
 
 glm::vec3 CrowdObjects::animateCrowd() {
 	if ((crowdRotation.y + fingerFlex)>179.0f && reverse==false) {//so if arm rotation is greate then 90 
@@ -200,12 +186,9 @@ glm::vec3 CrowdObjects::animateCrowd() {
 	return glm::vec3(1);
 }
 
-//drawSingle(glm::vec3 position,glm::vec3 armrotate, int crowdSize, int crowdPosition)
 void CrowdObjects::walker() {
-	//glm::vec3 path;
-	//drawSingle(glm::vec3(0, 0.02, -.4), glm::vec3(0), 0, 0);
-
 	double currentWorldTime = glfwGetTime();
+
 	if (keyFrameTrackerWalker <= (sizeof(path) / sizeof(KeyFrame)) - 2)
 	{
 		// Handle time calculations
@@ -248,121 +231,4 @@ void CrowdObjects::walker() {
 		if (currentWorldTime >= nextFrameTime)
 			keyFrameTrackerWalker++;
 	}
-
-
-
-
- //if (path.x <= -.76 )//switch to z
- //{
- //}
- //else if (path.x <= .7f) //switch to x
- //{
- //}
-
-}
-
-//deprecated
-void CrowdObjects::drawCrowd() {
-	GLuint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
-	GLuint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
-	GLuint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
-	GLuint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
-	GLuint applyTexturesLocation = glGetUniformLocation(shaderProgram, "shouldApplyTexture");
-
-
-	skinMaterial.loadToShader();
-	skinMaterial.bindTexture();
-
-	glm::mat4 worldMatrix;
-
-	glm::mat4 partParent;
-	glm::mat4 partTranslate;
-	glm::mat4 partScale;
-	glm::mat4 partRotate;
-
-
-	for (float i = -.75; i < .75; i += .3) {
-		glm::mat4 crowdParent;
-		glm::mat4 crowdTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(i, .25f, -0.666f));
-		glm::mat4 crowdScale = glm::scale(glm::mat4(1.0f), glm::vec3(.50f, 1.0f, .50f));
-		glm::mat4 crowdRotate = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-
-		//Note: No part matrices but we may want them eventually
-		crowdParent = crowdTranslate * crowdScale;
-		worldMatrix = groupMatrix * crowdParent;
-
-		glBindVertexArray(sphereVao);
-		glUniform3fv(colorLocation, 1, glm::value_ptr(colour));
-		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-		//glDrawArrays(renderAs, 0, 36);
-		glDrawElements(renderAs, sphereIndexCount, GL_UNSIGNED_INT, nullptr);
-		glBindVertexArray(0);
-
-		//arms
-		glBindVertexArray(cubeVao);
-		//left (facing +z ) arm	
-		partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.03f, .0f, 0.0f));
-		partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.125f, .550f, .125f));
-		partRotate = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(1.0f, .0f, .0f));
-		partParent = crowdTranslate * partTranslate * partRotate * partScale;
-		worldMatrix = groupMatrix * partParent;
-
-		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-		glDrawArrays(renderAs, 0, 36);
-		//right (facing +z ) arm
-		partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.03f, .0f, 0.0f));
-		partParent = crowdTranslate * partTranslate * partRotate * partScale;
-		worldMatrix = groupMatrix * partParent;
-
-		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-		glDrawArrays(renderAs, 0, 36);
-		glBindVertexArray(0);
-	}
-
-	for (float i = -.75; i < .75; i += .3) {
-		glm::mat4 crowdParent;
-		glm::mat4 crowdTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(i, .2f, -0.566f));
-		glm::mat4 crowdScale = glm::scale(glm::mat4(1.0f), glm::vec3(.50f, 1.0f, .50f));
-		glm::mat4 crowdRotate = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-
-		//Note: No part matrices but we may want them eventually
-		crowdParent = crowdTranslate * crowdScale;
-		worldMatrix = groupMatrix * crowdParent;
-
-		glBindVertexArray(sphereVao);
-		glUniform3fv(colorLocation, 1, glm::value_ptr(colour));
-		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-		//glDrawArrays(renderAs, 0, 36);
-		glDrawElements(renderAs, sphereIndexCount, GL_UNSIGNED_INT, nullptr);
-		glBindVertexArray(0);
-
-		//arms
-		glBindVertexArray(cubeVao);
-		//left (facing +z ) arm	
-		partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.03f, .0f, 0.0f));
-		partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.125f, .550f, .125f));
-		partRotate = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(-1.0f, .0f, .0f));
-		partParent = crowdTranslate * partTranslate * partRotate * partScale;
-		worldMatrix = groupMatrix * partParent;
-
-		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-		glDrawArrays(renderAs, 0, 36);
-		//right (facing +z ) arm
-		partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.03f, .0f, 0.0f));
-		partParent = crowdTranslate * partTranslate * partRotate * partScale;
-		worldMatrix = groupMatrix * partParent;
-
-		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-		glDrawArrays(renderAs, 0, 36);
-		glBindVertexArray(0);
-	}
-
-
-
-
-
-
-
-
-
 }
