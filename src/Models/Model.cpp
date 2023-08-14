@@ -42,6 +42,44 @@ void Model::RenderModeltree1()
 	}
 }
 
+void Model::RenderModelFlower()
+{
+	for (size_t i = 0; i < meshList.size(); i++)
+	{
+		unsigned int materialIndex = meshToTex[i];
+		meshList[i]->RenderMesh();
+	}
+}
+
+void Model::RenderModelGrass()
+{
+	for (size_t i = 0; i < meshList.size(); i++)
+	{
+		unsigned int materialIndex = meshToTex[i];
+		meshList[i]->RenderMesh();
+	}
+}
+
+void Model::RenderModelShortShrub()
+{
+	for (size_t i = 0; i < meshList.size(); i++)
+	{
+		unsigned int materialIndex = meshToTex[i];
+		meshList[i]->RenderMesh();
+	}
+}
+
+void Model::RenderModelTallShrub()
+{
+	for (size_t i = 0; i < meshList.size(); i++)
+	{
+		unsigned int materialIndex = meshToTex[i];
+		meshList[i]->RenderMesh();
+	}
+}
+
+
+
 void Model::LoadModel(const std::string & fileName)
 {
 	Assimp::Importer importer;

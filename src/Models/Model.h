@@ -21,6 +21,10 @@ public:
 	void ClearModel();
 	void RenderModelBleacher();
 	void RenderModeltree1();
+	void RenderModelFlower();
+	void RenderModelGrass();
+	void RenderModelShortShrub();
+	void RenderModelTallShrub();
 
 	~Model();
 
