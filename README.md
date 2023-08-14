@@ -46,11 +46,19 @@ In addition, when a racket hits a ball, a random ball sound plays. There are 3 p
 
 
 ## Possible Add-ons
-- [ ] Add animated crowd
+- [x] Add animated crowd
 - [ ] Add foliage
 - [ ] Add a clock to show animation duration
-- [ ] Add walking people
+- [x] Add walking people
 - [ ] Animate a camera
+
+## Contributions
+
+- Jonah: Animation and audio
+- Matthew: Animation, audio, code cleanup, and documentation
+- Sabrina: Modelling
+- Jon: Modelling and animation
+- Evan: Animation
 
 ## Build Instructions
 
