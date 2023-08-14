@@ -325,6 +325,29 @@ int main(int argc, char* argv[])
 	Bleachers = Model();
 	Bleachers.LoadModel("../src/Models/bleachers.obj");
 
+	//Made by alicefox, personal use license
+	Model Trees;
+	Trees = Model();
+	Trees.LoadModel("../src/Models/Lowpoly_tree_sample.obj");
+
+	Model Flower;
+	Flower = Model();
+	Flower.LoadModel("../src/Models/Flowers/flower.obj");
+
+	Model Grass;
+	Grass = Model();
+	Grass.LoadModel("../src/Models/Grass/grass.obj");
+
+	Model ShortShrub;
+	ShortShrub = Model();
+	ShortShrub.LoadModel("../src/Models/ShortShrub/shortshrub.obj");
+
+	Model TallShrub;
+	TallShrub = Model();
+	TallShrub.LoadModel("../src/Models/TallShrub/tallshrub.obj");
+
+
+
     // Set the materials of the various objects in the scene
 	SceneObj.setMaterials(courtMaterial, clothMaterial, ropeMaterial, metalMaterial, grassMaterial, plasticMaterial);
 	SceneObj.skyTexture = skyMaterial;
@@ -725,13 +748,52 @@ int main(int argc, char* argv[])
 			glm::mat4 bleacherParent = bleacherTranslate * bleacherScale;
 			bleacherGroupMatrix = groupMatrix * bleacherParent;
 
-			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &bleacherGroupMatrix[0][0]);
-			courtMaterial.loadToShader();
-			courtMaterial.bindTexture();
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3((float)137 / 255, (float)72 / 255, (float)62 / 255)));
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-			glBindVertexArray(0);
-			//******************
+			// This is for the tree
+			glm::mat4 tree1Translate;
+			glm::mat4 tree1Scale;
+			glm::mat4 tree1GroupMatrix;
+
+			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.95, 0.0, -0.9));
+			tree1Scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.0095f, 0.0095f, 0.0095f) * 6.0f);
+			glm::mat4 letterParentTree1 = tree1Translate * tree1Scale;
+			tree1GroupMatrix = groupMatrix * letterParentTree1;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
+			grassMaterial.loadToShader();
+			grassMaterial.bindTexture();
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 153.0f / 255.0f, 51.0f / 255.0f)));
+			Trees.RenderModel();
+
+			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.95, 0.0, -0.9));
+			tree1Scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.0095f, 0.0095f, 0.0095f) * 6.0f);
+			letterParentTree1 = tree1Translate * tree1Scale;
+			tree1GroupMatrix = groupMatrix * letterParentTree1;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 153.0f / 255.0f, 51.0f / 255.0f)));
+			Trees.RenderModel();
+
+			// This is for the grass
+			glm::mat4 grassTranslate;
+			glm::mat4 grassScale;
+			glm::mat4 grassGroupMatrix;
+
+			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.4, 0.0));
+			grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+			glm::mat4 letterParentgrass = grassTranslate * grassScale;
+			grassGroupMatrix = groupMatrix * letterParentgrass;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &grassGroupMatrix[0][0]);
+			grassMaterial.loadToShader();
+			grassMaterial.bindTexture();
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(255.0f / 255.0f, 255.0f / 255.0f, 0.0f / 255.0f)));
+			Grass.RenderModelGrass();
+
+			//grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.95, 0.0, 1));
+			//grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.0095f, 0.0095f, 0.0095f) * 6.0f);
+			//letterParentgrass = grassTranslate * grassScale;
+			//grassGroupMatrix = groupMatrix * letterParentgrass;
+			//glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &grassGroupMatrix[0][0]);
+			//glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(0.0f / 255.0f, 204.0f / 255.0f, 0.0f / 255.0f)));
+			//Grass.RenderModelGrass();
+
 		}
 
 		{ // 2nd pass
@@ -806,6 +868,56 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f,.6f,.66f)));
 			Bleachers.RenderModelBleacher();
             //****************
+
+			// This is all for the tree1
+			//****************
+			glm::mat4 tree1Translate;
+			glm::mat4 tree1Scale;
+			glm::mat4 tree1GroupMatrix;
+
+			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.95, 0.0, -0.9));
+			tree1Scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.0095f, 0.0095f, 0.0095f) * 6.0f);
+			glm::mat4 letterParentTree1 = tree1Translate * tree1Scale;
+			tree1GroupMatrix = groupMatrix * letterParentTree1;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
+			//grassMaterial.loadToShader();
+			//grassMaterial.bindTexture();
+			//glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 153.0f / 255.0f, 51.0f / 255.0f)));
+			Trees.RenderModel();
+
+			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.95, 0.0, -0.9));
+			tree1Scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.0095f, 0.0095f, 0.0095f) * 6.0f);
+			letterParentTree1 = tree1Translate * tree1Scale;
+			tree1GroupMatrix = groupMatrix * letterParentTree1;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
+			//glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 153.0f / 255.0f, 51.0f / 255.0f)));
+			Trees.RenderModel();
+
+
+			// This is for the grass
+			glm::mat4 grassTranslate;
+			glm::mat4 grassScale;
+			glm::mat4 grassGroupMatrix;
+
+			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-20.0, -0.0, -12.0));
+			grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(25.0f, 25.0f, 25.0f));
+			glm::mat4 letterParentgrass = grassTranslate * grassScale;
+			grassGroupMatrix = groupMatrix * letterParentgrass;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &grassGroupMatrix[0][0]);
+			grassMaterial.loadToShader();
+			grassMaterial.bindTexture();
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(255.0f / 255.0f, 255.0f / 255.0f, 0.0f / 255.0f)));
+			Grass.RenderModelGrass();
+
+			//grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.95, 0.0, 1));
+			//grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.0095f, 0.0095f, 0.0095f) * 6.0f);
+			//letterParentgrass = grassTranslate * grassScale;
+			//grassGroupMatrix = groupMatrix * letterParentgrass;
+			//glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &grassGroupMatrix[0][0]);
+			//glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(0.0f / 255.0f, 204.0f / 255.0f, 0.0f / 255.0f)));
+			//Grass.RenderModelGrass();
+
+			//****************
 
 			// This is the red clay court
 			glBindVertexArray(unitCubeAO);
