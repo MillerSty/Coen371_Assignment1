@@ -31,6 +31,7 @@
 // Declare some functions for later use
 int compileAndLinkShaders(const char* vertex, const char* fragment);
 GLuint loadTexture(const char* filename);
+void FireWorks(glm::vec3 position, GLuint unitCube, Material courtMaterial, GLint worldMatrixLocation, GLint colorLocation);
 void GLAPIENTRY messageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
                                 const GLchar* message, const void* userParam);
 void setProjectionMatrix(int shaderProgram, glm::mat4 projectionMatrix);
@@ -328,23 +329,23 @@ int main(int argc, char* argv[])
 	//Made by alicefox, personal use license
 	Model Trees;
 	Trees = Model();
-	Trees.LoadModel("../src/Models/Lowpoly_tree_sample.obj");
+	Trees.LoadModel("../src/Models/Lowpoly_tree_sample1.obj");
 
-	Model Flower;
-	Flower = Model();
-	Flower.LoadModel("../src/Models/Flowers/flower.obj");
-
-	Model Grass;
-	Grass = Model();
-	Grass.LoadModel("../src/Models/Grass/grass.obj");
-
-	Model ShortShrub;
-	ShortShrub = Model();
-	ShortShrub.LoadModel("../src/Models/ShortShrub/shortshrub.obj");
-
-	Model TallShrub;
-	TallShrub = Model();
-	TallShrub.LoadModel("../src/Models/TallShrub/tallshrub.obj");
+	//Model Flower;
+	//Flower = Model();
+	//Flower.LoadModel("../src/Models/Flowers/flower.obj");
+	//
+	//Model Grass;
+	//Grass = Model();
+	//Grass.LoadModel("../src/Models/Grass/grass.obj");
+	//
+	//Model ShortShrub;
+	//ShortShrub = Model();
+	//ShortShrub.LoadModel("../src/Models/ShortShrub/shortshrub.obj");
+	//
+	//Model TallShrub;
+	//TallShrub = Model();
+	//TallShrub.LoadModel("../src/Models/TallShrub/tallshrub.obj");
 
 
 
@@ -478,6 +479,15 @@ int main(int argc, char* argv[])
         KeyFrame(glm::vec3(0.75, BALL_Y_OFFSET, -0.3), glm::vec3(0.0), 40.0), // SCORE
 	};
 
+
+	KeyFrame keyframesFireWorks[] = {
+		KeyFrame(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f), 0.0), // Initial key frame
+		KeyFrame(glm::vec3(0.0f, 0.6f, 0.0f), glm::vec3(0.0f), 10.5), // Start moving for ball
+		KeyFrame(glm::vec3(0.0f, 0.6f, 0.0f), glm::vec3(0.0f), 30.5),
+	};
+
+
+
 	// Keyframes for Red player
 	KeyFrame keyframesCamera[] = {
 		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(-90.0), 0.0), // Initial key frame
@@ -504,13 +514,12 @@ int main(int argc, char* argv[])
 
 
 
-
-
     // Start at the 0th keyframe for each set of keyframes
     int keyframeNumBlue = 0;
     int keyframeNumRed = 0;
 	int keyframeNumBall = 0;
 	int keyframeNumCamera = 0;
+	int keyframeNumFireWorks = 0;
 
 	float i = -1;
 
@@ -633,38 +642,77 @@ int main(int argc, char* argv[])
                 keyframeNumRed++;
         }
 
-        // Ball keyframes
-        if (keyframeNumBall <= (sizeof(keyframesBall) / sizeof(KeyFrame)) - 2)
-        {
-            // Handle time calculations
-            double currentFrameTime = keyframesBall[keyframeNumBall].time;
-            double nextFrameTime = keyframesBall[keyframeNumBall + 1].time;
-            double frameDuration = nextFrameTime - currentFrameTime ;
-            double timeProportion = (currentWorldTime - currentFrameTime) / frameDuration;
 
-            // Handle setting how much X should translate based on time proportion
-            double currentCoordX = keyframesBall[keyframeNumBall].translation.x;
-            double nextCoordX = keyframesBall[keyframeNumBall + 1].translation.x;
-            currentCoordX += (nextCoordX - currentCoordX) * timeProportion;
+		if (keyframeNumBall <= (sizeof(keyframesBall) / sizeof(KeyFrame)) - 2)
+		{
+			// Handle time calculations
+			double currentFrameTime = keyframesBall[keyframeNumBall].time;
+			double nextFrameTime = keyframesBall[keyframeNumBall + 1].time;
+			double frameDuration = nextFrameTime - currentFrameTime;
+			double timeProportion = (currentWorldTime - currentFrameTime) / frameDuration;
 
-            // Handle setting how much Y should translate based on time proportion
-            double currentCoordY = keyframesBall[keyframeNumBall].translation.y;
-            double nextCoordY = keyframesBall[keyframeNumBall + 1].translation.y;
-            currentCoordY += (nextCoordY - currentCoordY) * timeProportion;
+			// Handle setting how much X should translate based on time proportion
+			double currentCoordX = keyframesBall[keyframeNumBall].translation.x;
+			double nextCoordX = keyframesBall[keyframeNumBall + 1].translation.x;
+			currentCoordX += (nextCoordX - currentCoordX) * timeProportion;
 
-            // Handle setting how much Z should translate based on time proportion
-            double currentCoordZ = keyframesBall[keyframeNumBall].translation.z;
-            double nextCoordZ = keyframesBall[keyframeNumBall + 1].translation.z;
-            currentCoordZ += (nextCoordZ - currentCoordZ) * timeProportion;
+			// Handle setting how much Y should translate based on time proportion
+			double currentCoordY = keyframesBall[keyframeNumBall].translation.y;
+			double nextCoordY = keyframesBall[keyframeNumBall + 1].translation.y;
+			currentCoordY += (nextCoordY - currentCoordY) * timeProportion;
 
-            // Set the model translation in world space
-            ball.setTranslationModel(glm::vec3(currentCoordX, currentCoordY, currentCoordZ));
+			// Handle setting how much Z should translate based on time proportion
+			double currentCoordZ = keyframesBall[keyframeNumBall].translation.z;
+			double nextCoordZ = keyframesBall[keyframeNumBall + 1].translation.z;
+			currentCoordZ += (nextCoordZ - currentCoordZ) * timeProportion;
 
-            // If the realtime clock is beyond the next keyframes time parameter, move to the next keyframe
-            if (currentWorldTime >= nextFrameTime)
-                keyframeNumBall++;
-        }
+			// Set the model translation in world space
+			ball.setTranslationModel(glm::vec3(currentCoordX, currentCoordY, currentCoordZ));
 
+			// If the realtime clock is beyond the next keyframes time parameter, move to the next keyframe
+			if (currentWorldTime >= nextFrameTime)
+				keyframeNumBall++;
+		}
+
+
+		if (keyframeNumFireWorks <= (sizeof(keyframesFireWorks) / sizeof(KeyFrame)) - 2)
+		{
+			// Handle time calculations
+			double currentFrameTime = keyframesFireWorks[keyframeNumFireWorks].time;
+			double nextFrameTime = keyframesFireWorks[keyframeNumFireWorks + 1].time;
+			double frameDuration = nextFrameTime - currentFrameTime;
+			double timeProportion = (currentWorldTime - currentFrameTime) / frameDuration;
+
+			// Handle setting how much X should translate based on time proportion
+			double currentCoordX = keyframesFireWorks[keyframeNumFireWorks].translation.x;
+			double nextCoordX = keyframesFireWorks[keyframeNumFireWorks + 1].translation.x;
+			currentCoordX += (nextCoordX - currentCoordX) * timeProportion;
+
+			// Handle setting how much Y should translate based on time proportion
+			double currentCoordY = keyframesFireWorks[keyframeNumFireWorks].translation.y;
+			double nextCoordY = keyframesFireWorks[keyframeNumFireWorks + 1].translation.y;
+			currentCoordY += (nextCoordY - currentCoordY) * timeProportion;
+
+			// Handle setting how much Z should translate based on time proportion
+			double currentCoordZ = keyframesFireWorks[keyframeNumFireWorks].translation.z;
+			double nextCoordZ = keyframesFireWorks[keyframeNumFireWorks + 1].translation.z;
+			currentCoordZ += (nextCoordZ - currentCoordZ) * timeProportion;
+
+			// Set the model translation in world space
+			//ball.setTranslationModel(glm::vec3(currentCoordX, currentCoordY, currentCoordZ));
+			glm::vec3 positiony(currentCoordX, currentCoordY, currentCoordZ);
+			FireWorks(positiony, unitCubeAO, courtMaterial, worldMatrixLocation, colorLocation);
+			// If the realtime clock is beyond the next keyframes time parameter, move to the next keyframe
+			if (currentWorldTime >= nextFrameTime)
+				keyframeNumFireWorks++;
+		}
+
+
+
+
+
+
+	
         // Handle changing the score, if necessary
         handleScoring(currentWorldTime, redScore, blueScore);
 
@@ -784,7 +832,7 @@ int main(int argc, char* argv[])
 			grassMaterial.loadToShader();
 			grassMaterial.bindTexture();
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(255.0f / 255.0f, 255.0f / 255.0f, 0.0f / 255.0f)));
-			Grass.RenderModelGrass();
+			//Grass.RenderModelGrass();
 
 			//grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.95, 0.0, 1));
 			//grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.0095f, 0.0095f, 0.0095f) * 6.0f);
@@ -907,7 +955,7 @@ int main(int argc, char* argv[])
 			grassMaterial.loadToShader();
 			grassMaterial.bindTexture();
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(255.0f / 255.0f, 255.0f / 255.0f, 0.0f / 255.0f)));
-			Grass.RenderModelGrass();
+			//Grass.RenderModelGrass();
 
 			//grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.95, 0.0, 1));
 			//grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.0095f, 0.0095f, 0.0095f) * 6.0f);
@@ -935,6 +983,7 @@ int main(int argc, char* argv[])
 			//******************
 		}
 
+		FireWorks(glm::vec3(-0.76,.4,0), unitCubeAO, courtMaterial, worldMatrixLocation, colorLocation);
         // Draw and animate the crowd and the walking figures in from of the bleachers
 		crowd.animateCrowd(); //just to trigger animation
 		crowd.test(4);
@@ -946,7 +995,6 @@ int main(int argc, char* argv[])
 
         // Swap buffers
         glfwSwapBuffers(window);
-
         // Get inputs
 		glfwPollEvents();
 	}
@@ -957,6 +1005,28 @@ int main(int argc, char* argv[])
 	glfwTerminate();
 
 	return 0;
+}
+
+
+void FireWorks(glm::vec3 position,GLuint unitCube,Material courtMaterial,GLint worldMatrixLocation,GLint colorLocation) {
+
+	glBindVertexArray(unitCube);
+	glm::mat4 bleacherTranslate = glm::translate(glm::mat4(1.0f), position);
+	glm::mat4 bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, .5f, 0.5f));
+	glm::mat4 bleacherParent = bleacherTranslate * bleacherScale;
+	glm::mat4 bleacherGroupMatrix = groupMatrix * bleacherParent;
+
+	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &bleacherGroupMatrix[0][0]);
+	courtMaterial.loadToShader();
+	courtMaterial.bindTexture();
+	glUniform3fv(colorLocation, 1, glm::value_ptr( glm::vec3( (float)glm::linearRand(-75, -110), (float)glm::linearRand(-75, -110), (float)glm::linearRand(-75, -110) ) ));
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+
+
+
+
+
 }
 
 /**
