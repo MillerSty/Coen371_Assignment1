@@ -28,10 +28,6 @@
 #include "Models/Model.h"
 #include "CrowdObjects.h"
 
-// Set the shader paths
-const char* vertex = "../src/shaders/unifiedVertex.glsl";
-const char* fragment = "../src/shaders/unifiedFragment.glsl";
-
 // Declare some functions for later use
 int compileAndLinkShaders(const char* vertex, const char* fragment);
 GLuint loadTexture(const char* filename);
@@ -47,79 +43,29 @@ void handleSounds(double currentTime);
 void handleScoring(double currentTime, int& red, int& blue);
 void setUpLighting();
 void setUpShadowMap(const unsigned int &DEPTH_MAP_TEXTURE_SIZE, GLuint &depth_map_texture, GLuint &depth_map_fbo);
+GLuint createVertexArrayObject(const glm::vec3* vertexArray, int arraySize);
+GLuint createVertexArrayObject2();
+GLuint createVertexArrayElementObject2(std::vector<int> vertexIndices, std::vector<glm::vec3> vertices,
+                                       std::vector<glm::vec3> normals, std::vector<glm::vec2> UVs);
+void updateLight(glm::vec3 newPosition, glm::vec3 newFocus, SceneObjects SceneObj, GLuint shaderProgram, float i, bool applyShadow);
 
-/**
-Create a vertex array object for the grid
-@param vertexArray: A pointer to the vertex array to use
-@param arraySize: How many entries are in the vertex array
-@return The VAO
-*/
-GLuint createVertexArrayObject(const glm::vec3* vertexArray, int arraySize)
-{    // Create a vertex array
-	GLuint vertexArrayObject;
-	glGenVertexArrays(1, &vertexArrayObject);
-	glBindVertexArray(vertexArrayObject);
-
-	// Upload Vertex Buffer to the GPU, keep a reference to it (vertexBufferObject)
-	GLuint vertexBufferObject;
-	glGenBuffers(1, &vertexBufferObject);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-	glBufferData(GL_ARRAY_BUFFER, arraySize, vertexArray, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0,                   // attribute 0 matches aPos in Vertex Shader
-		3,                   // size
-		GL_FLOAT,            // type
-		GL_FALSE,            // normalized?
-		2 * sizeof(glm::vec3), // stride - each vertex contain 2 vec3 (position, color)
-		(void*)0             // array buffer offset
-	);
-	glEnableVertexAttribArray(0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	return vertexArrayObject;
-}
+// Set the shader paths
+const char* vertex = "../src/shaders/unifiedVertex.glsl";
+const char* fragment = "../src/shaders/unifiedFragment.glsl";
 
 /**
 A struct to contain the position, normal, and UV coordinates for a vertex
 */
 struct TexturedNormalledVertex
 {
-	TexturedNormalledVertex(glm::vec3 _position, glm::vec3 _normals, glm::vec2 _uv) : position(_position), normals(_normals), uv(_uv) {}
+    TexturedNormalledVertex(glm::vec3 _position, glm::vec3 _normals, glm::vec2 _uv) : position(_position), normals(_normals), uv(_uv) {}
 
-	glm::vec3 position;
-	glm::vec3 normals;
-	glm::vec2 uv;
+    glm::vec3 position;
+    glm::vec3 normals;
+    glm::vec2 uv;
 };
 
-void updateLight(glm::vec3 newPosition,glm::vec3 newFocus,SceneObjects SceneObj,GLuint shaderProgram,float i,bool applyShadow) {
-	// light parameters
-	glm::vec3 lightPosition(-.30f, .30f, .0f); // the location of the light in 3D space
-	glm::vec3 lightFocus(0.0, 0.0, 0.0);      // the point in 3D space the light "looks" at
-	glm::vec3 lightDirection = glm::normalize(newFocus - newPosition);
-
-	GLint lightPositionLoc = glGetUniformLocation(shaderProgram, "lightPosition");
-	GLint lightDirectionLoc = glGetUniformLocation(shaderProgram, "lightDirection");
-	GLint lightViewProjMatrixLoc = glGetUniformLocation(shaderProgram, "lightViewProjMatrix");
-
-	// Set light position on scene shader
-	glUniform3fv(lightPositionLoc, 1, &newPosition[0]);
-
-	// Set light direction on scene shader
-	glUniform3fv(lightDirectionLoc, 1, &lightDirection[0]);
-	float lightNearPlane = 0.1f;
-	float lightFarPlane = 180.0f;
-
-	glm::mat4 lightProjectionMatrix = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, lightNearPlane, lightFarPlane);
-	glm::mat4 lightViewMatrix = glm::lookAt(newPosition, newFocus, glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 lightSpaceMatrix = lightProjectionMatrix * lightViewMatrix;
-	glUniformMatrix4fv(lightViewProjMatrixLoc, 1, GL_FALSE, &lightSpaceMatrix[0][0]);
-	if (!applyShadow) {
-		SceneObj.DrawLight(newPosition, glm::vec3(0.0f, 1.0f, 0.0f), i);
-	}
-}
-
-// Textured Cube model
+// Textured and normalled cube model
 TexturedNormalledVertex texturedCubeVertexArray[] = {
 	// LEFT
 	TexturedNormalledVertex(glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(-1, 0, 0), glm::vec2(0.0f, 0.0f)),
@@ -176,106 +122,15 @@ TexturedNormalledVertex texturedCubeVertexArray[] = {
     TexturedNormalledVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(0, 1, 0), glm::vec2(0.0f, 1.0f))
 };
 
-/**
-Create a vertex array object with positions, normals, and UVs
-@return The VAO
-*/
-GLuint createVertexArrayObject2()
-{
-	GLuint vertexArrayObject;
-	glGenVertexArrays(1, &vertexArrayObject);
-	glBindVertexArray(vertexArrayObject);
-
-	GLuint vertexBufferObject;
-	glGenBuffers(1, &vertexBufferObject);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(texturedCubeVertexArray), texturedCubeVertexArray, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedNormalledVertex), (void*) 0);
-	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedNormalledVertex), (void*) sizeof(glm::vec3));
-	glEnableVertexAttribArray(1);
-
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedNormalledVertex), (void*) (2 * sizeof(glm::vec3)));
-	glEnableVertexAttribArray(2);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	return vertexArrayObject;
-}
-
+// Create an IBO to be saved to later
 GLuint IBO;
-
-/**
-Create a index buffer object for the sphere
-@param vertexIndices: The indices for the vertices of the sphere
-@param vertices: The vertices of the sphere
-@param normals: The normals of the sphere
-@UVs: The UVs of the sphere
-@return The IBO
-*/
-GLuint createVertexArrayElementObject2(std::vector<int> vertexIndices, std::vector<glm::vec3> vertices,
-	                                   std::vector<glm::vec3> normals, std::vector<glm::vec2> UVs)
-{
-	// Create a vertex array
-	GLuint vertexArrayObject;
-	glGenVertexArrays(1, &vertexArrayObject);
-	glBindVertexArray(vertexArrayObject);
-
-	glGenBuffers(1, &IBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertexIndices.size() * sizeof(unsigned int), &vertexIndices.front(), GL_STATIC_DRAW);
-
-	// Upload Vertex Buffer to the GPU, keep a reference to it (vertexBufferObject)
-	GLuint vertexBufferObject;
-	glGenBuffers(1, &vertexBufferObject);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-	//int check = arraySize;
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices.front(), GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0,    // attribute 0 matches aPos in Vertex Shader
-		3,                      // size
-		GL_FLOAT,               // type
-		GL_FALSE,               // normalized?
-		1 * sizeof(glm::vec3),  // stride - each vertex contain 2 vec3 (position, color)
-		(void*)0                // array buffer offset
-	);
-	glEnableVertexAttribArray(0);
-
-	//Normals VBO setup taken from lab
-	GLuint normals_VBO;
-	glGenBuffers(1, &normals_VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, normals_VBO);
-	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals.front(), GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec3), (GLvoid*)0);
-	glEnableVertexAttribArray(1);
-
-	//UVs VBO setup
-	GLuint uvs_VBO;
-	glGenBuffers(1, &uvs_VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, uvs_VBO);
-	glBufferData(GL_ARRAY_BUFFER, UVs.size() * sizeof(glm::vec3), &UVs.front(), GL_STATIC_DRAW);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec3), (GLvoid*)0);
-	glEnableVertexAttribArray(2);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-
-	return vertexArrayObject;
-}
 
 // Set aspect ratio of the window
 const int WIDTH = 1024, HEIGHT = 768;
 
-// Set/ declare some variables
-glm::vec3 eye(.0f, .350f*1.5, .7650f*1.5);
-glm::vec3 center(.00f, .0f, 0.0f);
-glm::vec3 up(0.0f, 1.0f, 0.0f);
-glm::vec3 GroupMatrixScale(1.0f, 1.0f, 1.0f);
-glm::mat4 groupMatrix;
-glm::mat4 rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-
+// State-related globals
+bool soundPlayed = false;
+bool scoreIncremented = false;
 int renderAs = GL_TRIANGLES;
 int shaderProgram;
 double lastMousePosX, lastMousePosY, lastMousePosZ;
@@ -283,15 +138,21 @@ float FOV = 70;
 float AR = (float) WIDTH / (float) HEIGHT;
 float near = .01;
 float far = 50;
-float translateW = 0, translateY = 0, translateZ = 0;
+float translateW = 0;
+float translateY = 0;
+float translateZ = 0;
+float lightDepth = 1.0f;
+bool noShowLightBox = false;
+glm::vec3 eye(.0f, .350f*1.5, .7650f*1.5);
+glm::vec3 center(.00f, .0f, 0.0f);
+glm::vec3 up(0.0f, 1.0f, 0.0f);
+glm::vec3 GroupMatrixScale(1.0f, 1.0f, 1.0f);
+glm::mat4 groupMatrix;
+glm::mat4 rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
 // Toggles for shadows and textures
 bool shouldApplyShadows = true;
 bool shouldApplyTextures = true;
-
-// Globals for game state-related things
-bool soundPlayed = false;
-bool scoreIncremented = false;
 
 // Create Letter objects for the scoreboard
 Letters numberDraw;
@@ -325,6 +186,7 @@ int main(int argc, char* argv[])
     // Initialize irrKlang
     audioEngine = irrklang::createIrrKlangDevice();
 
+    // If irrKlang failed to load, halt
     if (!audioEngine)
     {
         std::cout << "Failed to create irrKlang engine" << std::endl;
@@ -345,7 +207,7 @@ int main(int argc, char* argv[])
 	glfwWindowHint(GLFW_DOUBLEBUFFER, GL_TRUE);
 
 	// Create Window and rendering context using GLFW, resolution is 800x600
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Comp371 - Assignment 2", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Comp371 - Team 9 Project", nullptr, nullptr);
 	if (window == nullptr)
 	{
 		std::cerr << "Failed to create GLFW window" << std::endl;
@@ -354,6 +216,7 @@ int main(int argc, char* argv[])
 	}
 	glfwMakeContextCurrent(window);
 
+    // Set viewport size
 	glViewport(0, 0, WIDTH, HEIGHT);
 
 	// Enable depth test with the GL_LESS function
@@ -388,6 +251,7 @@ int main(int argc, char* argv[])
 	
 	// Black background	
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
 	// Set frame rate to refresh rate of monitor
 	glfwSwapInterval(1);
 
@@ -407,8 +271,6 @@ int main(int argc, char* argv[])
 	// Maybe update this for shadows
     glUniform3fv(viewPositionLocation, 1, &eye[0]);
 
-	SceneObj.InitGrid();
-
     // Set the sound engine for the Scene
 	SceneObj.audioEngine = audioEngine;
 
@@ -417,12 +279,11 @@ int main(int argc, char* argv[])
 
 	// Initialize projection and view matrices
 	glm::mat4 projectionMatrix = glm::perspective(FOV, AR, near, far);
-
 	glm::mat4 InitViewMatrix = glm::lookAt(eye, center, up);
-
 	setProjectionMatrix(shaderProgram, projectionMatrix);
 	setViewMatrix(shaderProgram, InitViewMatrix);
 
+    // Load sphere object for the ball
     std::vector<int> vertexIndicesSphere;
 	std::vector<glm::vec3> verticesSphere, normalsSphere;
 	std::vector<glm::vec2> UVsSphere;
@@ -448,7 +309,6 @@ int main(int argc, char* argv[])
 	GLuint grassTextureID    = loadTexture("../src/Assets/grass4.jpg");
 	GLuint plasticTextureID  = loadTexture("../src/Assets/plastic.jpg");
 	GLuint woodTextureID     = loadTexture("../src/Assets/wood1.jpg");
-	GLuint tattooTextureID   = loadTexture("../src/Assets/tattoo.jpg");
 	GLuint aluminumTextureID = loadTexture("../src/Models/Bleachers/metal.jpg");
 
 	// Define materials based on textures
@@ -459,12 +319,9 @@ int main(int argc, char* argv[])
 	Material grassMaterial(.60f, .001f, .6f, .0001f, grassTextureID, shaderProgram); //just bright, that's all it needs
 	Material plasticMaterial(.5f, .30f, .4f, .1f, plasticTextureID, shaderProgram); //needs to be glossy! This is our racket1
 	Material woodMaterial(.5f, .60f, .5f, .002f, woodTextureID, shaderProgram); //this is you matt
-	Material tattooMaterial(0.5f, 0.2f, 0.5f, 0.002f, tattooTextureID, shaderProgram);
-	Material skinMaterial(.1f, .0f, .66f, .001f, plasticTextureID, shaderProgram); //this is skin
-	Material skyMaterial(.3f, .001f, .9f, .0001f, plasticTextureID, shaderProgram); //Flat blue sky
-	Material bleacherMaterial(.6f, .90f, .6f, .12f, aluminumTextureID, shaderProgram); //Flat blue sky
-
-	//need new way to do bleachers
+	Material skinMaterial(.1f, .0f, .66f, .001f, plasticTextureID, shaderProgram); // This is skin
+	Material skyMaterial(.3f, .001f, .9f, .0001f, plasticTextureID, shaderProgram); // Flat blue sky
+	Material bleacherMaterial(.6f, .90f, .6f, .12f, aluminumTextureID, shaderProgram); // Metal
 
 	//Model.cpp, Texture.cpp, Mesh.cpp taken from LearnOpenGL Udemy course
 	//NOTE: Only used within Model's not for how we use textures in general
@@ -472,6 +329,7 @@ int main(int argc, char* argv[])
 	Bleachers = Model();
 	Bleachers.LoadModel("../src/Models/bleachers.obj");
 
+    // Set the materials of the various objects in the scene
 	SceneObj.setMaterials(courtMaterial, clothMaterial, ropeMaterial, metalMaterial, grassMaterial, plasticMaterial);
 	SceneObj.skyTexture = skyMaterial;
 	
@@ -483,27 +341,24 @@ int main(int argc, char* argv[])
 	crowd.clothMaterial = clothMaterial;
 	crowd.shaderProgram = shaderProgram;
 	crowd.renderAs = GL_TRIANGLES;
-	//Racket and Arm ****	
+
+	// Set parameters for rackets and arms
 	playerArm1.InitArm(glm::vec3(-.5f, 0.15f, .2f), unitCubeAO, skinMaterial, clothMaterial);
     playerArm2.InitArm(glm::vec3(.5f, 0.15f, -.2f), unitCubeAO, skinMaterial, clothMaterial);
-
 	Racket racket1(unitCubeAO, "racket1");
     racket1.plasticMaterial = plasticMaterial;
     Racket racket2(unitCubeAO, "racket2");
     racket2.plasticMaterial = plasticMaterial;
-	//**** End jons jawn
-	numberDraw.cubeVao = unitCubeAO;
-	numberDraw.shaderProgram = shaderProgram;
 
+    // Set parameters for the scoreboard
+	numberDraw.cubeVao = unitCubeAO;
+    numberDraw2.cubeVao = unitCubeAO;
+	numberDraw.shaderProgram = shaderProgram;
+	numberDraw2.shaderProgram = shaderProgram;
 	numberDraw.plastic = skinMaterial;
 	numberDraw2.plastic = skinMaterial;
-
-	//can be defined outside of while?
-	numberDraw.position = glm::vec3(-.20f, .21f, -0.40f); //this is scoreboard option
+	numberDraw.position = glm::vec3(-.20f, .21f, -0.40f);
 	numberDraw2.position = glm::vec3(.20f, .21f, -0.40f);
-
-	numberDraw2.cubeVao = unitCubeAO;
-	numberDraw2.shaderProgram = shaderProgram;
 
     // Set ball parameters
     ball.setShaderProgram(shaderProgram);
@@ -572,53 +427,53 @@ int main(int argc, char* argv[])
     // Keyframes for Ball
 	KeyFrame keyframesBall[] = {
         KeyFrame(glm::vec3(0.0, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 0.0), // Initial key frame
-		KeyFrame(glm::vec3(0.235, BALL_Y_OFFSET-0.23, -0.075), glm::vec3(0.0), 1.5), // Initial key frame
-        KeyFrame(glm::vec3(0.47, BALL_Y_OFFSET, -0.15), glm::vec3(0.0), 3.0), // Initial movement right
-		KeyFrame(glm::vec3(-0.235, BALL_Y_OFFSET -0.23, 0.05), glm::vec3(0.0), 5.0), // Ball hit, move back
+		KeyFrame(glm::vec3(0.235, BALL_Y_OFFSET - 0.23, -0.075), glm::vec3(0.0), 1.5), // Initial key frame
+        KeyFrame(glm::vec3(0.47, BALL_Y_OFFSET,- 0.15), glm::vec3(0.0), 3.0), // Initial movement right
+		KeyFrame(glm::vec3(-0.235, BALL_Y_OFFSET - 0.23, 0.05), glm::vec3(0.0), 5.0), // Ball hit, move back
 		KeyFrame(glm::vec3(-0.47, BALL_Y_OFFSET, 0.15), glm::vec3(0.0), 6.0), // Initial key frame
-		KeyFrame(glm::vec3(0.375, BALL_Y_OFFSET -0.23, 0.25), glm::vec3(0.0), 8.0), // Ball hit, move back
+		KeyFrame(glm::vec3(0.375, BALL_Y_OFFSET - 0.23, 0.25), glm::vec3(0.0), 8.0), // Ball hit, move back
         KeyFrame(glm::vec3(0.75, BALL_Y_OFFSET, 0.3), glm::vec3(0.0), 9.0), // SCORE
         KeyFrame(glm::vec3(0.75, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 10.0), // Stay off-screen for a moment
         KeyFrame(glm::vec3(0.0, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 11.0), // Reset to center
         KeyFrame(glm::vec3(0.0, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 13.0), // Stay in center for a moment
-		KeyFrame(glm::vec3(-0.235, BALL_Y_OFFSET-0.23, 0.075), glm::vec3(0.0), 14.5), // Move to left
+		KeyFrame(glm::vec3(-0.235, BALL_Y_OFFSET - 0.23, 0.075), glm::vec3(0.0), 14.5), // Move to left
         KeyFrame(glm::vec3(-0.47, BALL_Y_OFFSET, 0.15), glm::vec3(0.0), 16.0), // Move to left
-		KeyFrame(glm::vec3(0.235, BALL_Y_OFFSET-0.23, -0.05), glm::vec3(0.0), 18.0), // Ball hit, move back
-        KeyFrame(glm::vec3(0.47, BALL_Y_OFFSET, -0.15), glm::vec3(0.0), 19.0), // Ball hit, move back
-		KeyFrame(glm::vec3(-0.375, BALL_Y_OFFSET-0.23, 0.0), glm::vec3(0.0), 21.0), // Ball hit, move back
+		KeyFrame(glm::vec3(0.235, BALL_Y_OFFSET - 0.23,- 0.05), glm::vec3(0.0), 18.0), // Ball hit, move back
+        KeyFrame(glm::vec3(0.47, BALL_Y_OFFSET,-0.15), glm::vec3(0.0), 19.0), // Ball hit, move back
+		KeyFrame(glm::vec3(-0.375, BALL_Y_OFFSET - 0.23, 0.0), glm::vec3(0.0), 21.0), // Ball hit, move back
         KeyFrame(glm::vec3(-0.75, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 22.0), // SCORE
         KeyFrame(glm::vec3(-0.75, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 23.0), // Stay off-screen a moment
         KeyFrame(glm::vec3(0.0, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 24.0), // Reset to center
         KeyFrame(glm::vec3(0.0, BALL_Y_OFFSET, 0.0), glm::vec3(0.0), 25.0), // Stay in center for a moment
-		KeyFrame(glm::vec3(0.235, BALL_Y_OFFSET-0.23, -0.075), glm::vec3(0.0), 26.5), // Move to the left
-        KeyFrame(glm::vec3(0.47, BALL_Y_OFFSET, -0.15), glm::vec3(0.0), 28.0), // Move to the right
-		KeyFrame(glm::vec3(-0.235, BALL_Y_OFFSET-0.23, 0.05), glm::vec3(0.0), 30.0), // Ball hit, move back
+		KeyFrame(glm::vec3(0.235, BALL_Y_OFFSET - 0.23, -0.075), glm::vec3(0.0), 26.5), // Move to the left
+        KeyFrame(glm::vec3(0.47, BALL_Y_OFFSET, - 0.15), glm::vec3(0.0), 28.0), // Move to the right
+		KeyFrame(glm::vec3(-0.235, BALL_Y_OFFSET - 0.23, 0.05), glm::vec3(0.0), 30.0), // Ball hit, move back
         KeyFrame(glm::vec3(-0.47, BALL_Y_OFFSET, 0.15), glm::vec3(0.0), 31.0), // Ball hit, move back
-		KeyFrame(glm::vec3(0.235, BALL_Y_OFFSET-0.23, 0.15), glm::vec3(0.0), 33.0), // Ball hit, move back
+		KeyFrame(glm::vec3(0.235, BALL_Y_OFFSET - 0.23, 0.15), glm::vec3(0.0), 33.0), // Ball hit, move back
         KeyFrame(glm::vec3(0.47, BALL_Y_OFFSET, 0.15), glm::vec3(0.0), 34.0), // Move to the right
-		KeyFrame(glm::vec3(-0.235, BALL_Y_OFFSET-0.23, -0.05), glm::vec3(0.0), 36.0), // Ball hit, move back
+		KeyFrame(glm::vec3(-0.235, BALL_Y_OFFSET - 0.23, -0.05), glm::vec3(0.0), 36.0), // Ball hit, move back
         KeyFrame(glm::vec3(-0.47, BALL_Y_OFFSET, -0.15), glm::vec3(0.0), 37.0), // Ball hit, move back
-		KeyFrame(glm::vec3(0.375, BALL_Y_OFFSET-0.23, -0.25), glm::vec3(0.0), 39.0), // Ball hit, move back
+		KeyFrame(glm::vec3(0.375, BALL_Y_OFFSET - 0.23, -0.25), glm::vec3(0.0), 39.0), // Ball hit, move back
         KeyFrame(glm::vec3(0.75, BALL_Y_OFFSET, -0.3), glm::vec3(0.0), 40.0), // SCORE
 	};
 
+    // Start at the 0th keyframe for each set of keyframes
     int keyframeNumBlue = 0;
     int keyframeNumRed = 0;
 	int keyframeNumBall = 0;
 
-	int number = 0;
 	float i = -1;
 
     // Initialize player scores
 	int redScore = 0, blueScore = 0;
 
-    // Decide whether to play sounds or not. Mostly fo debug
+    // Decide whether to play sounds or not. Mostly for debug
     bool playSound = true;
 
+    // If we want to play sounds, play a constant crowd chatter
 	if (playSound) {
 		irrklang::ISoundEngine* bigCrowdSound = irrklang::createIrrKlangDevice();
 		irrklang::ISound* sound = bigCrowdSound->play2D("../src/Assets/sounds/BigCrowd.wav", true, false, true);
-
 		bigCrowdSound->setSoundVolume(0.15f);
 	}
 
@@ -637,9 +492,11 @@ int main(int argc, char* argv[])
 			          rotationMatrixW;
 
 		crowd.groupMatrix = groupMatrix;
+        numberDraw.groupMatrix = groupMatrix;
+        numberDraw2.groupMatrix = groupMatrix;
+        numberDraw.renderAs = renderAs;
+        numberDraw2.renderAs = renderAs;
 
-		float lightDepth = 1.0f;
-		bool noShowLightBox = false;
 		float x = sin(i);
 		float z = cos(i);
 		i += .002;
@@ -682,7 +539,6 @@ int main(int argc, char* argv[])
 			float interpolatedRotationAngle = currentRotationAngle + (nextRotationAngle - currentRotationAngle) * timeProportion;
 
 			playerArm1.setRotation(interpolatedRotationAngle);
-
 
             // If the realtime clock is beyond the next keyframes time parameter, move to the next keyframe
             if (currentWorldTime >= nextFrameTime)
@@ -759,27 +615,12 @@ int main(int argc, char* argv[])
                 keyframeNumBall++;
         }
 
-		numberDraw.groupMatrix = groupMatrix;
-		numberDraw2.groupMatrix = groupMatrix;
-		numberDraw.renderAs = renderAs;
-		numberDraw2.renderAs = renderAs;
-
         // Handle changing the score, if necessary
         handleScoring(currentWorldTime, redScore, blueScore);
 
-        // Handle playing sounds, if necessary
+        // Handle playing sounds, if necessary (and desired)
         if (playSound)
             handleSounds(currentWorldTime);
-
-//		number = floor(glfwGetTime());
-//		if (number > 98)glfwSetTime(0);
-
-        glm::vec3 position1 = ball.getPosition();
-	
-		//https://stackoverflow.com/questions/13915479/c-get-every-number-separately
-		//this for separating more
-		//	number = floor(glfwGetTime());
-//		if (number > 98)glfwSetTime(0);
 
 		// Must draw scene in 2 passes: once for shadows, and another normally
 		// 1st pass
@@ -793,54 +634,60 @@ int main(int argc, char* argv[])
 			// Clear depth data on the frame buffer
 			glClear(GL_DEPTH_BUFFER_BIT);
 
-			//Note .8 != 30 for the height so that we can visually see the affects of rotating
+            // Update position of light
 			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, true);
 			if (i == 1.0f) i = -1.0f;
 
+            // DRAW GEOMETRY
+            // Draw scoreboard
 			numberDraw.Scoreboard(blueScore,false,true);
 			numberDraw2.Scoreboard(redScore,false,false);
 
+            // Draw blue player and racket
 			playerArm1.SetAttr(groupMatrix, renderAs, shaderProgram);
 			playerArm1.DrawArm();
 			racket1.SetAttr(groupMatrix, renderAs, shaderProgram, playerArm1.partParent);
 			racket1.Draw();
 
+            // Draw red player and racket
             playerArm2.SetAttr(groupMatrix, renderAs, shaderProgram);
             playerArm2.DrawArm();
             racket2.SetAttr(groupMatrix, renderAs, shaderProgram, playerArm2.partParent);
             racket2.Draw();
+
+            // Draw ball
 			ball.setGroupMatrix(groupMatrix);
 			ball.setRenderAs(renderAs);
 			ball.drawBall();
 
+            // Draw court and skybox
             SceneObj.sphereVao = unitSphereAO;
             SceneObj.sphereVertCount = (int) vertexIndicesSphere.size();
             SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
             SceneObj.SetVAO(unitCubeAO, gridAO);
             SceneObj.DrawScene(false);  // Draw scene without the skybox, so it can't be used to make shadows on the scene
 
-			//This is all for bleacher			
+			// This is all for the bleachers
 			//****************
-			glm::mat4 letterTranslate;
-			glm::mat4 letterRotate;
-			glm::mat4 letterScale;
-			glm::mat4 LetterGroupMatrix;
+			glm::mat4 bleacherTranslate;
+			glm::mat4 bleacherScale;
+			glm::mat4 bleacherGroupMatrix;
 
-			letterTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, .080, -0.75));
-			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
-			glm::mat4 letterParent = letterTranslate * letterScale;
-			LetterGroupMatrix = groupMatrix * letterParent;
-			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &LetterGroupMatrix[0][0]);
+			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, .080, -0.75));
+			bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
+			glm::mat4 letterParent = bleacherTranslate * bleacherScale;
+			bleacherGroupMatrix = groupMatrix * letterParent;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &bleacherGroupMatrix[0][0]);
 			metalMaterial.loadToShader();
 			metalMaterial.bindTexture();
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f, .6f, .66f))); //al have the same colour
 			Bleachers.RenderModelBleacher();
 
-			letterTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, .080, -0.75));
-			letterScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
-			letterParent = letterTranslate * letterScale;
-			LetterGroupMatrix = groupMatrix * letterParent;
-			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &LetterGroupMatrix[0][0]);
+			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, .080, -0.75));
+			bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
+			letterParent = bleacherTranslate * bleacherScale;
+			bleacherGroupMatrix = groupMatrix * letterParent;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &bleacherGroupMatrix[0][0]);
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f, .6f, .66f)));
 			Bleachers.RenderModelBleacher();
 			//****************
@@ -860,33 +707,41 @@ int main(int argc, char* argv[])
 			glActiveTexture(GL_TEXTURE0 + 2);
 			glBindTexture(GL_TEXTURE_2D, depth_map_texture);
 
+            // Update position of the light
+            updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noShowLightBox);
+
+            // DRAW GEOMETRY
+            // Draw scoreboard
+            numberDraw.Scoreboard(blueScore, false, true);
+            numberDraw2.Scoreboard(redScore, false, false);
+
+            // Draw blue player and racket
 			playerArm1.SetAttr(groupMatrix, renderAs, shaderProgram);
 			playerArm1.DrawArm();
 			racket1.SetAttr(groupMatrix, renderAs, shaderProgram, playerArm1.partParent);
 			racket1.Draw();
 
+            // Draw red player and racket
             playerArm2.SetAttr(groupMatrix, renderAs, shaderProgram);
             playerArm2.DrawArm();
             racket2.SetAttr(groupMatrix, renderAs, shaderProgram, playerArm2.partParent);
             racket2.Draw();
 
+            // Draw ball
 			ball.setGroupMatrix(groupMatrix);
 			ball.setRenderAs(renderAs);
 			ball.drawBall();
 
-			numberDraw.Scoreboard(blueScore, false, true);
-			numberDraw2.Scoreboard(redScore, false, false);
-
+            // Draw court and sky box
 			SceneObj.sphereVao = unitSphereAO;
 			SceneObj.sphereVertCount = (int) vertexIndicesSphere.size();
 			SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
 			SceneObj.SetVAO(unitCubeAO, gridAO);
 			SceneObj.DrawScene(true);  // Draw scene with the skybox
 
-			//This is all for bleacher
+			// This is all for the bleachers
 			//****************
 			glm::mat4 bleacherTranslate;
-			glm::mat4 bleacherRotate;
 			glm::mat4 bleacherScale;
 			glm::mat4 bleacherGroupMatrix;
 			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, .080, -0.75));
@@ -909,9 +764,9 @@ int main(int argc, char* argv[])
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &bleacherGroupMatrix[0][0]);
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f,.6f,.66f)));
 			Bleachers.RenderModelBleacher();
+            //****************
 
-
-			//this is the red clay court
+			// This is the red clay court
 			glBindVertexArray(unitCubeAO);
 			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, -0.07, -0.0));
 			bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(50.0f, 1.0f, 50.00015f) );
@@ -925,21 +780,21 @@ int main(int argc, char* argv[])
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 			glBindVertexArray(0);
 			//******************
-
-			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noShowLightBox);
 		}
 
-		//crowd.drawCrowd();
-		crowd.animateCrowd(); //just to triger animation
+        // Draw and animate the crowd and the walking figures in from of the bleachers
+		crowd.animateCrowd(); //just to trigger animation
 		crowd.test(4);
-		//crowd.drawSingle(vec3(0, .2, 0.3), vec3(0), 1, 1);
 		crowd.walker();
-		//blue side is Player1
+
+		// Move the fingers for the players
 		playerArm1.flexFingers();
-		//red is player2
         playerArm2.flexFingers();
 
+        // Swap buffers
         glfwSwapBuffers(window);
+
+        // Get inputs
 		glfwPollEvents();
 	}
     // Shut down irrKlang
@@ -949,6 +804,167 @@ int main(int argc, char* argv[])
 	glfwTerminate();
 
 	return 0;
+}
+
+/**
+Create a index buffer object for the sphere
+@param vertexIndices: The indices for the vertices of the sphere
+@param vertices: The vertices of the sphere
+@param normals: The normals of the sphere
+@param UVs: The UVs of the sphere
+@return The IBO
+*/
+GLuint createVertexArrayElementObject2(std::vector<int> vertexIndices, std::vector<glm::vec3> vertices,
+                                       std::vector<glm::vec3> normals, std::vector<glm::vec2> UVs)
+{
+    // Create a vertex array
+    GLuint vertexArrayObject;
+    glGenVertexArrays(1, &vertexArrayObject);
+    glBindVertexArray(vertexArrayObject);
+
+    glGenBuffers(1, &IBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr) (vertexIndices.size() * sizeof(unsigned int)), &vertexIndices.front(), GL_STATIC_DRAW);
+
+    // Upload Vertex Buffer to the GPU, keep a reference to it (vertexBufferObject)
+    GLuint vertexBufferObject;
+    glGenBuffers(1, &vertexBufferObject);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
+    glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr) (vertices.size() * sizeof(glm::vec3)), &vertices.front(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0,                     // attribute 0 matches aPos in Vertex Shader
+                          3,                     // size
+                          GL_FLOAT,              // type
+                          GL_FALSE,              // normalized?
+                          1 * sizeof(glm::vec3), // stride - each vertex contain 2 vec3 (position, color)
+                          (void*) nullptr        // array buffer offset
+    );
+    glEnableVertexAttribArray(0);
+
+    //Normals VBO setup taken from lab
+    GLuint normals_VBO;
+    glGenBuffers(1, &normals_VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, normals_VBO);
+    glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr) (normals.size() * sizeof(glm::vec3)), &normals.front(), GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec3), (GLvoid*) nullptr);
+    glEnableVertexAttribArray(1);
+
+    //UVs VBO setup
+    GLuint uvs_VBO;
+    glGenBuffers(1, &uvs_VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, uvs_VBO);
+    glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr) (UVs.size() * sizeof(glm::vec3)), &UVs.front(), GL_STATIC_DRAW);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec3), (GLvoid*) nullptr);
+    glEnableVertexAttribArray(2);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    return vertexArrayObject;
+}
+
+/**
+Create a vertex array object with positions, normals, and UVs
+@return The VAO
+*/
+GLuint createVertexArrayObject2()
+{
+    // Create VAO
+    GLuint vertexArrayObject;
+    glGenVertexArrays(1, &vertexArrayObject);
+    glBindVertexArray(vertexArrayObject);
+
+    // Create VBO
+    GLuint vertexBufferObject;
+    glGenBuffers(1, &vertexBufferObject);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(texturedCubeVertexArray), texturedCubeVertexArray, GL_STATIC_DRAW);
+
+    // Enable position vectors
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedNormalledVertex), (void*) nullptr);
+    glEnableVertexAttribArray(0);
+
+    // Enable normal vectors
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedNormalledVertex), (void*) sizeof(glm::vec3));
+    glEnableVertexAttribArray(1);
+
+    // Enable UV vectors
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedNormalledVertex), (void*) (2 * sizeof(glm::vec3)));
+    glEnableVertexAttribArray(2);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    return vertexArrayObject;
+}
+
+/**
+ * Update the light parameters with each run of the main loop
+ * @param newPosition The new position for the light
+ * @param newFocus The new focus for the light
+ * @param scene The SceneObject to draw the light to
+ * @param shaderProg The shader program to use
+ * @param i The i value to pass to the SceneObj.DrawLight method
+ * @param applyShadow If this is a shadow pass, do not draw the light
+ */
+void updateLight(glm::vec3 newPosition, glm::vec3 newFocus, SceneObjects scene, GLuint shaderProg, float i, bool applyShadow) {
+    // light parameters
+    glm::vec3 lightPosition(-.30f, .30f, .0f); // the location of the light in 3D space
+    glm::vec3 lightFocus(0.0, 0.0, 0.0);      // the point in 3D space the light "looks" at
+    glm::vec3 lightDirection = glm::normalize(newFocus - newPosition);
+    float lightNearPlane = 0.1f;
+    float lightFarPlane = 180.0f;
+
+    // Get light-related uniform locations
+    GLint lightPositionLoc = glGetUniformLocation(shaderProg, "lightPosition");
+    GLint lightDirectionLoc = glGetUniformLocation(shaderProg, "lightDirection");
+    GLint lightViewProjMatrixLoc = glGetUniformLocation(shaderProg, "lightViewProjMatrix");
+
+    // Set light position on scene shader
+    glUniform3fv(lightPositionLoc, 1, &newPosition[0]);
+
+    // Set light direction on scene shader
+    glUniform3fv(lightDirectionLoc, 1, &lightDirection[0]);
+
+    // Create light space matrix
+    glm::mat4 lightProjectionMatrix = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, lightNearPlane, lightFarPlane);
+    glm::mat4 lightViewMatrix = glm::lookAt(newPosition, newFocus, glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 lightSpaceMatrix = lightProjectionMatrix * lightViewMatrix;
+
+    // Send light space matrix to shader
+    glUniformMatrix4fv(lightViewProjMatrixLoc, 1, GL_FALSE, &lightSpaceMatrix[0][0]);
+
+    // If this is the shadow pass, don't draw the light
+    if (!applyShadow)
+        scene.DrawLight(newPosition, glm::vec3(0.0f, 1.0f, 0.0f), i);
+}
+
+/**
+Create a vertex array object for the grid
+@param vertexArray: A pointer to the vertex array to use
+@param arraySize: How many entries are in the vertex array
+@return The VAO
+*/
+GLuint createVertexArrayObject(const glm::vec3* vertexArray, int arraySize)
+{
+    // Create a vertex array
+    GLuint vertexArrayObject;
+    glGenVertexArrays(1, &vertexArrayObject);
+    glBindVertexArray(vertexArrayObject);
+
+    // Upload Vertex Buffer to the GPU, keep a reference to it (vertexBufferObject)
+    GLuint vertexBufferObject;
+    glGenBuffers(1, &vertexBufferObject);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
+    glBufferData(GL_ARRAY_BUFFER, arraySize, vertexArray, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(glm::vec3), (void*) nullptr);
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    return vertexArrayObject;
 }
 
 /** Set up the shadow map
@@ -1244,6 +1260,8 @@ const std::string getShaderSource(const char* PATH)
 
 /**
 Compile and link the shader program
+@param vertex The name of the vertex shader file
+@param fragment The name of the fragment shader file
 @return The shader program ID
 */
 int compileAndLinkShaders(const char* vertex, const char* fragment)
