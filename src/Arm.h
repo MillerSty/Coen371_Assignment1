@@ -55,6 +55,7 @@ public:
     int renderAs;
 
 	std::string letterName;
+    glm::vec3 gloveColor;
 
 	// METHODS
     // Draw the arm

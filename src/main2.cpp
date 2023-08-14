@@ -340,7 +340,9 @@ int main(int argc, char* argv[])
 
 	// Set parameters for rackets and arms
 	playerArm1.InitArm(glm::vec3(-.5f, 0.15f, .2f), unitCubeAO, skinMaterial, clothMaterial);
+    playerArm1.gloveColor = glm::vec3(0.0f, 0.0f, 1.0f);
     playerArm2.InitArm(glm::vec3(.5f, 0.15f, -.2f), unitCubeAO, skinMaterial, clothMaterial);
+    playerArm2.gloveColor = glm::vec3(1.0f, 0.0f, 0.0f);
 	Racket racket1(unitCubeAO, "racket1");
     racket1.plasticMaterial = plasticMaterial;
     Racket racket2(unitCubeAO, "racket2");

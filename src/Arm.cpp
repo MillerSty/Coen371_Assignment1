@@ -87,9 +87,9 @@ bool Arm::DrawArm() {
 	partScale = glm::scale(glm::mat4(1.0f), glm::vec3(constArmScaler.x *.4878f, constArmScaler.y*1.1236f, constArmScaler.z));
 	partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, .0f, 1.0f));
 
-    partMat = partScale * partRo;
+	partMat = partScale * partRo;
 	worldMatrix = groupMatrix * handParent * partMat;
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.0f, .36f, .3f)));
+	glUniform3fv(colorLocation, 1, &gloveColor[0]);
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
 	partParent = handParent;
