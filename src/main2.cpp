@@ -308,8 +308,6 @@ int main(int argc, char* argv[])
 	GLuint metalTextureID    = loadTexture("../src/Assets/metal.jpg");
 	GLuint grassTextureID    = loadTexture("../src/Assets/grass4.jpg");
 	GLuint plasticTextureID  = loadTexture("../src/Assets/plastic.jpg");
-	GLuint woodTextureID     = loadTexture("../src/Assets/wood1.jpg");
-	GLuint aluminumTextureID = loadTexture("../src/Models/Bleachers/metal.jpg");
 
 	// Define materials based on textures
 	Material courtMaterial(.2f, .002f, .50f, .001f, courtTextureID, shaderProgram); //court shouldn't reflect
@@ -318,10 +316,8 @@ int main(int argc, char* argv[])
 	Material metalMaterial(.6f, .90f, .6f, .12f, metalTextureID, shaderProgram); //metal should shine
 	Material grassMaterial(.60f, .001f, .6f, .0001f, grassTextureID, shaderProgram); //just bright, that's all it needs
 	Material plasticMaterial(.5f, .30f, .4f, .1f, plasticTextureID, shaderProgram); //needs to be glossy! This is our racket1
-	Material woodMaterial(.5f, .60f, .5f, .002f, woodTextureID, shaderProgram); //this is you matt
 	Material skinMaterial(.1f, .0f, .66f, .001f, plasticTextureID, shaderProgram); // This is skin
 	Material skyMaterial(.3f, .001f, .9f, .0001f, plasticTextureID, shaderProgram); // Flat blue sky
-	Material bleacherMaterial(.6f, .90f, .6f, .12f, aluminumTextureID, shaderProgram); // Metal
 
 	//Model.cpp, Texture.cpp, Mesh.cpp taken from LearnOpenGL Udemy course
 	//NOTE: Only used within Model's not for how we use textures in general
