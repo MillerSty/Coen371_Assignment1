@@ -141,8 +141,8 @@ float far = 50;
 float translateW = 0;
 float translateY = 0;
 float translateZ = 0;
-float lightDepth = 1.0f;
-bool noShowLightBox = false;
+float lightDepth = .75f;
+bool noShowLightBox = true;
 glm::vec3 eye(.0f, .350f*1.5, .7650f*1.5);
 glm::vec3 center(.00f, .0f, 0.0f);
 glm::vec3 up(0.0f, 1.0f, 0.0f);
@@ -455,10 +455,39 @@ int main(int argc, char* argv[])
         KeyFrame(glm::vec3(0.75, BALL_Y_OFFSET, -0.3), glm::vec3(0.0), 40.0), // SCORE
 	};
 
+	// Keyframes for Red player
+	KeyFrame keyframesCamera[] = {
+		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(-90.0), 0.0), // Initial key frame
+		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(-60.0), 2.5), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, -0.035), glm::vec3(-90.0), 3.0), // Hit ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0), 8.0), // Start moving away from ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.18), glm::vec3(-110.0), 8.5), // Be away from ball
+		KeyFrame(glm::vec3(0.0, 0.0, -0.005), glm::vec3(-90.0), 11.0), // Start moving back
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-90.0), 12.0), // Be in position
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-90.0), 14.0),
+		KeyFrame(glm::vec3(0.0, 0.0, 0.07), glm::vec3(-90.0), 16.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0), 18.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, -0.035), glm::vec3(-90.0), 19.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-90.0), 25.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0), 27.3), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, -0.035), glm::vec3(-90.0), 28.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-90.0), 31.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0), 33.3), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.255), glm::vec3(-90.0), 34.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0), 39.0), // Start moving away from ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.18), glm::vec3(-110.0), 39.5), // Be away from ball
+	};
+
+
+
+
+
+
     // Start at the 0th keyframe for each set of keyframes
     int keyframeNumBlue = 0;
     int keyframeNumRed = 0;
 	int keyframeNumBall = 0;
+	int keyframeNumCamera = 0;
 
 	float i = -1;
 
@@ -466,7 +495,7 @@ int main(int argc, char* argv[])
 	int redScore = 0, blueScore = 0;
 
     // Decide whether to play sounds or not. Mostly for debug
-    bool playSound = true;
+    bool playSound = false;
 
     // If we want to play sounds, play a constant crowd chatter
 	if (playSound) {
@@ -671,7 +700,7 @@ int main(int argc, char* argv[])
 			glm::mat4 bleacherScale;
 			glm::mat4 bleacherGroupMatrix;
 
-			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, .080, -0.75));
+			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, .08, -0.75));
 			bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
 			glm::mat4 letterParent = bleacherTranslate * bleacherScale;
 			bleacherGroupMatrix = groupMatrix * letterParent;
@@ -681,7 +710,7 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f, .6f, .66f))); //al have the same colour
 			Bleachers.RenderModelBleacher();
 
-			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, .080, -0.75));
+			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.35, .08, -0.75));
 			bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
 			letterParent = bleacherTranslate * bleacherScale;
 			bleacherGroupMatrix = groupMatrix * letterParent;
@@ -689,6 +718,20 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f, .6f, .66f)));
 			Bleachers.RenderModelBleacher();
 			//****************
+						// This is the red clay court
+			glBindVertexArray(unitCubeAO);
+			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, -0.07, -0.0));
+			bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(50.0f, 1.0f, 50.0f));
+			glm::mat4 bleacherParent = bleacherTranslate * bleacherScale;
+			bleacherGroupMatrix = groupMatrix * bleacherParent;
+
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &bleacherGroupMatrix[0][0]);
+			courtMaterial.loadToShader();
+			courtMaterial.bindTexture();
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3((float)137 / 255, (float)72 / 255, (float)62 / 255)));
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+			glBindVertexArray(0);
+			//******************
 		}
 
 		{ // 2nd pass
@@ -742,7 +785,7 @@ int main(int argc, char* argv[])
 			glm::mat4 bleacherTranslate;
 			glm::mat4 bleacherScale;
 			glm::mat4 bleacherGroupMatrix;
-			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, .080, -0.75));
+			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, .08, -0.75));
 
 			bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f)*6.0f);
 			glm::mat4 bleacherParent = bleacherTranslate * bleacherScale;
@@ -754,7 +797,7 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f, .6f, .66f)));
 			Bleachers.RenderModelBleacher();
 
-			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.35, .080, -0.75));
+			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.35, .08, -0.75));
 			
 			bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
 			bleacherParent = bleacherTranslate * bleacherScale;
@@ -1000,7 +1043,7 @@ void setUpLighting() {
     glm::vec3 lightPosition(-0.0f, 30.0f, .0f); // The location of the light in 3D space
     glm::vec3 lightFocus(0.0, -0.01, .0f);      // The point in 3D space the light "looks" at
     glm::vec3 lightDirection = glm::normalize(lightFocus - lightPosition);
-    glm::mat4 lightProjectionMatrix = glm::ortho(-1.5f, 1.50f, -1.50f, 1.50f, lightNearPlane, lightFarPlane);
+    glm::mat4 lightProjectionMatrix = glm::ortho(-10.5f, 10.50f, -10.50f, 10.50f, lightNearPlane, lightFarPlane); 
     glm::mat4 lightViewMatrix = glm::lookAt(lightPosition, lightFocus, glm::vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 lightSpaceMatrix = lightProjectionMatrix * lightViewMatrix;
 
