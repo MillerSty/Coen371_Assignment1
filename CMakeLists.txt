@@ -19,6 +19,7 @@ find_package(OpenGL REQUIRED COMPONENTS OpenGL)
 include(BuildGLEW)
 include(BuildGLFW)
 include(BuildGLM)
+include(BuildASSIMP)
 include_directories("thirdparty/stb")
 include_directories("thirdparty/irrKlang/include")
 
@@ -26,12 +27,11 @@ include_directories("thirdparty/irrKlang/include")
 set(EXEC Coen371_Project)
 
 file(GLOB SRC src/*.cpp)
-file(GLOB EVAN_SRC src/Evan-models/*.cpp)
-file(GLOB SABRINA_SRC src/Sabrina-models/*.cpp)
+file(GLOB MODEL src/Models/*.cpp)
 
-add_executable(${EXEC} ${SRC} ${EVAN_SRC} ${SABRINA_SRC})
+add_executable(${EXEC} ${SRC} ${MODEL})
 link_libraries(-L/thirdparty/irrKlang/lib/irrKlang.dll)
-target_link_libraries(${EXEC} OpenGL::GL glew_s glfw glm)
+target_link_libraries(${EXEC} OpenGL::GL glew_s glfw glm assimp)
 
 list(APPEND BIN ${EXEC})
 # end lab01

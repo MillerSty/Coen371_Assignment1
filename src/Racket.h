@@ -13,18 +13,19 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "Material.h"
 #include "SceneObjects.h"
+
 class Racket
 {
 
 public:
-	Racket(int cubeVao, glm::mat4 worldMatrix) ;
-	Racket(int cubeVao, std::string racketName);
+	Racket(GLuint cubeVao, glm::mat4 worldMatrix) ;
+	Racket(GLuint cubeVao, std::string racketName);
 	void SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram, glm::mat4 partParent);
 	void setPlastic(Material plastic) { plasticMaterial = plastic; }
 	void setBall(SceneObjects ball) { this->ball = ball; }
 
 
-	int cubeVao;
+	GLuint cubeVao;
 	int racketAngle;
 	float jawnAngle;
 

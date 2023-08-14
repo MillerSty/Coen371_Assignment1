@@ -8,12 +8,10 @@ public:
     glm::vec3 rotation;
     double time;
 
-    KeyFrame(glm::vec3 trans, glm::vec3 rot, double time);
-
+    KeyFrame(glm::vec3 trans, glm::vec3 rot, double t)
+    {
+        translation = trans;
+        rotation = rot;
+        time = t;
+    }
 };
-
-KeyFrame::KeyFrame(glm::vec3 trans, glm::vec3 rot, double t) {
-    translation = trans;
-    rotation = rot;
-    time = t;
-}
