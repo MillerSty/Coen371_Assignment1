@@ -47,7 +47,7 @@ GLuint createVertexArrayObject(const glm::vec3* vertexArray, int arraySize);
 GLuint createVertexArrayObject2();
 GLuint createVertexArrayElementObject2(std::vector<int> vertexIndices, std::vector<glm::vec3> vertices,
                                        std::vector<glm::vec3> normals, std::vector<glm::vec2> UVs);
-void updateLight(glm::vec3 newPosition, glm::vec3 newFocus, SceneObjects SceneObj, GLuint shaderProgram, float i, bool applyShadow);
+void updateLight(glm::vec3 newPosition, glm::vec3 newFocus, SceneObjects SceneObj, GLuint shaderProgram, bool applyShadow);
 
 // Set the shader paths
 const char* vertex = "../src/shaders/unifiedVertex.glsl";
@@ -632,7 +632,7 @@ int main(int argc, char* argv[])
 			glClear(GL_DEPTH_BUFFER_BIT);
 
             // Update position of light
-			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, true);
+			updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, true);
 			if (i == 1.0f) i = -1.0f;
 
             // DRAW GEOMETRY
@@ -658,8 +658,6 @@ int main(int argc, char* argv[])
 			ball.drawBall();
 
             // Draw court and skybox
-            SceneObj.sphereVao = unitSphereAO;
-            SceneObj.sphereVertCount = (int) vertexIndicesSphere.size();
             SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
             SceneObj.SetVAO(unitCubeAO, gridAO);
             SceneObj.DrawScene(false);  // Draw scene without the skybox, so it can't be used to make shadows on the scene
@@ -705,7 +703,7 @@ int main(int argc, char* argv[])
 			glBindTexture(GL_TEXTURE_2D, depth_map_texture);
 
             // Update position of the light
-            updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, i, noShowLightBox);
+            updateLight(glm::vec3(x, lightDepth, z), glm::vec3(0, 0, 0), SceneObj, shaderProgram, noShowLightBox);
 
             // DRAW GEOMETRY
             // Draw scoreboard
@@ -730,8 +728,6 @@ int main(int argc, char* argv[])
 			ball.drawBall();
 
             // Draw court and sky box
-			SceneObj.sphereVao = unitSphereAO;
-			SceneObj.sphereVertCount = (int) vertexIndicesSphere.size();
 			SceneObj.SetAttr(rotationMatrixW, renderAs, shaderProgram);
 			SceneObj.SetVAO(unitCubeAO, gridAO);
 			SceneObj.DrawScene(true);  // Draw scene with the skybox
@@ -904,7 +900,7 @@ GLuint createVertexArrayObject2()
  * @param i The i value to pass to the SceneObj.DrawLight method
  * @param applyShadow If this is a shadow pass, do not draw the light
  */
-void updateLight(glm::vec3 newPosition, glm::vec3 newFocus, SceneObjects scene, GLuint shaderProg, float i, bool applyShadow) {
+void updateLight(glm::vec3 newPosition, glm::vec3 newFocus, SceneObjects scene, GLuint shaderProg, bool applyShadow) {
     // light parameters
     glm::vec3 lightPosition(-.30f, .30f, .0f); // the location of the light in 3D space
     glm::vec3 lightFocus(0.0, 0.0, 0.0);      // the point in 3D space the light "looks" at
@@ -933,7 +929,7 @@ void updateLight(glm::vec3 newPosition, glm::vec3 newFocus, SceneObjects scene, 
 
     // If this is the shadow pass, don't draw the light
     if (!applyShadow)
-        scene.DrawLight(newPosition, glm::vec3(0.0f, 1.0f, 0.0f), i);
+        scene.DrawLight(newPosition, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 /**
