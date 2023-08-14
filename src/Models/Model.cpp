@@ -33,6 +33,15 @@ void Model::RenderModelBleacher()
 	}
 }
 
+void Model::RenderModeltree1()
+{
+	for (size_t i = 0; i < meshList.size(); i++)
+	{
+		unsigned int materialIndex = meshToTex[i];
+		meshList[i]->RenderMesh();
+	}
+}
+
 void Model::LoadModel(const std::string & fileName)
 {
 	Assimp::Importer importer;

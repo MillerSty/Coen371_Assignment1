@@ -20,6 +20,8 @@ public:
 	void RenderModel();
 	void ClearModel();
 	void RenderModelBleacher();
+	void RenderModeltree1();
+
 	~Model();
 
 private:
