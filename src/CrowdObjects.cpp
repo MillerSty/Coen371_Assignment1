@@ -10,7 +10,6 @@ void CrowdObjects::initializeCrowdRows(int rows)
 	if (!initialized)
 	{
 		col = new glm::vec3[15*rows];
-		std::cout << 15 * rows << std::endl;
 		initialized = true;
 	}
 }
@@ -62,7 +61,6 @@ void CrowdObjects::drawSingle(glm::vec3 position,glm::vec3 armrotate, int crowdS
 	glm::mat4 partRotate;
 
 	if (crowdCount <= crowdSize) {
-		std::cout << crowdPosition << std::endl;
 		col[crowdPosition] = glm::vec3(glm::linearRand(0.0f, 1.0f),
 			glm::linearRand(0.0f, 1.0f),
 			glm::linearRand(0.0f, 1.0f));
