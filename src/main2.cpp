@@ -334,7 +334,6 @@ int main(int argc, char* argv[])
 	crowd.vaos[1] = unitSphereAO;
 	crowd.sphereIndexCount = (int) vertexIndicesSphere.size();
 	crowd.skinMaterial = skinMaterial;
-	crowd.clothMaterial = clothMaterial;
 	crowd.shaderProgram = shaderProgram;
 	crowd.renderAs = GL_TRIANGLES;
 
