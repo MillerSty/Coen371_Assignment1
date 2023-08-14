@@ -32,7 +32,7 @@ public:
 	void initializeCrowdRows(int rows);
 
     // Draws the crowd
-	void test(int rows);
+	void drawCrowd(int rows);
 
     // Draw a single person
 	void drawSingle(glm::vec3 pos, glm::vec3 armrotate, int crowdSize, int crowdPosition);

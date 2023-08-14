@@ -781,7 +781,7 @@ int main(int argc, char* argv[])
 
         // Draw and animate the crowd and the walking figures in from of the bleachers
 		crowd.animateCrowd(); //just to trigger animation
-		crowd.test(4);
+		crowd.drawCrowd(4);
 		crowd.walker();
 
 		// Move the fingers for the players

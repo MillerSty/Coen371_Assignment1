@@ -15,7 +15,7 @@ void CrowdObjects::initializeCrowdRows(int numRows)
 	}
 }
 
-void CrowdObjects::test(int crowdRows) {
+void CrowdObjects::drawCrowd(int crowdRows) {
 	float scale = 1;
 	std::vector<glm::vec3> crowd;
 
