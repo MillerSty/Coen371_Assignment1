@@ -119,7 +119,7 @@ bool Arm::DrawArm() {
 
 	partMatrix = partScale * partRo;
 	worldMatrix = groupMatrix * handParent * partMatrix;
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.0f, .36f, .3f)));
+	glUniform3fv(colorLocation, 1, &gloveColor[0]);
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
 	partParent = handParent;

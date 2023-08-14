@@ -72,6 +72,7 @@ public:
 	int renderAs;
 	glm::vec3 position;
 	std::string letterName;
+    glm::vec3 gloveColor;
 
 
 	//methods like 
