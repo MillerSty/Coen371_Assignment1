@@ -15,32 +15,29 @@
 class Letters
 {
 public:
+    // CONSTRUCTORS
 	Letters() = default;
-	Letters(int cubeVao,glm::mat4 worldMatrix);
-	Letters(int cubeVao,int shaderProgram, glm::mat4 worldMatrix,glm::vec3 numPosition,Material plastic,int renderAs);
+	Letters(GLuint cubeVao, int shaderProgram, glm::mat4 worldMatrix, glm::vec3 numPosition, Material plastic, int renderAs);
 
+    // PARAMETERS
 	GLuint cubeVao;
+
 	glm::mat4 partParent;
 	glm::mat4 partMatrix;
 	glm::mat4 groupMatrix;
-
 	glm::mat4 boardChild;
 	glm::mat4 boardParent;
 
-
-	Material plastic;
-	int shaderProgram;
-	int renderAs;
 	glm::vec3 position;
 	glm::vec3 numPosition;
 	glm::vec3 colour[3];
-	//methods like 
+
+	Material plastic;
+
+	int shaderProgram;
+	int renderAs;
+
+	// METHODS
 	bool DrawNumber(int number);
-	bool Scoreboard(int number,bool isClock,bool isBlue);
-	bool DrawJ();
-	bool DrawM();
-	bool DrawI();
-	bool DrawL();
-
+	bool Scoreboard(int number, bool isClock, bool isBlue);
 };
-

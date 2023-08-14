@@ -14,70 +14,49 @@
 class Arm
 {
 public:
-	Arm(int cubeVao, glm::mat4 worldMatrix);
-	Arm(int cubeVao, std::string letterName);
+    // Constructor
 	Arm();
 
-	void setTranslation(glm::vec3 TranslateRandom, glm::vec3 TranslateModel);
-	void SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram);
-	void setVAO(int vao);
-	void setRotation(float rotate) {
+    // GETTERS/ SETTERS
 
-		this->armRotate = rotate;
-	}
-	float getRotation() {
-		return this->armRotate;
-	}
-	void setWRotation(float rotate) {
-		this->wristRotate = rotate;
-	}
-	float getWRotation() {
-		return this->wristRotate;
-	}
-	void setERotation(float rotate) {
-		this->elbowRotate = rotate;
-	}
-	float getERotation() {
-		return this->elbowRotate;
-	}
-	void setFRotation(float rotate) {
-		this->fingerRotate = rotate;
-	}
-	float getFRotation() {
-		return this->fingerRotate;
-	}
-	glm::vec3 getTranslateRandom() { return this->TranslateRandom; }
-	void setTranslateRandom(glm::vec3 TranslateRandom) { this->TranslateRandom = TranslateRandom; }
-	glm::vec3 getTranslateModel() { return this->TranslateModel; }
-	void setTranslateModel(glm::vec3 TranslateModel) { this->TranslateModel = TranslateModel; }
-	void resetArm();
-	bool flexFingers();
+    // Set attributes for the Arm
+	void SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram);
+
+    // Set Arm rotation
+    void setRotation(float rotate) { armRotate = rotate; }
+
+    // Set the model translation for the Arm
+    void setTranslateModel(glm::vec3 TranslateModel) { this->TranslateModel = TranslateModel; }
+
+    // Flex the Arms fingers automatically
+    bool flexFingers();
+
+    // Initialize the Arm
 	void InitArm(glm::vec3 position, GLuint VAO, Material skinMaterial, Material clothMaterial);
 
+    // PARAMETERS
 	bool reverse;
 	float fingerFlex;
-	GLuint cubeVao;
-	glm::mat4 partParent;
+	float armRotate, elbowRotate, wristRotate, fingerRotate;
+
+    GLuint cubeVao;
+
+    glm::mat4 partParent;
 	glm::mat4 partMatrix;
 	glm::mat4 groupMatrix;
-
 	glm::vec3 TranslateRandom;
-
+    glm::vec3 position;
 	glm::vec3 TranslateModel;
-	float armRotate,elbowRotate,wristRotate, fingerRotate;
-	Material skinMaterial;
+
+    Material skinMaterial;
 	Material clothMaterial;
 
-	int shaderProgram;
-	int renderAs;
-	glm::vec3 position;
+    int shaderProgram;
+    int renderAs;
+
 	std::string letterName;
 
-
-	//methods like 
+	// METHODS
+    // Draw the arm
 	bool DrawArm();
-
 };
-
-
-
