@@ -46,8 +46,8 @@ private:
 
 
 	const KeyFrame path[2] = {
-KeyFrame(glm::vec3(0, 0.02, -.4), glm::vec3(0.0), 0.0), // Initial key frame
-KeyFrame(glm::vec3(-0.76, 0.02, -0.40), glm::vec3(0.0), 40.0), // Start moving for ball
+KeyFrame(glm::vec3(0.4, 0.02, -.4), glm::vec3(0.0), 0.0), // Initial key frame
+KeyFrame(glm::vec3(-0.84, 0.02, -0.40), glm::vec3(0.0), 53.5), // Start moving for ball
 //KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(0.0), 3.0), // Hit ball
 //KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(0.0), 8.0), // Start moving away from ball
 //KeyFrame(glm::vec3(0.0, 0.0, -0.005), glm::vec3(0.0), 9.0), // Be away from ball
