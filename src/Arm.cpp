@@ -63,7 +63,7 @@ bool Arm::DrawArm() {
 
 	// FOREARM
 	glm::mat4 forTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(constArmScaler.x *.0948f, .0f, .0f));
-	glm::mat4 forRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)elbowRotate), glm::vec3(.0f, .0f, 1.0f)); //this rotates forearm
+	glm::mat4 forRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)elbowRotate), glm::vec3(-1.0f, .0f, 1.0f)); //this rotates forearm
 	glm::mat4 forarmParent = bicepParent * forTranslate * forRotate;
 
 	partScale = glm::scale(glm::mat4(1.0f), glm::vec3(constArmScaler.x - .02f, constArmScaler.y, constArmScaler.z));
