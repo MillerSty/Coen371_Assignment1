@@ -27,6 +27,7 @@
 #include "Ball.h"
 #include "Models/Model.h"
 #include "CrowdObjects.h"
+#include <random>
 
 // Declare some functions for later use
 int compileAndLinkShaders(const char* vertex, const char* fragment);
@@ -48,6 +49,8 @@ GLuint createVertexArrayObject2();
 GLuint createVertexArrayElementObject2(std::vector<int> vertexIndices, std::vector<glm::vec3> vertices,
                                        std::vector<glm::vec3> normals, std::vector<glm::vec2> UVs);
 void updateLight(glm::vec3 newPosition, glm::vec3 newFocus, SceneObjects SceneObj, GLuint shaderProgram, bool applyShadow);
+glm::vec3 getRandomLocationSides();
+glm::vec3 getRandomLocationFront();
 
 // Set the shader paths
 const char* vertex = "../src/shaders/unifiedVertex.glsl";
@@ -134,7 +137,7 @@ bool scoreIncremented = false;
 int renderAs = GL_TRIANGLES;
 int shaderProgram;
 double lastMousePosX, lastMousePosY, lastMousePosZ;
-float FOV = 70;
+float FOV = 70.3f;
 float AR = (float) WIDTH / (float) HEIGHT;
 float near = .01;
 float far = 50;
@@ -149,6 +152,13 @@ glm::vec3 up(0.0f, 1.0f, 0.0f);
 glm::vec3 GroupMatrixScale(1.0f, 1.0f, 1.0f);
 glm::mat4 groupMatrix;
 glm::mat4 rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+
+const int size = 250;
+const int smallSize = 80;
+glm::vec3 locations[size];
+glm::vec3 smallLocations[smallSize];
+
+
 
 // Toggles for shadows and textures
 bool shouldApplyShadows = true;
@@ -497,6 +507,14 @@ int main(int argc, char* argv[])
 		bigCrowdSound->setSoundVolume(0.15f);
 	}
 
+	for (int i = 0; i < size; ++i) {
+		locations[i] = getRandomLocationSides();
+	}
+
+	for (int i = 0; i < smallSize; ++i) {
+		smallLocations[i] = getRandomLocationFront();
+	}
+
     // Set the current time to be 0. Animation relies on specific times
 	glfwSetTime(0.0f);
 
@@ -778,48 +796,29 @@ int main(int argc, char* argv[])
 			glm::mat4 grassTranslate;
 			glm::mat4 grassScale;
 			glm::mat4 grassGroupMatrix;
+			glm::mat4 letterParentgrass;
 
-			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.95, 0.0, 0.5));
-			grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
-			glm::mat4 letterParentgrass = grassTranslate * grassScale;
-			grassGroupMatrix = groupMatrix * letterParentgrass;
-			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &grassGroupMatrix[0][0]);
-			grassMaterial.loadToShader();
-			grassMaterial.bindTexture();
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(153.0f / 255.0f, 255.0f / 255.0f, 51.0f / 255.0f)));
-			Grass.RenderModelGrass();
+			for (int i = 0; i < size; i++)
+			{
+				grassTranslate = glm::translate(glm::mat4(1.0f),locations[i]);
+				grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.10f));
+				letterParentgrass = grassTranslate * grassScale;
+				grassGroupMatrix = groupMatrix * letterParentgrass;
+				glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &grassGroupMatrix[0][0]);
+				glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(153.0f / 255.0f, 255.0f / 255.0f, 51.0f / 255.0f)));
+				Grass.RenderModelGrass();
+			}
 
-			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.85, 0.0, 0.5));
-			grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.10f));
-			letterParentgrass = grassTranslate * grassScale;
-			grassGroupMatrix = groupMatrix * letterParentgrass;
-			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &grassGroupMatrix[0][0]);
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(153.0f / 255.0f, 255.0f / 255.0f, 51.0f / 255.0f)));
-			Grass.RenderModelGrass();
-
-			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.75, 0.0, 0.5));
-			grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.10f));
-			letterParentgrass = grassTranslate * grassScale;
-			grassGroupMatrix = groupMatrix * letterParentgrass;
-			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &grassGroupMatrix[0][0]);
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(153.0f / 255.0f, 255.0f / 255.0f, 51.0f / 255.0f)));
-			Grass.RenderModelGrass();
-
-			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.65, 0.0, 0.5));
-			grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.10f));
-			letterParentgrass = grassTranslate * grassScale;
-			grassGroupMatrix = groupMatrix * letterParentgrass;
-			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &grassGroupMatrix[0][0]);
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(153.0f / 255.0f, 255.0f / 255.0f, 51.0f / 255.0f)));
-			Grass.RenderModelGrass();
-
-			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.55, 0.0, 0.5));
-			grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.10f));
-			letterParentgrass = grassTranslate * grassScale;
-			grassGroupMatrix = groupMatrix * letterParentgrass;
-			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &grassGroupMatrix[0][0]);
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(153.0f / 255.0f, 255.0f / 255.0f, 51.0f / 255.0f)));
-			Grass.RenderModelGrass();
+			for (int i = 0; i < smallSize; i++)
+			{
+				grassTranslate = glm::translate(glm::mat4(1.0f), smallLocations[i]);
+				grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.10f));
+				letterParentgrass = grassTranslate * grassScale;
+				grassGroupMatrix = groupMatrix * letterParentgrass;
+				glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &grassGroupMatrix[0][0]);
+				glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(153.0f / 255.0f, 255.0f / 255.0f, 51.0f / 255.0f)));
+				Grass.RenderModelGrass();
+			}
 
 			// This is for the shortshrub
 			glm::mat4 shortshrubTranslate;
@@ -1044,48 +1043,30 @@ int main(int argc, char* argv[])
 			glm::mat4 grassTranslate;
 			glm::mat4 grassScale;
 			glm::mat4 grassGroupMatrix;
+			glm::mat4 letterParentgrass;
 
-			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.95, 0.0, 0.5));
-			grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.10f));
-			glm::mat4 letterParentgrass = grassTranslate * grassScale;
-			grassGroupMatrix = groupMatrix * letterParentgrass;
-			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &grassGroupMatrix[0][0]);
-			grassMaterial.loadToShader();
-			grassMaterial.bindTexture();
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(153.0f / 255.0f, 255.0f / 255.0f, 51.0f / 255.0f)));
-			Grass.RenderModelGrass();
 
-			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.85, 0.0, 0.5));
-			grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.10f));
-			letterParentgrass = grassTranslate * grassScale;
-			grassGroupMatrix = groupMatrix * letterParentgrass;
-			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &grassGroupMatrix[0][0]);
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(153.0f / 255.0f, 255.0f / 255.0f, 51.0f / 255.0f)));
-			Grass.RenderModelGrass();
+			for (int i = 0; i < size; i++)
+			{
+				grassTranslate = glm::translate(glm::mat4(1.0f), locations[i]);
+				grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.10f));
+				letterParentgrass = grassTranslate * grassScale;
+				grassGroupMatrix = groupMatrix * letterParentgrass;
+				glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &grassGroupMatrix[0][0]);
+				glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(153.0f / 255.0f, 255.0f / 255.0f, 51.0f / 255.0f)));
+				Grass.RenderModelGrass();
+			}
 
-			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.75, 0.0, 0.5));
-			grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.10f));
-			letterParentgrass = grassTranslate * grassScale;
-			grassGroupMatrix = groupMatrix * letterParentgrass;
-			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &grassGroupMatrix[0][0]);
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(153.0f / 255.0f, 255.0f / 255.0f, 51.0f / 255.0f)));
-			Grass.RenderModelGrass();
-
-			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.65, 0.0, 0.5));
-			grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.10f));
-			letterParentgrass = grassTranslate * grassScale;
-			grassGroupMatrix = groupMatrix * letterParentgrass;
-			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &grassGroupMatrix[0][0]);
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(153.0f / 255.0f, 255.0f / 255.0f, 51.0f / 255.0f)));
-			Grass.RenderModelGrass();
-
-			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.55, 0.0, 0.5));
-			grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.10f));
-			letterParentgrass = grassTranslate * grassScale;
-			grassGroupMatrix = groupMatrix * letterParentgrass;
-			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &grassGroupMatrix[0][0]);
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(153.0f / 255.0f, 255.0f / 255.0f, 51.0f / 255.0f)));
-			Grass.RenderModelGrass();
+			for (int i = 0; i < smallSize; i++)
+			{
+				grassTranslate = glm::translate(glm::mat4(1.0f), smallLocations[i]);
+				grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.10f));
+				letterParentgrass = grassTranslate * grassScale;
+				grassGroupMatrix = groupMatrix * letterParentgrass;
+				glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &grassGroupMatrix[0][0]);
+				glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(153.0f / 255.0f, 255.0f / 255.0f, 51.0f / 255.0f)));
+				Grass.RenderModelGrass();
+			}
 
 			// This is for the shortshrub
 			glm::mat4 shortshrubTranslate;
@@ -2059,4 +2040,48 @@ bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm
 	}
 
 	return true;
+}
+
+
+// Randomly determines a location for the grass to spawn on sides
+glm::vec3 getRandomLocationSides() {
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> disX(-2.0, 2.0);
+	std::uniform_real_distribution<> disZ(-1.4, 1.4);
+
+	glm::vec3 location;
+
+	do {
+		location.x = disX(gen);
+	} while (location.x > -0.8 && location.x < 0.8); // Ensuring that the x value is in the specified range
+
+	location.z = disZ(gen);
+	location.y = 0; // or any other value you want
+
+	//std::cout << location.x << location.y << /*location*/.z << std::endl;
+
+
+	return location;
+}
+
+
+// Randomly determines a location for the grass to spawn in front
+glm::vec3 getRandomLocationFront() {
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> disX(-0.80, 0.80);
+	std::uniform_real_distribution<> disZ(0.4, 1.0);
+
+	glm::vec3 location;
+
+	 // Ensuring that the x value is in the specified range
+	location.x = disX(gen);
+	location.z = disZ(gen);
+	location.y = 0; // or any other value you want
+
+	//std::cout << location.x << location.y << location.z << std::endl;
+
+
+	return location;
 }
