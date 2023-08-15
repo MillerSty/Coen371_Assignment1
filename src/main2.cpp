@@ -828,10 +828,11 @@ int main(int argc, char* argv[])
 			shortshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.35, 0.0, 0.5));
 			shortshrubScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.12f));
 			glm::mat4 letterParentshortshrub = shortshrubTranslate * shortshrubScale;
-			shortshrubGroupMatrix = groupMatrix * letterParentshortshrub;
+			shortshrubGroupMatrix = groupMatrix * letterParentshortshrub; 
+
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &shortshrubGroupMatrix[0][0]);
-			grassMaterial.loadToShader();
-			grassMaterial.bindTexture();
+			skinMaterial.loadToShader();
+			skinMaterial.bindTexture();
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(255.0f / 255.0f, 153.0f / 255.0f, 204.0f / 255.0f)));
 			ShortShrub.RenderModelBleacher();
 
@@ -871,8 +872,8 @@ int main(int argc, char* argv[])
 			glm::mat4 letterParenttallshrub = tallshrubTranslate * tallshrubScale;
 			tallshrubGroupMatrix = groupMatrix * letterParenttallshrub;
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tallshrubGroupMatrix[0][0]);
-			grassMaterial.loadToShader();
-			grassMaterial.bindTexture();
+			skinMaterial.loadToShader();
+			skinMaterial.bindTexture();
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(255.0f / 255.0f, 153.0f / 255.0f, 204.0f / 255.0f)));
 			TallShrub.RenderModelBleacher();
 
@@ -1078,8 +1079,8 @@ int main(int argc, char* argv[])
 			glm::mat4 letterParentshortshrub = shortshrubTranslate * shortshrubScale;
 			shortshrubGroupMatrix = groupMatrix * letterParentshortshrub;
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &shortshrubGroupMatrix[0][0]);
-			grassMaterial.loadToShader();
-			grassMaterial.bindTexture();
+			skinMaterial.loadToShader();
+			skinMaterial.bindTexture();
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(255.0f / 255.0f, 153.0f / 255.0f, 204.0f / 255.0f)));
 			ShortShrub.RenderModelBleacher();
 
@@ -1117,8 +1118,8 @@ int main(int argc, char* argv[])
 			glm::mat4 letterParenttallshrub = tallshrubTranslate * tallshrubScale;
 			tallshrubGroupMatrix = groupMatrix * letterParenttallshrub;
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tallshrubGroupMatrix[0][0]);
-			grassMaterial.loadToShader();
-			grassMaterial.bindTexture();
+			skinMaterial.loadToShader();
+			skinMaterial.bindTexture();
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(255.0f / 255.0f, 153.0f / 255.0f, 204.0f / 255.0f)));
 			TallShrub.RenderModelBleacher();
 
