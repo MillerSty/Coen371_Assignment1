@@ -87,6 +87,7 @@ void Model::LoadModel(const std::string & fileName)
 
 	if (!scene)
 	{
+		
 		printf("Model (%s) failed to load: %s", fileName, importer.GetErrorString());
 		return;
 	}
@@ -152,7 +153,7 @@ void Model::LoadMaterials(const aiScene * scene)
 
 		textureList[i] = nullptr;
 
-		if (material->GetTextureCount(aiTextureType_DIFFUSE))
+		if (!material->GetTextureCount(aiTextureType_DIFFUSE))
 		{
 			aiString path;
 			if (material->GetTexture(aiTextureType_DIFFUSE, 0, &path) == AI_SUCCESS)
@@ -160,13 +161,13 @@ void Model::LoadMaterials(const aiScene * scene)
 				int idx = std::string(path.data).rfind("\\");
 				std::string filename = std::string(path.data).substr(idx + 1);
 
-				std::string texPath = std::string("Textures/") + filename;
+				std::string texPath = std::string("../src/Models/") + filename;
 
 				textureList[i] = new Texture(texPath.c_str());
 
 				if (!textureList[i]->LoadTexture())
 				{
-					printf("Failed to load texture at: %s\n", texPath);
+					printf("LoadMaterials Failed to load texture at: %s\n", texPath);
 					delete textureList[i];
 					textureList[i] = nullptr;
 				}
@@ -175,7 +176,7 @@ void Model::LoadMaterials(const aiScene * scene)
 
 		if (!textureList[i])
 		{
-			textureList[i] = new Texture("Textures/plain.png");
+			textureList[i] = new Texture("../src/Models/metal.jpg");
 			textureList[i]->LoadTextureA();
 		}
 	}
