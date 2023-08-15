@@ -143,24 +143,16 @@ float translateY = 0;
 float translateZ = 0;
 float lightDepth = 1.0f;
 bool noShowLightBox = false;
+bool shouldApplyShadows = true;
+bool shouldApplyTextures = true;
+float camCounter = 0.0f;
+bool shouldRotateCamera = false;
 glm::vec3 eye(.0f, .350f*1.5, .7650f*1.5);
 glm::vec3 center(.00f, .0f, 0.0f);
 glm::vec3 up(0.0f, 1.0f, 0.0f);
 glm::vec3 GroupMatrixScale(1.0f, 1.0f, 1.0f);
 glm::mat4 groupMatrix;
 glm::mat4 rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-
-// Toggles for shadows and textures
-bool shouldApplyShadows = true;
-bool shouldApplyTextures = true;
-
-// Globals for game state-related things
-bool soundPlayed = false;
-bool scoreIncremented = false;
-
-float camCounter = 0.0f;
-
-bool shouldRotateCamera = false;
 
 // Create Letter objects for the scoreboard
 Letters numberDraw;
