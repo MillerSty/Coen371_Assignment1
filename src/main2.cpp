@@ -530,7 +530,7 @@ int main(int argc, char* argv[])
 	int redScore = 0, blueScore = 0;
 
     // Decide whether to play sounds or not. Mostly for debug
-    bool playSound = false;
+    bool playSound = true;
 
     // If we want to play sounds, play a constant crowd chatter
 	if (playSound) {
@@ -566,7 +566,7 @@ int main(int argc, char* argv[])
         // KEYFRAME ANIMATION
         // Get current time
         double currentWorldTime = glfwGetTime();
-		printf("Curr time: %f\n", floor(currentWorldTime));
+		//printf("Curr time: %f\n", floor(currentWorldTime));
         // Blue player keyframes
         // Since we need the current and next keyframes, make sure we stop advancing through the array when we
         // only have 2 keyframes left
