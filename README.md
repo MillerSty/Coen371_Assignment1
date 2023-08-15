@@ -48,10 +48,11 @@ In addition, when a racket hits a ball, a random ball sound plays. There are 3 p
 
 ## Possible Add-ons
 - [x] Add animated crowd
-- [x] Add foliage
-- [ ] Add a clock to show animation duration
+- [x] Add foliage, including small shrubs, tall shrubs, and grass
 - [x] Add walking people
 - [x] Animate a camera
+- [x] Added fireworks when the game is finished
+- [ ] Add a clock to show animation duration
 
 ## Contributions
 
