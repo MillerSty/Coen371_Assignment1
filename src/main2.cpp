@@ -163,12 +163,6 @@ const int smallSize = 80;
 glm::vec3 locations[size];
 glm::vec3 smallLocations[smallSize];
 
-
-
-// Toggles for shadows and textures
-bool shouldApplyShadows = true;
-bool shouldApplyTextures = true;
-
 // Create Letter objects for the scoreboard
 Letters numberDraw;
 Letters numberDraw2;
