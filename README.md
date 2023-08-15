@@ -29,6 +29,7 @@ In addition, when a racket hits a ball, a random ball sound plays. There are 3 p
  - P - Render model as points
  - L - Render model as lines
  - T - Render model as triangles
+ - Y - Toggle the camera to rotate in a fixed angle window 
  - HOME - Resets projection, view, world matrices to initial position
  - Mouse button left - Movement with left mouse button up/ down will tilt the camera
  - Mouse button right - Movement with right mouse button left/ right will pan the camera
@@ -42,15 +43,15 @@ In addition, when a racket hits a ball, a random ball sound plays. There are 3 p
 - [x] Implement working scoreboard that increments appropriately when a player scores
 - [x] Draw 2 rackets with arms representing the players
 - [ ] Create video for project
-- [ ] Add screenshots to README 
+- [x] Add screenshots to README 
 
 
 ## Possible Add-ons
 - [x] Add animated crowd
-- [ ] Add foliage
+- [x] Add foliage
 - [ ] Add a clock to show animation duration
 - [x] Add walking people
-- [ ] Animate a camera
+- [x] Animate a camera
 
 ## Contributions
 
