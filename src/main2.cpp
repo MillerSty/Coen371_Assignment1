@@ -408,49 +408,49 @@ int main(int argc, char* argv[])
 
     // DEFINE KEYFRAMES FOR ANIMATION
 	// Keyframes for Blue player
-    KeyFrame keyframesBlue[] = {
-        KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(90.0), 0.0),			// Initial key frame
-		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(90.0), 3.0),			// Start moving for ball
-        KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(120.0), 5.5),			// Start moving swing for ball
-		KeyFrame(glm::vec3(0.0, 0.0, 0.035), glm::vec3(90.0), 6.0),			// Hit ball
-		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(90.0), 13.0),			// Start moving back
-		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(120.0), 15.0),		// Start moving swing for ball
-		KeyFrame(glm::vec3(0.0, 0.0, 0.035), glm::vec3(90.0), 16.0),		// Hit ball
-		KeyFrame(glm::vec3(0.0, 0.0, 0.035), glm::vec3(90.0), 19.0),		// Start moving back
-		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(120.0), 21.0),		// Start moving away from ball
-		KeyFrame(glm::vec3(0.0, 0.0, 0.005), glm::vec3(70.0), 21.5),		// Miss ball
-		KeyFrame(glm::vec3(0.0, 0.0, 0.005), glm::vec3(90.0), 23.0),		// Start moving back
-		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(90.0), 24.0),			// Be in position
-		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(90.0), 28.0),			// Start moving back
-		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(120.0), 30.3),		// Start moving swing for ball
-		KeyFrame(glm::vec3(0.0, 0.0, 0.035), glm::vec3(90.0), 31.0),		// Hit ball
-		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(90.0), 34.0),			// Start moving back
-		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(120.0), 36.3),		// Start moving swing for ball
-		KeyFrame(glm::vec3(0.0, 0.0, -0.255), glm::vec3(90.0), 37.0),		// Hit ball
-    };
+	KeyFrame keyframesBlue[] = {
+		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(90.0,0,0), 0.0), // Initial key frame
+		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(90.0,0,0), 3.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(120.0,25,60), 5.5), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.035), glm::vec3(90.0,0,-35), 6.0), // Hit ball
+		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(90.0,0,0), 13.0), // Start moving back
+		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(120.0,25,60), 15.0), // Start moving away from ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.035), glm::vec3(90.0,0,-35), 16.0), // Hit ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.035), glm::vec3(90.0,0,0), 19.0), // Start moving back
+		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(120.0,25,60), 21.0), // Start moving away from ball (MISS)
+		KeyFrame(glm::vec3(0.0, 0.0, 0.005), glm::vec3(70.0,0,0), 21.5), // Be away from ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.005), glm::vec3(90.0,0,0), 23.0), // Start moving back
+		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(90.0,0,0), 24.0), // Be in position
+		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(90.0,0,0), 28.0), // Start moving back 
+		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(120.0,25,60), 30.3), // Start moving away from ball HIT
+		KeyFrame(glm::vec3(0.0, 0.0, 0.035), glm::vec3(90.0,0,-35), 31.0), // Start moving back
+		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(90.0,0,0), 34.0), // Start moving back
+		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(120.0,25,60), 36.3), // Start moving away from ball
+		KeyFrame(glm::vec3(0.0, 0.0, -0.255), glm::vec3(90.0,0,-35), 37.0), // Start moving back
+	};
 
-    // Keyframes for Red player
+	// Keyframes for Red player
 	KeyFrame keyframesRed[] = {
-		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(-90.0), 0.0),			// Initial key frame
-		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(-60.0), 2.5),			// Start moving for ball
-		KeyFrame(glm::vec3(0.0, 0.0, -0.035), glm::vec3(-90.0), 3.0),		// Hit ball
-		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0), 8.0),			// Start moving away from ball
-		KeyFrame(glm::vec3(0.0, 0.0, 0.18), glm::vec3(-110.0), 8.5),		// Miss ball
-		KeyFrame(glm::vec3(0.0, 0.0, -0.005), glm::vec3(-90.0), 11.0),		// Start moving back
-		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-90.0), 12.0),			// Be in position
-		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-90.0), 14.0),			// Stationary
-		KeyFrame(glm::vec3(0.0, 0.0, 0.07), glm::vec3(-90.0), 16.0),		// Start moving for ball
-		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0), 18.0),			// Start moving swing for ball
-		KeyFrame(glm::vec3(0.0, 0.0, -0.035), glm::vec3(-90.0), 19.0),		// Hit ball
-		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-90.0), 25.0),			// Start moving for ball
-		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0), 27.3),			// Start moving swing for ball
-		KeyFrame(glm::vec3(0.0, 0.0, -0.035), glm::vec3(-90.0), 28.0),		// Hit ball
-		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-90.0), 31.0),			// Start moving for ball
-		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0), 33.3),			// Start moving swing for ball
-		KeyFrame(glm::vec3(0.0, 0.0, 0.255), glm::vec3(-90.0), 34.0),		// Hit ball
-		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0), 39.0),			// Start moving away from ball
-		KeyFrame(glm::vec3(0.0, 0.0, 0.18), glm::vec3(-110.0), 39.5),		// Miss ball
-    };
+		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(-90.0,25,60), 0.0), // Initial key frame
+		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(-60.0,0.0,0.0), 2.5), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, -0.035), glm::vec3(-90.0,0.0,-35.0), 3.0), // Hit ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0,0,0), 8.0), // Start moving away from ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.18), glm::vec3(-110.0,25,60), 8.5), // Be away from ball (MISS)
+		KeyFrame(glm::vec3(0.0, 0.0, -0.005), glm::vec3(-90.0,0,0), 11.0), // Start moving back
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-90.0,0,0), 12.0), // Be in position
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-90.0,0,0), 14.0),
+		KeyFrame(glm::vec3(0.0, 0.0, 0.07), glm::vec3(-90.0,25,60), 16.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0,0,0), 18.0), // Hit ball
+		KeyFrame(glm::vec3(0.0, 0.0, -0.035), glm::vec3(-90.0,0.0,-35.0), 19.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-90.0,25,60), 25.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0,0,0), 27.3), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, -0.035), glm::vec3(-90.0,0.0,-35.0), 28.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-90.0,25,60), 31.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0,0.0,-35.0), 33.3), // 
+		KeyFrame(glm::vec3(0.0, 0.0, 0.255), glm::vec3(-90.0,25,0), 34.0), // 
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0,0,0), 39.0), // Start moving away from ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.18), glm::vec3(-110.0,0,35.0), 39.5), // Be away from ball
+	};
 
     const float BALL_Y_OFFSET = 0.25f;  // Make sure ball is constant height to keep things simple
 
@@ -585,80 +585,100 @@ int main(int argc, char* argv[])
         // Blue player keyframes
         // Since we need the current and next keyframes, make sure we stop advancing through the array when we
         // only have 2 keyframes left
-        if (keyframeNumBlue <= (sizeof(keyframesBlue) / sizeof(KeyFrame)) - 2)
-        {
-            // Handle time calculations
-            double currentFrameTime = keyframesBlue[keyframeNumBlue].time;
-            double nextFrameTime = keyframesBlue[keyframeNumBlue + 1].time;
-            double frameDuration = nextFrameTime - currentFrameTime ;
-            double timeProportion = (currentWorldTime - currentFrameTime) / frameDuration;
+		if (keyframeNumBlue <= (sizeof(keyframesBlue) / sizeof(KeyFrame)) - 2)
+		{
+			// Handle time calculations
+			double currentFrameTime = keyframesBlue[keyframeNumBlue].time;
+			double nextFrameTime = keyframesBlue[keyframeNumBlue + 1].time;
+			double frameDuration = nextFrameTime - currentFrameTime;
+			double timeProportion = (currentWorldTime - currentFrameTime) / frameDuration;
 
-            // Handle setting how much X should translate based on time proportion
-            double currentCoordX = keyframesBlue[keyframeNumBlue].translation.x;
-            double nextCoordX = keyframesBlue[keyframeNumBlue + 1].translation.x;
-            currentCoordX += (nextCoordX - currentCoordX) * timeProportion;
+			// Handle setting how much X should translate based on time proportion
+			double currentCoordX = keyframesBlue[keyframeNumBlue].translation.x;
+			double nextCoordX = keyframesBlue[keyframeNumBlue + 1].translation.x;
+			currentCoordX += (nextCoordX - currentCoordX) * timeProportion;
 
-            // Handle setting how much Y should translate based on time proportion
-            double currentCoordY = keyframesBlue[keyframeNumBlue].translation.y;
-            double nextCoordY = keyframesBlue[keyframeNumBlue + 1].translation.y;
-            currentCoordY += (nextCoordY - currentCoordY) * timeProportion;
+			// Handle setting how much Y should translate based on time proportion
+			double currentCoordY = keyframesBlue[keyframeNumBlue].translation.y;
+			double nextCoordY = keyframesBlue[keyframeNumBlue + 1].translation.y;
+			currentCoordY += (nextCoordY - currentCoordY) * timeProportion;
 
-            // Handle setting how much Z should translate based on time proportion
-            double currentCoordZ = keyframesBlue[keyframeNumBlue].translation.z;
-            double nextCoordZ = keyframesBlue[keyframeNumBlue + 1].translation.z;
-            currentCoordZ += (nextCoordZ - currentCoordZ) * timeProportion;
+			// Handle setting how much Z should translate based on time proportion
+			double currentCoordZ = keyframesBlue[keyframeNumBlue].translation.z;
+			double nextCoordZ = keyframesBlue[keyframeNumBlue + 1].translation.z;
+			currentCoordZ += (nextCoordZ - currentCoordZ) * timeProportion;
 
-            // Set the model translation in world space
-            playerArm1.setTranslateModel(glm::vec3(currentCoordX, currentCoordY, currentCoordZ));
+			// Set the model translation in world space
+			playerArm1.setTranslateModel(glm::vec3(currentCoordX, currentCoordY, currentCoordZ));
 
 			float currentRotationAngle = keyframesBlue[keyframeNumBlue].rotation.x; // Assuming rotation is a float
 			float nextRotationAngle = keyframesBlue[keyframeNumBlue + 1].rotation.x;
 			float interpolatedRotationAngle = currentRotationAngle + (nextRotationAngle - currentRotationAngle) * timeProportion;
 
+
 			playerArm1.setRotation(interpolatedRotationAngle);
 
-            // If the realtime clock is beyond the next keyframes time parameter, move to the next keyframe
-            if (currentWorldTime >= nextFrameTime)
-                keyframeNumBlue++;
-        }
+			currentRotationAngle = keyframesBlue[keyframeNumBlue].rotation.y; // Assuming rotation is a float
+			nextRotationAngle = keyframesBlue[keyframeNumBlue + 1].rotation.y;
+			interpolatedRotationAngle = currentRotationAngle + (nextRotationAngle - currentRotationAngle) * timeProportion;
+			playerArm1.elbowRotate = interpolatedRotationAngle;
 
-        // Red player keyframes
-        if (keyframeNumRed <= (sizeof(keyframesRed) / sizeof(KeyFrame)) - 2)
-        {
-            // Handle time calculations
-            double currentFrameTime = keyframesRed[keyframeNumRed].time;
-            double nextFrameTime = keyframesRed[keyframeNumRed + 1].time;
-            double frameDuration = nextFrameTime - currentFrameTime ;
-            double timeProportion = (currentWorldTime - currentFrameTime) / frameDuration;
+			currentRotationAngle = keyframesBlue[keyframeNumBlue].rotation.z; // Assuming rotation is a float
+			nextRotationAngle = keyframesBlue[keyframeNumBlue + 1].rotation.z;
+			interpolatedRotationAngle = currentRotationAngle + (nextRotationAngle - currentRotationAngle) * timeProportion;
+			playerArm1.wristRotate = interpolatedRotationAngle;
+			// If the realtime clock is beyond the next keyframes time parameter, move to the next keyframe
+			if (currentWorldTime >= nextFrameTime)
+				keyframeNumBlue++;
+		}
 
-            // Handle setting how much X should translate based on time proportion
-            double currentCoordX = keyframesRed[keyframeNumRed].translation.x;
-            double nextCoordX = keyframesRed[keyframeNumRed + 1].translation.x;
-            currentCoordX += (nextCoordX - currentCoordX) * timeProportion;
+		// Red player keyframes
+		if (keyframeNumRed <= (sizeof(keyframesRed) / sizeof(KeyFrame)) - 2)
+		{
+			// Handle time calculations
+			double currentFrameTime = keyframesRed[keyframeNumRed].time;
+			double nextFrameTime = keyframesRed[keyframeNumRed + 1].time;
+			double frameDuration = nextFrameTime - currentFrameTime;
+			double timeProportion = (currentWorldTime - currentFrameTime) / frameDuration;
 
-            // Handle setting how much Y should translate based on time proportion
-            double currentCoordY = keyframesRed[keyframeNumRed].translation.y;
-            double nextCoordY = keyframesRed[keyframeNumRed + 1].translation.y;
-            currentCoordY += (nextCoordY - currentCoordY) * timeProportion;
+			// Handle setting how much X should translate based on time proportion
+			double currentCoordX = keyframesRed[keyframeNumRed].translation.x;
+			double nextCoordX = keyframesRed[keyframeNumRed + 1].translation.x;
+			currentCoordX += (nextCoordX - currentCoordX) * timeProportion;
 
-            // Handle setting how much Z should translate based on time proportion
-            double currentCoordZ = keyframesRed[keyframeNumRed].translation.z;
-            double nextCoordZ = keyframesRed[keyframeNumRed + 1].translation.z;
-            currentCoordZ += (nextCoordZ - currentCoordZ) * timeProportion;
+			// Handle setting how much Y should translate based on time proportion
+			double currentCoordY = keyframesRed[keyframeNumRed].translation.y;
+			double nextCoordY = keyframesRed[keyframeNumRed + 1].translation.y;
+			currentCoordY += (nextCoordY - currentCoordY) * timeProportion;
 
-            // Set the model translation in world space
-            playerArm2.setTranslateModel(glm::vec3(currentCoordX, currentCoordY, currentCoordZ));
+			// Handle setting how much Z should translate based on time proportion
+			double currentCoordZ = keyframesRed[keyframeNumRed].translation.z;
+			double nextCoordZ = keyframesRed[keyframeNumRed + 1].translation.z;
+			currentCoordZ += (nextCoordZ - currentCoordZ) * timeProportion;
+
+			// Set the model translation in world space
+			playerArm2.setTranslateModel(glm::vec3(currentCoordX, currentCoordY, currentCoordZ));
 
 			float currentRotationAngle = keyframesRed[keyframeNumRed].rotation.x; // Assuming rotation is a float
 			float nextRotationAngle = keyframesRed[keyframeNumRed + 1].rotation.x;
 			float interpolatedRotationAngle = currentRotationAngle + (nextRotationAngle - currentRotationAngle) * timeProportion;
 
+
 			playerArm2.setRotation(interpolatedRotationAngle);
 
-            // If the realtime clock is beyond the next keyframes time parameter, move to the next keyframe
-            if (currentWorldTime >= nextFrameTime)
-                keyframeNumRed++;
-        }
+			currentRotationAngle = keyframesRed[keyframeNumRed].rotation.y; // Assuming rotation is a float
+			nextRotationAngle = keyframesRed[keyframeNumRed + 1].rotation.y;
+			interpolatedRotationAngle = currentRotationAngle + (nextRotationAngle - currentRotationAngle) * timeProportion;
+			playerArm2.elbowRotate = interpolatedRotationAngle;
+
+			currentRotationAngle = keyframesRed[keyframeNumRed].rotation.z; // Assuming rotation is a float
+			nextRotationAngle = keyframesRed[keyframeNumRed + 1].rotation.z;
+			interpolatedRotationAngle = currentRotationAngle + (nextRotationAngle - currentRotationAngle) * timeProportion;
+			playerArm2.wristRotate = interpolatedRotationAngle;
+			// If the realtime clock is beyond the next keyframes time parameter, move to the next keyframe
+			if (currentWorldTime >= nextFrameTime)
+				keyframeNumRed++;
+		}
 
 
 		if (keyframeNumBall <= (sizeof(keyframesBall) / sizeof(KeyFrame)) - 2)
