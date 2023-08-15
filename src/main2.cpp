@@ -31,6 +31,7 @@
 // Declare some functions for later use
 int compileAndLinkShaders(const char* vertex, const char* fragment);
 GLuint loadTexture(const char* filename);
+void FireWorks(glm::vec3 position, GLuint unitCube, Material courtMaterial, GLint worldMatrixLocation, GLint colorLocation,bool explode);
 void GLAPIENTRY messageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
                                 const GLchar* message, const void* userParam);
 void setProjectionMatrix(int shaderProgram, glm::mat4 projectionMatrix);
@@ -141,8 +142,8 @@ float far = 50;
 float translateW = 0;
 float translateY = 0;
 float translateZ = 0;
-float lightDepth = 1.0f;
-bool noShowLightBox = false;
+float lightDepth = .75f;
+bool noShowLightBox = true;
 glm::vec3 eye(.0f, .350f*1.5, .7650f*1.5);
 glm::vec3 center(.00f, .0f, 0.0f);
 glm::vec3 up(0.0f, 1.0f, 0.0f);
@@ -321,6 +322,7 @@ int main(int argc, char* argv[])
 
 	//Model.cpp, Texture.cpp, Mesh.cpp taken from LearnOpenGL Udemy course
 	//NOTE: Only used within Model's not for how we use textures in general
+	//TODO jawn the link
 	Model Bleachers;
 	Bleachers = Model();
 	Bleachers.LoadModel("../src/Models/bleachers.obj");
@@ -477,10 +479,50 @@ int main(int argc, char* argv[])
         KeyFrame(glm::vec3(0.75, BALL_Y_OFFSET, -0.3), glm::vec3(0.0), 40.0), // SCORE
 	};
 
+
+	KeyFrame keyframesFireWorks[] = {
+		KeyFrame(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f), 40.0), // Initial key frame
+		KeyFrame(glm::vec3(0.0f, .40f, 0.0f), glm::vec3(0.0f), 45.5), // Start moving for ball
+		KeyFrame(glm::vec3(0.0f, .50f, 0.0f), glm::vec3(0.0f), 48.5),
+		KeyFrame(glm::vec3(0.0f, -.50f, 0.0f), glm::vec3(0.0f),53.5),
+	};
+	glm::vec3 fireworkPosition(0, 0, 0);
+
+
+
+	// Keyframes for Red player
+	KeyFrame keyframesCamera[] = {
+		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(-90.0), 0.0), // Initial key frame
+		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(-60.0), 2.5), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, -0.035), glm::vec3(-90.0), 3.0), // Hit ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0), 8.0), // Start moving away from ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.18), glm::vec3(-110.0), 8.5), // Be away from ball
+		KeyFrame(glm::vec3(0.0, 0.0, -0.005), glm::vec3(-90.0), 11.0), // Start moving back
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-90.0), 12.0), // Be in position
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-90.0), 14.0),
+		KeyFrame(glm::vec3(0.0, 0.0, 0.07), glm::vec3(-90.0), 16.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0), 18.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, -0.035), glm::vec3(-90.0), 19.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-90.0), 25.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0), 27.3), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, -0.035), glm::vec3(-90.0), 28.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-90.0), 31.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0), 33.3), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.255), glm::vec3(-90.0), 34.0), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0), 39.0), // Start moving away from ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.18), glm::vec3(-110.0), 39.5), // Be away from ball
+	};
+
+
+
+
     // Start at the 0th keyframe for each set of keyframes
     int keyframeNumBlue = 0;
     int keyframeNumRed = 0;
 	int keyframeNumBall = 0;
+	int keyframeNumCamera = 0;
+	int keyframeNumFireWorks = 0;
+	int KF_FireWorkSize = (sizeof(keyframesFireWorks) / sizeof(KeyFrame));
 
 	float i = -1;
 
@@ -488,7 +530,7 @@ int main(int argc, char* argv[])
 	int redScore = 0, blueScore = 0;
 
     // Decide whether to play sounds or not. Mostly for debug
-    bool playSound = true;
+    bool playSound = false;
 
     // If we want to play sounds, play a constant crowd chatter
 	if (playSound) {
@@ -524,7 +566,6 @@ int main(int argc, char* argv[])
         // KEYFRAME ANIMATION
         // Get current time
         double currentWorldTime = glfwGetTime();
-
         // Blue player keyframes
         // Since we need the current and next keyframes, make sure we stop advancing through the array when we
         // only have 2 keyframes left
@@ -603,38 +644,80 @@ int main(int argc, char* argv[])
                 keyframeNumRed++;
         }
 
-        // Ball keyframes
-        if (keyframeNumBall <= (sizeof(keyframesBall) / sizeof(KeyFrame)) - 2)
-        {
-            // Handle time calculations
-            double currentFrameTime = keyframesBall[keyframeNumBall].time;
-            double nextFrameTime = keyframesBall[keyframeNumBall + 1].time;
-            double frameDuration = nextFrameTime - currentFrameTime ;
-            double timeProportion = (currentWorldTime - currentFrameTime) / frameDuration;
 
-            // Handle setting how much X should translate based on time proportion
-            double currentCoordX = keyframesBall[keyframeNumBall].translation.x;
-            double nextCoordX = keyframesBall[keyframeNumBall + 1].translation.x;
-            currentCoordX += (nextCoordX - currentCoordX) * timeProportion;
+		if (keyframeNumBall <= (sizeof(keyframesBall) / sizeof(KeyFrame)) - 2)
+		{
+			// Handle time calculations
+			double currentFrameTime = keyframesBall[keyframeNumBall].time;
+			double nextFrameTime = keyframesBall[keyframeNumBall + 1].time;
+			double frameDuration = nextFrameTime - currentFrameTime;
+			double timeProportion = (currentWorldTime - currentFrameTime) / frameDuration;
 
-            // Handle setting how much Y should translate based on time proportion
-            double currentCoordY = keyframesBall[keyframeNumBall].translation.y;
-            double nextCoordY = keyframesBall[keyframeNumBall + 1].translation.y;
-            currentCoordY += (nextCoordY - currentCoordY) * timeProportion;
+			// Handle setting how much X should translate based on time proportion
+			double currentCoordX = keyframesBall[keyframeNumBall].translation.x;
+			double nextCoordX = keyframesBall[keyframeNumBall + 1].translation.x;
+			currentCoordX += (nextCoordX - currentCoordX) * timeProportion;
 
-            // Handle setting how much Z should translate based on time proportion
-            double currentCoordZ = keyframesBall[keyframeNumBall].translation.z;
-            double nextCoordZ = keyframesBall[keyframeNumBall + 1].translation.z;
-            currentCoordZ += (nextCoordZ - currentCoordZ) * timeProportion;
+			// Handle setting how much Y should translate based on time proportion
+			double currentCoordY = keyframesBall[keyframeNumBall].translation.y;
+			double nextCoordY = keyframesBall[keyframeNumBall + 1].translation.y;
+			currentCoordY += (nextCoordY - currentCoordY) * timeProportion;
 
-            // Set the model translation in world space
-            ball.setTranslationModel(glm::vec3(currentCoordX, currentCoordY, currentCoordZ));
+			// Handle setting how much Z should translate based on time proportion
+			double currentCoordZ = keyframesBall[keyframeNumBall].translation.z;
+			double nextCoordZ = keyframesBall[keyframeNumBall + 1].translation.z;
+			currentCoordZ += (nextCoordZ - currentCoordZ) * timeProportion;
 
-            // If the realtime clock is beyond the next keyframes time parameter, move to the next keyframe
-            if (currentWorldTime >= nextFrameTime)
-                keyframeNumBall++;
-        }
+			// Set the model translation in world space
+			ball.setTranslationModel(glm::vec3(currentCoordX, currentCoordY, currentCoordZ));
 
+			// If the realtime clock is beyond the next keyframes time parameter, move to the next keyframe
+			if (currentWorldTime >= nextFrameTime)
+				keyframeNumBall++;
+		}
+
+		if (keyframeNumFireWorks <= (sizeof(keyframesFireWorks) / sizeof(KeyFrame)) - 2)
+		{
+			// Handle time calculations
+			double currentFrameTime = keyframesFireWorks[keyframeNumFireWorks].time;
+			double nextFrameTime = keyframesFireWorks[keyframeNumFireWorks + 1].time;
+			double frameDuration = nextFrameTime - currentFrameTime;
+			double timeProportion = (currentWorldTime - currentFrameTime) / frameDuration;
+
+			// Handle setting how much X should translate based on time proportion
+			double currentCoordX = keyframesFireWorks[keyframeNumFireWorks].translation.x;
+			double nextCoordX = keyframesFireWorks[keyframeNumFireWorks + 1].translation.x;
+			currentCoordX += (nextCoordX - currentCoordX) * timeProportion;
+
+			// Handle setting how much Y should translate based on time proportion
+			double currentCoordY = keyframesFireWorks[keyframeNumFireWorks].translation.y;
+			double nextCoordY = keyframesFireWorks[keyframeNumFireWorks + 1].translation.y;
+			currentCoordY += (nextCoordY - currentCoordY) * timeProportion;
+
+			// Handle setting how much Z should translate based on time proportion
+			double currentCoordZ = keyframesFireWorks[keyframeNumFireWorks].translation.z;
+			double nextCoordZ = keyframesFireWorks[keyframeNumFireWorks + 1].translation.z;
+			currentCoordZ += (nextCoordZ - currentCoordZ) * timeProportion;
+
+			// Set the model translation in world space
+			//ball.setTranslationModel(glm::vec3(currentCoordX, currentCoordY, currentCoordZ));
+			fireworkPosition =glm::vec3((float)currentCoordX, (float)currentCoordY, (float)currentCoordZ);
+
+
+
+			//FireWorks(positiony, unitCubeAO, courtMaterial, worldMatrixLocation, colorLocation);
+			// If the realtime clock is beyond the next keyframes time parameter, move to the next keyframe
+			if (currentWorldTime >= nextFrameTime)
+				keyframeNumFireWorks++;
+		}
+
+
+
+
+
+
+
+	
         // Handle changing the score, if necessary
         handleScoring(currentWorldTime, redScore, blueScore);
 
@@ -691,7 +774,7 @@ int main(int argc, char* argv[])
 			glm::mat4 bleacherScale;
 			glm::mat4 bleacherGroupMatrix;
 
-			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, .080, -0.75));
+			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, .08, -0.75));
 			bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
 			glm::mat4 letterParent = bleacherTranslate * bleacherScale;
 			bleacherGroupMatrix = groupMatrix * letterParent;
@@ -701,7 +784,7 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f, .6f, .66f))); //al have the same colour
 			Bleachers.RenderModelBleacher();
 
-			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, .080, -0.75));
+			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.35, .08, -0.75));
 			bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
 			letterParent = bleacherTranslate * bleacherScale;
 			bleacherGroupMatrix = groupMatrix * letterParent;
@@ -880,7 +963,7 @@ int main(int argc, char* argv[])
 			glm::mat4 bleacherTranslate;
 			glm::mat4 bleacherScale;
 			glm::mat4 bleacherGroupMatrix;
-			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, .080, -0.75));
+			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, .08, -0.75));
 
 			bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f)*6.0f);
 			glm::mat4 bleacherParent = bleacherTranslate * bleacherScale;
@@ -892,7 +975,7 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.66f, .6f, .66f)));
 			Bleachers.RenderModelBleacher();
 
-			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.35, .080, -0.75));
+			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.35, .08, -0.75));
 			
 			bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(.00015f, .00015f, .00015f) * 6.0f);
 			bleacherParent = bleacherTranslate * bleacherScale;
@@ -1041,6 +1124,35 @@ int main(int argc, char* argv[])
 			//******************
 		}
 
+		
+		//FireWorks(fireworkPosition, unitCubeAO, courtMaterial, worldMatrixLocation, colorLocation);
+
+		//FireWorks(glm::vec3(fireworkPosition.x+.75, fireworkPosition.y, fireworkPosition.z), unitCubeAO, courtMaterial, worldMatrixLocation, colorLocation);
+		//FireWorks(glm::vec3(fireworkPosition.x - .75, fireworkPosition.y, fireworkPosition.z), unitCubeAO, courtMaterial, worldMatrixLocation, colorLocation);
+		
+		if (glfwGetTime() >= 48) { //bigger TIME first
+			FireWorks(glm::vec3(fireworkPosition.x + .75, fireworkPosition.y, fireworkPosition.z - .36), unitCubeAO, courtMaterial, worldMatrixLocation, colorLocation, true);
+
+			FireWorks(glm::vec3(fireworkPosition.x - .75, fireworkPosition.y, fireworkPosition.z + .36), unitCubeAO, courtMaterial, worldMatrixLocation, colorLocation, true);
+
+			FireWorks(glm::vec3(fireworkPosition.x + .75, fireworkPosition.y, fireworkPosition.z + .36), unitCubeAO, courtMaterial, worldMatrixLocation, colorLocation, true);
+
+			FireWorks(glm::vec3(fireworkPosition.x - .75, fireworkPosition.y, fireworkPosition.z - .36), unitCubeAO, courtMaterial, worldMatrixLocation, colorLocation, true);
+		}
+		else if (glfwGetTime() >= 40 ) {
+			FireWorks(glm::vec3(fireworkPosition.x + .75, fireworkPosition.y, fireworkPosition.z - .36), unitCubeAO, courtMaterial, worldMatrixLocation, colorLocation,false);
+
+			FireWorks(glm::vec3(fireworkPosition.x - .75, fireworkPosition.y, fireworkPosition.z + .36), unitCubeAO, courtMaterial, worldMatrixLocation, colorLocation, false);
+
+			FireWorks(glm::vec3(fireworkPosition.x + .75, fireworkPosition.y, fireworkPosition.z + .36), unitCubeAO, courtMaterial, worldMatrixLocation, colorLocation, false);
+
+			FireWorks(glm::vec3(fireworkPosition.x - .75, fireworkPosition.y, fireworkPosition.z - .36), unitCubeAO, courtMaterial, worldMatrixLocation, colorLocation, false);
+		}
+
+
+		//FireWorks(fireworkPosition, unitCubeAO, courtMaterial, worldMatrixLocation, colorLocation);
+		//
+		//FireWorks(fireworkPosition, unitCubeAO, courtMaterial, worldMatrixLocation, colorLocation);
         // Draw and animate the crowd and the walking figures in from of the bleachers
 		crowd.animateCrowd(); //just to trigger animation
 		crowd.drawCrowd(4);
@@ -1052,7 +1164,6 @@ int main(int argc, char* argv[])
 
         // Swap buffers
         glfwSwapBuffers(window);
-
         // Get inputs
 		glfwPollEvents();
 	}
@@ -1063,6 +1174,66 @@ int main(int argc, char* argv[])
 	glfwTerminate();
 
 	return 0;
+}
+
+
+void FireWorks(glm::vec3 position, GLuint unitCube,Material courtMaterial,GLint worldMatrixLocation,GLint colorLocation,bool explode) {
+
+	glBindVertexArray(unitCube);
+	//if not exploding do this
+	if (!explode) {
+
+		glm::mat4 bleacherTranslate = glm::translate(glm::mat4(1.0f), position);
+		glm::mat4 bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.25f, .25f, 0.25f));
+		glm::mat4 bleacherParent = bleacherTranslate * bleacherScale;
+		glm::mat4 bleacherGroupMatrix = groupMatrix * bleacherParent;
+
+		glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &bleacherGroupMatrix[0][0]);
+		courtMaterial.loadToShader();
+		courtMaterial.bindTexture();
+
+		//set a random colour for main firework
+		glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3((float)glm::linearRand(-75, -110), (float)glm::linearRand(-75, -110), (float)glm::linearRand(-75, -110))));
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		for (int i = 0; i < 5; i++) {
+			//generate smaller cubes to act as fire trails
+			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(position.x + (float)glm::linearRand(-0.10, .1), position.y - (float)glm::linearRand(0.1, .3), position.z));
+			bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.05f, .05f, 0.05f));
+			glm::mat4 bleacherRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)glm::linearRand(0.0, 90.0)), glm::vec3(0, 1, 0));
+			bleacherParent = bleacherTranslate * bleacherScale * bleacherRotate;
+			bleacherGroupMatrix = groupMatrix * bleacherParent;
+
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &bleacherGroupMatrix[0][0]);
+			courtMaterial.loadToShader();
+			courtMaterial.bindTexture();
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3((float)glm::linearRand(-75, -110), (float)glm::linearRand(-75, -110), (float)glm::linearRand(-75, -110))));
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+	}
+	else {
+		//else EXPLODE!!!!!!!
+		for (int i = 0; i < 145; i++) { //generate many random cubes using linear rand to offset position
+			glm::mat4 bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(position.x + (float)glm::linearRand(-0.30, .3), position.y - (float)glm::linearRand(0.1, .3), position.z + (float)glm::linearRand(-0.30, .3)));
+			glm::mat4 bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.05f, .05f, 0.05f));
+			glm::mat4  bleacherRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)glm::linearRand(0.0, 90.0)), glm::vec3(0, 1, 0));
+			glm::mat4 bleacherParent = bleacherTranslate * bleacherScale * bleacherRotate;
+			glm::mat4 bleacherGroupMatrix = groupMatrix * bleacherParent;
+
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &bleacherGroupMatrix[0][0]);
+			courtMaterial.loadToShader();
+			courtMaterial.bindTexture();
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3((float)glm::linearRand(-75, -110), (float)glm::linearRand(-75, -110), (float)glm::linearRand(-75, -110))));
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+
+
+
+	}
+
+	glBindVertexArray(0);
+	
+
 }
 
 /**
@@ -1261,7 +1432,7 @@ void setUpLighting() {
     glm::vec3 lightPosition(-0.0f, 30.0f, .0f); // The location of the light in 3D space
     glm::vec3 lightFocus(0.0, -0.01, .0f);      // The point in 3D space the light "looks" at
     glm::vec3 lightDirection = glm::normalize(lightFocus - lightPosition);
-    glm::mat4 lightProjectionMatrix = glm::ortho(-1.5f, 1.50f, -1.50f, 1.50f, lightNearPlane, lightFarPlane);
+    glm::mat4 lightProjectionMatrix = glm::ortho(-10.5f, 10.50f, -10.50f, 10.50f, lightNearPlane, lightFarPlane); 
     glm::mat4 lightViewMatrix = glm::lookAt(lightPosition, lightFocus, glm::vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 lightSpaceMatrix = lightProjectionMatrix * lightViewMatrix;
 
