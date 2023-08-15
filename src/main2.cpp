@@ -400,26 +400,26 @@ int main(int argc, char* argv[])
 
     // DEFINE KEYFRAMES FOR ANIMATION
 	// Keyframes for Blue player
-    KeyFrame keyframesBlue[] = {
-        KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(90.0,0,0), 0.0), // Initial key frame
+	KeyFrame keyframesBlue[] = {
+		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(90.0,0,0), 0.0), // Initial key frame
 		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(90.0,0,0), 3.0), // Start moving for ball
-        KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(120.0,0,0), 5.5), // Start moving for ball
-		KeyFrame(glm::vec3(0.0, 0.0, 0.035), glm::vec3(90.0,0,0), 6.0), // Hit ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(120.0,25,60), 5.5), // Start moving for ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.035), glm::vec3(90.0,0,-35), 6.0), // Hit ball
 		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(90.0,0,0), 13.0), // Start moving back
-		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(120.0,0,0), 15.0), // Start moving away from ball
-		KeyFrame(glm::vec3(0.0, 0.0, 0.035), glm::vec3(90.0,0,0), 16.0), // Start moving back
+		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(120.0,25,60), 15.0), // Start moving away from ball
+		KeyFrame(glm::vec3(0.0, 0.0, 0.035), glm::vec3(90.0,0,-35), 16.0), // Hit ball
 		KeyFrame(glm::vec3(0.0, 0.0, 0.035), glm::vec3(90.0,0,0), 19.0), // Start moving back
-		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(120.0,0,0), 21.0), // Start moving away from ball
+		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(120.0,25,60), 21.0), // Start moving away from ball (MISS)
 		KeyFrame(glm::vec3(0.0, 0.0, 0.005), glm::vec3(70.0,0,0), 21.5), // Be away from ball
 		KeyFrame(glm::vec3(0.0, 0.0, 0.005), glm::vec3(90.0,0,0), 23.0), // Start moving back
 		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(90.0,0,0), 24.0), // Be in position
-		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(90.0,0,0), 28.0), // Start moving back
-		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(120.0,0,0), 30.3), // Start moving away from ball
-		KeyFrame(glm::vec3(0.0, 0.0, 0.035), glm::vec3(90.0,0,0), 31.0), // Start moving back
+		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(90.0,0,0), 28.0), // Start moving back 
+		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(120.0,25,60), 30.3), // Start moving away from ball HIT
+		KeyFrame(glm::vec3(0.0, 0.0, 0.035), glm::vec3(90.0,0,-35), 31.0), // Start moving back
 		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(90.0,0,0), 34.0), // Start moving back
-		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(120.0,0,0), 36.3), // Start moving away from ball
-		KeyFrame(glm::vec3(0.0, 0.0, -0.255), glm::vec3(90.0,0,0), 37.0), // Start moving back
-    };
+		KeyFrame(glm::vec3(0.0, 0.0, -0.1), glm::vec3(120.0,25,60), 36.3), // Start moving away from ball
+		KeyFrame(glm::vec3(0.0, 0.0, -0.255), glm::vec3(90.0,0,-35), 37.0), // Start moving back
+	};
 
     // Keyframes for Red player
 	KeyFrame keyframesRed[] = {
@@ -601,13 +601,13 @@ int main(int argc, char* argv[])
 			float interpolatedRotationAngle = currentRotationAngle + (nextRotationAngle - currentRotationAngle) * timeProportion;
 
 			playerArm1.setRotation(interpolatedRotationAngle);
-			currentRotationAngle = keyframesRed[keyframeNumRed].rotation.y; // Assuming rotation is a float
-			nextRotationAngle = keyframesRed[keyframeNumRed + 1].rotation.y;
+			currentRotationAngle = keyframesBlue[keyframeNumBlue].rotation.y; // Assuming rotation is a float
+			nextRotationAngle = keyframesBlue[keyframeNumBlue + 1].rotation.y;
 			interpolatedRotationAngle = currentRotationAngle + (nextRotationAngle - currentRotationAngle) * timeProportion;
 			playerArm1.elbowRotate = interpolatedRotationAngle;
 
-			currentRotationAngle = keyframesRed[keyframeNumRed].rotation.z; // Assuming rotation is a float
-			nextRotationAngle = keyframesRed[keyframeNumRed + 1].rotation.z;
+			currentRotationAngle = keyframesBlue[keyframeNumBlue].rotation.z; // Assuming rotation is a float
+			nextRotationAngle = keyframesBlue[keyframeNumBlue + 1].rotation.z;
 			interpolatedRotationAngle = currentRotationAngle + (nextRotationAngle - currentRotationAngle) * timeProportion;
 			playerArm1.wristRotate = interpolatedRotationAngle;
             // If the realtime clock is beyond the next keyframes time parameter, move to the next keyframe
