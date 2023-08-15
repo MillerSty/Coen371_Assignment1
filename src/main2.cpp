@@ -134,7 +134,7 @@ bool scoreIncremented = false;
 int renderAs = GL_TRIANGLES;
 int shaderProgram;
 double lastMousePosX, lastMousePosY, lastMousePosZ;
-float FOV = 70;
+float FOV = 70.3f;
 float AR = (float) WIDTH / (float) HEIGHT;
 float near = .01;
 float far = 50;
@@ -1777,7 +1777,7 @@ void mouseCursorPositionCallback(GLFWwindow* window, double xPos, double yPos)
 		else if (dy > 0)
 			translateZ -= .005;
 
-		glm::mat4 projectionMatrix = glm::perspective(translateZ + 70.0f, (float)WIDTH / (float)HEIGHT, .01f, 50.0f);
+		glm::mat4 projectionMatrix = glm::perspective(translateZ + FOV, (float)WIDTH / (float)HEIGHT, .01f, 50.0f);
 		setProjectionMatrix(shaderProgram, projectionMatrix);
 		lastMousePosZ = zPos;
 	}
