@@ -2071,7 +2071,7 @@ glm::vec3 getRandomLocationFront() {
 	std::random_device rd;
 	std::mt19937 gen(rd());
 	std::uniform_real_distribution<> disX(-0.80, 0.80);
-	std::uniform_real_distribution<> disZ(0.4, 1.0);
+	std::uniform_real_distribution<> disZ(0.4, 1.4);
 
 	glm::vec3 location;
 
