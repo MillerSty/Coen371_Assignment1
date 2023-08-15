@@ -826,8 +826,8 @@ int main(int argc, char* argv[])
 			glm::mat4 shortshrubScale;
 			glm::mat4 shortshrubGroupMatrix;
 
-			shortshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.35, 0.0, 1.0));
-			shortshrubScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
+			shortshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.35, 0.0, 0.5));
+			shortshrubScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.12f));
 			glm::mat4 letterParentshortshrub = shortshrubTranslate * shortshrubScale;
 			shortshrubGroupMatrix = groupMatrix * letterParentshortshrub;
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &shortshrubGroupMatrix[0][0]);
@@ -837,7 +837,23 @@ int main(int argc, char* argv[])
 			ShortShrub.RenderModelBleacher();
 
 
-			shortshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.15, 0.0, 1.0));
+			shortshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.15, 0.0, 0.5));
+			shortshrubScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
+			letterParentshortshrub = shortshrubTranslate * shortshrubScale;
+			shortshrubGroupMatrix = groupMatrix * letterParentshortshrub;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &shortshrubGroupMatrix[0][0]);
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(204.0f / 255.0f, 153.0f / 255.0f, 102.0f / 255.0f)));
+			ShortShrub.RenderModelBleacher();
+
+			shortshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.55, 0.0, 0.5));
+			shortshrubScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.11f));
+			letterParentshortshrub = shortshrubTranslate * shortshrubScale;
+			shortshrubGroupMatrix = groupMatrix * letterParentshortshrub;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &shortshrubGroupMatrix[0][0]);
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(255.0f / 255.0f, 153.0f / 255.0f, 204.0f / 255.0f)));
+			ShortShrub.RenderModelBleacher();
+
+			shortshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.75, 0.0, 0.5));
 			shortshrubScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
 			letterParentshortshrub = shortshrubTranslate * shortshrubScale;
 			shortshrubGroupMatrix = groupMatrix * letterParentshortshrub;
@@ -851,7 +867,7 @@ int main(int argc, char* argv[])
 			glm::mat4 tallshrubScale;
 			glm::mat4 tallshrubGroupMatrix;
 
-			tallshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.15, 0.0, 1.0));
+			tallshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.15, 0.0, 0.5));
 			tallshrubScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
 			glm::mat4 letterParenttallshrub = tallshrubTranslate * tallshrubScale;
 			tallshrubGroupMatrix = groupMatrix * letterParenttallshrub;
@@ -862,8 +878,24 @@ int main(int argc, char* argv[])
 			TallShrub.RenderModelBleacher();
 
 
-			tallshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, 0.0, 1.0));
+			tallshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, 0.0, 0.5));
+			tallshrubScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.13f));
+			letterParenttallshrub = tallshrubTranslate * tallshrubScale;
+			tallshrubGroupMatrix = groupMatrix * letterParenttallshrub;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tallshrubGroupMatrix[0][0]);
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(204.0f / 255.0f, 153.0f / 255.0f, 102.0f / 255.0f)));
+			TallShrub.RenderModelBleacher();
+
+			tallshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.55, 0.0, 0.5));
 			tallshrubScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
+			letterParenttallshrub = tallshrubTranslate * tallshrubScale;
+			tallshrubGroupMatrix = groupMatrix * letterParenttallshrub;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tallshrubGroupMatrix[0][0]);
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(255.0f / 255.0f, 153.0f / 255.0f, 204.0f / 255.0f)));
+			TallShrub.RenderModelBleacher();
+
+			tallshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.75, 0.0, 0.5));
+			tallshrubScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.12f));
 			letterParenttallshrub = tallshrubTranslate * tallshrubScale;
 			tallshrubGroupMatrix = groupMatrix * letterParenttallshrub;
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tallshrubGroupMatrix[0][0]);
@@ -1060,8 +1092,8 @@ int main(int argc, char* argv[])
 			glm::mat4 shortshrubScale;
 			glm::mat4 shortshrubGroupMatrix;
 
-			shortshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.35, 0.0, 1.0));
-			shortshrubScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
+			shortshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.35, 0.0, 0.5));
+			shortshrubScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.12f));
 			glm::mat4 letterParentshortshrub = shortshrubTranslate * shortshrubScale;
 			shortshrubGroupMatrix = groupMatrix * letterParentshortshrub;
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &shortshrubGroupMatrix[0][0]);
@@ -1070,7 +1102,23 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(255.0f / 255.0f, 153.0f / 255.0f, 204.0f / 255.0f)));
 			ShortShrub.RenderModelBleacher();
 
-			shortshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.15, 0.0, 1.0));
+			shortshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.15, 0.0, 0.5));
+			shortshrubScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
+			letterParentshortshrub = shortshrubTranslate * shortshrubScale;
+			shortshrubGroupMatrix = groupMatrix * letterParentshortshrub;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &shortshrubGroupMatrix[0][0]);
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(204.0f / 255.0f, 153.0f / 255.0f, 102.0f / 255.0f)));
+			ShortShrub.RenderModelBleacher();
+
+			shortshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.55, 0.0, 0.5));
+			shortshrubScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.11f));
+			letterParentshortshrub = shortshrubTranslate * shortshrubScale;
+			shortshrubGroupMatrix = groupMatrix * letterParentshortshrub;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &shortshrubGroupMatrix[0][0]);
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(255.0f / 255.0f, 153.0f / 255.0f, 204.0f / 255.0f)));
+			ShortShrub.RenderModelBleacher();
+
+			shortshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.75, 0.0, 0.5));
 			shortshrubScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
 			letterParentshortshrub = shortshrubTranslate * shortshrubScale;
 			shortshrubGroupMatrix = groupMatrix * letterParentshortshrub;
@@ -1083,7 +1131,7 @@ int main(int argc, char* argv[])
 			glm::mat4 tallshrubScale;
 			glm::mat4 tallshrubGroupMatrix;
 
-			tallshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.15, 0.0, 1.0));
+			tallshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.15, 0.0, 0.5));
 			tallshrubScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
 			glm::mat4 letterParenttallshrub = tallshrubTranslate * tallshrubScale;
 			tallshrubGroupMatrix = groupMatrix * letterParenttallshrub;
@@ -1094,13 +1142,30 @@ int main(int argc, char* argv[])
 			TallShrub.RenderModelBleacher();
 
 
-			tallshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, 0.0, 1.0));
-			tallshrubScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
+			tallshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, 0.0, 0.5));
+			tallshrubScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.13f));
 			letterParenttallshrub = tallshrubTranslate * tallshrubScale;
 			tallshrubGroupMatrix = groupMatrix * letterParenttallshrub;
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tallshrubGroupMatrix[0][0]);
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(204.0f / 255.0f, 153.0f / 255.0f, 102.0f / 255.0f)));
 			TallShrub.RenderModelBleacher();
+
+			tallshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.55, 0.0, 0.5));
+			tallshrubScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
+			letterParenttallshrub = tallshrubTranslate * tallshrubScale;
+			tallshrubGroupMatrix = groupMatrix * letterParenttallshrub;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tallshrubGroupMatrix[0][0]);
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(255.0f / 255.0f, 153.0f / 255.0f, 204.0f / 255.0f)));
+			TallShrub.RenderModelBleacher();
+
+			tallshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.75, 0.0, 0.5));
+			tallshrubScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.12f));
+			letterParenttallshrub = tallshrubTranslate * tallshrubScale;
+			tallshrubGroupMatrix = groupMatrix * letterParenttallshrub;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tallshrubGroupMatrix[0][0]);
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(204.0f / 255.0f, 153.0f / 255.0f, 102.0f / 255.0f)));
+			TallShrub.RenderModelBleacher();
+
 
 
 			//****************
