@@ -1,44 +1,46 @@
 #include "Material.h"
 
+Material::Material(float diff, float spec, float ambient, float shiny, GLuint texture, int shader) :
+diffuseStrength(diff), specularStrength(spec), ambientStrength(ambient), shininessStrength(shiny), textureId(texture), shaderProgram(shader) {}
 
-Material::Material(float diff, float spec, float ambient, float shiny, GLuint texture, int shader) {
-	diffuseStrength = diff;
-	specularStrength = spec;
-	ambientStrength = ambient;
-	shininessStrength = shiny;
-	textureId = texture;
-	shaderProgram = shader;
+void Material::loadToShader( ) const {
+    // Get necessary uniform locations
+	GLint materialDiffuse = glGetUniformLocation(shaderProgram, "mats.diffuseStrength");
+	GLint materialSpec = glGetUniformLocation(shaderProgram, "mats.specularStrength");
+	GLint materialAmbient = glGetUniformLocation(shaderProgram, "mats.ambientStrength");
+	GLint materialShine = glGetUniformLocation(shaderProgram, "mats.shininessStrength");
 
-}
-
-void Material::loadToShader( ) {
-	GLint materialDiffuse = glGetUniformLocation(this->shaderProgram, "mats.diffuseStrength");
-	GLint materialSpec = glGetUniformLocation(this->shaderProgram, "mats.specularStrength");
-	GLint materialAmbient = glGetUniformLocation(this->shaderProgram, "mats.ambientStrength");
-	GLint materialShine = glGetUniformLocation(this->shaderProgram, "mats.shininessStrength");
-
-	glUniform1f(materialDiffuse, this->diffuseStrength);
-	glUniform1f(materialSpec, this->specularStrength);
-	glUniform1f(materialAmbient, this->ambientStrength);
-	glUniform1f(materialShine, this->shininessStrength);
+    // Set relevant uniform values
+	glUniform1f(materialDiffuse, diffuseStrength);
+	glUniform1f(materialSpec, specularStrength);
+	glUniform1f(materialAmbient, ambientStrength);
+	glUniform1f(materialShine, shininessStrength);
 };
 
-void Material::bindTexture() {
-	glActiveTexture(GL_TEXTURE0);
-	GLuint textureLocation = glGetUniformLocation(shaderProgram, "textureSampler");
-	glBindTexture(GL_TEXTURE_2D, this->textureId);
-	glUniform1i(textureLocation, 0);
+void Material::bindTexture() const {
+    // Set active texture to 0
+    glActiveTexture(GL_TEXTURE0);
 
+    // Get necessary uniform location
+	GLint textureLocation = glGetUniformLocation(shaderProgram, "textureSampler");
+
+    // Bind the given texture to texture 0
+	glBindTexture(GL_TEXTURE_2D, textureId);
+
+    // Send result to shader
+	glUniform1i(textureLocation, 0);
 }
 
-void Material::resetShader() {
-	GLint materialDiffuse = glGetUniformLocation(this->shaderProgram, "mats.diffuseStrength");
-	GLint materialSpec = glGetUniformLocation(this->shaderProgram, "mats.specularStrength");
-	GLint materialAmbient = glGetUniformLocation(this->shaderProgram, "mats.ambientStrength");
-	GLint materialShine = glGetUniformLocation(this->shaderProgram, "mats.shininessStrength");
+void Material::resetShader() const {
+    // Get necessary uniform locations
+	GLint materialDiffuse = glGetUniformLocation(shaderProgram, "mats.diffuseStrength");
+	GLint materialSpec = glGetUniformLocation(shaderProgram, "mats.specularStrength");
+	GLint materialAmbient = glGetUniformLocation(shaderProgram, "mats.ambientStrength");
+	GLint materialShine = glGetUniformLocation(shaderProgram, "mats.shininessStrength");
 
+    // Set relevant uniform values
 	glUniform1f(materialDiffuse,.5f);
 	glUniform1f(materialSpec,.5f);
 	glUniform1f(materialAmbient, .5f);
 	glUniform1f(materialShine, 32.0f);
-};
+}

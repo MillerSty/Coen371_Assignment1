@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
@@ -13,19 +14,20 @@
 class Material
 {
 public:
+    // CONSTRUCTORS
 	Material() = default;
 	Material(float diff, float spec, float ambient, float shiny, GLuint texture, int shader);
+
+    // PARAMETERS
 	float diffuseStrength;
 	float specularStrength;
 	float ambientStrength;
 	float shininessStrength;
-
 	GLuint textureId;
 	GLuint shaderProgram;
-	void loadToShader();
-	void bindTexture();
-	void resetShader();
-private:
 
+    // METHODS
+	void loadToShader() const;
+	void bindTexture() const;
+	void resetShader() const;
 };
-
