@@ -18,32 +18,30 @@ class Racket
 {
 
 public:
-	Racket(GLuint cubeVao, glm::mat4 worldMatrix) ;
+    // CONSTRUCTOR
 	Racket(GLuint cubeVao, std::string racketName);
-	void SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram, glm::mat4 partParent);
-	void setPlastic(Material plastic) { plasticMaterial = plastic; }
-	void setBall(SceneObjects ball) { this->ball = ball; }
 
+    // GETTERS/ SETTERS
+    void SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram, glm::mat4 partParent);
 
-	GLuint cubeVao;
+    // PARAMETERS
 	int racketAngle;
 	float jawnAngle;
+    int shaderProgram;
+    int renderAs;
+	std::string racketName;
 
+	GLuint cubeVao;
 	glm::mat4 rotationW;
 	glm::mat4 partParent;
 	glm::mat4 partChild;
 	glm::mat4 partMatrix;
 	glm::mat4 groupMatrix;
-
-	int shaderProgram;
-	int renderAs;
 	glm::vec3 position;
-	std::string racketName;
-	SceneObjects ball;
 
+	SceneObjects ball;
 	Material plasticMaterial;
 
-	//methods like 
+	// METHODS
 	bool Draw();
 };
-

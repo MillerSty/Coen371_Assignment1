@@ -22,29 +22,39 @@ class SceneObjects
 public:
     // Constructors
 	SceneObjects() = default;
-	SceneObjects(int cubeVao,
-		glm::mat4 worldMatrix);
-	SceneObjects(int cubeVao, std::string objectName);
-	SceneObjects(std::string objectName);
-	void SetAttr(glm::mat4 groupMat, int as, int shaderProg);
+	explicit SceneObjects(std::string objectName);
 
+    // GETTERS/ SETTERS
+    void SetAttr(glm::mat4 groupMat, int as, int shaderProg);
+
+    // PARAMETERS
     int shaderProgram;
     int renderAs;
     int gridCount;
-
     std::string objectName;
-
-    // VAO parameters
 	GLuint gridVao;
 	GLuint cubeVao;
-	//int reverseCubeVao;
-	GLuint sphereVao;
-	int sphereVertCount;
-
-    // Sound engine parameter
     irrklang::ISoundEngine* audioEngine;
 
-    // Sounds parameters
+    // Matrix and vertex parameters
+    glm::mat4 partParent;
+    glm::mat4 groupMatrix;
+    glm::mat4 rotationWMatrix;
+    glm::vec3 Translate;
+    glm::vec3 lineArray[808];
+    glm::vec3 position;
+    glm::vec3 colour[3];
+
+    // Material parameters
+    Material courtTexture;
+    Material clothTexture;
+    Material ropeTexture;
+    Material metalTexture;
+    Material grassTexture;
+    Material plasticTexture;
+    Material skyTexture;
+
+    // Sound lists
     const char* MALE_CROWD_SOUNDS[2] = {
             "../src/Assets/sounds/CrowdMale1.wav",
             "../src/Assets/sounds/CrowdMale2.wav",
@@ -55,46 +65,46 @@ public:
             "../src/Assets/sounds/CrowdFemale2.wav",
     };
 
-    // Matrix and Vector parameters
-	glm::mat4 partParent;
-	glm::mat4 groupMatrix;
-	glm::mat4 rotationWMatrix;
-	glm::vec3 Translate;
-	glm::vec3 lineArray[808];
-    glm::vec3 position;
-    glm::vec3 colour[3];
-
-    // Material parameters
-	Material courtTexture;
-	Material clothTexture;
-	Material ropeTexture;
-	Material metalTexture;
-	Material grassTexture;
-	Material plasticTexture;
-	Material skyTexture;
-
     // Methods
-	//void SetVAO(int cube, int reversecube, int grid);
+    // Set the VAOs for the scene
 	void SetVAO(GLuint cube, GLuint grid);
+
+    // Set the Materials for the objects in the scene
 	void setMaterials(Material courtTexture, Material clothTexture,
 		              Material ropeTexture, Material metalTexture,
 		              Material grassTexture, Material plasticTexture);
-	// Initialize the grid
-    void InitGrid();
-    // Draw the grid
-    bool DrawGrid();
-    // Draw the court
+    /**
+     * Draw the court
+     * @return Whether the court was drawn
+     */
 	bool DrawCourt();
-    // Draw the net
-	bool DrawNet();
-    // Draw the skybox
-	bool DrawSkyBox();
-    // Draw the XYZ coordinate axes at the origin
-	bool DrawCoord();
-    // Draw the cube representing the cube
-	bool DrawLight(glm::vec3 position, glm::vec3 rotation, float i);
-    // Draw the various elements of the scene
+
+    /**
+     * Draw the net
+     * @return Whether the net was drawn
+     */
+	bool DrawNet() const;
+
+    /**
+     * Draw the cube representing the cube
+     * @return Whether the skybox was drawn
+     */
+	bool DrawSkyBox() const;
+
+    /**
+     * Draw the cube representing the light source
+     * @param pos The position of the cube
+     * @param rotation The rotation of the light around the scene
+     * @return Whether the light was drawn
+     */
+	bool DrawLight(glm::vec3 pos, glm::vec3 rotation) const;
+
+    /**
+     * Draw the various elements of the scene
+     * @param drawSkyBox Whether to draw the skybox. Don't want to draw in the shadow pass, because that will cast shadows on the scene
+     */
 	void DrawScene(bool drawSkyBox);
+
     /** Play a crowd sound
     @param isMale: Whether the sound should be male or female
     */

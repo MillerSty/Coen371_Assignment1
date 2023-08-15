@@ -46,11 +46,71 @@ In addition, when a racket hits a ball, a random ball sound plays. There are 3 p
 
 
 ## Possible Add-ons
-- [ ] Add animated crowd
+- [x] Add animated crowd
 - [ ] Add foliage
 - [ ] Add a clock to show animation duration
-- [ ] Add walking people
+- [x] Add walking people
 - [ ] Animate a camera
+
+## Contributions
+
+- Jonah: Animation and audio
+- Matthew: Animation, audio, code cleanup, and documentation
+- Sabrina: Modelling
+- Jon: Modelling and animation
+- Evan: Animation
+
+## Screenshots
+
+Here, we can see a sample moment in the animation, it looks like the blue player is winning:
+
+![Sample moment](src/Screenshots/A%20moment%20in%20the%20animation.png)
+
+The ball is green and has a grass-like texture to it:
+
+![Ball texture](src/Screenshots/Ball.png)
+
+The arms hold the racket with fingers that curl and uncurl automatically. Look at that cool glove:
+
+![Arm and racket](src/Screenshots/Arm%20with%20closed%20fist.png)
+
+There are lots of people watching the game. Can you hear their talking when you watch the animation?
+The colors are all randomly-generated each time the animation is played
+
+![Crowd members](src/Screenshots/Crowd%20members.png)
+
+Here's another view from the bleachers
+
+![From the bleachers](src/Screenshots/From%20the%20bleachers.png)
+
+The field has a dirt-like texture and the court has a grass-like texture:
+
+![Textures](src/Screenshots/Textures.png)
+
+There are also 3 particularly enamoured fans near the court. They gradually walk around.
+Their colors are also randomly-generated each time. This shot also showcases the ball bouncing:
+
+![Walkers](src/Screenshots/Walkers%20and%20bouncing%20ball.png)
+
+The scoreboard increments in groups of 15 per tennis scoring rules. One side is the blue player, the other is the red player:
+
+![Scoreboard](src/Screenshots/Scoreboard.png)
+
+Here's the scene without any shadows:
+
+![No shadows](src/Screenshots/No%20shadows.png)
+
+Here's the scene without any textures:
+
+![No textures](src/Screenshots/No%20Textures.png)
+
+Here's the scene without any shadows or textures:
+
+![No shadows or textures](src/Screenshots/No%20shadows%20or%20textures.png)
+
+And finally, here's a pretty cool angle you can get if you move the camera around with the arrow keys:
+
+![Cool angle](src/Screenshots/Interesting%20camera%20angle.png)
 
 ## Build Instructions
 

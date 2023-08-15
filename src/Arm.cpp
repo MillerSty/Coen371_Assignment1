@@ -1,79 +1,47 @@
 #include "Arm.h"
 
-Arm::Arm(int cubeVao, glm::mat4 worldMatrix) {
-	this->cubeVao = cubeVao;
-	this->groupMatrix = worldMatrix;
-	this->position = glm::vec3(0.0f, 0.0f, 0.0f);
-	this->TranslateModel = glm::vec3(0.0f, 0.0f, 0.0f);
-	this->TranslateRandom = glm::vec3(0.0f, 0.0f, 0.0f);
+Arm::Arm() {}
 
-}
-Arm::Arm(int cubeVao, std::string letterName) {
-	this->cubeVao = cubeVao;
-	this->groupMatrix;
-	this->position = glm::vec3(0.0f, 0.0f, 0.0f);
-	this->renderAs = GL_TRIANGLES;
-	armRotate = 0;
-	elbowRotate = 0;
-	wristRotate = 0;
-	this->TranslateModel = glm::vec3(0.0f, 0.0f, 0.0f);
-	this->TranslateRandom = glm::vec3(0.0f, 0.0f, 0.0f);
-	this->letterName = letterName;
-}
-void Arm::InitArm(glm::vec3 position, GLuint VAO, Material skinMaterial, Material clothMaterial) {
-	this->position = position;
-	this->cubeVao = VAO;
-	this->skinMaterial = skinMaterial;
-	this->clothMaterial = clothMaterial;
+void Arm::InitArm(glm::vec3 pos, GLuint VAO, Material skin, Material cloth) {
+	position = pos;
+	cubeVao = VAO;
+	skinMaterial = skin;
+	clothMaterial = cloth;
     if (position.x < 0){
-        this->armRotate = 90.0f;
+        armRotate = 90.0f;
     } else {
-        this->armRotate = -90.0f;
+        armRotate = -90.0f;
     }
-	spin = 0;
+	fingerFlex = 0;
 	reverse = false;
 }
-Arm::Arm() {}
-void Arm::resetArm() {
-	TranslateModel += -1.0f * TranslateModel;
-	TranslateRandom += -1.0f * TranslateRandom;
-	armRotate = 90.0f;
-	wristRotate = 0.0f;
-	elbowRotate = 0.0f;
-	fingerRotate = 0.0f;
-	armRotate = 90.0f;
-	//Scale= 1.0f
-}
-void Arm::SetAttr(glm::mat4 groupMatrix, int renderAs, int shaderProgram) {
-	this->groupMatrix = groupMatrix;
-	this->renderAs = renderAs;
-	this->shaderProgram = shaderProgram;
-	float spin = 0;
-	bool reverse = false;
-}
 
-void Arm::setVAO(int vao) { cubeVao = vao; }
-
-void Arm::setTranslation(glm::vec3 TranslateRandom, glm::vec3 TranslateModel) {
-	this->TranslateRandom = TranslateRandom;
-	this->TranslateModel = TranslateModel;
+void Arm::SetAttr(glm::mat4 groupMat, int as, int shaderProg) {
+	groupMatrix = groupMat;
+	renderAs = as;
+	shaderProgram = shaderProg;
 }
 
 bool Arm::DrawArm() {
+    // Get necessary uniform locations
 	GLint worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
 	GLint colorLocation = glGetUniformLocation(shaderProgram, "objectColor");
 
+    // Set up necessary matrices
 	glm::mat4 worldMatrix;
-
 	glm::mat4 partScale;
 	glm::mat4 partTranslate;
 	glm::mat4 partRo;
-	glm::mat4 partMatrix;
-	//note this works
+	glm::mat4 partMat;
+
+	// Bind the skin texture
 	skinMaterial.bindTexture();
 	skinMaterial.loadToShader();
 
+    // Load the cube VAO
 	glBindVertexArray(cubeVao);
+
+    // BICEP
 	glm::mat4 bicepParent; //so for initial parent , it has local.global translate plus local rotate
 	glm::mat4 biTranslate = glm::translate(glm::mat4(1.0f),
                                            glm::vec3(TranslateRandom.x + TranslateModel.x + position.x,
@@ -87,13 +55,13 @@ bool Arm::DrawArm() {
 	partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, .0f, 1.0f));
 	partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.575f, .25f, .150f));
 
-	partMatrix = partScale * partRo;
-	worldMatrix = groupMatrix * bicepParent * partMatrix;
+    partMat = partScale * partRo;
+	worldMatrix = groupMatrix * bicepParent * partMat;
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.94f, .76f, .5f)));
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
 
-	// Forearm then for
+	// FOREARM
 	glm::mat4 forTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(constArmScaler.x *.0948f, .0f, .0f));
 	glm::mat4 forRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)elbowRotate), glm::vec3(.0f, .0f, 1.0f)); //this rotates forearm
 	glm::mat4 forarmParent = bicepParent * forTranslate * forRotate;
@@ -101,15 +69,17 @@ bool Arm::DrawArm() {
 	partScale = glm::scale(glm::mat4(1.0f), glm::vec3(constArmScaler.x - .02f, constArmScaler.y, constArmScaler.z));
 	partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, .0f, 1.0f));
 
-	partMatrix = partScale * partRo;
-	worldMatrix = groupMatrix * forarmParent * partMatrix;
+    partMat = partScale * partRo;
+	worldMatrix = groupMatrix * forarmParent * partMat;
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.94f, .76f, .5f)));
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
 
-	// hand
+	// HAND
+    // Bind the cloth texture
 	clothMaterial.bindTexture();
 	clothMaterial.loadToShader();
+
 	glm::mat4 handTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(constArmScaler.x *.0666f, .0f, .0f));
 	glm::mat4 handRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)wristRotate), glm::vec3(.0f, 1.0f, .0f)); //this rotates hand
 	glm::mat4 handParent = forarmParent * handTranslate * handRotate;
@@ -117,14 +87,16 @@ bool Arm::DrawArm() {
 	partScale = glm::scale(glm::mat4(1.0f), glm::vec3(constArmScaler.x *.4878f, constArmScaler.y*1.1236f, constArmScaler.z));
 	partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, .0f, 1.0f));
 
-	partMatrix = partScale * partRo;
-	worldMatrix = groupMatrix * handParent * partMatrix;
-	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.0f, .36f, .3f)));
+	partMat = partScale * partRo;
+	worldMatrix = groupMatrix * handParent * partMat;
+	glUniform3fv(colorLocation, 1, &gloveColor[0]);
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
 	partParent = handParent;
 
-	////NOTE FINGERS WILL DIRECTLY INHERIT FROM HAND -> HAND IS THEIR PARENT
+    // FINGERS
+	// NOTE: FINGERS WILL DIRECTLY INHERIT FROM HAND -> HAND IS THEIR PARENT
+    // Load skin textures for fingers
 	skinMaterial.bindTexture();
 	skinMaterial.loadToShader();
 	glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(.94f, .76f, .5f))); //al have the same colour
@@ -132,95 +104,89 @@ bool Arm::DrawArm() {
 	glm::mat4 fingerRotater = glm::rotate(glm::mat4(1.0f), glm::radians(fingerRotate), glm::vec3(.0f, -1.0f, .0f));
 	glm::mat4 fingerparent= handParent * fingerTranslate ;
 	glm::mat4 fingerParent = handParent * fingerTranslate * fingerRotater;
-	//// finger1a 
+
+    // FINGER 1A
 	partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.17f, 0.05f, .130f));//part scale is universal finger scale maybe put in finger parent?
 	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.1f, -.0f, -.0f));
-	partMatrix = partScale;
-	worldMatrix = groupMatrix * fingerParent * partMatrix;
+    partMat = partScale;
+	worldMatrix = groupMatrix * fingerParent * partMat;
 
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
 
-	////// finger2
+	// FINGER 2
 	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .008f, -.0f));
-	partMatrix = partTranslate * partScale;
-	worldMatrix = groupMatrix * fingerParent * partMatrix;
+    partMat = partTranslate * partScale;
+	worldMatrix = groupMatrix * fingerParent * partMat;
 
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
-	//// finger3
-	//partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.187f, .05f, .130f));
+
+    // FINGER 3
 	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .016f, -.0f));
-	partMatrix = partTranslate * partScale;
-	worldMatrix = groupMatrix * fingerParent * partMatrix;
+    partMat = partTranslate * partScale;
+	worldMatrix = groupMatrix * fingerParent * partMat;
 
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
-	////// finger4
-	//partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.187f, .059f, .130f));
+
+    // FINGER 4
 	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .024f, -.0f));
-	partMatrix = partTranslate * partScale;
-	worldMatrix = groupMatrix * fingerParent * partMatrix;
+    partMat = partTranslate * partScale;
+	worldMatrix = groupMatrix * fingerParent * partMat;
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
 	
-	////// thumb //thumb rotates wrong
+	// THUMB
 	partScale = glm::scale(glm::mat4(1.0f), glm::vec3(-.187f, -.075f, .10f));
 	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-.02f, .029f, -.0f));
 	partRo = glm::rotate(glm::mat4(1.0f), glm::radians((float)0), glm::vec3(.0f, 1.0f, .0f));
-	partMatrix = partTranslate * partScale;
-	worldMatrix = groupMatrix * fingerparent * partMatrix;
+    partMat = partTranslate * partScale;
+	worldMatrix = groupMatrix * fingerparent * partMat;
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
 
-	//setting up finger inheritance
-	//glm::mat4 fingerChild = handParent * fingerParent * glm::translate(glm::mat4(1.0f), glm::vec3(.017f, .0f, -.0f));
+	// Setting up finger inheritance
 	partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.17f, .05f, .130f));
 	glm::mat4 fingerchildTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.015f, -.0f, -.0f));
 	glm::mat4 fingerchildRotater = glm::rotate(glm::mat4(1.0f), glm::radians(fingerRotate / 2.0f), glm::vec3(.0f, -1.0f, .0f));
 
 	glm::mat4 fingerChild = fingerParent* fingerchildTranslate *  fingerchildRotater;
-	worldMatrix = groupMatrix * fingerChild * partMatrix;
-	//finger 1b
-	//partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.187f, 0.05f, .130f));//part scale is universal finger scale maybe put in finger parent?
+
+	// FINGER 1B
 	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .0f, -.0f));
 	partRo = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(.0f, 1.0f, .0f));
-	partMatrix = partTranslate * partScale * partRo;
-	worldMatrix = groupMatrix * fingerChild * partMatrix;
+    partMat = partTranslate * partScale * partRo;
+	worldMatrix = groupMatrix * fingerChild * partMat;
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
-	//finger 2b
+
+	// FINGER 2B
 	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .008f, -.0f));
 	partRo = glm::mat4(1.0f);
-	partMatrix = partTranslate * partScale * partRo;
-	worldMatrix = groupMatrix * fingerChild * partMatrix;
-
+    partMat = partTranslate * partScale * partRo;
+	worldMatrix = groupMatrix * fingerChild * partMat;
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
-	//finger 3b
+
+	// FINGER 3B
 	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .016f, -.0f));
 	partRo = glm::mat4(1.0f);
-	partMatrix = partTranslate * partScale * partRo;
-	worldMatrix = groupMatrix * fingerChild * partMatrix;
-
+    partMat = partTranslate * partScale * partRo;
+	worldMatrix = groupMatrix * fingerChild * partMat;
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
-	//finger 4b
+
+	// FINGER 4B
 	partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, .024f, -.0f));
 	partRo = glm::mat4(1.0f);
-	partMatrix = partTranslate * partScale * partRo;
-	worldMatrix = groupMatrix * fingerChild * partMatrix;
-
+    partMat = partTranslate * partScale * partRo;
+	worldMatrix = groupMatrix * fingerChild * partMat;
 	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 	glDrawArrays(renderAs, 0, 36);
 
-	//partScale = glm::scale(glm::mat4(1.0f), glm::vec3(.17f, 0.05f, .130f));//part scale is universal finger scale maybe put in finger parent?
-	//partTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(.1f, -.0f, -.0f));
-	//partMatrix = partScale;
-	//worldMatrix = groupMatrix * fingerParent * partMatrix;
-
-	glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
-	glDrawArrays(renderAs, 0, 36);
+	// glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
+	// glDrawArrays(renderAs, 0, 36);
 	glBindVertexArray(0);
 	
 	return true;
@@ -228,23 +194,21 @@ bool Arm::DrawArm() {
 
 bool Arm::flexFingers() {
 	
-	if ((this->getFRotation() + spin) > 90.0f && reverse == false) {
-
-		this->setFRotation(this->getFRotation() - spin);
+	if ((fingerRotate + fingerFlex) > 90.0f && !reverse) {
+        fingerRotate -= fingerFlex;
 		reverse = true;
 	}
-	else if (this->getFRotation() + spin < 0.0f && reverse == true) {
-		this->setFRotation(this->getFRotation() + spin);
+	else if ((fingerRotate + fingerFlex) < 0.0f && reverse) {
+        fingerRotate += fingerFlex;
 		reverse = false;
 	}
-	else if (reverse == true) {
-		this->setFRotation(this->getFRotation() - spin);
-		spin -= .01f;
+	else if (reverse) {
+        fingerRotate -= fingerFlex;
+		fingerFlex -= .01f;
 	}
 	else {
-		this->setFRotation(this->getFRotation() + spin);
-		spin += .01f;
+        fingerRotate += fingerFlex;
+		fingerFlex += .01f;
 	}
-
 	return reverse;
 }
