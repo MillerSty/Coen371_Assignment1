@@ -715,7 +715,7 @@ int main(int argc, char* argv[])
 			glm::mat4 tree1Scale;
 			glm::mat4 tree1GroupMatrix;
 
-			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.95, 0.0, -0.9));
+			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(1.05, 0.0, -0.9));
 			tree1Scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.0095f, 0.0095f, 0.0095f) * 6.0f);
 			glm::mat4 letterParentTree1 = tree1Translate * tree1Scale;
 			tree1GroupMatrix = groupMatrix * letterParentTree1;
@@ -725,7 +725,7 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 153.0f / 255.0f, 51.0f / 255.0f)));
 			Trees.RenderModeltree1();
 
-			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.95, 0.0, -0.9));
+			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(-1.05, 0.0, -0.9));
 			tree1Scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.0095f, 0.0095f, 0.0095f) * 6.0f);
 			letterParentTree1 = tree1Translate * tree1Scale;
 			tree1GroupMatrix = groupMatrix * letterParentTree1;
@@ -733,12 +733,53 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 153.0f / 255.0f, 51.0f / 255.0f)));
 			Trees.RenderModeltree1();
 
+			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.95, 0.0, -1.6));
+			tree1Scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.0095f, 0.0095f, 0.0095f) * 7.0f);
+			letterParentTree1 = tree1Translate * tree1Scale;
+			tree1GroupMatrix = groupMatrix * letterParentTree1;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 153.0f / 255.0f, 59.0f / 255.0f)));
+			Trees.RenderModeltree1();
+
+			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.95, 0.0, -1.6));
+			tree1Scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.0095f, 0.0095f, 0.0095f) * 6.0f);
+			letterParentTree1 = tree1Translate * tree1Scale;
+			tree1GroupMatrix = groupMatrix * letterParentTree1;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 153.0f / 255.0f, 51.0f / 255.0f)));
+			Trees.RenderModeltree1();
+
+			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.55, 0.0, -1.6));
+			tree1Scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.0095f, 0.0095f, 0.0095f) * 7.5f);
+			letterParentTree1 = tree1Translate * tree1Scale;
+			tree1GroupMatrix = groupMatrix * letterParentTree1;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 150.0f / 255.0f, 51.0f / 255.0f)));
+			Trees.RenderModeltree1();
+
+			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.1, 0.0, -1.6));
+			tree1Scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.0095f, 0.0095f, 0.0095f) * 6.0f);
+			letterParentTree1 = tree1Translate * tree1Scale;
+			tree1GroupMatrix = groupMatrix * letterParentTree1;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 153.0f / 255.0f, 51.0f / 255.0f)));
+			Trees.RenderModeltree1();
+
+			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(-.45, 0.0, -1.6));
+			tree1Scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.0095f, 0.0095f, 0.0095f) * 5.5f);
+			letterParentTree1 = tree1Translate * tree1Scale;
+			tree1GroupMatrix = groupMatrix * letterParentTree1;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(55.0f / 255.0f, 153.0f / 255.0f, 51.0f / 255.0f)));
+			Trees.RenderModeltree1();
+
+
 			// This is for the grass
 			glm::mat4 grassTranslate;
 			glm::mat4 grassScale;
 			glm::mat4 grassGroupMatrix;
 
-			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.95, 0.0, 1.0));
+			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.95, 0.0, 0.5));
 			grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
 			glm::mat4 letterParentgrass = grassTranslate * grassScale;
 			grassGroupMatrix = groupMatrix * letterParentgrass;
@@ -748,7 +789,7 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(153.0f / 255.0f, 255.0f / 255.0f, 51.0f / 255.0f)));
 			Grass.RenderModelGrass();
 
-			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.85, 0.0, 1.0));
+			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.85, 0.0, 0.5));
 			grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.10f));
 			letterParentgrass = grassTranslate * grassScale;
 			grassGroupMatrix = groupMatrix * letterParentgrass;
@@ -756,7 +797,7 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(153.0f / 255.0f, 255.0f / 255.0f, 51.0f / 255.0f)));
 			Grass.RenderModelGrass();
 
-			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.75, 0.0, 1.0));
+			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.75, 0.0, 0.5));
 			grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.10f));
 			letterParentgrass = grassTranslate * grassScale;
 			grassGroupMatrix = groupMatrix * letterParentgrass;
@@ -764,7 +805,7 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(153.0f / 255.0f, 255.0f / 255.0f, 51.0f / 255.0f)));
 			Grass.RenderModelGrass();
 
-			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.65, 0.0, 1.0));
+			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.65, 0.0, 0.5));
 			grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.10f));
 			letterParentgrass = grassTranslate * grassScale;
 			grassGroupMatrix = groupMatrix * letterParentgrass;
@@ -772,7 +813,7 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(153.0f / 255.0f, 255.0f / 255.0f, 51.0f / 255.0f)));
 			Grass.RenderModelGrass();
 
-			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.55, 0.0, 1.0));
+			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.55, 0.0, 0.5));
 			grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.10f));
 			letterParentgrass = grassTranslate * grassScale;
 			grassGroupMatrix = groupMatrix * letterParentgrass;
@@ -908,7 +949,7 @@ int main(int argc, char* argv[])
 			glm::mat4 tree1Scale;
 			glm::mat4 tree1GroupMatrix;
 
-			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.95, 0.0, -0.9));
+			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(1.05, 0.0, -0.9));
 			tree1Scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.0095f, 0.0095f, 0.0095f) * 6.0f);
 			glm::mat4 letterParentTree1 = tree1Translate * tree1Scale;
 			tree1GroupMatrix = groupMatrix * letterParentTree1;
@@ -918,12 +959,52 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 153.0f / 255.0f, 51.0f / 255.0f)));
 			Trees.RenderModeltree1();
 
-			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.95, 0.0, -0.9));
+			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(-1.05, 0.0, -0.9));
 			tree1Scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.0095f, 0.0095f, 0.0095f) * 6.0f);
 			letterParentTree1 = tree1Translate * tree1Scale;
 			tree1GroupMatrix = groupMatrix * letterParentTree1;
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 153.0f / 255.0f, 51.0f / 255.0f)));
+			Trees.RenderModeltree1();
+
+			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.95, 0.0, -1.6));
+			tree1Scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.0095f, 0.0095f, 0.0095f) * 7.0f);
+			letterParentTree1 = tree1Translate * tree1Scale;
+			tree1GroupMatrix = groupMatrix * letterParentTree1;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 153.0f / 255.0f, 59.0f / 255.0f)));
+			Trees.RenderModeltree1();
+
+			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.95, 0.0, -1.6));
+			tree1Scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.0095f, 0.0095f, 0.0095f) * 6.0f);
+			letterParentTree1 = tree1Translate * tree1Scale;
+			tree1GroupMatrix = groupMatrix * letterParentTree1;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 153.0f / 255.0f, 51.0f / 255.0f)));
+			Trees.RenderModeltree1();
+
+			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.55, 0.0, -1.6));
+			tree1Scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.0095f, 0.0095f, 0.0095f) * 7.5f);
+			letterParentTree1 = tree1Translate * tree1Scale;
+			tree1GroupMatrix = groupMatrix * letterParentTree1;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 150.0f / 255.0f, 51.0f / 255.0f)));
+			Trees.RenderModeltree1();
+
+			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.1, 0.0, -1.6));
+			tree1Scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.0095f, 0.0095f, 0.0095f) * 6.0f);
+			letterParentTree1 = tree1Translate * tree1Scale;
+			tree1GroupMatrix = groupMatrix * letterParentTree1;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 153.0f / 255.0f, 51.0f / 255.0f)));
+			Trees.RenderModeltree1();
+
+			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(-.45, 0.0, -1.6));
+			tree1Scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.0095f, 0.0095f, 0.0095f) * 5.5f);
+			letterParentTree1 = tree1Translate * tree1Scale;
+			tree1GroupMatrix = groupMatrix * letterParentTree1;
+			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
+			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(55.0f / 255.0f, 153.0f / 255.0f, 51.0f / 255.0f)));
 			Trees.RenderModeltree1();
 
 
@@ -932,7 +1013,7 @@ int main(int argc, char* argv[])
 			glm::mat4 grassScale;
 			glm::mat4 grassGroupMatrix;
 
-			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.95, 0.0, 1.0));
+			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.95, 0.0, 0.5));
 			grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.10f));
 			glm::mat4 letterParentgrass = grassTranslate * grassScale;
 			grassGroupMatrix = groupMatrix * letterParentgrass;
@@ -942,7 +1023,7 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(153.0f / 255.0f, 255.0f / 255.0f, 51.0f / 255.0f)));
 			Grass.RenderModelGrass();
 
-			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.85, 0.0, 1.0));
+			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.85, 0.0, 0.5));
 			grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.10f));
 			letterParentgrass = grassTranslate * grassScale;
 			grassGroupMatrix = groupMatrix * letterParentgrass;
@@ -950,7 +1031,7 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(153.0f / 255.0f, 255.0f / 255.0f, 51.0f / 255.0f)));
 			Grass.RenderModelGrass();
 
-			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.75, 0.0, 1.0));
+			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.75, 0.0, 0.5));
 			grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.10f));
 			letterParentgrass = grassTranslate * grassScale;
 			grassGroupMatrix = groupMatrix * letterParentgrass;
@@ -958,7 +1039,7 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(153.0f / 255.0f, 255.0f / 255.0f, 51.0f / 255.0f)));
 			Grass.RenderModelGrass();
 
-			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.65, 0.0, 1.0));
+			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.65, 0.0, 0.5));
 			grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.10f));
 			letterParentgrass = grassTranslate * grassScale;
 			grassGroupMatrix = groupMatrix * letterParentgrass;
@@ -966,7 +1047,7 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(153.0f / 255.0f, 255.0f / 255.0f, 51.0f / 255.0f)));
 			Grass.RenderModelGrass();
 
-			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.55, 0.0, 1.0));
+			grassTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.55, 0.0, 0.5));
 			grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.10f));
 			letterParentgrass = grassTranslate * grassScale;
 			grassGroupMatrix = groupMatrix * letterParentgrass;
