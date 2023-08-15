@@ -530,7 +530,7 @@ int main(int argc, char* argv[])
 	int redScore = 0, blueScore = 0;
 
     // Decide whether to play sounds or not. Mostly for debug
-    bool playSound = false;
+    bool playSound = true;
 
     // If we want to play sounds, play a constant crowd chatter
 	if (playSound) {
