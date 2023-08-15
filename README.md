@@ -2,6 +2,16 @@
 
 <hr />
 
+## Credits
+
+- Jonah Ball id: 40178421
+- Evan Greenstein id: 40173229
+- Matthew Segal id: 40031839
+- Sabrina Kim id: 40066662
+- Jonathan Miller id: 40135070 (Separate Section CD)
+
+## Description 
+
 We chose to do a simple tennis game simulation. To achieve this, we created a simple animation, using keyframes,
 of 2 players playing tennis against each other in front of a crowd.
 
