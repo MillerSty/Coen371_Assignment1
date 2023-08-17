@@ -43,7 +43,7 @@ bool Letters::Scoreboard(int number,bool isClock,bool isBlue) {
 	glm::mat4 boardScale;
 	glm::mat4 BoardGroupMatrix;
 
-	float scale = 1.0f;
+	float scale = 3.5f;
 	//if score .... current code scale
 	//else if clock.... different scale
 	glm::vec3 colours;

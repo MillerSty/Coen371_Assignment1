@@ -32,7 +32,7 @@
 // Declare some functions for later use
 int compileAndLinkShaders(const char* vertex, const char* fragment);
 GLuint loadTexture(const char* filename);
-void FireWorks(glm::vec3 position, GLuint unitCube, Material courtMaterial, GLint worldMatrixLocation, GLint colorLocation,bool explode);
+void FireWorks(glm::vec3 position, GLuint unitCube, Material courtMaterial, GLint worldMatrixLocation, GLint colorLocation, bool explode);
 void GLAPIENTRY messageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
                                 const GLchar* message, const void* userParam);
 void setProjectionMatrix(int shaderProgram, glm::mat4 projectionMatrix);
@@ -157,9 +157,10 @@ glm::vec3 up(0.0f, 1.0f, 0.0f);
 glm::vec3 GroupMatrixScale(1.0f, 1.0f, 1.0f);
 glm::mat4 groupMatrix;
 glm::mat4 rotationMatrixW = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+const glm::vec3 TREE_COLOR(0.0f, 0.26f, 0.0f);
 
-const int size = 250;
-const int smallSize = 80;
+const int size = 1000;
+const int smallSize = 500;
 glm::vec3 locations[size];
 glm::vec3 smallLocations[smallSize];
 
@@ -251,7 +252,7 @@ int main(int argc, char* argv[])
 #else
 	// Enable debug output
 	glEnable(GL_DEBUG_OUTPUT);
-	glDebugMessageCallback(messageCallback, 0);
+	glDebugMessageCallback(messageCallback, nullptr);
 #endif
 
     // Set mouse and keyboard callbacks
@@ -356,8 +357,6 @@ int main(int argc, char* argv[])
 	TallShrub = Model();
 	TallShrub.LoadModel("../src/Models/TallShrub/tallshrub.obj");
 
-
-
     // Set the materials of the various objects in the scene
 	SceneObj.setMaterials(courtMaterial, clothMaterial, ropeMaterial, metalMaterial, grassMaterial, plasticMaterial);
 	SceneObj.skyTexture = skyMaterial;
@@ -387,8 +386,8 @@ int main(int argc, char* argv[])
 	numberDraw2.shaderProgram = shaderProgram;
 	numberDraw.plastic = skinMaterial;
 	numberDraw2.plastic = skinMaterial;
-	numberDraw.position = glm::vec3(-.20f, .21f, -0.40f);
-	numberDraw2.position = glm::vec3(.20f, .21f, -0.40f);
+	numberDraw.position = glm::vec3(-0.17f, 0.5f, -1.1f);
+	numberDraw2.position = glm::vec3(0.17f, 0.5f, -1.1f);
 
     // Set ball parameters
     ball.setShaderProgram(shaderProgram);
@@ -487,18 +486,17 @@ int main(int argc, char* argv[])
         KeyFrame(glm::vec3(0.75, BALL_Y_OFFSET, -0.3), glm::vec3(0.0), 40.0),			// SCORE
 	};
 
-
+    // Keyframes for fireworks
 	KeyFrame keyframesFireWorks[] = {
 		KeyFrame(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f), 40.0), // Initial key frame
 		KeyFrame(glm::vec3(0.0f, .40f, 0.0f), glm::vec3(0.0f), 45.5), // Start moving for ball
 		KeyFrame(glm::vec3(0.0f, .50f, 0.0f), glm::vec3(0.0f), 48.5),
 		KeyFrame(glm::vec3(0.0f, -.50f, 0.0f), glm::vec3(0.0f),53.5),
 	};
+
 	glm::vec3 fireworkPosition(0, 0, 0);
 
-
-
-	// Keyframes for Red player
+	// Keyframes for camera
 	KeyFrame keyframesCamera[] = {
 		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(-90.0), 0.0), // Initial key frame
 		KeyFrame(glm::vec3(0.0, 0.0, 0.0), glm::vec3(-60.0), 2.5), // Start moving for ball
@@ -520,9 +518,6 @@ int main(int argc, char* argv[])
 		KeyFrame(glm::vec3(0.0, 0.0, 0.1), glm::vec3(-60.0), 39.0), // Start moving away from ball
 		KeyFrame(glm::vec3(0.0, 0.0, 0.18), glm::vec3(-110.0), 39.5), // Be away from ball
 	};
-
-
-
 
     // Start at the 0th keyframe for each set of keyframes
     int keyframeNumBlue = 0;
@@ -547,12 +542,12 @@ int main(int argc, char* argv[])
 		bigCrowdSound->setSoundVolume(0.15f);
 	}
 
-	for (int i = 0; i < size; ++i) {
-		locations[i] = getRandomLocationSides();
+	for (auto & location : locations) {
+		location = getRandomLocationSides();
 	}
 
-	for (int i = 0; i < smallSize; ++i) {
-		smallLocations[i] = getRandomLocationFront();
+	for (auto & smallLocation : smallLocations) {
+		smallLocation = getRandomLocationFront();
 	}
 
     // Set the current time to be 0. Animation relies on specific times
@@ -582,6 +577,7 @@ int main(int argc, char* argv[])
         // KEYFRAME ANIMATION
         // Get current time
         double currentWorldTime = glfwGetTime();
+
         // Blue player keyframes
         // Since we need the current and next keyframes, make sure we stop advancing through the array when we
         // only have 2 keyframes left
@@ -615,7 +611,6 @@ int main(int argc, char* argv[])
 			float nextRotationAngle = keyframesBlue[keyframeNumBlue + 1].rotation.x;
 			float interpolatedRotationAngle = currentRotationAngle + (nextRotationAngle - currentRotationAngle) * timeProportion;
 
-
 			playerArm1.setRotation(interpolatedRotationAngle);
 
 			currentRotationAngle = keyframesBlue[keyframeNumBlue].rotation.y; // Assuming rotation is a float
@@ -627,6 +622,7 @@ int main(int argc, char* argv[])
 			nextRotationAngle = keyframesBlue[keyframeNumBlue + 1].rotation.z;
 			interpolatedRotationAngle = currentRotationAngle + (nextRotationAngle - currentRotationAngle) * timeProportion;
 			playerArm1.wristRotate = interpolatedRotationAngle;
+
 			// If the realtime clock is beyond the next keyframes time parameter, move to the next keyframe
 			if (currentWorldTime >= nextFrameTime)
 				keyframeNumBlue++;
@@ -663,7 +659,6 @@ int main(int argc, char* argv[])
 			float nextRotationAngle = keyframesRed[keyframeNumRed + 1].rotation.x;
 			float interpolatedRotationAngle = currentRotationAngle + (nextRotationAngle - currentRotationAngle) * timeProportion;
 
-
 			playerArm2.setRotation(interpolatedRotationAngle);
 
 			currentRotationAngle = keyframesRed[keyframeNumRed].rotation.y; // Assuming rotation is a float
@@ -675,11 +670,11 @@ int main(int argc, char* argv[])
 			nextRotationAngle = keyframesRed[keyframeNumRed + 1].rotation.z;
 			interpolatedRotationAngle = currentRotationAngle + (nextRotationAngle - currentRotationAngle) * timeProportion;
 			playerArm2.wristRotate = interpolatedRotationAngle;
+
 			// If the realtime clock is beyond the next keyframes time parameter, move to the next keyframe
 			if (currentWorldTime >= nextFrameTime)
 				keyframeNumRed++;
 		}
-
 
 		if (keyframeNumBall <= (sizeof(keyframesBall) / sizeof(KeyFrame)) - 2)
 		{
@@ -737,23 +732,13 @@ int main(int argc, char* argv[])
 
 			// Set the model translation in world space
 			//ball.setTranslationModel(glm::vec3(currentCoordX, currentCoordY, currentCoordZ));
-			fireworkPosition =glm::vec3((float)currentCoordX, (float)currentCoordY, (float)currentCoordZ);
+			fireworkPosition = glm::vec3((float) currentCoordX, (float) currentCoordY, (float) currentCoordZ);
 
-
-
-			//FireWorks(positiony, unitCubeAO, courtMaterial, worldMatrixLocation, colorLocation);
 			// If the realtime clock is beyond the next keyframes time parameter, move to the next keyframe
 			if (currentWorldTime >= nextFrameTime)
 				keyframeNumFireWorks++;
 		}
 
-
-
-
-
-
-
-	
         // Handle changing the score, if necessary
         handleScoring(currentWorldTime, redScore, blueScore);
 
@@ -841,7 +826,7 @@ int main(int argc, char* argv[])
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
 			grassMaterial.loadToShader();
 			grassMaterial.bindTexture();
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 153.0f / 255.0f, 51.0f / 255.0f)));
+			glUniform3fv(colorLocation, 1, &TREE_COLOR[0]);
 			Trees.RenderModeltree1();
 
 			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(-1.05, 0.0, -0.9));
@@ -849,7 +834,6 @@ int main(int argc, char* argv[])
 			letterParentTree1 = tree1Translate * tree1Scale;
 			tree1GroupMatrix = groupMatrix * letterParentTree1;
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 153.0f / 255.0f, 51.0f / 255.0f)));
 			Trees.RenderModeltree1();
 
 			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.95, 0.0, -1.6));
@@ -857,7 +841,6 @@ int main(int argc, char* argv[])
 			letterParentTree1 = tree1Translate * tree1Scale;
 			tree1GroupMatrix = groupMatrix * letterParentTree1;
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 153.0f / 255.0f, 59.0f / 255.0f)));
 			Trees.RenderModeltree1();
 
 			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.95, 0.0, -1.6));
@@ -865,7 +848,6 @@ int main(int argc, char* argv[])
 			letterParentTree1 = tree1Translate * tree1Scale;
 			tree1GroupMatrix = groupMatrix * letterParentTree1;
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 153.0f / 255.0f, 51.0f / 255.0f)));
 			Trees.RenderModeltree1();
 
 			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.55, 0.0, -1.6));
@@ -873,7 +855,6 @@ int main(int argc, char* argv[])
 			letterParentTree1 = tree1Translate * tree1Scale;
 			tree1GroupMatrix = groupMatrix * letterParentTree1;
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 150.0f / 255.0f, 51.0f / 255.0f)));
 			Trees.RenderModeltree1();
 
 			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.1, 0.0, -1.6));
@@ -881,7 +862,6 @@ int main(int argc, char* argv[])
 			letterParentTree1 = tree1Translate * tree1Scale;
 			tree1GroupMatrix = groupMatrix * letterParentTree1;
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 153.0f / 255.0f, 51.0f / 255.0f)));
 			Trees.RenderModeltree1();
 
 			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(-.45, 0.0, -1.6));
@@ -889,9 +869,7 @@ int main(int argc, char* argv[])
 			letterParentTree1 = tree1Translate * tree1Scale;
 			tree1GroupMatrix = groupMatrix * letterParentTree1;
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(55.0f / 255.0f, 153.0f / 255.0f, 51.0f / 255.0f)));
 			Trees.RenderModeltree1();
-
 
 			// This is for the grass
 			glm::mat4 grassTranslate;
@@ -899,9 +877,9 @@ int main(int argc, char* argv[])
 			glm::mat4 grassGroupMatrix;
 			glm::mat4 letterParentgrass;
 
-			for (int i = 0; i < size; i++)
+			for (auto location : locations)
 			{
-				grassTranslate = glm::translate(glm::mat4(1.0f),locations[i]);
+				grassTranslate = glm::translate(glm::mat4(1.0f),location);
 				grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.10f));
 				letterParentgrass = grassTranslate * grassScale;
 				grassGroupMatrix = groupMatrix * letterParentgrass;
@@ -910,9 +888,9 @@ int main(int argc, char* argv[])
 				Grass.RenderModelGrass();
 			}
 
-			for (int i = 0; i < smallSize; i++)
+			for (auto smallLocation : smallLocations)
 			{
-				grassTranslate = glm::translate(glm::mat4(1.0f), smallLocations[i]);
+				grassTranslate = glm::translate(glm::mat4(1.0f), smallLocation);
 				grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.10f));
 				letterParentgrass = grassTranslate * grassScale;
 				grassGroupMatrix = groupMatrix * letterParentgrass;
@@ -936,7 +914,6 @@ int main(int argc, char* argv[])
 			skinMaterial.bindTexture();
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(255.0f / 255.0f, 153.0f / 255.0f, 204.0f / 255.0f)));
 			ShortShrub.RenderModelBleacher();
-
 
 			shortshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.15, 0.0, 0.5));
 			shortshrubScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
@@ -962,7 +939,6 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(204.0f / 255.0f, 153.0f / 255.0f, 102.0f / 255.0f)));
 			ShortShrub.RenderModelBleacher();
 
-
 			// This is for the tallshrub
 			glm::mat4 tallshrubTranslate;
 			glm::mat4 tallshrubScale;
@@ -977,7 +953,6 @@ int main(int argc, char* argv[])
 			skinMaterial.bindTexture();
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(255.0f / 255.0f, 153.0f / 255.0f, 204.0f / 255.0f)));
 			TallShrub.RenderModelBleacher();
-
 
 			tallshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, 0.0, 0.5));
 			tallshrubScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.13f));
@@ -1002,7 +977,6 @@ int main(int argc, char* argv[])
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tallshrubGroupMatrix[0][0]);
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(204.0f / 255.0f, 153.0f / 255.0f, 102.0f / 255.0f)));
 			TallShrub.RenderModelBleacher();
-
 		}
 
 		{ // 2nd pass
@@ -1076,7 +1050,7 @@ int main(int argc, char* argv[])
 			Bleachers.RenderModelBleacher();
             //****************
 
-			// This is all for the tree1
+			// This is all for the tree
 			//****************
 			glm::mat4 tree1Translate;
 			glm::mat4 tree1Scale;
@@ -1089,7 +1063,7 @@ int main(int argc, char* argv[])
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
 			grassMaterial.loadToShader();
 			grassMaterial.bindTexture();
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 153.0f / 255.0f, 51.0f / 255.0f)));
+			glUniform3fv(colorLocation, 1, &TREE_COLOR[0]);
 			Trees.RenderModeltree1();
 
 			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(-1.05, 0.0, -0.9));
@@ -1097,7 +1071,6 @@ int main(int argc, char* argv[])
 			letterParentTree1 = tree1Translate * tree1Scale;
 			tree1GroupMatrix = groupMatrix * letterParentTree1;
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 153.0f / 255.0f, 51.0f / 255.0f)));
 			Trees.RenderModeltree1();
 
 			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(-0.95, 0.0, -1.6));
@@ -1105,7 +1078,6 @@ int main(int argc, char* argv[])
 			letterParentTree1 = tree1Translate * tree1Scale;
 			tree1GroupMatrix = groupMatrix * letterParentTree1;
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 153.0f / 255.0f, 59.0f / 255.0f)));
 			Trees.RenderModeltree1();
 
 			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.95, 0.0, -1.6));
@@ -1113,7 +1085,6 @@ int main(int argc, char* argv[])
 			letterParentTree1 = tree1Translate * tree1Scale;
 			tree1GroupMatrix = groupMatrix * letterParentTree1;
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 153.0f / 255.0f, 51.0f / 255.0f)));
 			Trees.RenderModeltree1();
 
 			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.55, 0.0, -1.6));
@@ -1121,7 +1092,6 @@ int main(int argc, char* argv[])
 			letterParentTree1 = tree1Translate * tree1Scale;
 			tree1GroupMatrix = groupMatrix * letterParentTree1;
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 150.0f / 255.0f, 51.0f / 255.0f)));
 			Trees.RenderModeltree1();
 
 			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.1, 0.0, -1.6));
@@ -1129,7 +1099,6 @@ int main(int argc, char* argv[])
 			letterParentTree1 = tree1Translate * tree1Scale;
 			tree1GroupMatrix = groupMatrix * letterParentTree1;
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(51.0f / 255.0f, 153.0f / 255.0f, 51.0f / 255.0f)));
 			Trees.RenderModeltree1();
 
 			tree1Translate = glm::translate(glm::mat4(1.0f), glm::vec3(-.45, 0.0, -1.6));
@@ -1137,9 +1106,7 @@ int main(int argc, char* argv[])
 			letterParentTree1 = tree1Translate * tree1Scale;
 			tree1GroupMatrix = groupMatrix * letterParentTree1;
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tree1GroupMatrix[0][0]);
-			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(55.0f / 255.0f, 153.0f / 255.0f, 51.0f / 255.0f)));
 			Trees.RenderModeltree1();
-
 
 			// This is for the grass
 			glm::mat4 grassTranslate;
@@ -1147,10 +1114,9 @@ int main(int argc, char* argv[])
 			glm::mat4 grassGroupMatrix;
 			glm::mat4 letterParentgrass;
 
-
-			for (int i = 0; i < size; i++)
+			for (auto location : locations)
 			{
-				grassTranslate = glm::translate(glm::mat4(1.0f), locations[i]);
+				grassTranslate = glm::translate(glm::mat4(1.0f), location);
 				grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.10f));
 				letterParentgrass = grassTranslate * grassScale;
 				grassGroupMatrix = groupMatrix * letterParentgrass;
@@ -1159,9 +1125,9 @@ int main(int argc, char* argv[])
 				Grass.RenderModelGrass();
 			}
 
-			for (int i = 0; i < smallSize; i++)
+			for (auto smallLocation : smallLocations)
 			{
-				grassTranslate = glm::translate(glm::mat4(1.0f), smallLocations[i]);
+				grassTranslate = glm::translate(glm::mat4(1.0f), smallLocation);
 				grassScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.10f));
 				letterParentgrass = grassTranslate * grassScale;
 				grassGroupMatrix = groupMatrix * letterParentgrass;
@@ -1224,7 +1190,6 @@ int main(int argc, char* argv[])
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(255.0f / 255.0f, 153.0f / 255.0f, 204.0f / 255.0f)));
 			TallShrub.RenderModelBleacher();
 
-
 			tallshrubTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.35, 0.0, 0.5));
 			tallshrubScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.13f));
 			letterParenttallshrub = tallshrubTranslate * tallshrubScale;
@@ -1248,16 +1213,12 @@ int main(int argc, char* argv[])
 			glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &tallshrubGroupMatrix[0][0]);
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3(204.0f / 255.0f, 153.0f / 255.0f, 102.0f / 255.0f)));
 			TallShrub.RenderModelBleacher();
-
-
-
 			//****************
-
 
 			// This is the red clay court
 			glBindVertexArray(unitCubeAO);
 			bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, -0.07, -0.0));
-			bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(50.0f, 1.0f, 50.00015f) );
+			bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(45.0f, 1.0f, 30.00015f) );
 			bleacherParent = bleacherTranslate * bleacherScale;
 			bleacherGroupMatrix = groupMatrix * bleacherParent;
 			
@@ -1270,12 +1231,6 @@ int main(int argc, char* argv[])
 			//******************
 		}
 
-		
-		//FireWorks(fireworkPosition, unitCubeAO, courtMaterial, worldMatrixLocation, colorLocation);
-
-		//FireWorks(glm::vec3(fireworkPosition.x+.75, fireworkPosition.y, fireworkPosition.z), unitCubeAO, courtMaterial, worldMatrixLocation, colorLocation);
-		//FireWorks(glm::vec3(fireworkPosition.x - .75, fireworkPosition.y, fireworkPosition.z), unitCubeAO, courtMaterial, worldMatrixLocation, colorLocation);
-		
 		if (glfwGetTime() >= 48) { //bigger TIME first
 			FireWorks(glm::vec3(fireworkPosition.x + .75, fireworkPosition.y, fireworkPosition.z - .36), unitCubeAO, courtMaterial, worldMatrixLocation, colorLocation, true);
 
@@ -1295,10 +1250,6 @@ int main(int argc, char* argv[])
 			FireWorks(glm::vec3(fireworkPosition.x - .75, fireworkPosition.y, fireworkPosition.z - .36), unitCubeAO, courtMaterial, worldMatrixLocation, colorLocation, false);
 		}
 
-
-		//FireWorks(fireworkPosition, unitCubeAO, courtMaterial, worldMatrixLocation, colorLocation);
-		//
-		//FireWorks(fireworkPosition, unitCubeAO, courtMaterial, worldMatrixLocation, colorLocation);
         // Draw and animate the crowd and the walking figures in from of the bleachers
 		crowd.animateCrowd(); //just to trigger animation
 		crowd.drawCrowd(4);
@@ -1337,8 +1288,7 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-
-void FireWorks(glm::vec3 position, GLuint unitCube,Material courtMaterial,GLint worldMatrixLocation,GLint colorLocation,bool explode) {
+void FireWorks(glm::vec3 position, GLuint unitCube, Material courtMaterial, GLint worldMatrixLocation, GLint colorLocation, bool explode) {
 
 	glBindVertexArray(unitCube);
 	//if not exploding do this
@@ -1375,7 +1325,11 @@ void FireWorks(glm::vec3 position, GLuint unitCube,Material courtMaterial,GLint 
 	else {
 		//else EXPLODE!!!!!!!
 		for (int i = 0; i < 145; i++) { //generate many random cubes using linear rand to offset position
-			glm::mat4 bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(position.x + (float)glm::linearRand(-0.30, .3), position.y - (float)glm::linearRand(0.1, .3), position.z + (float)glm::linearRand(-0.30, .3)));
+            glm::mat4 bleacherTranslate = glm::translate(glm::mat4(1.0f),
+                                                         glm::vec3(position.x + (float) glm::gaussRand(0.7f, 0.5f),
+                                                                   position.y + (float) glm::gaussRand(0.7f, 0.5f),
+                                                                   position.z + (float) glm::gaussRand(0.7f, 0.5f)));
+//			glm::mat4 bleacherTranslate = glm::translate(glm::mat4(1.0f), glm::vec3(position.x + (float)glm::linearRand(-0.30, .3), position.y + (float)glm::linearRand(0.1, .3), position.z + (float)glm::linearRand(-0.30, .3)));
 			glm::mat4 bleacherScale = glm::scale(glm::mat4(1.0f), glm::vec3(0.05f, .05f, 0.05f));
 			glm::mat4  bleacherRotate = glm::rotate(glm::mat4(1.0f), glm::radians((float)glm::linearRand(0.0, 90.0)), glm::vec3(0, 1, 0));
 			glm::mat4 bleacherParent = bleacherTranslate * bleacherScale * bleacherRotate;
@@ -1387,14 +1341,8 @@ void FireWorks(glm::vec3 position, GLuint unitCube,Material courtMaterial,GLint 
 			glUniform3fv(colorLocation, 1, glm::value_ptr(glm::vec3((float)glm::linearRand(-75, -110), (float)glm::linearRand(-75, -110), (float)glm::linearRand(-75, -110))));
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
-
-
-
 	}
-
 	glBindVertexArray(0);
-	
-
 }
 
 /**
@@ -2118,7 +2066,7 @@ bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm
 	}
 	int count = 0;
 	int indexCount = 0;
-	while (1) {
+	while (true) {
 
 		char lineHeader[128];
 		// read the first word of the line
@@ -2182,7 +2130,7 @@ bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm
 			bool norm = true;
 			char line[128];
 			getRes = fgets(line, 128, file);
-			if (getRes == 0) {
+			if (getRes == nullptr) {
 				printf("incomplete face\n");
 			}
 
@@ -2231,19 +2179,19 @@ bool loadOBJ2(const char* path, std::vector<int>& vertexIndices, std::vector<glm
 			char* getsRes = fgets(clear, 1000, file);
 		}
 	}
-	if (normalIndices.size() != 0)
+	if (!normalIndices.empty())
 		out_normals.resize(temp_normals.size());
-	if (uvIndices.size() != 0)
+	if (!uvIndices.empty())
 		out_uvs.resize(temp_uvs.size());
 	out_normals = my_normals;
 	out_uvs = temp_uvs;
 	for (unsigned int i = 0; i < vertexIndices.size(); i++) {
 		int vi = vertexIndices[i];
-		if (normalIndices.size() != 0) {
+		if (!normalIndices.empty()) {
 			int ni = normalIndices[i];
 			out_normals[vi] = temp_normals[ni];
 		}
-		if (uvIndices.size() != 0 && i < uvIndices.size()) {
+		if (!uvIndices.empty() && i < uvIndices.size()) {
 			int ui = uvIndices[i];
 			out_uvs[vi] = temp_uvs[ui];
 		}
